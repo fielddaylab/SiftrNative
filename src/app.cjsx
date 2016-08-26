@@ -1,3 +1,5 @@
+'use strict'
+
 React = {Component} = require 'react'
 { AppRegistry
 , StyleSheet
@@ -24,7 +26,6 @@ LoginBox = React.createClass
     if window.isNative
       <View style={styles.container}>
         <TextInput
-          ref="username"
           placeholder="Username"
           style={styles.input}
           autoCapitalize="none"
@@ -33,7 +34,6 @@ LoginBox = React.createClass
           onChangeText={(username) => @username = username}
         />
         <TextInput
-          ref="password"
           placeholder="Password"
           secureTextEntry={true}
           style={styles.input}
@@ -48,10 +48,20 @@ LoginBox = React.createClass
     else
       <form>
         <p>
-          <input type="text" ref="username" onKeyDown={@handleEnter} />
+          <input
+            placeholder="Username"
+            type="text"
+            ref="username"
+            onKeyDown={@handleEnter}
+          />
         </p>
         <p>
-          <input type="password" ref="password" onKeyDown={@handleEnter} />
+          <input
+            placeholder="Password"
+            type="password"
+            ref="password"
+            onKeyDown={@handleEnter}
+          />
         </p>
         <p>
           <button type="button" onClick={@doLogin}>Login</button>
@@ -66,7 +76,7 @@ LogoutBox = React.createClass
           You're logged in!
         </Text>
         <TouchableOpacity onPress={@props.onLogout}>
-          <Text>Logout</Text>
+          <Text style={styles.instructions}>Logout</Text>
         </TouchableOpacity>
       </View>
     else
@@ -79,25 +89,38 @@ LogoutBox = React.createClass
         </p>
       </div>
 
+Loading = React.createClass
+  render: ->
+    if window.isNative
+      <View style={styles.container}>
+        <Text style={styles.welcome}>Loading...</Text>
+      </View>
+    else
+      <p>Loading...</p>
+
 SiftrNative = React.createClass
   getInitialState: ->
-    auth: new Auth
+    auth: null
 
   componentWillMount: ->
     @login()
 
   login: (username, password) ->
-    @state.auth.login username, password, (newAuth) =>
+    (@state.auth ? new Auth).login username, password, (newAuth) =>
       @setState auth: newAuth
 
   logout: ->
-    @setState auth: @state.auth.logout()
+    (@state.auth ? new Auth).logout (newAuth) =>
+      @setState auth: newAuth
 
   render: ->
-    if @state.auth.authToken?
-      <LogoutBox onLogout={@logout} />
+    if @state.auth?
+      if @state.auth.authToken?
+        <LogoutBox onLogout={@logout} />
+      else
+        <LoginBox onLogin={@login} />
     else
-      <LoginBox onLogin={@login} />
+      <Loading />
 
 styles = StyleSheet?.create
   container:

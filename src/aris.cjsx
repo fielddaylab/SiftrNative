@@ -1,6 +1,8 @@
 'use strict'
 
 $ = require 'jquery'
+{ AsyncStorage
+} = require 'react-native'
 
 ARIS_URL = 'https://arisgames.org/server/'
 SIFTR_URL = window.location?.origin + '/'
@@ -138,8 +140,6 @@ class Auth
         display_name: json.display_name
         media_id:     json.media_id
         email:        json.email
-      else if (stored = window.localStorage?['aris-auth'])?
-        JSON.parse stored
       else
         null
 
@@ -175,7 +175,19 @@ class Auth
           processData: false
           type: 'POST'
           url: "#{ARIS_URL}/json.php/v2.#{func}"
-    retry 2
+    if @authToken?
+      json.auth = @authToken
+      retry 2
+    else
+      if window.isNative
+        AsyncStorage.getItem 'aris-auth', (err, result) =>
+          if result?
+            json.auth = JSON.parse result
+          retry 2
+      else
+        if (result = window.localStorage?['aris-auth'])?
+          json.auth = JSON.parse result
+        retry 2
 
   login: (username, password, cb = (->)) ->
     @call 'users.logIn',
@@ -185,22 +197,30 @@ class Auth
     , ({data: json, returnCode}) =>
       if returnCode is 0 and json.user_id isnt null
         auth = new Auth json
-        try
-          window.localStorage['aris-auth'] = JSON.stringify auth.authToken
-        catch err
-          # Private mode in iOS Safari disables local storage.
-          # just don't bother remembering the auth.
-          null
-        cb auth
+        if window.isNative
+          AsyncStorage.setItem 'aris-auth', JSON.stringify(auth.authToken), =>
+            cb auth
+        else
+          try
+            window.localStorage['aris-auth'] = JSON.stringify auth.authToken
+          catch err
+            # Private mode in iOS Safari disables local storage.
+            # just don't bother remembering the auth.
+            null
+          cb auth
       else
-        cb @logout()
+        @logout cb
 
-  logout: ->
-    try
-      window.localStorage.removeItem 'aris-auth'
-    catch err
-      null
-    new Auth
+  logout: (cb = (->)) ->
+    if window.isNative
+      AsyncStorage.removeItem 'aris-auth', =>
+        cb(new Auth)
+    else
+      try
+        window.localStorage.removeItem 'aris-auth'
+      catch err
+        null
+      cb(new Auth)
 
   # Perform an ARIS call, but then wrap a successful result with a class.
   callWrapped: (func, json, cb, wrap) ->
