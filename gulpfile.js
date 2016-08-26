@@ -15,4 +15,8 @@ gulp.task('webpack', ['cjsx'], function() {
     .pipe(gulp.dest('web/'));
 });
 
+gulp.task('watch', function () {
+  gulp.watch('src/*.cjsx', ['default']);
+});
+
 gulp.task('default', ['cjsx', 'webpack']);

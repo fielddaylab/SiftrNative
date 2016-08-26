@@ -1,3 +1,6 @@
+window.isNative = false
+window.platform = 'web'
+
 {SiftrNative} = require './app'
 React = require 'react'
 ReactDOM = require 'react-dom'
