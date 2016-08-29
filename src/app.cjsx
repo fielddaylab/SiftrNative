@@ -7,9 +7,62 @@ React = {Component} = require 'react'
 , View
 , TextInput
 , TouchableOpacity
+, ScrollView
 } = require 'react-native'
 { Auth
 } = require './aris'
+
+LoggedInContainer = React.createClass
+  render: ->
+    if window.isNative
+      <View style={styles.container}>
+        <Text>
+          Logged in as {@props.name}
+        </Text>
+        <TouchableOpacity onPress={@props.onLogout}>
+          <Text>Logout</Text>
+        </TouchableOpacity>
+        {@props.children}
+      </View>
+    else
+      <div>
+        <p>
+          Logged in as {@props.name}
+        </p>
+        <p>
+          <button type="button" onClick={@props.onLogout}>Logout</button>
+        </p>
+        {@props.children}
+      </div>
+
+GameList = React.createClass
+  render: ->
+    if window.isNative
+      if @props.games?
+        <ScrollView>
+          {
+            for game in @props.games
+              continue unless game.is_siftr
+              <Text key={game.game_id}>
+                {game.name}
+              </Text>
+          }
+        </ScrollView>
+      else
+        <Text>Loading games...</Text>
+    else
+      if @props.games?
+        <ul>
+          {
+            for game in @props.games
+              continue unless game.is_siftr
+              <li key={game.game_id}>
+                {game.name}
+              </li>
+          }
+        </ul>
+      else
+        <p>Loading games...</p>
 
 LoginBox = React.createClass
   doLogin: ->
@@ -98,16 +151,30 @@ Loading = React.createClass
     else
       <p>Loading...</p>
 
+withSuccess = (cb) -> (obj) ->
+  if obj.data? and obj.returnCode is 0
+    cb obj.data
+  else
+    console.warn JSON.stringify obj
+
 SiftrNative = React.createClass
   getInitialState: ->
     auth: null
+    games: null
 
   componentWillMount: ->
     @login()
 
+  updateGames: ->
+    @state.auth.getGamesForUser {}, withSuccess (games) =>
+      @setState {games}
+
   login: (username, password) ->
     (@state.auth ? new Auth).login username, password, (newAuth) =>
-      @setState auth: newAuth
+      @setState
+        auth: newAuth
+        games: null
+      @updateGames() if newAuth.authToken?
 
   logout: ->
     (@state.auth ? new Auth).logout (newAuth) =>
@@ -116,7 +183,9 @@ SiftrNative = React.createClass
   render: ->
     if @state.auth?
       if @state.auth.authToken?
-        <LogoutBox onLogout={@logout} />
+        <LoggedInContainer onLogout={@logout} name={@state.auth.authToken.display_name}>
+          <GameList games={@state.games} />
+        </LoggedInContainer>
       else
         <LoginBox onLogin={@login} />
     else
@@ -128,6 +197,7 @@ styles = StyleSheet?.create
     justifyContent: 'center'
     alignItems: 'stretch'
     backgroundColor: '#F5FCFF'
+    padding: 10
   welcome:
     fontSize: 20
     textAlign: 'center'
