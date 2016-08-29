@@ -1,6 +1,7 @@
 'use strict'
 
 React = {Component} = require 'react'
+# @ifdef NATIVE
 { AppRegistry
 , StyleSheet
 , Text
@@ -9,6 +10,7 @@ React = {Component} = require 'react'
 , TouchableOpacity
 , ScrollView
 } = require 'react-native'
+# @endif
 { Auth
 } = require './aris'
 
@@ -191,7 +193,8 @@ SiftrNative = React.createClass
     else
       <Loading />
 
-styles = StyleSheet?.create
+# @ifdef NATIVE
+styles = StyleSheet.create
   container:
     flex: 1
     justifyContent: 'center'
@@ -208,5 +211,6 @@ styles = StyleSheet?.create
     marginBottom: 5
   input:
     height: 50
+# @endif
 
 exports.SiftrNative = SiftrNative

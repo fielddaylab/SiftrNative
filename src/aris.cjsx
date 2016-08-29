@@ -1,8 +1,10 @@
 'use strict'
 
 $ = require 'jquery'
+# @ifdef NATIVE
 { AsyncStorage
 } = require 'react-native'
+# @endif
 
 ARIS_URL = 'https://arisgames.org/server/'
 SIFTR_URL = window.location?.origin + '/'
