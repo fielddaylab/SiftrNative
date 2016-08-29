@@ -10,9 +10,37 @@ React = {Component} = require 'react'
 , TouchableOpacity
 , ScrollView
 } = require 'react-native'
+MapView = require 'react-native-maps'
+# @endif
+# @ifdef WEB
+{default: GoogleMap} = require 'google-map-react'
 # @endif
 { Auth
 } = require './aris'
+
+MapTest = React.createClass
+  render: ->
+    if window.isNative
+      <MapView
+        style={styles.theMap}
+        initialRegion={
+          latitude: @props.lat
+          longitude: @props.lng
+          latitudeDelta: 0.05
+          longitudeDelta: 0.05
+        }
+      />
+    else
+      <div className="theMap">
+        <GoogleMap
+          defaultCenter={lat: @props.lat, lng: @props.lng}
+          defaultZoom={13}
+          bootstrapURLKeys={
+            key: 'AIzaSyDlMWLh8Ho805A5LxA_8FgPOmnHI0AL9vw'
+          }
+        >
+        </GoogleMap>
+      </div>
 
 LoggedInContainer = React.createClass
   render: ->
@@ -187,6 +215,7 @@ SiftrNative = React.createClass
       if @state.auth.authToken?
         <LoggedInContainer onLogout={@logout} name={@state.auth.authToken.display_name}>
           <GameList games={@state.games} />
+          <MapTest lat={43.0728467} lng={-89.4008642} />
         </LoggedInContainer>
       else
         <LoginBox onLogin={@login} />
@@ -211,6 +240,8 @@ styles = StyleSheet.create
     marginBottom: 5
   input:
     height: 50
+  theMap:
+    height: 400
 # @endif
 
 exports.SiftrNative = SiftrNative

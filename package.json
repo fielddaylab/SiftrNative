@@ -6,10 +6,12 @@
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
+    "google-map-react": "^0.18.3",
     "jquery": "^3.1.0",
     "react": "15.3.1",
     "react-dom": "^15.3.1",
-    "react-native": "0.32.0"
+    "react-native": "0.32.0",
+    "react-native-maps": "chrisknepper/react-native-maps#3c9a6a7"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
