@@ -1,5 +1,6 @@
 var gulp = require('gulp');
 var cjsx = require('gulp-cjsx');
+var sass = require('gulp-sass');
 var gutil = require('gulp-util');
 var webpack = require('webpack-stream');
 var preprocess = require('gulp-preprocess');
@@ -27,15 +28,21 @@ gulp.task('cjsx-web', ['pre-web'], function() {
 });
 gulp.task('webpack', ['cjsx-web'], function() {
   return gulp.src('src-web/web.js')
-    .pipe(webpack(require('./webpack.config.js')))
+    .pipe(webpack({output: {filename: 'dist.js'}}))
     .pipe(gulp.dest('web/'));
 });
 
 gulp.task('native', ['cjsx-native']);
 gulp.task('web', ['webpack']);
 
-gulp.task('watch', function () {
-  gulp.watch('src/*.cjsx', ['default']);
+gulp.task('watch', ['default'], function () {
+  return gulp.watch(['src/*.cjsx', 'scss/*.scss'], ['default']);
 });
 
-gulp.task('default', ['native', 'web']);
+gulp.task('scss', function () {
+  return gulp.src('scss/styles.scss')
+    .pipe(sass())
+    .pipe(gulp.dest('web/'));
+});
+
+gulp.task('default', ['native', 'web', 'scss']);

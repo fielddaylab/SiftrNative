@@ -1,9 +1,10 @@
 'use strict'
 
 React = {Component} = require 'react'
+T = React.PropTypes
+
 # @ifdef NATIVE
 { AppRegistry
-, StyleSheet
 , Text
 , View
 , TextInput
@@ -11,38 +12,163 @@ React = {Component} = require 'react'
 , ScrollView
 } = require 'react-native'
 MapView = require 'react-native-maps'
+{styles} = require './styles'
 # @endif
+
 # @ifdef WEB
 {default: GoogleMap} = require 'google-map-react'
 # @endif
+
+{fitBounds} = require 'google-map-react/utils'
+
 { Auth
+, Game
 } = require './aris'
 
-MapTest = React.createClass
+MapThing = React.createClass
+  render: ->
+    <div className="mapThing">
+      {@props.key2}
+    </div>
+
+SiftrView = React.createClass
+  propTypes:
+    game: T.instanceOf Game
+    auth: T.instanceOf Auth
+
+  getInitialState: ->
+    center:
+      lat: @props.game.latitude
+      lng: @props.game.longitude
+    delta:
+      if window.isNative
+        do =>
+          delta =
+            switch @props.game.zoom
+              when 13 then 0.05
+              else 0.05
+          lat: delta
+          lng: delta
+      else
+        null
+    zoom: if window.isNative then null else @props.game.zoom
+    results: null
+
+  loadResults: ->
+    @props.auth.siftrSearch
+      game_id: @props.game.game_id
+      min_latitude: @state.bounds.se.lat
+      max_latitude: @state.bounds.nw.lat
+      min_longitude: @state.bounds.nw.lng
+      max_longitude: @state.bounds.se.lng
+      limit: 50
+      zoom:
+        if window.isNative
+          # TODO do this better
+          fitBounds(@state.bounds, {width: 750, height: 750}).zoom
+        else
+          @state.zoom
+    , ({data: results, returnCode}) =>
+      if results? and returnCode is 0
+        @setState {results}
+
+  moveMapNative: ({latitude, longitude, latitudeDelta, longitudeDelta}) ->
+    @setState
+      center:
+        lat: latitude
+        lng: longitude
+      delta:
+        lat: latitudeDelta
+        lng: longitudeDelta
+      bounds:
+        nw:
+          lat: latitude + latitudeDelta
+          lng: longitude - longitudeDelta
+        se:
+          lat: latitude - latitudeDelta
+          lng: longitude + longitudeDelta
+    , => @loadResults()
+
+  moveMapWeb: ({center: {lat, lng}, zoom, bounds: {nw, se}}) ->
+    @setState
+      center: {lat, lng}
+      zoom: zoom
+      bounds: {nw, se}
+    , => @loadResults()
+
   render: ->
     if window.isNative
       <MapView
         style={styles.theMap}
-        initialRegion={
-          latitude: @props.lat
-          longitude: @props.lng
-          latitudeDelta: 0.05
-          longitudeDelta: 0.05
+        region={
+          latitude: @state.center.lat
+          longitude: @state.center.lng
+          latitudeDelta: @state.delta.lat
+          longitudeDelta: @state.delta.lng
         }
-      />
+        onRegionChange={@moveMapNative}
+      >
+      {
+        @state.results?.map_notes?.map (map_note) =>
+          <MapView.Marker
+            key={map_note.note_id}
+            coordinate={
+              latitude: map_note.latitude
+              longitude: map_note.longitude
+            }
+            title="Note"
+            description={map_note.description}
+          />
+      }
+      {
+        @state.results?.map_clusters?.map (map_cluster, i) =>
+          <MapView.Marker
+            key={i}
+            coordinate={
+              latitude: (map_cluster.min_latitude + map_cluster.max_latitude) / 2
+              longitude: (map_cluster.min_longitude + map_cluster.max_longitude) / 2
+            }
+            title="Cluster"
+            description="Tap to see the notes inside."
+          />
+      }
+      </MapView>
     else
       <div className="theMap">
         <GoogleMap
-          defaultCenter={lat: @props.lat, lng: @props.lng}
-          defaultZoom={13}
+          center={@state.center}
+          zoom={@state.zoom}
           bootstrapURLKeys={
             key: 'AIzaSyDlMWLh8Ho805A5LxA_8FgPOmnHI0AL9vw'
           }
+          onChange={@moveMapWeb}
         >
+        {
+          @state.results?.map_notes?.map (map_note) =>
+            <MapThing
+              key={map_note.note_id}
+              key2={map_note.note_id}
+              lat={map_note.latitude}
+              lng={map_note.longitude}
+            />
+        }
+        {
+          @state.results?.map_clusters?.map (map_cluster, i) =>
+            <MapThing
+              key={i}
+              key2={i}
+              lat={(map_cluster.min_latitude + map_cluster.max_latitude) / 2}
+              lng={(map_cluster.min_longitude + map_cluster.max_longitude) / 2}
+            />
+        }
         </GoogleMap>
       </div>
 
 LoggedInContainer = React.createClass
+  propTypes:
+    name: T.string
+    onLogout: T.func
+
   render: ->
     if window.isNative
       <View style={styles.container}>
@@ -66,13 +192,15 @@ LoggedInContainer = React.createClass
       </div>
 
 GameList = React.createClass
+  propTypes:
+    games: T.arrayOf T.instanceOf Game
+
   render: ->
     if window.isNative
       if @props.games?
         <ScrollView>
           {
             for game in @props.games
-              continue unless game.is_siftr
               <Text key={game.game_id}>
                 {game.name}
               </Text>
@@ -85,7 +213,6 @@ GameList = React.createClass
         <ul>
           {
             for game in @props.games
-              continue unless game.is_siftr
               <li key={game.game_id}>
                 {game.name}
               </li>
@@ -95,6 +222,9 @@ GameList = React.createClass
         <p>Loading games...</p>
 
 LoginBox = React.createClass
+  propTypes:
+    onLogin: T.func
+
   doLogin: ->
     if @props.onLogin?
       if window.isNative
@@ -151,27 +281,6 @@ LoginBox = React.createClass
         </p>
       </form>
 
-LogoutBox = React.createClass
-  render: ->
-    if window.isNative
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          You're logged in!
-        </Text>
-        <TouchableOpacity onPress={@props.onLogout}>
-          <Text style={styles.instructions}>Logout</Text>
-        </TouchableOpacity>
-      </View>
-    else
-      <div>
-        <p>
-          You're logged in!
-        </p>
-        <p>
-          <button type="button" onClick={@props.onLogout}>Logout</button>
-        </p>
-      </div>
-
 Loading = React.createClass
   render: ->
     if window.isNative
@@ -197,10 +306,13 @@ SiftrNative = React.createClass
 
   updateGames: ->
     @state.auth.getGamesForUser {}, withSuccess (games) =>
-      @setState {games}
+      @setState games:
+        game for game in games when game.is_siftr
 
   login: (username, password) ->
-    (@state.auth ? new Auth).login username, password, (newAuth) =>
+    (@state.auth ? new Auth).login username, password, (newAuth, err) =>
+      if username? and password? and not newAuth.authToken?
+        console.warn err
       @setState
         auth: newAuth
         games: null
@@ -215,33 +327,14 @@ SiftrNative = React.createClass
       if @state.auth.authToken?
         <LoggedInContainer onLogout={@logout} name={@state.auth.authToken.display_name}>
           <GameList games={@state.games} />
-          <MapTest lat={43.0728467} lng={-89.4008642} />
+          {
+            if (@state.games?.length ? 0) > 0
+              <SiftrView game={@state.games[0]} auth={@state.auth} />
+          }
         </LoggedInContainer>
       else
         <LoginBox onLogin={@login} />
     else
       <Loading />
-
-# @ifdef NATIVE
-styles = StyleSheet.create
-  container:
-    flex: 1
-    justifyContent: 'center'
-    alignItems: 'stretch'
-    backgroundColor: '#F5FCFF'
-    padding: 10
-  welcome:
-    fontSize: 20
-    textAlign: 'center'
-    margin: 10
-  instructions:
-    textAlign: 'center'
-    color: '#333333'
-    marginBottom: 5
-  input:
-    height: 50
-  theMap:
-    height: 400
-# @endif
 
 exports.SiftrNative = SiftrNative

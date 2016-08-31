@@ -1,12 +1,12 @@
 'use strict'
 
 $ = require 'jquery'
+
 # @ifdef NATIVE
 { AsyncStorage
 } = require 'react-native'
 # @endif
 
-ARIS_URL = 'https://arisgames.org/server/'
 SIFTR_URL = window.location?.origin + '/'
 
 class Game
@@ -106,25 +106,30 @@ class Note
   constructor: (json = null) ->
     if json?
       @note_id      = parseInt json.note_id
-      @user         = new User json.user
+      if json.user?
+        @user       = new User json.user
+      else
+        @user       = new User
+          user_id:      json.user_id
+          display_name: json.display_name
       @description  = json.description
       @photo_url    =
-        if parseInt(json.media.data.media_id) is 0
+        if 0 in [parseInt(json.media?.data?.media_id), parseInt(json.media_id)]
           null
         else
-          json.media.data.url
+          json.media?.url ? json.media.data.url
       @thumb_url    =
-        if parseInt(json.media.data.media_id) is 0
+        if 0 in [parseInt(json.media?.data?.media_id), parseInt(json.media_id)]
           null
         else
-          json.media.data.thumb_url
+          json.media?.big_thumb_url ? json.media.data.big_thumb_url
       @latitude     = parseFloat json.latitude
       @longitude    = parseFloat json.longitude
       @tag_id       = parseInt json.tag_id
       @created      = new Date(json.created.replace(' ', 'T') + 'Z')
       @player_liked = parseInt(json.player_liked) isnt 0
       @note_likes   = parseInt json.note_likes
-      @comments     = for o in json.comments.data
+      @comments     = for o in (json.comments?.data ? [])
         comment = new Comment o
         continue unless comment.description.match(/\S/)
         comment
@@ -148,6 +153,11 @@ class Auth
   call: (func, json, cb) ->
     if @authToken?
       json.auth = @authToken
+    ARIS_URL =
+      if window.platform is 'android'
+        'http://arisgames.org/server/'
+      else
+        'https://arisgames.org/server/'
     retry = (n) =>
       if window.isNative
         fetch "#{ARIS_URL}/json.php/v2.#{func}",
@@ -196,7 +206,8 @@ class Auth
       user_name: username
       password: password
       permission: 'read_write'
-    , ({data: json, returnCode}) =>
+    , (obj) =>
+      {data: json, returnCode} = obj
       if returnCode is 0 and json.user_id isnt null
         auth = new Auth json
         if window.isNative
@@ -211,7 +222,8 @@ class Auth
             null
           cb auth
       else
-        @logout cb
+        @logout (auth) =>
+          cb auth, obj
 
   logout: (cb = (->)) ->
     if window.isNative
@@ -236,6 +248,16 @@ class Auth
 
   searchSiftrs: (json, cb) ->
     @callWrapped 'games.searchSiftrs', json, cb, (data) -> new Game o for o in data
+
+  siftrSearch: (json, cb) ->
+    @callWrapped 'notes.siftrSearch', json, cb, (data) ->
+      console.log data
+      notes:
+        new Note o for o in data.notes
+      map_notes:
+        new Note o for o in data.map_notes
+      map_clusters:
+        data.map_clusters
 
   getTagsForGame: (json, cb) ->
     @callWrapped 'tags.getTagsForGame', json, cb, (data) -> new Tag o for o in data
@@ -273,5 +295,5 @@ class Auth
   getNoteCommentsForNote: (json, cb) ->
     @callWrapped 'note_comments.getNoteCommentsForNote', json, cb, (data) -> new Comment o for o in data
 
-for k, v of {Game, User, Tag, Comment, Note, Auth, ARIS_URL, SIFTR_URL}
+for k, v of {Game, User, Tag, Comment, Note, Auth, SIFTR_URL}
   exports[k] = v
