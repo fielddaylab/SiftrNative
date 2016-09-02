@@ -1,12 +1,20 @@
-.theMap {
+.siftr-map {
   width: 400px;
   height: 400px;
 }
 
-.mapThing {
+.siftr-map-note {
   width: 15px;
   height: 15px;
   background-color: red;
+  color: black;
+  overflow: visible;
+}
+
+.siftr-map-cluster {
+  width: 15px;
+  height: 15px;
+  background-color: green;
   color: black;
   overflow: visible;
 }

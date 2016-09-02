@@ -155,6 +155,7 @@ class Auth
       json.auth = @authToken
     ARIS_URL =
       if window.platform is 'android'
+        # TODO why is this needed?
         'http://arisgames.org/server/'
       else
         'https://arisgames.org/server/'
@@ -251,7 +252,6 @@ class Auth
 
   siftrSearch: (json, cb) ->
     @callWrapped 'notes.siftrSearch', json, cb, (data) ->
-      console.log data
       notes:
         new Note o for o in data.notes
       map_notes:

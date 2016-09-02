@@ -4,19 +4,13 @@ React = {Component} = require 'react'
 T = React.PropTypes
 
 # @ifdef NATIVE
-{ AppRegistry
-, Text
+{ Text
 , View
 , TextInput
 , TouchableOpacity
 , ScrollView
 } = require 'react-native'
-MapView = require 'react-native-maps'
 {styles} = require './styles'
-# @endif
-
-# @ifdef WEB
-{default: GoogleMap} = require 'google-map-react'
 # @endif
 
 {fitBounds} = require 'google-map-react/utils'
@@ -25,11 +19,7 @@ MapView = require 'react-native-maps'
 , Game
 } = require './aris'
 
-MapThing = React.createClass
-  render: ->
-    <div className="mapThing">
-      {@props.key2}
-    </div>
+{SiftrMap} = require './map'
 
 SiftrView = React.createClass
   propTypes:
@@ -40,18 +30,18 @@ SiftrView = React.createClass
     center:
       lat: @props.game.latitude
       lng: @props.game.longitude
-    delta:
-      if window.isNative
-        do =>
-          delta =
-            switch @props.game.zoom
-              when 13 then 0.05
-              else 0.05
-          lat: delta
-          lng: delta
-      else
-        null
-    zoom: if window.isNative then null else @props.game.zoom
+    # @ifdef NATIVE
+    delta: do =>
+      delta =
+        switch @props.game.zoom
+          when 13 then 0.05
+          else 0.05
+      lat: delta
+      lng: delta
+    # @endif
+    # @ifdef WEB
+    zoom: @props.game.zoom
+    # @endif
     results: null
 
   loadResults: ->
@@ -64,104 +54,44 @@ SiftrView = React.createClass
       limit: 50
       zoom:
         if window.isNative
-          # TODO do this better
-          fitBounds(@state.bounds, {width: 750, height: 750}).zoom
+          w = (@layout?.width ? 400) * 2
+          h = (@layout?.height ? 400) * 2
+          fitBounds(@state.bounds, {width: w, height: h}).zoom
         else
           @state.zoom
-    , ({data: results, returnCode}) =>
-      if results? and returnCode is 0
-        @setState {results}
+    , withSuccess (results) => @setState {results}
 
-  moveMapNative: ({latitude, longitude, latitudeDelta, longitudeDelta}) ->
-    @setState
-      center:
-        lat: latitude
-        lng: longitude
-      delta:
-        lat: latitudeDelta
-        lng: longitudeDelta
-      bounds:
-        nw:
-          lat: latitude + latitudeDelta
-          lng: longitude - longitudeDelta
-        se:
-          lat: latitude - latitudeDelta
-          lng: longitude + longitudeDelta
-    , => @loadResults()
-
-  moveMapWeb: ({center: {lat, lng}, zoom, bounds: {nw, se}}) ->
-    @setState
-      center: {lat, lng}
-      zoom: zoom
-      bounds: {nw, se}
-    , => @loadResults()
+  moveMap: (obj) ->
+    @setState obj, => @loadResults()
 
   render: ->
+    map = =>
+      <SiftrMap
+        map_notes={@state.results?.map_notes}
+        map_clusters={@state.results?.map_clusters}
+        onMove={@moveMap}
+        onLayout={(event) =>
+          @layout = event.nativeEvent.layout
+        }
+        center={@state.center}
+        zoom={@state.zoom}
+        delta={@state.delta}
+      />
     if window.isNative
-      <MapView
-        style={styles.theMap}
-        region={
-          latitude: @state.center.lat
-          longitude: @state.center.lng
-          latitudeDelta: @state.delta.lat
-          longitudeDelta: @state.delta.lng
-        }
-        onRegionChange={@moveMapNative}
-      >
-      {
-        @state.results?.map_notes?.map (map_note) =>
-          <MapView.Marker
-            key={map_note.note_id}
-            coordinate={
-              latitude: map_note.latitude
-              longitude: map_note.longitude
-            }
-            title="Note"
-            description={map_note.description}
-          />
-      }
-      {
-        @state.results?.map_clusters?.map (map_cluster, i) =>
-          <MapView.Marker
-            key={i}
-            coordinate={
-              latitude: (map_cluster.min_latitude + map_cluster.max_latitude) / 2
-              longitude: (map_cluster.min_longitude + map_cluster.max_longitude) / 2
-            }
-            title="Cluster"
-            description="Tap to see the notes inside."
-          />
-      }
-      </MapView>
+      <View>
+        <TouchableOpacity onPress={@props.onExit}>
+          <Text>Back to Siftrs</Text>
+        </TouchableOpacity>
+        {map()}
+      </View>
     else
-      <div className="theMap">
-        <GoogleMap
-          center={@state.center}
-          zoom={@state.zoom}
-          bootstrapURLKeys={
-            key: 'AIzaSyDlMWLh8Ho805A5LxA_8FgPOmnHI0AL9vw'
-          }
-          onChange={@moveMapWeb}
-        >
-        {
-          @state.results?.map_notes?.map (map_note) =>
-            <MapThing
-              key={map_note.note_id}
-              key2={map_note.note_id}
-              lat={map_note.latitude}
-              lng={map_note.longitude}
-            />
-        }
-        {
-          @state.results?.map_clusters?.map (map_cluster, i) =>
-            <MapThing
-              key={i}
-              key2={i}
-              lat={(map_cluster.min_latitude + map_cluster.max_latitude) / 2}
-              lng={(map_cluster.min_longitude + map_cluster.max_longitude) / 2}
-            />
-        }
-        </GoogleMap>
+      <div>
+        <p>
+          <a href="#" onClick={@props.onExit}>
+            Back to Siftrs
+          </a>
+        </p>
+        {map()}
       </div>
 
 LoggedInContainer = React.createClass
@@ -195,15 +125,20 @@ GameList = React.createClass
   propTypes:
     games: T.arrayOf T.instanceOf Game
 
+  gameClicked: (game) ->
+    (@props.onSelect ? (->))(game)
+
   render: ->
     if window.isNative
       if @props.games?
         <ScrollView>
           {
-            for game in @props.games
-              <Text key={game.game_id}>
-                {game.name}
-              </Text>
+            @props.games.map (game) =>
+              <TouchableOpacity key={game.game_id} onPress={=> @gameClicked game}>
+                <Text>
+                  {game.name}
+                </Text>
+              </TouchableOpacity>
           }
         </ScrollView>
       else
@@ -212,9 +147,11 @@ GameList = React.createClass
       if @props.games?
         <ul>
           {
-            for game in @props.games
+            @props.games.map (game) =>
               <li key={game.game_id}>
-                {game.name}
+                <a href="#" onClick={=> @gameClicked game}>
+                  {game.name}
+                </a>
               </li>
           }
         </ul>
@@ -300,6 +237,7 @@ SiftrNative = React.createClass
   getInitialState: ->
     auth: null
     games: null
+    game: null
 
   componentWillMount: ->
     @login()
@@ -326,10 +264,11 @@ SiftrNative = React.createClass
     if @state.auth?
       if @state.auth.authToken?
         <LoggedInContainer onLogout={@logout} name={@state.auth.authToken.display_name}>
-          <GameList games={@state.games} />
           {
-            if (@state.games?.length ? 0) > 0
-              <SiftrView game={@state.games[0]} auth={@state.auth} />
+            if @state.game?
+              <SiftrView game={@state.game} auth={@state.auth} onExit={=> @setState game: null} />
+            else
+              <GameList games={@state.games} onSelect={(game) => @setState {game}} />
           }
         </LoggedInContainer>
       else
