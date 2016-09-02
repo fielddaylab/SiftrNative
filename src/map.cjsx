@@ -10,16 +10,27 @@ MapView = require 'react-native-maps'
 
 # @ifdef WEB
 {default: GoogleMap} = require 'google-map-react'
+{ConicGradient} = require './conic-gradient'
 # @endif
 
 { Note
+, Colors
 } = require './aris'
+
+# Cache of gradient PNG data URLs
+allConicGradients = {}
+getConicGradient = (opts) ->
+  allConicGradients["#{opts.stops}_#{opts.size}"] ?= new ConicGradient(opts).png
 
 MapCluster = React.createClass
   propTypes:
     cluster: T.any.isRequired
     lat: T.number.isRequired
     lng: T.number.isRequired
+    getColor: T.func
+
+  getDefaultProps: ->
+    getColor: -> 'white'
 
   # @ifdef NATIVE
   render: ->
@@ -35,8 +46,20 @@ MapCluster = React.createClass
 
   # @ifdef WEB
   render: ->
-    <div className="siftr-map-cluster">
-      {'#'}
+    width = 30
+    stops = []
+    percent = 0
+    for tag_id, tag_count of @props.cluster.tags
+      percent += (tag_count / @props.cluster.note_count) * 100
+      color = @props.getColor tag_id
+      stops.push "#{color} 1 #{percent}%"
+      last_color = color
+    stops.unshift "#{last_color} 1 0%"
+    gradient = getConicGradient(stops: stops.join(', '), size: width)
+    <div className="siftr-map-cluster" style={background: "url(#{gradient})"}>
+      <span className="siftr-map-cluster-number">
+        {@props.cluster.note_count}
+      </span>
     </div>
   # @endif
 
@@ -45,6 +68,10 @@ MapNote = React.createClass
     note: T.any.isRequired
     lat: T.number.isRequired
     lng: T.number.isRequired
+    getColor: T.func
+
+  getDefaultProps: ->
+    getColor: -> 'white'
 
   # @ifdef NATIVE
   render: ->
@@ -61,7 +88,11 @@ MapNote = React.createClass
   # @ifdef WEB
   render: ->
     <div className="siftr-map-note">
-      {@props.note.note_id}
+      <div className="siftr-map-note-shadow" />
+      <div
+        className="siftr-map-note-pin"
+        style={backgroundColor: @props.getColor @props.note.tag_id}
+      />
     </div>
   # @endif
 
@@ -78,6 +109,7 @@ SiftrMap = React.createClass
     map_clusters: T.array
     onMove: T.func
     onLayout: T.func
+    getColor: T.func
 
   getDefaultProps: ->
     map_notes: []
@@ -117,21 +149,23 @@ SiftrMap = React.createClass
       onRegionChangeComplete={@moveMapNative}
     >
     {
-      @props.map_notes.map (map_note) =>
-        <MapNote
-          key={map_note.note_id}
-          lat={map_note.latitude}
-          lng={map_note.longitude}
-          note={map_note}
-        />
-    }
-    {
       @props.map_clusters.map (map_cluster, i) =>
         <MapCluster
           key={i}
           lat={(map_cluster.min_latitude + map_cluster.max_latitude) / 2}
           lng={(map_cluster.min_longitude + map_cluster.max_longitude) / 2}
           cluster={map_cluster}
+          getColor={@props.getColor}
+        />
+    }
+    {
+      @props.map_notes.map (map_note) =>
+        <MapNote
+          key={map_note.note_id}
+          lat={map_note.latitude}
+          lng={map_note.longitude}
+          note={map_note}
+          getColor={@props.getColor}
         />
     }
     </MapView>
@@ -159,21 +193,23 @@ SiftrMap = React.createClass
         }
       >
       {
-        @props.map_notes.map (map_note) =>
-          <MapNote
-            key={map_note.note_id}
-            lat={map_note.latitude}
-            lng={map_note.longitude}
-            note={map_note}
-          />
-      }
-      {
         @props.map_clusters.map (map_cluster, i) =>
           <MapCluster
             key={i}
             lat={(map_cluster.min_latitude + map_cluster.max_latitude) / 2}
             lng={(map_cluster.min_longitude + map_cluster.max_longitude) / 2}
             cluster={map_cluster}
+            getColor={@props.getColor}
+          />
+      }
+      {
+        @props.map_notes.map (map_note) =>
+          <MapNote
+            key={map_note.note_id}
+            lat={map_note.latitude}
+            lng={map_note.longitude}
+            note={map_note}
+            getColor={@props.getColor}
           />
       }
       </GoogleMap>

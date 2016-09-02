@@ -10,7 +10,12 @@ gulp.task('pre-native', function() {
     .pipe(preprocess({context: {NATIVE: true}, extension: 'coffee'}))
     .pipe(gulp.dest('src-native'));
 });
-gulp.task('cjsx-native', ['pre-native'], function() {
+gulp.task('pre-native-js', function() {
+  return gulp.src('src/*.js')
+    .pipe(preprocess({context: {NATIVE: true}}))
+    .pipe(gulp.dest('src-native'));
+});
+gulp.task('cjsx-native', ['pre-native', 'pre-native-js'], function() {
   return gulp.src('src-native/*.cjsx')
     .pipe(cjsx().on('error', gutil.log))
     .pipe(gulp.dest('src-native/'));
@@ -21,7 +26,12 @@ gulp.task('pre-web', function() {
     .pipe(preprocess({context: {WEB: true}, extension: 'coffee'}))
     .pipe(gulp.dest('src-web'));
 });
-gulp.task('cjsx-web', ['pre-web'], function() {
+gulp.task('pre-web-js', function() {
+  return gulp.src('src/*.js')
+    .pipe(preprocess({context: {WEB: true}}))
+    .pipe(gulp.dest('src-web'));
+});
+gulp.task('cjsx-web', ['pre-web', 'pre-web-js'], function() {
   return gulp.src('src-web/*.cjsx')
     .pipe(cjsx().on('error', gutil.log))
     .pipe(gulp.dest('src-web/'));
@@ -36,7 +46,7 @@ gulp.task('native', ['cjsx-native']);
 gulp.task('web', ['webpack']);
 
 gulp.task('watch', ['default'], function () {
-  return gulp.watch(['src/*.cjsx', 'scss/*.scss'], ['default']);
+  return gulp.watch(['src/*.cjsx', 'src/*.js', 'scss/*.scss'], ['default']);
 });
 
 gulp.task('scss', function () {

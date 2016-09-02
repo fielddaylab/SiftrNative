@@ -17,6 +17,7 @@ T = React.PropTypes
 
 { Auth
 , Game
+, Tag
 } = require './aris'
 
 {SiftrMap} = require './map'
@@ -43,6 +44,30 @@ SiftrView = React.createClass
     zoom: @props.game.zoom
     # @endif
     results: null
+    tags: null
+    colors: null
+
+  componentWillMount: ->
+    @props.auth.getTagsForGame
+      game_id: @props.game.game_id
+    , withSuccess (tags) =>
+      @setState {tags}
+    @props.auth.getColors
+      colors_id: @props.game.colors_id ? 1
+    , withSuccess (colors) =>
+      @setState {colors}
+
+  getColor: (x) ->
+    return 'white' unless @state.tags? and @state.colors?
+    if x instanceof Tag
+      tag = x
+    else if x.tag_id?
+      tag = (tag for tag in @state.tags when tag.tag_id is parseInt(x.tag_id))[0]
+    else if typeof x in ['number', 'string']
+      tag = (tag for tag in @state.tags when tag.tag_id is parseInt x)[0]
+    else
+      return 'white'
+    @state.colors["tag_#{@state.tags.indexOf(tag) % 8 + 1}"] ? 'white'
 
   loadResults: ->
     @props.auth.siftrSearch
@@ -76,6 +101,7 @@ SiftrView = React.createClass
         center={@state.center}
         zoom={@state.zoom}
         delta={@state.delta}
+        getColor={@getColor}
       />
     if window.isNative
       <View>

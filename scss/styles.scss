@@ -3,18 +3,62 @@
   height: 400px;
 }
 
-.siftr-map-note {
-  width: 15px;
-  height: 15px;
-  background-color: red;
-  color: black;
-  overflow: visible;
-}
+$small-cluster-width: 30px;
 
 .siftr-map-cluster {
-  width: 15px;
-  height: 15px;
-  background-color: green;
-  color: black;
-  overflow: visible;
+  margin-left: -1 * ($small-cluster-width / 2);
+  margin-top: -1 * ($small-cluster-width / 2);
+  width: $small-cluster-width;
+  height: $small-cluster-width;
+  color: white;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+  cursor: pointer;
+  text-align: center;
+  display: table;
+  font-weight: bold;
+  font-size: $small-cluster-width / 2;
+  border-radius: $small-cluster-width / 2;
+}
+
+.siftr-map-cluster-number {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+$small-pin-width: 20px;
+$small-pin-radius: $small-pin-width * 0.6;
+
+.siftr-map-note {
+  position: relative;
+}
+
+.siftr-map-note-shadow {
+  background-color: black;
+  width: $small-pin-width / 2;
+  height: $small-pin-width / 4;
+  left: -1 * ($small-pin-width / 4);
+  top: -1 * ($small-pin-width / 8);
+  border-radius: $small-pin-width / 4;
+  opacity: 0.4;
+  box-shadow: 0px 0px 20px 10px black;
+  position: absolute;
+}
+
+$sqrt2: 1.4142135;
+
+.siftr-map-note-pin {
+  position: absolute;
+  top: -1 * ($small-pin-width * $sqrt2 * 0.95);
+  left: -1 * ($small-pin-width * $sqrt2 * 0.45);
+  width: $small-pin-width;
+  height: $small-pin-width;
+  background-color: blue;
+  border: 2px solid white;
+  cursor: pointer;
+  border-radius: $small-pin-radius $small-pin-radius $small-pin-radius 0;
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  transform: rotate(-45deg);
 }
