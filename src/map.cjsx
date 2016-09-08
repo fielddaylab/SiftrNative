@@ -6,6 +6,7 @@ T = React.PropTypes
 # @ifdef NATIVE
 MapView = require 'react-native-maps'
 {styles} = require './styles'
+{Alert} = require 'react-native'
 # @endif
 
 # @ifdef WEB
@@ -80,6 +81,12 @@ MapNote = React.createClass
 
   # @ifdef NATIVE
   render: ->
+    press = switch window.platform
+      when 'ios'
+        # onPress does not appear to work on iOS
+        onSelect: => @props.onSelect @props.note
+      when 'android'
+        onPress: => @props.onSelect @props.note # TODO test this
     <MapView.Marker
       coordinate={
         latitude: @props.lat
@@ -88,8 +95,12 @@ MapNote = React.createClass
       title="Note"
       description={@props.note.description}
       pinColor={@props.getColor @props.note.tag_id}
-      onPress={=> @props.onSelect @props.note}
-    />
+      {...press}
+    >
+      {
+        null # <MapView.Callout tooltip={true} />
+      }
+    </MapView.Marker>
   # @endif
 
   # @ifdef WEB

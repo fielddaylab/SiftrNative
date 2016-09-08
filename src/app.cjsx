@@ -22,6 +22,7 @@ T = React.PropTypes
 
 {SiftrMap} = require './map'
 {SiftrThumbnails} = require './thumbnails'
+{SiftrNoteView} = require './note-view'
 
 {clicker} = require './utils'
 
@@ -49,6 +50,7 @@ SiftrView = React.createClass
     results: null
     tags: null
     colors: null
+    viewingNote: null
 
   componentWillMount: ->
     @props.auth.getTagsForGame
@@ -92,55 +94,68 @@ SiftrView = React.createClass
   moveMap: (obj) ->
     @setState obj, => @loadResults()
 
-  # @ifdef NATIVE
   selectNote: (note) ->
-    null # TODO
+    @setState viewingNote: note
+
+  renderNoteView: ->
+    if @state.viewingNote?
+      <SiftrNoteView
+        note={@state.viewingNote}
+        onClose={=> @setState viewingNote: null}
+      />
+    else
+      if window.isNative
+        <Text>No note open.</Text>
+      else
+        <p>No note open.</p>
+
+  renderMap: ->
+    <SiftrMap
+      map_notes={@state.results?.map_notes}
+      map_clusters={@state.results?.map_clusters}
+      onMove={@moveMap}
+      onLayout={(event) =>
+        @layout = event.nativeEvent.layout
+      }
+      center={@state.center}
+      zoom={@state.zoom}
+      delta={@state.delta}
+      getColor={@getColor}
+      onSelectNote={@selectNote}
+    />
+
+  renderThumbnails: ->
+    <SiftrThumbnails
+      notes={@state.results?.notes}
+      getColor={@getColor}
+      onSelectNote={@selectNote}
+    />
+
+  # @ifdef NATIVE
+  render: ->
+    <View>
+      <TouchableOpacity onPress={@props.onExit}>
+        <Text>Back to Siftrs</Text>
+      </TouchableOpacity>
+      {@renderMap()}
+      {@renderThumbnails()}
+      {@renderNoteView()}
+    </View>
   # @endif
 
   # @ifdef WEB
-  selectNote: (note) ->
-    console.log note # TODO
-  # @endif
-
   render: ->
-    map = =>
-      <SiftrMap
-        map_notes={@state.results?.map_notes}
-        map_clusters={@state.results?.map_clusters}
-        onMove={@moveMap}
-        onLayout={(event) =>
-          @layout = event.nativeEvent.layout
-        }
-        center={@state.center}
-        zoom={@state.zoom}
-        delta={@state.delta}
-        getColor={@getColor}
-        onSelectNote={@selectNote}
-      />
-    thumbs = =>
-      <SiftrThumbnails
-        notes={@state.results?.notes}
-        getColor={@getColor}
-        onSelectNote={@selectNote}
-      />
-    if window.isNative
-      <View>
-        <TouchableOpacity onPress={@props.onExit}>
-          <Text>Back to Siftrs</Text>
-        </TouchableOpacity>
-        {map()}
-        {thumbs()}
-      </View>
-    else
-      <div>
-        <p>
-          <a href="#" onClick={clicker @props.onExit}>
-            Back to Siftrs
-          </a>
-        </p>
-        {map()}
-        {thumbs()}
-      </div>
+    <div>
+      <p>
+        <a href="#" onClick={clicker @props.onExit}>
+          Back to Siftrs
+        </a>
+      </p>
+      {@renderMap()}
+      {@renderThumbnails()}
+      {@renderNoteView()}
+    </div>
+  # @endif
 
 LoggedInContainer = React.createClass
   propTypes:
