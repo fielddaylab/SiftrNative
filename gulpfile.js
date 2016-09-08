@@ -17,7 +17,7 @@ gulp.task('pre-native-js', function() {
 });
 gulp.task('cjsx-native', ['pre-native', 'pre-native-js'], function() {
   return gulp.src('src-native/*.cjsx')
-    .pipe(cjsx().on('error', gutil.log))
+    .pipe(cjsx())
     .pipe(gulp.dest('src-native/'));
 });
 
@@ -33,7 +33,7 @@ gulp.task('pre-web-js', function() {
 });
 gulp.task('cjsx-web', ['pre-web', 'pre-web-js'], function() {
   return gulp.src('src-web/*.cjsx')
-    .pipe(cjsx().on('error', gutil.log))
+    .pipe(cjsx())
     .pipe(gulp.dest('src-web/'));
 });
 gulp.task('webpack', ['cjsx-web'], function() {

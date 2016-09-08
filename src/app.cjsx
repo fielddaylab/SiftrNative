@@ -21,6 +21,9 @@ T = React.PropTypes
 } = require './aris'
 
 {SiftrMap} = require './map'
+{SiftrThumbnails} = require './thumbnails'
+
+{clicker} = require './utils'
 
 SiftrView = React.createClass
   propTypes:
@@ -36,7 +39,7 @@ SiftrView = React.createClass
       delta =
         switch @props.game.zoom
           when 13 then 0.05
-          else 0.05
+          else 0.05 # TODO
       lat: delta
       lng: delta
     # @endif
@@ -89,6 +92,16 @@ SiftrView = React.createClass
   moveMap: (obj) ->
     @setState obj, => @loadResults()
 
+  # @ifdef NATIVE
+  selectNote: (note) ->
+    null # TODO
+  # @endif
+
+  # @ifdef WEB
+  selectNote: (note) ->
+    console.log note # TODO
+  # @endif
+
   render: ->
     map = =>
       <SiftrMap
@@ -102,6 +115,13 @@ SiftrView = React.createClass
         zoom={@state.zoom}
         delta={@state.delta}
         getColor={@getColor}
+        onSelectNote={@selectNote}
+      />
+    thumbs = =>
+      <SiftrThumbnails
+        notes={@state.results?.notes}
+        getColor={@getColor}
+        onSelectNote={@selectNote}
       />
     if window.isNative
       <View>
@@ -109,15 +129,17 @@ SiftrView = React.createClass
           <Text>Back to Siftrs</Text>
         </TouchableOpacity>
         {map()}
+        {thumbs()}
       </View>
     else
       <div>
         <p>
-          <a href="#" onClick={@props.onExit}>
+          <a href="#" onClick={clicker @props.onExit}>
             Back to Siftrs
           </a>
         </p>
         {map()}
+        {thumbs()}
       </div>
 
 LoggedInContainer = React.createClass
@@ -142,7 +164,7 @@ LoggedInContainer = React.createClass
           Logged in as {@props.name}
         </p>
         <p>
-          <button type="button" onClick={@props.onLogout}>Logout</button>
+          <button type="button" onClick={clicker @props.onLogout}>Logout</button>
         </p>
         {@props.children}
       </div>
@@ -150,9 +172,11 @@ LoggedInContainer = React.createClass
 GameList = React.createClass
   propTypes:
     games: T.arrayOf T.instanceOf Game
+    onSelect: T.func
 
-  gameClicked: (game) ->
-    (@props.onSelect ? (->))(game)
+  getDefaultProps: ->
+    games: null
+    onSelect: (->)
 
   render: ->
     if window.isNative
@@ -160,7 +184,7 @@ GameList = React.createClass
         <ScrollView>
           {
             @props.games.map (game) =>
-              <TouchableOpacity key={game.game_id} onPress={=> @gameClicked game}>
+              <TouchableOpacity key={game.game_id} onPress={=> @props.onSelect game}>
                 <Text>
                   {game.name}
                 </Text>
@@ -175,7 +199,7 @@ GameList = React.createClass
           {
             @props.games.map (game) =>
               <li key={game.game_id}>
-                <a href="#" onClick={=> @gameClicked game}>
+                <a href="#" onClick={clicker => @props.onSelect game}>
                   {game.name}
                 </a>
               </li>
@@ -240,7 +264,7 @@ LoginBox = React.createClass
           />
         </p>
         <p>
-          <button type="button" onClick={@doLogin}>Login</button>
+          <button type="button" onClick={clicker @doLogin}>Login</button>
         </p>
       </form>
 

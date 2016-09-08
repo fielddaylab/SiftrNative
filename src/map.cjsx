@@ -17,6 +17,8 @@ MapView = require 'react-native-maps'
 , Colors
 } = require './aris'
 
+{clicker} = require './utils'
+
 # Cache of gradient PNG data URLs
 allConicGradients = {}
 getConicGradient = (opts) ->
@@ -41,6 +43,7 @@ MapCluster = React.createClass
       }
       title="Cluster"
       description="Tap to see the notes inside."
+      pinColor="black"
     />
   # @endif
 
@@ -69,9 +72,11 @@ MapNote = React.createClass
     lat: T.number.isRequired
     lng: T.number.isRequired
     getColor: T.func
+    onSelect: T.func
 
   getDefaultProps: ->
     getColor: -> 'white'
+    onSelect: (->)
 
   # @ifdef NATIVE
   render: ->
@@ -82,6 +87,8 @@ MapNote = React.createClass
       }
       title="Note"
       description={@props.note.description}
+      pinColor={@props.getColor @props.note.tag_id}
+      onPress={=> @props.onSelect @props.note}
     />
   # @endif
 
@@ -92,6 +99,7 @@ MapNote = React.createClass
       <div
         className="siftr-map-note-pin"
         style={backgroundColor: @props.getColor @props.note.tag_id}
+        onClick={clicker => @props.onSelect @props.note}
       />
     </div>
   # @endif
@@ -109,6 +117,7 @@ SiftrMap = React.createClass
     map_clusters: T.array
     onMove: T.func
     onLayout: T.func
+    onSelectNote: T.func
     getColor: T.func
 
   getDefaultProps: ->
@@ -116,8 +125,30 @@ SiftrMap = React.createClass
     map_clusters: []
     onMove: (->)
     onLayout: (->)
+    onSelectNote: (->)
 
   getInitialState: -> {}
+
+  renderClusters: ->
+    @props.map_clusters.map (map_cluster, i) =>
+      <MapCluster
+        key={i}
+        lat={(map_cluster.min_latitude + map_cluster.max_latitude) / 2}
+        lng={(map_cluster.min_longitude + map_cluster.max_longitude) / 2}
+        cluster={map_cluster}
+        getColor={@props.getColor}
+      />
+
+  renderNotes: ->
+    @props.map_notes.map (map_note) =>
+      <MapNote
+        key={map_note.note_id}
+        lat={map_note.latitude}
+        lng={map_note.longitude}
+        note={map_note}
+        getColor={@props.getColor}
+        onSelect={@props.onSelectNote}
+      />
 
   # @ifdef NATIVE
   moveMapNative: ({latitude, longitude, latitudeDelta, longitudeDelta}) ->
@@ -148,26 +179,8 @@ SiftrMap = React.createClass
       }
       onRegionChangeComplete={@moveMapNative}
     >
-    {
-      @props.map_clusters.map (map_cluster, i) =>
-        <MapCluster
-          key={i}
-          lat={(map_cluster.min_latitude + map_cluster.max_latitude) / 2}
-          lng={(map_cluster.min_longitude + map_cluster.max_longitude) / 2}
-          cluster={map_cluster}
-          getColor={@props.getColor}
-        />
-    }
-    {
-      @props.map_notes.map (map_note) =>
-        <MapNote
-          key={map_note.note_id}
-          lat={map_note.latitude}
-          lng={map_note.longitude}
-          note={map_note}
-          getColor={@props.getColor}
-        />
-    }
+      {@renderClusters()}
+      {@renderNotes()}
     </MapView>
   # @endif
 
@@ -192,26 +205,8 @@ SiftrMap = React.createClass
             [{"featureType":"all","stylers":[{"saturation":0},{"hue":"#e7ecf0"}]},{"featureType":"road","stylers":[{"saturation":-70}]},{"featureType":"transit","stylers":[{"visibility":"off"}]},{"featureType":"poi","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"simplified"},{"saturation":-60}]}]
         }
       >
-      {
-        @props.map_clusters.map (map_cluster, i) =>
-          <MapCluster
-            key={i}
-            lat={(map_cluster.min_latitude + map_cluster.max_latitude) / 2}
-            lng={(map_cluster.min_longitude + map_cluster.max_longitude) / 2}
-            cluster={map_cluster}
-            getColor={@props.getColor}
-          />
-      }
-      {
-        @props.map_notes.map (map_note) =>
-          <MapNote
-            key={map_note.note_id}
-            lat={map_note.latitude}
-            lng={map_note.longitude}
-            note={map_note}
-            getColor={@props.getColor}
-          />
-      }
+        {@renderClusters()}
+        {@renderNotes()}
       </GoogleMap>
     </div>
   # @endif

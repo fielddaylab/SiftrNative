@@ -62,3 +62,22 @@ $sqrt2: 1.4142135;
   -o-transform: rotate(-45deg);
   transform: rotate(-45deg);
 }
+
+.siftr-thumbnail {
+  background-size: cover;
+  background-position: center;
+  height: 150px;
+  width: 150px;
+  display: inline-block;
+  margin: 4px;
+  position: relative;
+}
+
+.siftr-thumbnail-dot {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  height: 15px;
+  width: 15px;
+  border-radius: 999px;
+}

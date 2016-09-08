@@ -1,6 +1,8 @@
 'use strict'
 
+# @ifdef WEB
 $ = require 'jquery'
+# @endif
 
 # @ifdef NATIVE
 { AsyncStorage
