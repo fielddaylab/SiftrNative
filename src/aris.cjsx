@@ -9,8 +9,6 @@ $ = require 'jquery'
 } = require 'react-native'
 # @endif
 
-SIFTR_URL = window.location?.origin + '/'
-
 class Game
   constructor: (json) ->
     if json?
@@ -108,6 +106,7 @@ class Note
   constructor: (json = null) ->
     if json?
       @note_id      = parseInt json.note_id
+      @game_id      = parseInt json.game_id
       if json.user?
         @user       = new User json.user
       else
@@ -155,12 +154,7 @@ class Auth
   call: (func, json, cb) ->
     if @authToken?
       json.auth = @authToken
-    ARIS_URL =
-      if window.platform is 'android'
-        # TODO why is this needed?
-        'http://arisgames.org/server/'
-      else
-        'https://arisgames.org/server/'
+    ARIS_URL = 'https://arisgames.org/server/'
     retry = (n) =>
       if window.isNative
         fetch "#{ARIS_URL}/json.php/v2.#{func}",
@@ -297,5 +291,5 @@ class Auth
   getNoteCommentsForNote: (json, cb) ->
     @callWrapped 'note_comments.getNoteCommentsForNote', json, cb, (data) -> new Comment o for o in data
 
-for k, v of {Game, User, Tag, Comment, Note, Auth, SIFTR_URL}
+for k, v of {Game, User, Tag, Comment, Note, Auth}
   exports[k] = v

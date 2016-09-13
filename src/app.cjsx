@@ -24,7 +24,7 @@ T = React.PropTypes
 {SiftrThumbnails} = require './thumbnails'
 {SiftrNoteView} = require './note-view'
 
-{clicker} = require './utils'
+{clicker, withSuccess} = require './utils'
 
 SiftrView = React.createClass
   propTypes:
@@ -102,6 +102,7 @@ SiftrView = React.createClass
       <SiftrNoteView
         note={@state.viewingNote}
         onClose={=> @setState viewingNote: null}
+        auth={@props.auth}
       />
     else
       if window.isNative
@@ -291,12 +292,6 @@ Loading = React.createClass
       </View>
     else
       <p>Loading...</p>
-
-withSuccess = (cb) -> (obj) ->
-  if obj.data? and obj.returnCode is 0
-    cb obj.data
-  else
-    console.warn JSON.stringify obj
 
 SiftrNative = React.createClass
   getInitialState: ->
