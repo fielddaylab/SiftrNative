@@ -1,3 +1,5 @@
+'use strict'
+
 clicker = (fn) -> (e) ->
   e.preventDefault()
   fn e

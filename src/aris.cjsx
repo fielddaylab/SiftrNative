@@ -1,9 +1,5 @@
 'use strict'
 
-# @ifdef WEB
-$ = require 'jquery'
-# @endif
-
 # @ifdef NATIVE
 { AsyncStorage
 } = require 'react-native'
@@ -156,6 +152,11 @@ class Auth
       json.auth = @authToken
     ARIS_URL = 'https://arisgames.org/server/'
     retry = (n) =>
+      handleError = (error) =>
+        if n is 0
+          cb {error}
+        else
+          retry(n - 1)
       if window.isNative
         fetch "#{ARIS_URL}/json.php/v2.#{func}",
           method: 'POST'
@@ -165,25 +166,19 @@ class Auth
           body: JSON.stringify json
         .then (response) => response.json()
         .then (responseJson) => cb responseJson
-        .catch (err) =>
-          if n is 0
-            cb [err]
-          else
-            retry(n - 1)
+        .catch handleError
       else
-        $.ajax
-          contentType: 'application/json'
-          data: JSON.stringify json
-          dataType: 'json'
-          success: cb
-          error: (jqxhr, status, err) =>
-            if n is 0
-              cb [status, err]
-            else
-              retry(n - 1)
-          processData: false
-          type: 'POST'
-          url: "#{ARIS_URL}/json.php/v2.#{func}"
+        req = new XMLHttpRequest
+        req.open 'POST', "#{ARIS_URL}/json.php/v2.#{func}", true
+        req.setRequestHeader 'Content-Type',
+          'application/json; charset=UTF-8'
+        req.onload = =>
+          if 200 <= req.status < 400
+            cb JSON.parse req.responseText
+          else
+            handleError req.status
+        req.onerror = => handleError "Could not connect to Siftr"
+        req.send JSON.stringify json
     if @authToken?
       json.auth = @authToken
       retry 2

@@ -32,8 +32,9 @@ SiftrNoteView = React.createClass
     @loadComments()
 
   componentWillReceiveProps: (nextProps) ->
-    @setState comments: null
-    @loadComments nextProps.note
+    if @props.note.note_id isnt nextProps.note.note_id
+      @setState comments: null
+      @loadComments nextProps.note
 
   loadComments: (note = @props.note) ->
     @props.auth.getNoteCommentsForNote

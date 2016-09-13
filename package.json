@@ -7,7 +7,6 @@
   },
   "dependencies": {
     "google-map-react": "^0.18.3",
-    "jquery": "^3.1.0",
     "react": "15.3.1",
     "react-dom": "^15.3.1",
     "react-native": "0.32.0",

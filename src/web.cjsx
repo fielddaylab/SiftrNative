@@ -1,3 +1,5 @@
+'use strict'
+
 window.isNative = false
 window.platform = 'web'
 
