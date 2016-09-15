@@ -3,18 +3,127 @@
 React = require 'react'
 T = React.PropTypes
 
-# @ifdef NATIVE
-{ Text
-, View
-, TouchableOpacity
-} = require 'react-native'
-# @endif
-
 { Note
 , Auth
+, Comment
 } = require './aris'
 
-{clicker, withSuccess} = require './utils'
+{clicker, withSuccess, P, UL, LI, DIV, BUTTON} = require './utils'
+
+SiftrCommentInput = React.createClass
+  propTypes:
+    defaultText: T.string
+    canCancel: T.bool
+    onSave: T.func
+    onCancel: T.func
+
+  getDefaultProps: ->
+    defaultText: ''
+    canCancel: false
+    onSave: (->)
+    onCancel: (->)
+
+  doSave: ->
+    @props.onSave @refs.input.value
+
+  # @ifdef NATIVE
+  render: ->
+    null # TODO
+  # @endif
+
+  # @ifdef WEB
+  render: ->
+    <p>
+      <input type="text" defaultValue={@props.defaultText} ref="input" />
+      <button onClick={clicker => @doSave()}>Save</button>
+      {
+        if @props.canCancel
+          <button onClick={clicker @props.onCancel}>Cancel</button>
+        else
+          null
+      }
+    </p>
+  # @endif
+
+SiftrComment = React.createClass
+  propTypes:
+    note: T.instanceOf(Note).isRequired
+    comment: T.instanceOf(Comment).isRequired
+    auth: T.instanceOf(Auth).isRequired
+    onEdit: T.func
+
+  getDefaultProps: ->
+    onEdit: (->)
+
+  getInitialState: ->
+    editing: false
+
+  render: ->
+    if @state.editing
+      <SiftrCommentInput
+        defaultText={@props.comment.description}
+        canCancel={true}
+        onCancel={=> @setState editing: false}
+        onSave={(text) =>
+          @setState editing: false
+          @props.onEdit text
+        }
+      />
+    else
+      <DIV>
+        <P>{ @props.comment.description }</P>
+        {
+          if @props.auth.authToken?.user_id is @props.comment.user.user_id
+            <BUTTON onClick={=> @setState editing: true}>
+              <P>[EDIT]</P>
+            </BUTTON>
+          else
+            null
+        }
+      </DIV>
+
+SiftrComments = React.createClass
+  propTypes:
+    note: T.instanceOf(Note).isRequired
+    comments: T.arrayOf(T.instanceOf Comment).isRequired
+    auth: T.instanceOf(Auth).isRequired
+    onEditComment: T.func
+    onNewComment: T.func
+
+  getDefaultProps: ->
+    onEditComment: (->)
+    onNewComment: (->)
+
+  render: ->
+    <DIV>
+      {
+        if @props.comments.length is 0
+          <P>No comments.</P>
+        else
+          <UL>
+            {
+              @props.comments.map (comment) =>
+                <LI key={comment.comment_id}>
+                  <SiftrComment
+                    comment={comment}
+                    note={@props.note}
+                    auth={@props.auth}
+                    onEdit={(text) => @props.onEditComment comment, text}
+                  />
+                </LI>
+            }
+          </UL>
+      }
+      {
+        if @props.auth.authToken?
+          <SiftrCommentInput
+            canCancel={false}
+            onSave={@props.onNewComment}
+          />
+        else
+          <P>Log in to write a comment.</P>
+      }
+    </DIV>
 
 SiftrNoteView = React.createClass
   propTypes:
@@ -44,46 +153,37 @@ SiftrNoteView = React.createClass
       if @props.note.note_id is note.note_id
         @setState {comments}
 
-  # @ifdef NATIVE
-  render: ->
-    <View>
-      <Text>{@props.note.description}</Text>
-      {
-        if @state.comments is null
-          <Text>Loading comments...</Text>
-        else if @state.comments.length is 0
-          <Text>No comments.</Text>
-        else
-          <View>
-            {
-              <Text key={comment.comment_id}>{comment.description}</Text> for comment in @state.comments
-            }
-          </View>
-      }
-      <TouchableOpacity onPress={@props.onClose}>
-        <Text>Close Note</Text>
-      </TouchableOpacity>
-    </View>
-  # @endif
+  doNewComment: (text) ->
+    @props.auth.createNoteComment
+      game_id: @props.note.game_id
+      note_id: @props.note.note_id
+      description: text
+    , withSuccess => @loadComments()
 
-  # @ifdef WEB
+  doEditComment: (comment, text) ->
+    @props.auth.updateNoteComment
+      note_comment_id: comment.comment_id
+      description: text
+    , withSuccess => @loadComments()
+
   render: ->
-    <div>
-      <p>{@props.note.description}</p>
+    <DIV>
+      <P>{@props.note.description}</P>
       {
         if @state.comments is null
-          <p>Loading comments...</p>
-        else if @state.comments.length is 0
-          <p>No comments.</p>
+          <P>Loading comments...</P>
         else
-          <ul>
-            {
-              <li key={comment.comment_id}>{comment.description}</li> for comment in @state.comments
-            }
-          </ul>
+          <SiftrComments
+            note={@props.note}
+            auth={@props.auth}
+            comments={@state.comments ? []}
+            onEditComment={@doEditComment}
+            onNewComment={@doNewComment}
+          />
       }
-      <a href="#" onClick={clicker @props.onClose}>Close Note</a>
-    </div>
-  # @endif
+      <BUTTON onClick={@props.onClose}>
+        <P>Close Note</P>
+      </BUTTON>
+    </DIV>
 
 exports.SiftrNoteView = SiftrNoteView
