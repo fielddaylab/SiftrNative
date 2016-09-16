@@ -34,7 +34,7 @@ SiftrCommentInput = React.createClass
   # @ifdef WEB
   render: ->
     <p>
-      <input type="text" defaultValue={@props.defaultText} ref="input" />
+      <input placeholder="Enter a comment" type="text" defaultValue={@props.defaultText} ref="input" />
       <button onClick={clicker => @doSave()}>Save</button>
       {
         if @props.canCancel
@@ -71,7 +71,9 @@ SiftrComment = React.createClass
       />
     else
       <DIV>
-        <P>{ @props.comment.description }</P>
+        <P>
+          [{ @props.comment.user.display_name }, { @props.comment.created.toLocaleString() }] { @props.comment.description }
+        </P>
         {
           if @props.auth.authToken?.user_id is @props.comment.user.user_id
             <BUTTON onClick={=> @setState editing: true}>
@@ -130,9 +132,11 @@ SiftrNoteView = React.createClass
     note: T.instanceOf(Note).isRequired
     onClose: T.func
     auth: T.instanceOf(Auth).isRequired
+    onDelete: T.func
 
   getDefaultProps: ->
     onClose: (->)
+    onDelete: (->)
 
   getInitialState: ->
     comments: null
@@ -168,6 +172,17 @@ SiftrNoteView = React.createClass
 
   render: ->
     <DIV>
+      {
+      # @ifdef WEB
+        <p>
+          <img src={@props.note.photo_url} />
+        </p>
+      # @endif
+      # @ifdef NATIVE
+        null
+      # @endif
+      }
+      <P>Posted by {@props.note.user.display_name} at {@props.note.created.toLocaleString()}</P>
       <P>{@props.note.description}</P>
       {
         if @state.comments is null

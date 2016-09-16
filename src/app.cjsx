@@ -1,6 +1,6 @@
 'use strict'
 
-React = {Component} = require 'react'
+React = require 'react'
 T = React.PropTypes
 
 # @ifdef NATIVE
@@ -23,8 +23,9 @@ T = React.PropTypes
 {SiftrMap} = require './map'
 {SiftrThumbnails} = require './thumbnails'
 {SiftrNoteView} = require './note-view'
+{CreateStep1} = require './create-note'
 
-{clicker, withSuccess} = require './utils'
+{clicker, withSuccess, DIV, P, BUTTON} = require './utils'
 
 SiftrView = React.createClass
   propTypes:
@@ -51,6 +52,7 @@ SiftrView = React.createClass
     tags: null
     colors: null
     viewingNote: null
+    createNote: null
 
   componentWillMount: ->
     @props.auth.getTagsForGame
@@ -97,12 +99,20 @@ SiftrView = React.createClass
   selectNote: (note) ->
     @setState viewingNote: note
 
+  deleteNote: (note) ->
+    @props.auth.call 'notes.deleteNote',
+      note_id: note.note_id
+    , withSuccess =>
+      @setState viewingNote: null
+      @loadResults()
+
   renderNoteView: ->
     if @state.viewingNote?
       <SiftrNoteView
         note={@state.viewingNote}
         onClose={=> @setState viewingNote: null}
         auth={@props.auth}
+        onDelete={@deleteNote}
       />
     else
       if window.isNative
@@ -132,31 +142,34 @@ SiftrView = React.createClass
       onSelectNote={@selectNote}
     />
 
-  # @ifdef NATIVE
-  render: ->
-    <View>
-      <TouchableOpacity onPress={@props.onExit}>
-        <Text>Back to Siftrs</Text>
-      </TouchableOpacity>
-      {@renderMap()}
-      {@renderThumbnails()}
-      {@renderNoteView()}
-    </View>
-  # @endif
+  renderCreateNote: ->
+    unless @state.createNote?
+      if @props.auth.authToken?
+        <BUTTON onClick={=> @setState createNote: {}}>
+          <P>Upload Photo</P>
+        </BUTTON>
+      else
+        <P>Log in to upload a photo.</P>
+    else unless @state.createNote.media?
+      <CreateStep1
+        auth={@props.auth}
+        game={@props.game}
+        onCancel={=> @setState createNote: null}
+        onCreateMedia={(media) => @setState createNote: {media}}
+      />
+    else
+      <P>You uploaded media {@state.createNote.media.media_id}</P>
 
-  # @ifdef WEB
   render: ->
-    <div>
-      <p>
-        <a href="#" onClick={clicker @props.onExit}>
-          Back to Siftrs
-        </a>
-      </p>
+    <DIV>
+      <BUTTON onClick={@props.onExit}>
+        <P>Back to Siftrs</P>
+      </BUTTON>
       {@renderMap()}
       {@renderThumbnails()}
       {@renderNoteView()}
-    </div>
-  # @endif
+      {@renderCreateNote()}
+    </DIV>
 
 LoggedInContainer = React.createClass
   propTypes:
