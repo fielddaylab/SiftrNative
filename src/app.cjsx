@@ -23,14 +23,19 @@ T = React.PropTypes
 {SiftrMap} = require './map'
 {SiftrThumbnails} = require './thumbnails'
 {SiftrNoteView} = require './note-view'
-{CreateStep1} = require './create-note'
+{CreateStep1, CreateStep2, CreateStep3, CreateStep4} = require './create-note'
 
 {clicker, withSuccess, DIV, P, BUTTON} = require './utils'
 
+fixLongitude = (longitude) ->
+  longitude %%= 360
+  longitude -= 360 if longitude > 180
+  longitude
+
 SiftrView = React.createClass
   propTypes:
-    game: T.instanceOf Game
-    auth: T.instanceOf Auth
+    game: T.instanceOf(Game).isRequired
+    auth: T.instanceOf(Auth).isRequired
 
   getInitialState: ->
     center:
@@ -96,6 +101,13 @@ SiftrView = React.createClass
   moveMap: (obj) ->
     @setState obj, => @loadResults()
 
+  loadNoteByID: (note_id) ->
+    @props.auth.siftrSearch
+      game_id: @props.game.game_id
+      note_id: note_id
+      map_data: false
+    , withSuccess (data) => @selectNote data.notes[0]
+
   selectNote: (note) ->
     @setState viewingNote: note
 
@@ -157,8 +169,53 @@ SiftrView = React.createClass
         onCancel={=> @setState createNote: null}
         onCreateMedia={(media) => @setState createNote: {media}}
       />
+    else unless @state.createNote.caption?
+      <CreateStep2
+        onEnterCaption={(caption) => @setState createNote:
+          media: @state.createNote.media
+          caption: caption
+        }
+        onCancel={=> @setState createNote: null}
+        onBack={=> @setState createNote: {}}
+        defaultCaption={@state.createNote.defaultCaption}
+      />
+    else unless @state.createNote.location?
+      <CreateStep3
+        onPickLocation={(caption) => @setState createNote:
+          media: @state.createNote.media
+          caption: @state.createNote.caption
+          location: @state.center
+        }
+        onCancel={=> @setState createNote: null}
+        onBack={=> @setState createNote:
+          media: @state.createNote.media
+          defaultCaption: @state.createNote.caption
+        }
+      />
     else
-      <P>You uploaded media {@state.createNote.media.media_id}</P>
+      <CreateStep4
+        categories={@state.tags ? []}
+        onPickCategory={@finishNoteCreation}
+        onCancel={=> @setState createNote: null}
+        onBack={=> @setState createNote:
+          media: @state.createNote.media
+          caption: @state.createNote.caption
+        }
+      />
+
+  finishNoteCreation: (category) ->
+    {media, caption, location} = @state.createNote
+    @props.auth.call 'notes.createNote',
+      game_id: @props.game.game_id
+      description: caption
+      media_id: media.media_id
+      trigger:
+        latitude: location.lat
+        longitude: fixLongitude location.lng
+      tag_id: category.tag_id
+    , withSuccess (note) =>
+      @loadResults()
+      @loadNoteByID note.note_id
 
   render: ->
     <DIV>
