@@ -264,35 +264,78 @@ GameList = React.createClass
     games: null
     onSelect: (->)
 
+  # @ifdef NATIVE
   render: ->
-    if window.isNative
-      if @props.games?
-        <ScrollView>
-          {
-            @props.games.map (game) =>
-              <TouchableOpacity key={game.game_id} onPress={=> @props.onSelect game}>
-                <Text>
-                  {game.name}
-                </Text>
-              </TouchableOpacity>
-          }
-        </ScrollView>
-      else
-        <Text>Loading games...</Text>
+    if @props.games?
+      <ScrollView>
+        {
+          @props.games.map (game) =>
+            <TouchableOpacity key={game.game_id} onPress={=> @props.onSelect game}>
+              <Text>
+                {game.name}
+              </Text>
+            </TouchableOpacity>
+        }
+      </ScrollView>
     else
-      if @props.games?
-        <ul>
-          {
-            @props.games.map (game) =>
-              <li key={game.game_id}>
-                <a href="#" onClick={clicker => @props.onSelect game}>
-                  {game.name}
-                </a>
-              </li>
-          }
-        </ul>
-      else
-        <p>Loading games...</p>
+      <Text>Loading games...</Text>
+  # @endif
+
+  # @ifdef WEB
+  render: ->
+    if @props.games?
+      <ul>
+        {
+          @props.games.map (game) =>
+            <li key={game.game_id}>
+              <a href="#" onClick={clicker => @props.onSelect game}>
+                {game.name}
+              </a>
+            </li>
+        }
+      </ul>
+    else
+      <p>Loading games...</p>
+  # @endif
+
+SiftrURL = React.createClass
+  propTypes:
+    auth: T.instanceOf(Auth).isRequired
+    onSelect: T.func
+
+  getDefaultProps: ->
+    onSelect: (->)
+
+  # @ifdef NATIVE
+  render: ->
+    null
+  # @endif
+
+  # @ifdef WEB
+  findSiftr: ->
+    url = @refs.inputText.value
+    return unless url?
+    @props.auth.searchSiftrs
+      siftr_url: url
+    , withSuccess (games) =>
+      if games.length is 1
+        @props.onSelect games[0]
+
+  handleEnter: (e) ->
+    @findSiftr() if e.keyCode is 13
+
+  render: ->
+    <p>
+      <input
+        ref="inputText"
+        type="text"
+        onKeyDown={@handleEnter}
+        placeholder="Enter a Siftr URL"
+      />
+      {' '}
+      <BUTTON onClick={@findSiftr}>Submit</BUTTON>
+    </p>
+  # @endif
 
 LoginBox = React.createClass
   propTypes:
@@ -398,7 +441,10 @@ SiftrNative = React.createClass
             if @state.game?
               <SiftrView game={@state.game} auth={@state.auth} onExit={=> @setState game: null} />
             else
-              <GameList games={@state.games} onSelect={(game) => @setState {game}} />
+              <DIV>
+                <GameList games={@state.games} onSelect={(game) => @setState {game}} />
+                <SiftrURL auth={@state.auth} onSelect={(game) => @setState {game}} />
+              </DIV>
           }
         </LoggedInContainer>
       else
