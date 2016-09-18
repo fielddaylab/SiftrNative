@@ -102,14 +102,13 @@ SiftrView = React.createClass
     @setState obj, => @loadResults()
 
   loadNoteByID: (note_id) ->
-    @props.auth.siftrSearch
+    @props.auth.searchNotes
       game_id: @props.game.game_id
       note_id: note_id
-      map_data: false
-    , withSuccess (data) => @selectNote data.notes[0]
+    , withSuccess (data) => @setState viewingNote: data[0]
 
   selectNote: (note) ->
-    @setState viewingNote: note
+    @loadNoteByID note.note_id
 
   deleteNote: (note) ->
     @props.auth.call 'notes.deleteNote',
@@ -125,6 +124,7 @@ SiftrView = React.createClass
         onClose={=> @setState viewingNote: null}
         auth={@props.auth}
         onDelete={@deleteNote}
+        onReload={(note) => @loadNoteByID note.note_id}
       />
     else
       if window.isNative

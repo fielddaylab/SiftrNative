@@ -11,7 +11,7 @@ clicker = (fn) -> (e) ->
   fn e
 
 withSuccess = (cb) -> (obj) ->
-  if obj.data? and obj.returnCode is 0
+  if obj.returnCode is 0
     cb obj.data
   else
     console.warn JSON.stringify obj

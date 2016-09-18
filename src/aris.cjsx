@@ -126,7 +126,7 @@ class Note
       @longitude    = parseFloat json.longitude
       @tag_id       = parseInt json.tag_id
       @created      = new Date(json.created.replace(' ', 'T') + 'Z')
-      @player_liked = parseInt(json.player_liked) isnt 0
+      @player_liked = json.player_liked? and !!(parseInt json.player_liked)
       @note_likes   = parseInt json.note_likes
       @comments     = for o in (json.comments?.data ? [])
         comment = new Comment o

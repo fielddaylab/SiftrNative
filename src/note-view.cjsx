@@ -133,10 +133,12 @@ SiftrNoteView = React.createClass
     onClose: T.func
     auth: T.instanceOf(Auth).isRequired
     onDelete: T.func
+    onReload: T.func
 
   getDefaultProps: ->
     onClose: (->)
     onDelete: (->)
+    onReload: (->)
 
   getInitialState: ->
     comments: null
@@ -170,6 +172,18 @@ SiftrNoteView = React.createClass
       description: text
     , withSuccess => @loadComments()
 
+  likeNote: ->
+    @props.auth.call 'notes.likeNote',
+      game_id: @props.note.game_id
+      note_id: @props.note.note_id
+    , withSuccess => @props.onReload @props.note
+
+  unlikeNote: ->
+    @props.auth.call 'notes.unlikeNote',
+      game_id: @props.note.game_id
+      note_id: @props.note.note_id
+    , withSuccess => @props.onReload @props.note
+
   render: ->
     <DIV>
       {
@@ -183,6 +197,15 @@ SiftrNoteView = React.createClass
       # @endif
       }
       <P>Posted by {@props.note.user.display_name} at {@props.note.created.toLocaleString()}</P>
+      {
+        if @props.auth.authToken?
+          if @props.note.player_liked
+            <BUTTON onClick={@unlikeNote}><P>Unlike this note</P></BUTTON>
+          else
+            <BUTTON onClick={@likeNote}><P>Like this note</P></BUTTON>
+        else
+          <P>Log in to like this note.</P>
+      }
       <P>{@props.note.description}</P>
       {
         if @state.comments is null
