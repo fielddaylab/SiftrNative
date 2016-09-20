@@ -36,6 +36,12 @@ SiftrView = React.createClass
   propTypes:
     game: T.instanceOf(Game).isRequired
     auth: T.instanceOf(Auth).isRequired
+    isAdmin: T.bool
+    onExit: T.func
+
+  getDefaultProps: ->
+    isAdmin: false
+    onExit: (->)
 
   getInitialState: ->
     center:
@@ -255,6 +261,16 @@ LoggedInContainer = React.createClass
         {@props.children}
       </div>
 
+LoggedOutContainer = React.createClass
+  propTypes:
+    onLogin: T.func
+
+  render: ->
+    <DIV>
+      <LoginBox onLogin={@props.onLogin} />
+      {@props.children}
+    </DIV>
+
 GameList = React.createClass
   propTypes:
     games: T.arrayOf T.instanceOf Game
@@ -433,13 +449,21 @@ SiftrNative = React.createClass
     (@state.auth ? new Auth).logout (newAuth) =>
       @setState auth: newAuth
 
+  gameBelongsToUser: (game) ->
+    @state.games?.some (userGame) => userGame.game_id is game.game_id
+
   render: ->
     if @state.auth?
       if @state.auth.authToken?
         <LoggedInContainer onLogout={@logout} name={@state.auth.authToken.display_name}>
           {
             if @state.game?
-              <SiftrView game={@state.game} auth={@state.auth} onExit={=> @setState game: null} />
+              <SiftrView
+                game={@state.game}
+                auth={@state.auth}
+                onExit={=> @setState game: null}
+                isAdmin={@gameBelongsToUser @state.game}
+              />
             else
               <DIV>
                 <GameList games={@state.games} onSelect={(game) => @setState {game}} />
@@ -448,7 +472,19 @@ SiftrNative = React.createClass
           }
         </LoggedInContainer>
       else
-        <LoginBox onLogin={@login} />
+        <LoggedOutContainer onLogin={@login}>
+          {
+            if @state.game?
+              <SiftrView
+                game={@state.game}
+                auth={@state.auth}
+                onExit={=> @setState game: null}
+                isAdmin={false}
+              />
+            else
+              <SiftrURL auth={@state.auth} onSelect={(game) => @setState {game}} />
+          }
+        </LoggedOutContainer>
     else
       <Loading />
 

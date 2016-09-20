@@ -1,20 +1,27 @@
 Edit note location if owner
 Edit note caption if owner
 Edit note category if owner
-Delete note if owner/admin
-Show note moderation status
-Approve pending note if admin
-Delete comment if owner/admin
 Search by text
 Search by category
 Search by time
 Sort by recent/popular
 Show my notes
+Show photo during upload, with EXIF rotation
+Use photo's embedded location
+Get user's location for photo upload
+Zoom in on cluster
+URL hash with note ID, create/edit step, latitude/longitude, search params?
+
+NEEDS ADMIN
+Delete note if owner/admin
+Show note moderation status
+Approve pending note if admin
+Delete comment if owner/admin
+
+ROOT SCREEN
 Browse recent/popular siftrs
 Search siftrs
 Make new Siftr
 Edit Siftrs
-Show photo during upload, with EXIF rotation
-Use photo's embedded location
-Get user's location
-Zoom in on cluster
+Browse and open siftrs while not logged in (log in from either root screen or siftr view)
+On native: offline mode (store photos locally, keep trying to upload)
