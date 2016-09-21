@@ -1,3 +1,4 @@
+SIFTR VIEW
 Edit note location if owner
 Edit note caption if owner
 Edit note category if owner
@@ -11,12 +12,9 @@ Use photo's embedded location
 Get user's location for photo upload
 Zoom in on cluster
 URL hash with note ID, create/edit step, latitude/longitude, search params?
-
-NEEDS ADMIN
-Delete note if owner/admin
 Show note moderation status
 Approve pending note if admin
-Delete comment if owner/admin
+Scroll-loading for thumbnails
 
 ROOT SCREEN
 Browse recent/popular siftrs

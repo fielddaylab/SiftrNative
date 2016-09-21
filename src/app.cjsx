@@ -131,6 +131,7 @@ SiftrView = React.createClass
         auth={@props.auth}
         onDelete={@deleteNote}
         onReload={(note) => @loadNoteByID note.note_id}
+        isAdmin={@props.isAdmin}
       />
     else
       if window.isNative

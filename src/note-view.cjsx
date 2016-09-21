@@ -25,6 +25,7 @@ SiftrCommentInput = React.createClass
 
   doSave: ->
     @props.onSave @refs.input.value
+    @refs.input.value = ''
 
   # @ifdef NATIVE
   render: ->
@@ -51,12 +52,20 @@ SiftrComment = React.createClass
     comment: T.instanceOf(Comment).isRequired
     auth: T.instanceOf(Auth).isRequired
     onEdit: T.func
+    onDelete: T.func
+    isAdmin: T.bool
 
   getDefaultProps: ->
     onEdit: (->)
+    onDelete: (->)
+    isAdmin: false
 
   getInitialState: ->
     editing: false
+
+  confirmDelete: ->
+    if confirm 'Are you sure you want to delete this comment?'
+      @props.onDelete @props.comment
 
   render: ->
     if @state.editing
@@ -77,10 +86,14 @@ SiftrComment = React.createClass
         {
           if @props.auth.authToken?.user_id is @props.comment.user.user_id
             <BUTTON onClick={=> @setState editing: true}>
-              <P>[EDIT]</P>
+              <P>[Edit]</P>
             </BUTTON>
-          else
-            null
+        }
+        {
+          if @props.auth.authToken?.user_id is @props.comment.user.user_id or @props.isAdmin
+            <BUTTON onClick={@confirmDelete}>
+              <P>[Delete]</P>
+            </BUTTON>
         }
       </DIV>
 
@@ -91,10 +104,14 @@ SiftrComments = React.createClass
     auth: T.instanceOf(Auth).isRequired
     onEditComment: T.func
     onNewComment: T.func
+    onDeleteComment: T.func
+    isAdmin: T.bool
 
   getDefaultProps: ->
     onEditComment: (->)
     onNewComment: (->)
+    onDeleteComment: (->)
+    isAdmin: false
 
   render: ->
     <DIV>
@@ -111,6 +128,8 @@ SiftrComments = React.createClass
                     note={@props.note}
                     auth={@props.auth}
                     onEdit={(text) => @props.onEditComment comment, text}
+                    onDelete={@props.onDeleteComment}
+                    isAdmin={@props.isAdmin}
                   />
                 </LI>
             }
@@ -134,11 +153,13 @@ SiftrNoteView = React.createClass
     auth: T.instanceOf(Auth).isRequired
     onDelete: T.func
     onReload: T.func
+    isAdmin: T.bool
 
   getDefaultProps: ->
     onClose: (->)
     onDelete: (->)
     onReload: (->)
+    isAdmin: false
 
   getInitialState: ->
     comments: null
@@ -172,6 +193,11 @@ SiftrNoteView = React.createClass
       description: text
     , withSuccess => @loadComments()
 
+  doDeleteComment: (comment) ->
+    @props.auth.call 'note_comments.deleteNoteComment',
+      note_comment_id: comment.comment_id
+    , withSuccess => @loadComments()
+
   likeNote: ->
     @props.auth.call 'notes.likeNote',
       game_id: @props.note.game_id
@@ -183,6 +209,10 @@ SiftrNoteView = React.createClass
       game_id: @props.note.game_id
       note_id: @props.note.note_id
     , withSuccess => @props.onReload @props.note
+
+  confirmDelete: ->
+    if confirm 'Are you sure you want to delete this note?'
+      @props.onDelete @props.note
 
   render: ->
     <DIV>
@@ -206,6 +236,10 @@ SiftrNoteView = React.createClass
         else
           <P>Log in to like this note.</P>
       }
+      {
+        if @props.note.user.user_id is @props.auth.authToken?.user_id or @props.isAdmin
+          <BUTTON onClick={@confirmDelete}><P>Delete this note</P></BUTTON>
+      }
       <P>{@props.note.description}</P>
       {
         if @state.comments is null
@@ -217,6 +251,8 @@ SiftrNoteView = React.createClass
             comments={@state.comments ? []}
             onEditComment={@doEditComment}
             onNewComment={@doNewComment}
+            onDeleteComment={@doDeleteComment}
+            isAdmin={@props.isAdmin}
           />
       }
       <BUTTON onClick={@props.onClose}>
