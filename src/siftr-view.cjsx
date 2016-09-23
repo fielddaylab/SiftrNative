@@ -19,6 +19,7 @@ T = React.PropTypes
 , Tag
 } = require './aris'
 
+{SearchNotes} = require './search-notes'
 {SiftrMap} = require './map'
 {SiftrThumbnails} = require './thumbnails'
 {SiftrNoteView} = require './note-view'
@@ -63,6 +64,7 @@ SiftrView = React.createClass
     colors: null
     viewingNote: null
     createNote: null
+    searchParams: {}
 
   componentWillMount: ->
     @props.auth.getTagsForGame
@@ -93,6 +95,8 @@ SiftrView = React.createClass
       max_latitude: @state.bounds.nw.lat
       min_longitude: @state.bounds.nw.lng
       max_longitude: @state.bounds.se.lng
+      order: @state.searchParams.sort ? 'recent'
+      filter: if @state.searchParams.mine ? false then 'mine' else undefined
       limit: 50
       zoom:
         if window.isNative
@@ -121,6 +125,16 @@ SiftrView = React.createClass
     , withSuccess =>
       @setState viewingNote: null
       @loadResults()
+
+  renderSearch: ->
+    <SearchNotes
+      auth={@props.auth}
+      tags={@state.tags ? []}
+      searchParams={@state.searchParams}
+      onSearch={(searchParams) =>
+        @setState {searchParams}, => @loadResults()
+      }
+    />
 
   renderNoteView: ->
     if @state.viewingNote?
@@ -228,6 +242,7 @@ SiftrView = React.createClass
       <BUTTON onClick={@props.onExit}>
         <P>Back to Siftrs</P>
       </BUTTON>
+      {@renderSearch()}
       {@renderMap()}
       {@renderThumbnails()}
       {@renderNoteView()}

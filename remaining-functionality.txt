@@ -5,8 +5,6 @@ Edit note category if owner
 Search by text
 Search by category
 Search by time
-Sort by recent/popular
-Show my notes
 Show photo during upload, with EXIF rotation
 Use photo's embedded location
 Get user's location for photo upload
