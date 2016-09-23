@@ -3,7 +3,6 @@ Edit note location if owner
 Edit note caption if owner
 Edit note category if owner
 Search by text
-Search by category
 Search by time
 Show photo during upload, with EXIF rotation
 Use photo's embedded location
