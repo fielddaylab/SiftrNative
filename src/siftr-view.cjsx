@@ -19,6 +19,8 @@ T = React.PropTypes
 , Tag
 } = require './aris'
 
+{timeToARIS} = require './time-slider'
+
 {SearchNotes} = require './search-notes'
 {SiftrMap} = require './map'
 {SiftrThumbnails} = require './thumbnails'
@@ -98,6 +100,8 @@ SiftrView = React.createClass
       order: @state.searchParams.sort ? 'recent'
       filter: if @state.searchParams.mine ? false then 'mine' else undefined
       tag_ids: @state.searchParams.tags ? undefined
+      min_time: timeToARIS @state.searchParams.min_time
+      max_time: timeToARIS @state.searchParams.max_time
       limit: 50
       zoom:
         if window.isNative
@@ -130,6 +134,7 @@ SiftrView = React.createClass
   renderSearch: ->
     <SearchNotes
       auth={@props.auth}
+      game={@props.game}
       tags={@state.tags ? []}
       searchParams={@state.searchParams}
       onSearch={(searchParams) =>
