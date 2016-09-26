@@ -97,6 +97,7 @@ SiftrView = React.createClass
       max_latitude: @state.bounds.nw.lat
       min_longitude: @state.bounds.nw.lng
       max_longitude: @state.bounds.se.lng
+      search: @state.searchParams.text ? ''
       order: @state.searchParams.sort ? 'recent'
       filter: if @state.searchParams.mine ? false then 'mine' else undefined
       tag_ids: @state.searchParams.tags ? undefined

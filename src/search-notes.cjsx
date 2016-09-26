@@ -27,7 +27,8 @@ SearchNotes = React.createClass
     form = @refs.searchForm
     @props.onSearch
       sort: (input.value for input in form.sort when input.checked)[0]
-      mine: form.mine.checked
+      mine: @refs.mine.checked
+      text: @refs.text.value
       tags:
         if @props.tags.length
           parseInt input.value for input in form.tags when input.checked
@@ -36,6 +37,12 @@ SearchNotes = React.createClass
       min_time: @min_time ? @props.searchParams.min_time
       max_time: @max_time ? @props.searchParams.max_time
 
+  userTyped: ->
+    clearTimeout(@timer) if @timer
+    @timer = setTimeout =>
+      @doSearch()
+    , 250
+
   # @ifdef NATIVE
   render: ->
     null
@@ -43,11 +50,15 @@ SearchNotes = React.createClass
 
   # @ifdef WEB
   render: ->
-    {sort, mine, tags, min_time, max_time} = @props.searchParams
+    {sort, mine, tags, text, min_time, max_time} = @props.searchParams
     sort ?= 'recent'
     mine ?= false
     tags ?= []
+    text ?= ''
     <form ref="searchForm">
+      <p>
+        <input type="text" ref="text" placeholder="Search notes..." defaultValue={text} onChange={@userTyped} />
+      </p>
       <TimeSlider
         minBound={@props.game.created.getTime()}
         maxBound={Date.now()}
@@ -71,7 +82,7 @@ SearchNotes = React.createClass
       </label>
       <label>
         <p>
-          <input type="checkbox" name="mine" onChange={@doSearch} checked={mine} /> My Notes
+          <input type="checkbox" ref="mine" onChange={@doSearch} checked={mine} /> My Notes
         </p>
       </label>
       {
