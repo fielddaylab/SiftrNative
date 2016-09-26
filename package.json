@@ -6,6 +6,7 @@
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
+    "exif-js": "^2.1.1",
     "google-map-react": "^0.18.3",
     "react": "15.3.1",
     "react-dom": "^15.3.1",

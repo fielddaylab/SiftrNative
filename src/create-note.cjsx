@@ -3,6 +3,8 @@
 React = require 'react'
 T = React.PropTypes
 
+EXIF = require 'exif-js'
+
 {Auth, Game, Tag} = require './aris'
 {withSuccess, P, BUTTON} = require './utils'
 
@@ -20,6 +22,7 @@ CreateStep1 = React.createClass
 
   getInitialState: ->
     progress: null
+    file: null # file that has EXIF tags already loaded
 
   # @ifdef NATIVE
   render: ->
@@ -28,7 +31,7 @@ CreateStep1 = React.createClass
 
   # @ifdef WEB
   beginUpload: ->
-    file = (@refs.fileInput?.files ? [])[0]
+    file = @state.file
     return unless file?
     name = file.name
     ext = name[name.indexOf('.') + 1 ..]
@@ -40,7 +43,16 @@ CreateStep1 = React.createClass
         raw_upload_id: raw_upload_id
         game_id: @props.game.game_id
         resize: 800
-      , withSuccess @props.onCreateMedia
+      , withSuccess (media) => @props.onCreateMedia
+        media: media
+        exif: EXIF.getAllTags file
+
+  getEXIF: ->
+    @setState file: null
+    file = (@refs.fileInput?.files ? [])[0]
+    return unless file?
+    EXIF.getData file, =>
+      @setState file: file
 
   render: ->
     if @state.progress?
@@ -48,13 +60,24 @@ CreateStep1 = React.createClass
         Uploading... {Math.floor(@state.progress * 100)}%
       </p>
     else
-      <p>
-        <input type="file" ref="fileInput" />
-        {' '}
-        <BUTTON onClick={@beginUpload}>Upload</BUTTON>
-        {' '}
-        <BUTTON onClick={@props.onCancel}>Cancel</BUTTON>
-      </p>
+      <div>
+        <p>
+          <input type="file" ref="fileInput" onChange={@getEXIF} />
+          {' '}
+          <BUTTON onClick={@beginUpload}>Upload</BUTTON>
+          {' '}
+          <BUTTON onClick={@props.onCancel}>Cancel</BUTTON>
+        </p>
+        {
+          if @state.file?
+            <div
+              className={"upload-preview exif-#{EXIF.getTag(@state.file, 'Orientation')}"}
+              style={
+                backgroundImage: "url(#{URL.createObjectURL @state.file})"
+              }
+            />
+        }
+      </div>
   # @endif
 
 # Step 2: Caption

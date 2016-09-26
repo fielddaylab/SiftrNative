@@ -181,6 +181,36 @@ SiftrView = React.createClass
       onSelectNote={@selectNote}
     />
 
+  startLocatingNote: ({exif, center}) ->
+    # first use provided center
+    if center?
+      @setState center: center
+      return
+    # then get location from exif
+    lat = exif.GPSLatitude
+    lng = exif.GPSLongitude
+    console.log exif
+    if lat? and lng?
+      readRat = (rat) -> rat.numerator / rat.denominator
+      readGPS = ([deg, min, sec]) ->
+        readRat(deg) + readRat(min) / 60 + readRat(sec) / 3600
+      lat = readGPS lat
+      lat *= -1 if exif.GPSLatitudeRef is 'S'
+      lng = readGPS lng
+      lng *= -1 if exif.GPSLongitudeRef is 'W'
+      @setState center: {lat, lng}
+      return
+    # then, use game's location, but try to override from browser
+    @setState
+      center:
+        lat: @props.game.latitude
+        lng: @props.game.longitude
+    , =>
+      navigator.geolocation?.getCurrentPosition (posn) =>
+        @setState center:
+          lat: posn.coords.latitude
+          lng: posn.coords.longitude
+
   renderCreateNote: ->
     unless @state.createNote?
       if @props.auth.authToken?
@@ -194,13 +224,17 @@ SiftrView = React.createClass
         auth={@props.auth}
         game={@props.game}
         onCancel={=> @setState createNote: null}
-        onCreateMedia={(media) => @setState createNote: {media}}
+        onCreateMedia={({media, exif}) => @setState createNote: {media, exif}}
       />
     else unless @state.createNote.caption?
       <CreateStep2
-        onEnterCaption={(caption) => @setState createNote:
-          media: @state.createNote.media
-          caption: caption
+        onEnterCaption={(caption) =>
+          @setState
+            createNote:
+              media: @state.createNote.media
+              exif: @state.createNote.exif
+              caption: caption
+          , => @startLocatingNote exif: @state.createNote.exif
         }
         onCancel={=> @setState createNote: null}
         onBack={=> @setState createNote: {}}
@@ -210,12 +244,14 @@ SiftrView = React.createClass
       <CreateStep3
         onPickLocation={(caption) => @setState createNote:
           media: @state.createNote.media
+          exif: @state.createNote.exif
           caption: @state.createNote.caption
           location: @state.center
         }
         onCancel={=> @setState createNote: null}
         onBack={=> @setState createNote:
           media: @state.createNote.media
+          exif: @state.createNote.exif
           defaultCaption: @state.createNote.caption
         }
       />
@@ -224,9 +260,12 @@ SiftrView = React.createClass
         categories={@state.tags ? []}
         onPickCategory={@finishNoteCreation}
         onCancel={=> @setState createNote: null}
-        onBack={=> @setState createNote:
-          media: @state.createNote.media
-          caption: @state.createNote.caption
+        onBack={=>
+          @setState
+            createNote:
+              media: @state.createNote.media
+              caption: @state.createNote.caption
+          , => @startLocatingNote center: @state.createNote.location
         }
       />
 
