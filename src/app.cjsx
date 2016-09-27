@@ -26,9 +26,17 @@ AuthContainer = React.createClass
     auth: T.instanceOf(Auth).isRequired
     onLogin: T.func
     onLogout: T.func
+    hasBrowserButton: T.bool
+    onBrowserButton: T.func
 
   getInitialState: ->
     menuOpen: false
+    hasBrowserButton: false
+    onBrowserButton: (->)
+
+  goBackToBrowser: ->
+    @setState menuOpen: false
+    @props.onBrowserButton()
 
   # @ifdef NATIVE
   render: ->
@@ -45,6 +53,10 @@ AuthContainer = React.createClass
           </View>
         else
           <LoginBox onLogin={@props.onLogin} />
+      }
+      {
+        if @props.hasBrowserButton
+          <BUTTON onClick={@goBackToBrowser}><P>Back to Browser</P></BUTTON>
       }
       {@props.children}
     </ScrollView>
@@ -78,11 +90,17 @@ AuthContainer = React.createClass
                 Logged in as {@props.auth.authToken.display_name}
               </p>
               <p>
-                <button type="button" onClick={clicker @props.onLogout}>Logout</button>
+                <button type="button" onClick={@props.onLogout}>Logout</button>
               </p>
             </div>
           else
             <LoginBox onLogin={@props.onLogin} />
+        }
+        {
+          if @props.hasBrowserButton
+            <p>
+              <button type="button" onClick={@goBackToBrowser}>Back to Browser</button>
+            </p>
         }
       </div>
     </div>
@@ -289,13 +307,16 @@ SiftrNative = React.createClass
 
   render: ->
     if @state.auth?
-      <AuthContainer auth={@state.auth} onLogin={@login} onLogout={@logout}>
+      <AuthContainer
+        auth={@state.auth} onLogin={@login} onLogout={@logout}
+        hasBrowserButton={@state.game?}
+        onBrowserButton={=> @setState game: null}
+      >
         {
           if @state.game?
             <SiftrView
               game={@state.game}
               auth={@state.auth}
-              onExit={=> @setState game: null}
               isAdmin={@gameBelongsToUser @state.game}
             />
           else

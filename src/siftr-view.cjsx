@@ -38,11 +38,9 @@ SiftrView = React.createClass
     game: T.instanceOf(Game).isRequired
     auth: T.instanceOf(Auth).isRequired
     isAdmin: T.bool
-    onExit: T.func
 
   getDefaultProps: ->
     isAdmin: false
-    onExit: (->)
 
   getInitialState: ->
     center:
@@ -292,9 +290,6 @@ SiftrView = React.createClass
 
   render: ->
     <DIV>
-      <BUTTON onClick={@props.onExit}>
-        <P>Back to Siftrs</P>
-      </BUTTON>
       {@renderSearch()}
       {@renderMap()}
       {@renderThumbnails()}
