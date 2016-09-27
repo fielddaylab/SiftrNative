@@ -21,20 +21,28 @@ T = React.PropTypes
 
 {clicker, withSuccess, DIV, P, BUTTON} = require './utils'
 
-LoggedInContainer = React.createClass
+AuthContainer = React.createClass
   propTypes:
-    name: T.string
+    auth: T.instanceOf(Auth).isRequired
+    onLogin: T.func
     onLogout: T.func
 
   # @ifdef NATIVE
   render: ->
     <ScrollView style={styles.container}>
-      <Text>
-        Logged in as {@props.name}
-      </Text>
-      <TouchableOpacity onPress={@props.onLogout}>
-        <Text>Logout</Text>
-      </TouchableOpacity>
+      {
+        if @props.auth.authToken?
+          <View>
+            <Text>
+              Logged in as {@props.auth.authToken.display_name}
+            </Text>
+            <TouchableOpacity onPress={@props.onLogout}>
+              <Text>Logout</Text>
+            </TouchableOpacity>
+          </View>
+        else
+          <LoginBox onLogin={@props.onLogin} />
+      }
       {@props.children}
     </ScrollView>
   # @endif
@@ -42,32 +50,19 @@ LoggedInContainer = React.createClass
   # @ifdef WEB
   render: ->
     <div>
-      <p>
-        Logged in as {@props.name}
-      </p>
-      <p>
-        <button type="button" onClick={clicker @props.onLogout}>Logout</button>
-      </p>
-      {@props.children}
-    </div>
-  # @endif
-
-LoggedOutContainer = React.createClass
-  propTypes:
-    onLogin: T.func
-
-  # @ifdef NATIVE
-  render: ->
-    <ScrollView style={styles.container}>
-      <LoginBox onLogin={@props.onLogin} />
-      {@props.children}
-    </ScrollView>
-  # @endif
-
-  # @ifdef WEB
-  render: ->
-    <div>
-      <LoginBox onLogin={@props.onLogin} />
+      {
+        if @props.auth.authToken?
+          <div>
+            <p>
+              Logged in as {@props.auth.authToken.display_name}
+            </p>
+            <p>
+              <button type="button" onClick={clicker @props.onLogout}>Logout</button>
+            </p>
+          </div>
+        else
+          <LoginBox onLogin={@props.onLogin} />
+      }
       {@props.children}
     </div>
   # @endif
@@ -142,6 +137,7 @@ SiftrURL = React.createClass
         onChangeText={(url) => @setState {url}}
         autoCorrect={false}
         autoCapitalize="none"
+        style={styles.input}
       />
       <BUTTON onClick={@findSiftr}><P>Submit</P></BUTTON>
     </View>
@@ -263,37 +259,25 @@ SiftrNative = React.createClass
 
   render: ->
     if @state.auth?
-      if @state.auth.authToken?
-        <LoggedInContainer onLogout={@logout} name={@state.auth.authToken.display_name}>
-          {
-            if @state.game?
-              <SiftrView
-                game={@state.game}
-                auth={@state.auth}
-                onExit={=> @setState game: null}
-                isAdmin={@gameBelongsToUser @state.game}
-              />
-            else
-              <DIV>
-                <GameList games={@state.games} onSelect={(game) => @setState {game}} />
-                <SiftrURL auth={@state.auth} onSelect={(game) => @setState {game}} />
-              </DIV>
-          }
-        </LoggedInContainer>
-      else
-        <LoggedOutContainer onLogin={@login}>
-          {
-            if @state.game?
-              <SiftrView
-                game={@state.game}
-                auth={@state.auth}
-                onExit={=> @setState game: null}
-                isAdmin={false}
-              />
-            else
+      <AuthContainer auth={@state.auth} onLogin={@login} onLogout={@logout}>
+        {
+          if @state.game?
+            <SiftrView
+              game={@state.game}
+              auth={@state.auth}
+              onExit={=> @setState game: null}
+              isAdmin={@gameBelongsToUser @state.game}
+            />
+          else
+            <DIV>
+              {
+                if @state.auth.authToken?
+                  <GameList games={@state.games} onSelect={(game) => @setState {game}} />
+              }
               <SiftrURL auth={@state.auth} onSelect={(game) => @setState {game}} />
-          }
-        </LoggedOutContainer>
+            </DIV>
+        }
+      </AuthContainer>
     else
       <Loading />
 

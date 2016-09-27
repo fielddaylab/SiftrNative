@@ -77,6 +77,14 @@ SiftrView = React.createClass
     , withSuccess (colors) =>
       @setState {colors}
 
+  componentWillReceiveProps: (nextProps) ->
+    if @props.auth.authToken?.user_id isnt nextProps.auth.authToken?.user_id
+      # if we log in or out, reload the note search
+      @loadResults nextProps.auth
+      if @state.viewingNote? and @props.auth.authToken?
+        # if we were logged in, close the open note
+        @setState viewingNote: null
+
   getColor: (x) ->
     return 'white' unless @state.tags? and @state.colors?
     if x instanceof Tag
@@ -89,8 +97,8 @@ SiftrView = React.createClass
       return 'white'
     @state.colors["tag_#{@state.tags.indexOf(tag) % 8 + 1}"] ? 'white'
 
-  loadResults: ->
-    @props.auth.siftrSearch
+  loadResults: (auth = @props.auth) ->
+    auth.siftrSearch
       game_id: @props.game.game_id
       min_latitude: @state.bounds.se.lat
       max_latitude: @state.bounds.nw.lat
@@ -98,7 +106,7 @@ SiftrView = React.createClass
       max_longitude: @state.bounds.se.lng
       search: @state.searchParams.text ? ''
       order: @state.searchParams.sort ? 'recent'
-      filter: if @state.searchParams.mine ? false then 'mine' else undefined
+      filter: if auth.authToken? and @state.searchParams.mine then 'mine' else undefined
       tag_ids: @state.searchParams.tags ? undefined
       min_time: timeToARIS @state.searchParams.min_time
       max_time: timeToARIS @state.searchParams.max_time
