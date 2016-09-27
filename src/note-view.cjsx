@@ -210,6 +210,16 @@ SiftrNoteView = React.createClass
       note_id: @props.note.note_id
     , withSuccess => @props.onReload @props.note
 
+  approveNote: ->
+    @props.auth.call 'notes.approveNote',
+      note_id: @props.note.note_id
+    , withSuccess => @props.onReload @props.note
+
+  flagNote: ->
+    @props.auth.call 'notes.flagNote',
+      note_id: @props.note.note_id
+    , withSuccess => @props.onReload @props.note
+
   confirmDelete: ->
     if confirm 'Are you sure you want to delete this note?'
       @props.onDelete @props.note
@@ -227,6 +237,18 @@ SiftrNoteView = React.createClass
       # @endif
       }
       <P>Posted by {@props.note.user.display_name} at {@props.note.created.toLocaleString()}</P>
+      {
+        switch @props.note.published
+          when 'PENDING'
+            if @props.isAdmin
+              <BUTTON onClick={@approveNote}><P>Approve this note</P></BUTTON>
+            else
+              <P>This note is visible only to you until a moderator approves it.</P>
+          when 'AUTO'
+            <BUTTON onClick={@flagNote}><P>Flag this note</P></BUTTON>
+          when 'APPROVED'
+            null
+      }
       {
         if @props.auth.authToken?
           if @props.note.player_liked

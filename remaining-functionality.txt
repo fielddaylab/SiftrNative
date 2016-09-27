@@ -4,8 +4,6 @@ Edit note caption if owner
 Edit note category if owner
 Zoom in on cluster
 URL hash with note ID, create/edit step, latitude/longitude, search params?
-Show note moderation status
-Approve pending note if admin
 Scroll-loading for thumbnails
 
 ROOT SCREEN
