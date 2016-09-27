@@ -1,5 +1,5 @@
 body {
-  font-family: sans-serif;
+  font-family: 'Open Sans', sans-serif;
 }
 
 .siftr-map {
@@ -179,4 +179,59 @@ $sqrt2: 1.4142135;
        -o-transform: rotate(-90deg);
       -ms-transform: rotate(-90deg);
           transform: rotate(-90deg);
+}
+
+$auth-menu-width: 300px;
+
+.auth-container
+{
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  transition: left 0.25s;
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-contents {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.auth-menu
+{
+  position: absolute;
+  height: 100%;
+  width: $auth-menu-width;
+  left: -$auth-menu-width;
+  top: 0;
+  background-color: #bbb;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.auth-container.auth-menu-open
+{
+  left: $auth-menu-width;
+}
+
+.auth-nav-button {
+  font-size: 27px;
+  color: black;
+  text-decoration: none;
+  margin-right: 5px;
+}
+
+.auth-nav {
+  background-color: #888;
+  padding-left: 7px;
+  flex: 0;
+}
+
+.auth-nav > * {
+  vertical-align: middle;
 }

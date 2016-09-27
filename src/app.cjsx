@@ -27,6 +27,9 @@ AuthContainer = React.createClass
     onLogin: T.func
     onLogout: T.func
 
+  getInitialState: ->
+    menuOpen: false
+
   # @ifdef NATIVE
   render: ->
     <ScrollView style={styles.container}>
@@ -49,21 +52,39 @@ AuthContainer = React.createClass
 
   # @ifdef WEB
   render: ->
-    <div>
-      {
-        if @props.auth.authToken?
-          <div>
-            <p>
-              Logged in as {@props.auth.authToken.display_name}
-            </p>
-            <p>
-              <button type="button" onClick={clicker @props.onLogout}>Logout</button>
-            </p>
-          </div>
-        else
-          <LoginBox onLogin={@props.onLogin} />
-      }
-      {@props.children}
+    <div className={"auth-container #{if @state.menuOpen then 'auth-menu-open' else 'auth-menu-closed'}"}>
+      <div className="auth-nav">
+        <a href="#"
+          onClick={clicker => @setState menuOpen: not @state.menuOpen}
+          className="auth-nav-button"
+        >☰</a>
+        <span>
+        {
+          if @props.auth.authToken?
+            " Logged in as #{@props.auth.authToken.display_name}"
+          else
+            " Log in"
+        }
+        </span>
+      </div>
+      <div className="auth-contents">
+        {@props.children}
+      </div>
+      <div className="auth-menu">
+        {
+          if @props.auth.authToken?
+            <div>
+              <p>
+                Logged in as {@props.auth.authToken.display_name}
+              </p>
+              <p>
+                <button type="button" onClick={clicker @props.onLogout}>Logout</button>
+              </p>
+            </div>
+          else
+            <LoginBox onLogin={@props.onLogin} />
+        }
+      </div>
     </div>
   # @endif
 
