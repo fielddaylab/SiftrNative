@@ -8,6 +8,13 @@ T = React.PropTypes
 , Comment
 } = require './aris'
 
+# @ifdef NATIVE
+{ Alert
+, View
+, TextInput
+} = require 'react-native'
+# @endif
+
 {clicker, withSuccess, P, UL, LI, DIV, BUTTON} = require './utils'
 
 SiftrCommentInput = React.createClass
@@ -23,25 +30,40 @@ SiftrCommentInput = React.createClass
     onSave: (->)
     onCancel: (->)
 
+  getInitialState: ->
+    text: @props.defaultText
+
   doSave: ->
-    @props.onSave @refs.input.value
-    @refs.input.value = ''
+    @props.onSave @state.text
+    @setState text: ''
 
   # @ifdef NATIVE
   render: ->
-    null # TODO
+    <View>
+      <TextInput
+        placeholder="Enter a comment"
+        value={@state.text}
+        onChangeText={(text) => @setState {text}}
+      />
+      <BUTTON onClick={@doSave}><P>Save</P></BUTTON>
+      {
+        if @props.canCancel
+          <BUTTON onClick={@props.onCancel}><P>Cancel</P></BUTTON>
+      }
+    </View>
   # @endif
 
   # @ifdef WEB
   render: ->
     <p>
-      <input placeholder="Enter a comment" type="text" defaultValue={@props.defaultText} ref="input" />
+      <input placeholder="Enter a comment" type="text"
+        value={@state.text}
+        onChange={(e) => @setState text: e.target.value}
+      />
       <button onClick={clicker => @doSave()}>Save</button>
       {
         if @props.canCancel
           <button onClick={clicker @props.onCancel}>Cancel</button>
-        else
-          null
       }
     </p>
   # @endif
@@ -63,9 +85,24 @@ SiftrComment = React.createClass
   getInitialState: ->
     editing: false
 
+  # @ifdef NATIVE
+  confirmDelete: ->
+    msg = 'Are you sure you want to delete this comment?'
+    cancel =
+      text: 'Cancel'
+      style: 'cancel'
+      onPress: (->)
+    ok =
+      text: 'OK'
+      onPress: => @props.onDelete @props.comment
+    Alert.alert 'Confirm Delete', msg, [cancel, ok]
+  # @endif
+
+  # @ifdef WEB
   confirmDelete: ->
     if confirm 'Are you sure you want to delete this comment?'
       @props.onDelete @props.comment
+  # @endif
 
   render: ->
     if @state.editing
@@ -220,9 +257,24 @@ SiftrNoteView = React.createClass
       note_id: @props.note.note_id
     , withSuccess => @props.onReload @props.note
 
+  # @ifdef NATIVE
+  confirmDelete: ->
+    msg = 'Are you sure you want to delete this note?'
+    cancel =
+      text: 'Cancel'
+      style: 'cancel'
+      onPress: (->)
+    ok =
+      text: 'OK'
+      onPress: => @props.onDelete @props.note
+    Alert.alert 'Confirm Delete', msg, [cancel, ok]
+  # @endif
+
+  # @ifdef WEB
   confirmDelete: ->
     if confirm 'Are you sure you want to delete this note?'
       @props.onDelete @props.note
+  # @endif
 
   render: ->
     <DIV>

@@ -7,7 +7,6 @@ T = React.PropTypes
 { Text
 , View
 , TextInput
-, ScrollView
 } = require 'react-native'
 {styles} = require './styles'
 # @endif

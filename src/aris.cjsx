@@ -156,26 +156,23 @@ class Auth
           cb {error}
         else
           retry(n - 1)
-      if window.isNative
-        null # TODO
-      else
-        req = new XMLHttpRequest
-        req.open 'POST', "#{ARIS_URL}/rawupload.php", true
-        req.onload = =>
-          if 200 <= req.status < 400
-            cb
-              returnCode: 0
-              data: req.responseText
-          else
-            handleError req.status
-        req.onerror = => handleError "Could not connect to Siftr"
-        req.upload.addEventListener 'progress', (evt) =>
-          if evt.lengthComputable
-            reportProgress(evt.loaded / evt.total)
-        , false
-        form = new FormData
-        form.append 'raw_upload', file
-        req.send form
+      req = new XMLHttpRequest
+      req.open 'POST', "#{ARIS_URL}/rawupload.php", true
+      req.onload = =>
+        if 200 <= req.status < 400
+          cb
+            returnCode: 0
+            data: req.responseText
+        else
+          handleError req.status
+      req.onerror = => handleError "Could not connect to Siftr"
+      req.upload.addEventListener 'progress', (evt) =>
+        if evt.lengthComputable
+          reportProgress(evt.loaded / evt.total)
+      , false
+      form = new FormData
+      form.append 'raw_upload', file
+      req.send form
     retry 2
 
   call: (func, json, cb) ->
@@ -187,28 +184,17 @@ class Auth
           cb {error}
         else
           retry(n - 1)
-      if window.isNative
-        fetch "#{ARIS_URL}/json.php/v2.#{func}",
-          method: 'POST'
-          headers:
-            'Accept': 'application/json'
-            'Content-Type': 'application/json'
-          body: JSON.stringify json
-        .then (response) => response.json()
-        .then (responseJson) => cb responseJson
-        .catch handleError
-      else
-        req = new XMLHttpRequest
-        req.open 'POST', "#{ARIS_URL}/json.php/v2.#{func}", true
-        req.setRequestHeader 'Content-Type',
-          'application/json; charset=UTF-8'
-        req.onload = =>
-          if 200 <= req.status < 400
-            cb JSON.parse req.responseText
-          else
-            handleError req.status
-        req.onerror = => handleError "Could not connect to Siftr"
-        req.send JSON.stringify json
+      req = new XMLHttpRequest
+      req.open 'POST', "#{ARIS_URL}/json.php/v2.#{func}", true
+      req.setRequestHeader 'Content-Type',
+        'application/json; charset=UTF-8'
+      req.onload = =>
+        if 200 <= req.status < 400
+          cb JSON.parse req.responseText
+        else
+          handleError req.status
+      req.onerror = => handleError "Could not connect to Siftr"
+      req.send JSON.stringify json
     if @authToken?
       json.auth = @authToken
       retry 2

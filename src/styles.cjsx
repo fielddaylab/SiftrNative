@@ -8,8 +8,6 @@ exports.styles = StyleSheet.create
 
   container:
     flex: 1
-    justifyContent: 'center'
-    alignItems: 'stretch'
     backgroundColor: '#F5FCFF'
     padding: 10
 
@@ -29,5 +27,8 @@ exports.styles = StyleSheet.create
   theMap:
     height: 400
     width: 300
+
+  horizontal:
+    flexDirection: 'row'
 
 # @endif

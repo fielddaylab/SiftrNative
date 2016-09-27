@@ -3,6 +3,14 @@
 React = require 'react'
 T = React.PropTypes
 
+# @ifdef NATIVE
+{ Switch
+, View
+, Text
+} = require 'react-native'
+{styles} = require './styles'
+# @endif
+
 { Auth
 , Tag
 , Game
@@ -23,6 +31,14 @@ SearchNotes = React.createClass
     searchParams: {}
     onSearch: (->)
 
+  # @ifdef NATIVE
+  doSearch: (obj) ->
+    @props.onSearch
+      sort: obj.sort ? @props.searchParams.sort
+      mine: obj.mine ? @props.searchParams.mine
+  # @endif
+
+  # @ifdef WEB
   doSearch: ->
     form = @refs.searchForm
     @props.onSearch
@@ -36,6 +52,7 @@ SearchNotes = React.createClass
           @props.searchParams.tags # don't touch tags until they're loaded
       min_time: @min_time ? @props.searchParams.min_time
       max_time: @max_time ? @props.searchParams.max_time
+  # @endif
 
   userTyped: ->
     clearTimeout(@timer) if @timer
@@ -43,21 +60,36 @@ SearchNotes = React.createClass
       @doSearch()
     , 250
 
-  # @ifdef NATIVE
-  render: ->
-    null
-  # @endif
-
-  # @ifdef WEB
   render: ->
     {sort, mine, tags, text, min_time, max_time} = @props.searchParams
     sort ?= 'recent'
     mine ?= false
     tags ?= []
     text ?= ''
-    <form ref="searchForm">
+    # @ifdef NATIVE
+    <View>
+      <View style={styles.horizontal}>
+        <Switch value={sort is 'recent'} onValueChange={(b) => @doSearch sort: if b then 'recent' else 'popular'} />
+        <Text>Recent</Text>
+      </View>
+      <View style={styles.horizontal}>
+        <Switch value={sort is 'popular'} onValueChange={(b) => @doSearch sort: if b then 'popular' else 'recent'} />
+        <Text>Popular</Text>
+      </View>
+      <View style={styles.horizontal}>
+        <Switch value={mine} onValueChange={(b) => @doSearch mine: b} />
+        <Text>My Notes</Text>
+      </View>
+    </View>
+    # @endif
+    # @ifdef WEB
+    <form ref="searchForm" onSubmit={(e) => e.preventDefault()}>
       <p>
-        <input type="text" ref="text" placeholder="Search notes..." defaultValue={text} onChange={@userTyped} />
+        <input type="text" ref="text"
+          placeholder="Search notes..."
+          defaultValue={text}
+          onChange={@userTyped}
+        />
       </p>
       <TimeSlider
         minBound={@props.game.created.getTime()}
@@ -100,6 +132,6 @@ SearchNotes = React.createClass
         </p>
       }
     </form>
-  # @endif
+    # @endif
 
 exports.SearchNotes = SearchNotes

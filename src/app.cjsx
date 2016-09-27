@@ -26,37 +26,51 @@ LoggedInContainer = React.createClass
     name: T.string
     onLogout: T.func
 
+  # @ifdef NATIVE
   render: ->
-    if window.isNative
-      <View style={styles.container}>
-        <Text>
-          Logged in as {@props.name}
-        </Text>
-        <TouchableOpacity onPress={@props.onLogout}>
-          <Text>Logout</Text>
-        </TouchableOpacity>
-        {@props.children}
-      </View>
-    else
-      <div>
-        <p>
-          Logged in as {@props.name}
-        </p>
-        <p>
-          <button type="button" onClick={clicker @props.onLogout}>Logout</button>
-        </p>
-        {@props.children}
-      </div>
+    <ScrollView style={styles.container}>
+      <Text>
+        Logged in as {@props.name}
+      </Text>
+      <TouchableOpacity onPress={@props.onLogout}>
+        <Text>Logout</Text>
+      </TouchableOpacity>
+      {@props.children}
+    </ScrollView>
+  # @endif
+
+  # @ifdef WEB
+  render: ->
+    <div>
+      <p>
+        Logged in as {@props.name}
+      </p>
+      <p>
+        <button type="button" onClick={clicker @props.onLogout}>Logout</button>
+      </p>
+      {@props.children}
+    </div>
+  # @endif
 
 LoggedOutContainer = React.createClass
   propTypes:
     onLogin: T.func
 
+  # @ifdef NATIVE
   render: ->
-    <DIV>
+    <ScrollView style={styles.container}>
       <LoginBox onLogin={@props.onLogin} />
       {@props.children}
-    </DIV>
+    </ScrollView>
+  # @endif
+
+  # @ifdef WEB
+  render: ->
+    <div>
+      <LoginBox onLogin={@props.onLogin} />
+      {@props.children}
+    </div>
+  # @endif
 
 GameList = React.createClass
   propTypes:
@@ -70,7 +84,7 @@ GameList = React.createClass
   # @ifdef NATIVE
   render: ->
     if @props.games?
-      <ScrollView>
+      <View>
         {
           @props.games.map (game) =>
             <TouchableOpacity key={game.game_id} onPress={=> @props.onSelect game}>
@@ -79,7 +93,7 @@ GameList = React.createClass
               </Text>
             </TouchableOpacity>
         }
-      </ScrollView>
+      </View>
     else
       <Text>Loading games...</Text>
   # @endif
@@ -109,31 +123,39 @@ SiftrURL = React.createClass
   getDefaultProps: ->
     onSelect: (->)
 
-  # @ifdef NATIVE
-  render: ->
-    null
-  # @endif
+  getInitialState: ->
+    url: ''
 
-  # @ifdef WEB
   findSiftr: ->
-    url = @refs.inputText.value
-    return unless url?
     @props.auth.searchSiftrs
-      siftr_url: url
+      siftr_url: @state.url
     , withSuccess (games) =>
       if games.length is 1
         @props.onSelect games[0]
 
-  handleEnter: (e) ->
-    @findSiftr() if e.keyCode is 13
+  # @ifdef NATIVE
+  render: ->
+    <View>
+      <TextInput
+        placeholder="Enter a Siftr URL"
+        value={@state.url}
+        onChangeText={(url) => @setState {url}}
+        autoCorrect={false}
+        autoCapitalize="none"
+      />
+      <BUTTON onClick={@findSiftr}><P>Submit</P></BUTTON>
+    </View>
+  # @endif
 
+  # @ifdef WEB
   render: ->
     <p>
       <input
-        ref="inputText"
         type="text"
-        onKeyDown={@handleEnter}
+        onKeyDown={(e) => @findSiftr() if e.keyCode is 13}
         placeholder="Enter a Siftr URL"
+        value={@state.url}
+        onChange={(e) => @setState url: e.target.value}
       />
       {' '}
       <BUTTON onClick={@findSiftr}>Submit</BUTTON>

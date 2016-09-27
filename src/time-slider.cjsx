@@ -70,10 +70,9 @@ TimeSlider = React.createClass
   getDefaultProps: ->
     onChange: (->)
 
-  componentWillMount: ->
-    @setState
-      p1: @props.p1
-      p2: @props.p2
+  getInitialState: ->
+    p1: @props.p1
+    p2: @props.p2
 
   getFrac: (time) ->
     if time is 'min'
