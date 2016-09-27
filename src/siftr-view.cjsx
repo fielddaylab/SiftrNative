@@ -112,12 +112,15 @@ SiftrView = React.createClass
       max_time: timeToARIS @state.searchParams.max_time
       limit: 50
       zoom:
-        if window.isNative
-          w = (@layout?.width ? 400) * 2
+        # @ifdef NATIVE
+        do =>
+          w = (@layout?.width  ? 400) * 2
           h = (@layout?.height ? 400) * 2
           fitBounds(@state.bounds, {width: w, height: h}).zoom
-        else
-          @state.zoom
+        # @endif
+        # @ifdef WEB
+        @state.zoom
+        # @endif
     , withSuccess (results) => @setState {results}
 
   moveMap: (obj) ->
@@ -161,10 +164,7 @@ SiftrView = React.createClass
         isAdmin={@props.isAdmin}
       />
     else
-      if window.isNative
-        <Text>No note open.</Text>
-      else
-        <p>No note open.</p>
+      <P>No note open.</P>
 
   renderMap: ->
     <SiftrMap

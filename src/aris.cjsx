@@ -199,15 +199,17 @@ class Auth
       json.auth = @authToken
       retry 2
     else
-      if window.isNative
-        AsyncStorage.getItem 'aris-auth', (err, result) =>
-          if result?
-            json.auth = JSON.parse result
-          retry 2
-      else
-        if (result = window.localStorage?['aris-auth'])?
+      # @ifdef NATIVE
+      AsyncStorage.getItem 'aris-auth', (err, result) =>
+        if result?
           json.auth = JSON.parse result
         retry 2
+      # @endif
+      # @ifdef WEB
+      if (result = window.localStorage?['aris-auth'])?
+        json.auth = JSON.parse result
+      retry 2
+      # @endif
 
   login: (username, password, cb = (->)) ->
     @call 'users.logIn',
@@ -218,31 +220,33 @@ class Auth
       {data: json, returnCode} = obj
       if returnCode is 0 and json.user_id isnt null
         auth = new Auth json
-        if window.isNative
-          AsyncStorage.setItem 'aris-auth', JSON.stringify(auth.authToken), =>
-            cb auth
-        else
-          try
-            window.localStorage['aris-auth'] = JSON.stringify auth.authToken
-          catch err
-            # Private mode in iOS Safari disables local storage.
-            # just don't bother remembering the auth.
-            null
-          cb auth
+        # @ifdef NATIVE
+        AsyncStorage.setItem 'aris-auth', JSON.stringify(auth.authToken), => cb auth
+        # @endif
+        # @ifdef WEB
+        try
+          window.localStorage['aris-auth'] = JSON.stringify auth.authToken
+        catch err
+          # Private mode in iOS Safari disables local storage.
+          # just don't bother remembering the auth.
+          null
+        cb auth
+        # @endif
       else
         @logout (auth) =>
           cb auth, obj
 
   logout: (cb = (->)) ->
-    if window.isNative
-      AsyncStorage.removeItem 'aris-auth', =>
-        cb(new Auth)
-    else
-      try
-        window.localStorage.removeItem 'aris-auth'
-      catch err
-        null
-      cb(new Auth)
+    # @ifdef NATIVE
+    AsyncStorage.removeItem 'aris-auth', => cb(new Auth)
+    # @endif
+    # @ifdef WEB
+    try
+      window.localStorage.removeItem 'aris-auth'
+    catch err
+      null
+    cb(new Auth)
+    # @endif
 
   # Perform an ARIS call, but then wrap a successful result with a class.
   callWrapped: (func, json, cb, wrap) ->

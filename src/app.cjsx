@@ -164,68 +164,77 @@ LoginBox = React.createClass
 
   doLogin: ->
     if @props.onLogin?
-      if window.isNative
-        @props.onLogin @username, @password
-      else
-        @props.onLogin @refs.username.value, @refs.password.value
+      # @ifdef NATIVE
+      @props.onLogin @username, @password
+      # @endif
+      # @ifdef WEB
+      @props.onLogin @refs.username.value, @refs.password.value
+      # @endif
 
   handleEnter: (e) ->
     @doLogin() if e.keyCode is 13
 
+  # @ifdef NATIVE
   render: ->
-    if window.isNative
-      <View style={styles.container}>
-        <TextInput
+    <View style={styles.container}>
+      <TextInput
+        placeholder="Username"
+        style={styles.input}
+        autoCapitalize="none"
+        autoCorrect={false}
+        autoFocus={true}
+        onChangeText={(username) => @username = username}
+      />
+      <TextInput
+        placeholder="Password"
+        secureTextEntry={true}
+        style={styles.input}
+        autoCapitalize="none"
+        autoCorrect={false}
+        onChangeText={(password) => @password = password}
+      />
+      <TouchableOpacity onPress={@doLogin}>
+        <Text style={styles.instructions}>Login</Text>
+      </TouchableOpacity>
+    </View>
+  # @endif
+
+  # @ifdef WEB
+  render: ->
+    <form>
+      <p>
+        <input
           placeholder="Username"
-          style={styles.input}
-          autoCapitalize="none"
-          autoCorrect={false}
-          autoFocus={true}
-          onChangeText={(username) => @username = username}
+          type="text"
+          ref="username"
+          onKeyDown={@handleEnter}
         />
-        <TextInput
+      </p>
+      <p>
+        <input
           placeholder="Password"
-          secureTextEntry={true}
-          style={styles.input}
-          autoCapitalize="none"
-          autoCorrect={false}
-          onChangeText={(password) => @password = password}
+          type="password"
+          ref="password"
+          onKeyDown={@handleEnter}
         />
-        <TouchableOpacity onPress={@doLogin}>
-          <Text style={styles.instructions}>Login</Text>
-        </TouchableOpacity>
-      </View>
-    else
-      <form>
-        <p>
-          <input
-            placeholder="Username"
-            type="text"
-            ref="username"
-            onKeyDown={@handleEnter}
-          />
-        </p>
-        <p>
-          <input
-            placeholder="Password"
-            type="password"
-            ref="password"
-            onKeyDown={@handleEnter}
-          />
-        </p>
-        <p>
-          <button type="button" onClick={clicker @doLogin}>Login</button>
-        </p>
-      </form>
+      </p>
+      <p>
+        <button type="button" onClick={clicker @doLogin}>Login</button>
+      </p>
+    </form>
+  # @endif
 
 Loading = React.createClass
+  # @ifdef NATIVE
   render: ->
-    if window.isNative
-      <View style={styles.container}>
-        <Text style={styles.welcome}>Loading...</Text>
-      </View>
-    else
-      <p>Loading...</p>
+    <View style={styles.container}>
+      <Text style={styles.welcome}>Loading...</Text>
+    </View>
+  # @endif
+  # @ifdef WEB
+  render: ->
+    <p>Loading...</p>
+  # @endif
 
 SiftrNative = React.createClass
   getInitialState: ->
