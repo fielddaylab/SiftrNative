@@ -83,55 +83,57 @@ SearchNotes = React.createClass
     </View>
     # @endif
     # @ifdef WEB
-    <form ref="searchForm" onSubmit={(e) => e.preventDefault()}>
-      <p>
-        <input type="text" ref="text"
-          placeholder="Search notes..."
-          defaultValue={text}
-          onChange={@userTyped}
-        />
-      </p>
-      <TimeSlider
-        minBound={@props.game.created.getTime()}
-        maxBound={Date.now()}
-        p1={min_time ? 'min'}
-        p2={max_time ? 'max'}
-        onChange={(min_time, max_time) =>
-          @min_time = min_time
-          @max_time = max_time
-          @doSearch()
-        }
-      />
-      <label>
+    <div className="siftr-search">
+      <form ref="searchForm" onSubmit={(e) => e.preventDefault()}>
         <p>
-          <input type="radio" name="sort" value="recent" onChange={@doSearch} checked={sort is 'recent'} /> Recent
+          <input type="text" ref="text"
+            placeholder="Search notes..."
+            defaultValue={text}
+            onChange={@userTyped}
+          />
         </p>
-      </label>
-      <label>
-        <p>
-          <input type="radio" name="sort" value="popular" onChange={@doSearch} checked={sort is 'popular'} /> Popular
-        </p>
-      </label>
-      <label>
-        <p>
-          <input type="checkbox" ref="mine" onChange={@doSearch} checked={mine} /> My Notes
-        </p>
-      </label>
-      {
-        <p>
-          {
-            @props.tags.map (tag) =>
-              <label key={tag.tag_id}>
-                <input type="checkbox" name="tags" value={tag.tag_id}
-                  checked={tag.tag_id in tags}
-                  onChange={@doSearch}
-                />
-                { tag.tag }
-              </label>
+        <TimeSlider
+          minBound={@props.game.created.getTime()}
+          maxBound={Date.now()}
+          p1={min_time ? 'min'}
+          p2={max_time ? 'max'}
+          onChange={(min_time, max_time) =>
+            @min_time = min_time
+            @max_time = max_time
+            @doSearch()
           }
-        </p>
-      }
-    </form>
+        />
+        <label>
+          <p>
+            <input type="radio" name="sort" value="recent" onChange={@doSearch} checked={sort is 'recent'} /> Recent
+          </p>
+        </label>
+        <label>
+          <p>
+            <input type="radio" name="sort" value="popular" onChange={@doSearch} checked={sort is 'popular'} /> Popular
+          </p>
+        </label>
+        <label>
+          <p>
+            <input type="checkbox" ref="mine" onChange={@doSearch} checked={mine} /> My Notes
+          </p>
+        </label>
+        {
+          <p>
+            {
+              @props.tags.map (tag) =>
+                <label key={tag.tag_id}>
+                  <input type="checkbox" name="tags" value={tag.tag_id}
+                    checked={tag.tag_id in tags}
+                    onChange={@doSearch}
+                  />
+                  { tag.tag }
+                </label>
+            }
+          </p>
+        }
+      </form>
+    </div>
     # @endif
 
 exports.SearchNotes = SearchNotes

@@ -30,7 +30,7 @@ SiftrThumbnails = React.createClass
 
   # @ifdef WEB
   render: ->
-    <div>
+    <div className="siftr-thumbs">
       {
         @props.notes.map (note) =>
           <a

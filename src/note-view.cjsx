@@ -277,11 +277,17 @@ SiftrNoteView = React.createClass
   # @endif
 
   render: ->
-    <DIV>
+    # @ifdef NATIVE
+    divProps = {}
+    # @endif
+    # @ifdef WEB
+    divProps = {className: 'note-view'}
+    # @endif
+    <DIV {...divProps}>
       {
       # @ifdef WEB
         <p>
-          <img src={@props.note.photo_url} />
+          <img className="note-photo" src={@props.note.photo_url} />
         </p>
       # @endif
       # @ifdef NATIVE

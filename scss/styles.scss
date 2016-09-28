@@ -244,7 +244,6 @@ $auth-menu-width: 300px;
 }
 
 .siftr-view-nav {
-  height: 77px;
   display: flex;
   flex-direction: row;
   align-items: stretch;
@@ -265,5 +264,74 @@ $auth-menu-width: 300px;
 
 .siftr-view-content {
   flex: 1;
+  position: relative;
+}
+
+@mixin left-pane {
+  background-color: white;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  @media screen and (min-width: 950px) {
+    width: 60%;
+  }
+  @media screen and (max-width: 949px) {
+    width: 100%;
+    z-index: 3;
+  }
   overflow-y: auto;
+}
+@mixin right-pane {
+  background-color: white;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  @media screen and (min-width: 950px) {
+    width: 40%;
+  }
+  @media screen and (max-width: 949px) {
+    width: 100%;
+    z-index: 3;
+  }
+  overflow-y: auto;
+}
+
+.primary-map .siftr-map {
+  @include left-pane;
+}
+.primary-thumbs .siftr-map {
+  @include right-pane;
+}
+.primary-thumbs .siftr-thumbs {
+  @include left-pane;
+}
+.primary-map .siftr-thumbs {
+  @include right-pane;
+}
+@media screen and (max-width: 949px) {
+  .primary-map    .siftr-map    { z-index: 2; }
+  .primary-thumbs .siftr-thumbs { z-index: 2; }
+  .primary-map    .siftr-thumbs { z-index: 1; }
+  .primary-thumbs .siftr-map    { z-index: 1; }
+}
+
+.siftr-search {
+  @include right-pane;
+  height: 0;
+  overflow: hidden;
+  transition: height 0.25s;
+}
+
+.search-open .siftr-search {
+  height: 100%;
+}
+
+.note-view {
+  @include right-pane;
+}
+
+.note-photo {
+  width: 100%;
 }

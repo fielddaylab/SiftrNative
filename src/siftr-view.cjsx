@@ -87,6 +87,15 @@ SiftrView = React.createClass
         # if we were logged in, close the open note
         @setState viewingNote: null
 
+  # @ifdef WEB
+  componentWillUpdate: (nextProps, nextState) ->
+    # hack to force map to notice it has been resized
+    if @state.primaryMap isnt nextState.primaryMap
+      setTimeout =>
+        window.dispatchEvent new Event 'resize'
+      , 500
+  # @endif
+
   getColor: (x) ->
     return 'white' unless @state.tags? and @state.colors?
     if x instanceof Tag
@@ -165,8 +174,6 @@ SiftrView = React.createClass
         onReload={(note) => @loadNoteByID note.note_id}
         isAdmin={@props.isAdmin}
       />
-    else
-      <P>No note open.</P>
 
   renderMap: ->
     <SiftrMap
