@@ -1,3 +1,5 @@
+@import 'normalize';
+
 body {
   font-family: 'Open Sans', sans-serif;
 }
@@ -198,8 +200,8 @@ $auth-menu-width: 300px;
 }
 
 .auth-contents {
-  overflow-y: auto;
   flex: 1;
+  display: flex;
 }
 
 .auth-menu
@@ -229,9 +231,39 @@ $auth-menu-width: 300px;
 .auth-nav {
   background-color: #888;
   padding-left: 7px;
-  flex: 0;
 }
 
 .auth-nav > * {
   vertical-align: middle;
+}
+
+.siftr-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1
+}
+
+.siftr-view-nav {
+  height: 77px;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: space-between;
+  padding: 0;
+  margin: 0;
+  background-color: rgb(44,48,59);
+}
+
+.siftr-view-nav-section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  line-height: 0;
+}
+
+.siftr-view-content {
+  flex: 1;
+  overflow-y: auto;
 }

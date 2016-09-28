@@ -38,9 +38,11 @@ SiftrView = React.createClass
     game: T.instanceOf(Game).isRequired
     auth: T.instanceOf(Auth).isRequired
     isAdmin: T.bool
+    onExit: T.func
 
   getDefaultProps: ->
     isAdmin: false
+    onExit: (->)
 
   getInitialState: ->
     center:
@@ -64,6 +66,8 @@ SiftrView = React.createClass
     viewingNote: null
     createNote: null
     searchParams: {}
+    searchOpen: false
+    primaryMap: true
 
   componentWillMount: ->
     @props.auth.getTagsForGame
@@ -288,13 +292,51 @@ SiftrView = React.createClass
       @loadResults()
       @loadNoteByID note.note_id
 
+  # @ifdef NATIVE
   render: ->
     <DIV>
-      {@renderSearch()}
       {@renderMap()}
       {@renderThumbnails()}
       {@renderNoteView()}
       {@renderCreateNote()}
+      {@renderSearch()}
     </DIV>
+  # @endif
+
+  # @ifdef WEB
+  render: ->
+    classes = [
+      'siftr-view'
+      if @state.searchOpen then 'search-open' else 'search-closed'
+      if @state.primaryMap then 'primary-map' else 'primary-thumbs'
+    ]
+    <div className={classes.join(' ')}>
+      <div className="siftr-view-nav">
+        <div className="siftr-view-nav-section">
+          <a href="#" onClick={clicker @props.onExit}>
+            <img src="assets/img/brand.png" />
+          </a>
+          <a href="#" onClick={clicker => @setState primaryMap: true}>
+            <img src={"assets/img/map-#{if @state.primaryMap then 'on' else 'off'}.png"} />
+          </a>
+          <a href="#" onClick={clicker => @setState primaryMap: false}>
+            <img src={"assets/img/thumbs-#{if @state.primaryMap then 'off' else 'on'}.png"} />
+          </a>
+        </div>
+        <div className="siftr-view-nav-section">
+          <a href="#" onClick={clicker => @setState searchOpen: not @state.searchOpen}>
+            <img src={"assets/img/search-#{if @state.searchOpen then 'on' else 'off'}.png"} />
+          </a>
+        </div>
+      </div>
+      <div className="siftr-view-content">
+        {@renderMap()}
+        {@renderThumbnails()}
+        {@renderNoteView()}
+        {@renderCreateNote()}
+        {@renderSearch()}
+      </div>
+    </div>
+  # @endif
 
 exports.SiftrView = SiftrView

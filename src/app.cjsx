@@ -318,6 +318,7 @@ SiftrNative = React.createClass
               game={@state.game}
               auth={@state.auth}
               isAdmin={@gameBelongsToUser @state.game}
+              onExit={=> @setState game: null}
             />
           else
             <DIV>
