@@ -14,6 +14,8 @@ MapView = require 'react-native-maps'
 {ConicGradient} = require './conic-gradient'
 # @endif
 
+{fitBounds} = require 'google-map-react/utils'
+
 { Note
 , Colors
 } = require './aris'
@@ -31,9 +33,11 @@ MapCluster = React.createClass
     lat: T.number.isRequired
     lng: T.number.isRequired
     getColor: T.func
+    onSelect: T.func
 
   getDefaultProps: ->
     getColor: -> 'white'
+    onSelect: (->)
 
   # @ifdef NATIVE
   render: ->
@@ -60,7 +64,9 @@ MapCluster = React.createClass
       last_color = color
     stops.unshift "#{last_color} 1 0%"
     gradient = getConicGradient(stops: stops.join(', '), size: width)
-    <div className="siftr-map-cluster" style={background: "url(#{gradient})"}>
+    <div className="siftr-map-cluster" style={background: "url(#{gradient})"}
+      onClick={clicker => @props.onSelect @props.cluster}
+    >
       <span className="siftr-map-cluster-number">
         {@props.cluster.note_count}
       </span>
@@ -140,6 +146,55 @@ SiftrMap = React.createClass
 
   getInitialState: -> {}
 
+  # @ifdef NATIVE
+  openCluster: (cluster) ->
+    null
+  # @endif
+
+  # @ifdef WEB
+  openCluster: (cluster) ->
+    close = (x, y) => Math.abs(x - y) < 0.00005
+    if close(cluster.min_latitude, cluster.max_latitude) and close(cluster.min_longitude, cluster.min_longitude)
+      # Calling fitBounds on a single point breaks for some reason
+      @props.onMove
+        center:
+          lat: (cluster.min_latitude  + cluster.max_latitude ) / 2
+          lng: (cluster.min_longitude + cluster.max_longitude) / 2
+        zoom: 21
+      return
+    # adjust bounds if all the points are on a single orthogonal line
+    # (fitBounds also breaks in this case)
+    bounds =
+      if close(cluster.min_latitude, cluster.max_latitude)
+        nw:
+          lat: cluster.max_latitude + 0.0005
+          lng: cluster.min_longitude
+        se:
+          lat: cluster.min_latitude - 0.0005
+          lng: cluster.max_longitude
+      else if close(cluster.min_longitude, cluster.max_longitude)
+        nw:
+          lat: cluster.max_latitude
+          lng: cluster.min_longitude - 0.0005
+        se:
+          lat: cluster.min_latitude
+          lng: cluster.max_longitude + 0.0005
+      else
+        nw:
+          lat: cluster.max_latitude
+          lng: cluster.min_longitude
+        se:
+          lat: cluster.min_latitude
+          lng: cluster.max_longitude
+    size =
+      width: @refs.mapContainer.clientWidth * 0.9
+      height: @refs.mapContainer.clientHeight * 0.9
+      # we shrink the stated map size a bit,
+      # to make sure we end up with some buffer around the points
+    {center, zoom} = fitBounds bounds, size
+    @props.onMove {center, zoom}
+  # @endif
+
   renderClusters: ->
     @props.map_clusters.map (map_cluster, i) =>
       <MapCluster
@@ -148,6 +203,7 @@ SiftrMap = React.createClass
         lng={(map_cluster.min_longitude + map_cluster.max_longitude) / 2}
         cluster={map_cluster}
         getColor={@props.getColor}
+        onSelect={@openCluster}
       />
 
   renderNotes: ->
@@ -203,7 +259,7 @@ SiftrMap = React.createClass
       bounds: {nw, se}
 
   render: ->
-    <div className="siftr-map">
+    <div className="siftr-map" ref="mapContainer">
       <GoogleMap
         center={@props.center}
         zoom={@props.zoom}

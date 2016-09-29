@@ -1,5 +1,8 @@
 @import 'normalize';
 
+$small-screen: "screen and (max-width: 949px)";
+$large-screen: "screen and (min-width: 950px)";
+
 body {
   font-family: 'Open Sans', sans-serif;
 }
@@ -69,14 +72,58 @@ $sqrt2: 1.4142135;
   transform: rotate(-45deg);
 }
 
+.siftr-thumbs {
+  text-align: center;
+}
 .siftr-thumbnail {
   background-size: cover;
   background-position: center;
-  height: 150px;
-  width: 150px;
   display: inline-block;
   margin: 4px;
   position: relative;
+}
+.siftr-thumbnail:after {
+  // this makes the thumbnail box square
+  content: "";
+  display: block;
+  padding-bottom: 100%;
+}
+@media #{$large-screen} {
+  .primary-map .siftr-thumbnail {
+    width: 45%;
+    @media(min-width:1300px) {
+      width: 31%;
+    }
+    @media(min-width:1600px) {
+      width: 23%;
+    }
+    @media(min-width:2000px) {
+      width: 18.5%;
+    }
+  }
+  .primary-thumbs .siftr-thumbnail {
+    width: 31%;
+    @media(min-width:1200px) {
+      width: 23%;
+    }
+    @media(min-width:1450px) {
+      width: 18.5%;
+    }
+    @media(min-width:1750px) {
+      width: 15.5%;
+    }
+  }
+}
+@media #{$small-screen} {
+  .siftr-thumbnail {
+    width: 45%;
+    @media(min-width:550px) {
+      width: 31%;
+    }
+    @media(min-width:700px) {
+      width: 23%;
+    }
+  }
 }
 
 .siftr-thumbnail-dot {
@@ -240,7 +287,10 @@ $auth-menu-width: 300px;
 .siftr-view {
   display: flex;
   flex-direction: column;
-  flex: 1
+  flex: 1;
+  @media #{$small-screen} {
+    flex-direction: column-reverse;
+  }
 }
 
 .siftr-view-nav {
@@ -273,12 +323,12 @@ $auth-menu-width: 300px;
   position: absolute;
   top: 0;
   left: 0;
-  @media screen and (min-width: 950px) {
+  @media #{$large-screen} {
     width: 60%;
   }
-  @media screen and (max-width: 949px) {
+  @media #{$small-screen} {
     width: 100%;
-    z-index: 3;
+    z-index: 3; // this is overridden for map/thumbs below
   }
   overflow-y: auto;
 }
@@ -288,16 +338,17 @@ $auth-menu-width: 300px;
   position: absolute;
   top: 0;
   right: 0;
-  @media screen and (min-width: 950px) {
+  @media #{$large-screen} {
     width: 40%;
   }
-  @media screen and (max-width: 949px) {
+  @media #{$small-screen} {
     width: 100%;
-    z-index: 3;
+    z-index: 3; // this is overridden for map/thumbs below
   }
   overflow-y: auto;
 }
 
+// on desktop, the primary pane is larger and to the left of the secondary pane
 .primary-map .siftr-map {
   @include left-pane;
 }
@@ -310,7 +361,8 @@ $auth-menu-width: 300px;
 .primary-map .siftr-thumbs {
   @include right-pane;
 }
-@media screen and (max-width: 949px) {
+@media #{$small-screen} {
+  // on mobile, the primary pane goes on top of the secondary pane
   .primary-map    .siftr-map    { z-index: 2; }
   .primary-thumbs .siftr-thumbs { z-index: 2; }
   .primary-map    .siftr-thumbs { z-index: 1; }
@@ -322,6 +374,11 @@ $auth-menu-width: 300px;
   height: 0;
   overflow: hidden;
   transition: height 0.25s;
+  @media #{$small-screen} {
+    // this is so that it opens up instead of down on mobile view
+    top: initial;
+    bottom: 0;
+  }
 }
 
 .search-open .siftr-search {
