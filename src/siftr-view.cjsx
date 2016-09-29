@@ -114,6 +114,7 @@ SiftrView = React.createClass
     @state.colors["tag_#{@state.tags.indexOf(tag) % 8 + 1}"] ? 'white'
 
   loadResults: (auth = @props.auth) ->
+    thisSearchTime = @lastSearchTime = Date.now()
     auth.siftrSearch
       game_id: @props.game.game_id
       min_latitude: @state.bounds.se.lat
@@ -137,7 +138,8 @@ SiftrView = React.createClass
         # @ifdef WEB
         @state.zoom
         # @endif
-    , withSuccess (results) => @setState {results}
+    , withSuccess (results) =>
+      @setState {results} if thisSearchTime is @lastSearchTime
 
   moveMap: (obj) ->
     @setState obj, => @loadResults()
@@ -170,6 +172,7 @@ SiftrView = React.createClass
       onSearch={(searchParams) =>
         @setState {searchParams}, => @loadResults()
       }
+      getColor={@getColor}
     />
 
   renderNoteView: ->

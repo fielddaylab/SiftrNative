@@ -135,13 +135,19 @@ $sqrt2: 1.4142135;
   border-radius: 999px;
 }
 
+.date-bounds {
+  margin: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
 .time-slider {
   height: 10px;
   width: calc(100% - 50px);
   background-color: #888;
   margin-top: 10px;
-  margin-bottom: 10px;
-  margin-left: 25px;
+  margin-left: 20px;
   position: relative;
 }
 
@@ -276,12 +282,13 @@ $auth-menu-width: 300px;
 }
 
 .auth-nav {
-  background-color: #888;
+  background-color: #224;
   padding-left: 7px;
 }
 
 .auth-nav > * {
   vertical-align: middle;
+  color: #eee;
 }
 
 .siftr-view {
@@ -310,6 +317,9 @@ $auth-menu-width: 300px;
   padding: 0;
   margin: 0;
   line-height: 0;
+  @media #{$small-screen} {
+    img { height: 65px; }
+  }
 }
 
 .siftr-view-content {
@@ -321,7 +331,12 @@ $auth-menu-width: 300px;
   background-color: white;
   height: 100%;
   position: absolute;
-  top: 0;
+  @media #{$large-screen} {
+    top: 0;
+  }
+  @media #{$small-screen} {
+    bottom: 0;
+  }
   left: 0;
   @media #{$large-screen} {
     width: 60%;
@@ -331,12 +346,20 @@ $auth-menu-width: 300px;
     z-index: 3; // this is overridden for map/thumbs below
   }
   overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 @mixin right-pane {
   background-color: white;
   height: 100%;
   position: absolute;
-  top: 0;
+  @media #{$large-screen} {
+    top: 0;
+  }
+  @media #{$small-screen} {
+    bottom: 0;
+  }
   right: 0;
   @media #{$large-screen} {
     width: 40%;
@@ -346,6 +369,9 @@ $auth-menu-width: 300px;
     z-index: 3; // this is overridden for map/thumbs below
   }
   overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 // on desktop, the primary pane is larger and to the left of the secondary pane
@@ -372,17 +398,46 @@ $auth-menu-width: 300px;
 .siftr-search {
   @include right-pane;
   height: 0;
-  overflow: hidden;
+  overflow-y: scroll;
   transition: height 0.25s;
-  @media #{$small-screen} {
-    // this is so that it opens up instead of down on mobile view
-    top: initial;
-    bottom: 0;
+  text-align: center;
+  padding-left: 10px;
+  padding-right: 10px;
+  h2 {
+    font-size: 18px;
+  }
+  hr {
+    margin-top: 15px;
+    margin-bottom: 15px;
   }
 }
 
 .search-open .siftr-search {
   height: 100%;
+}
+
+.search-text {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: 1px solid #bbb;
+}
+
+.search-tag {
+  margin: 5px;
+  padding: 5px;
+  border: 1px solid gray;
+  color: gray;
+  background-color: white;
+  border-radius: 5px;
+  white-space: nowrap;
+  display: inline-block;
+  text-decoration: none;
+}
+.search-tag.search-tag-on {
+  background-color: gray;
+  color: white;
 }
 
 .note-view {
@@ -393,7 +448,42 @@ $auth-menu-width: 300px;
   width: 100%;
 }
 
-.create-step-1, .create-step-2, .create-step-3, .create-step-4 {
+.create-step-1 {
   @include right-pane;
-  margin: 0;
+}
+.create-step-2, .create-step-3, .create-step-4 {
+  @include left-pane;
+}
+.create-step-2, .create-step-3, .create-step-4 {
+  // cover bottom of map
+  // note: sass is dumb. this has to be separate from from the left-pane decl
+  // or the media query parts of left-pane will be moved after these decls.
+  height: initial;
+  top: initial;
+  bottom: 0;
+}
+
+.activity-buttons {
+  display: table;
+  width: 100%;
+  box-sizing: border-box;
+  table-layout: fixed;
+}
+.activity-button {
+  display: table-cell;
+  border: 1px solid rgb(32,37,49);
+  background-color: white;
+  color: rgb(32,37,49);
+  padding: 10px;
+  text-decoration: none;
+}
+.activity-button.activity-on {
+  background-color: rgb(32,37,49);
+  color: white;
+}
+.activity-button:first-child {
+  border-radius: 999px 0 0 999px;
+}
+.activity-button:last-child {
+  border-radius: 0 999px 999px 0;
 }

@@ -74,10 +74,16 @@ class User
     @display_name = json.display_name or json.user_name
     @media_id     = parseInt json.media_id
 
+arisHTTPS = (x) ->
+  if typeof x is 'string'
+    x.replace('http://arisgames.org', 'https://arisgames.org')
+  else
+    x
+
 class Tag
   constructor: (json) ->
     if json?
-      @icon_url = json.media?.data?.url
+      @icon_url = arisHTTPS(json.media?.data?.url)
       @tag      = json.tag
       @tag_id   = parseInt json.tag_id
       @game_id  = parseInt json.game_id
@@ -116,12 +122,12 @@ class Note
         if 0 in [parseInt(json.media?.data?.media_id), parseInt(json.media_id)]
           null
         else
-          json.media?.url ? json.media.data.url
+          arisHTTPS(json.media?.url ? json.media.data.url)
       @thumb_url    =
         if 0 in [parseInt(json.media?.data?.media_id), parseInt(json.media_id)]
           null
         else
-          json.media?.big_thumb_url ? json.media.data.big_thumb_url
+          arisHTTPS(json.media?.big_thumb_url ? json.media.data.big_thumb_url)
       @latitude     = parseFloat json.latitude
       @longitude    = parseFloat json.longitude
       @tag_id       = parseInt json.tag_id

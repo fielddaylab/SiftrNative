@@ -4,11 +4,6 @@ React = require 'react'
 T = React.PropTypes
 
 nubType = T.oneOfType([T.number, T.oneOf(['min', 'max'])])
-showDate = (n) ->
-  if typeof n is 'string'
-    n
-  else
-    new Date(n).toLocaleString()
 
 TimeSliderNub = React.createClass
   propTypes:
@@ -90,14 +85,15 @@ TimeSlider = React.createClass
     else
       @props.minBound + frac * (@props.maxBound - @props.minBound)
 
+  isFlipped: ->
+    if      @state.p1 is 'min' then false
+    else if @state.p2 is 'min' then true
+    else if @state.p1 is 'max' then true
+    else if @state.p2 is 'max' then false
+    else                            @state.p1 > @state.p2
+
   doChange: ->
-    flip =
-      if      @state.p1 is 'min' then false
-      else if @state.p2 is 'min' then true
-      else if @state.p1 is 'max' then true
-      else if @state.p2 is 'max' then false
-      else                            @state.p1 > @state.p2
-    if flip
+    if @isFlipped()
       @props.onChange @state.p2, @state.p1
     else
       @props.onChange @state.p1, @state.p2
@@ -107,10 +103,19 @@ TimeSlider = React.createClass
     null
   # @endif
 
+  showDate: (d) ->
+    d = @props.minBound if d is 'min'
+    d = @props.maxBound if d is 'max'
+    new Date(d).toLocaleDateString()
+
   # @ifdef WEB
   render: ->
+    flip = @isFlipped()
     <div>
-      <p>Date range: {showDate @state.p1}, {showDate @state.p2}</p>
+      <div className="date-bounds">
+        <span>{@showDate(if flip then @state.p2 else @state.p1)}</span>
+        <span>{@showDate(if flip then @state.p1 else @state.p2)}</span>
+      </div>
       <div
         className="time-slider"
         ref="timeSlider"

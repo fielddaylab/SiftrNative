@@ -2,6 +2,7 @@
 
 React = require 'react'
 T = React.PropTypes
+update = require 'immutability-helper'
 
 # @ifdef NATIVE
 { Switch
@@ -17,6 +18,7 @@ T = React.PropTypes
 } = require './aris'
 
 {TimeSlider} = require './time-slider'
+{clicker} = require './utils'
 
 SearchNotes = React.createClass
   propTypes:
@@ -25,39 +27,45 @@ SearchNotes = React.createClass
     tags: T.arrayOf(T.instanceOf Tag)
     searchParams: T.any
     onSearch: T.func
+    getColor: T.func
 
   getDefaultProps: ->
     tags: []
     searchParams: {}
     onSearch: (->)
+    getColor: -> 'black'
 
-  # @ifdef NATIVE
-  doSearch: (obj) ->
-    @props.onSearch
-      sort: obj.sort ? @props.searchParams.sort
-      mine: obj.mine ? @props.searchParams.mine
-  # @endif
+  clickRecent: ->
+    @props.onSearch update @props.searchParams,
+      sort: $set: 'recent'
 
-  # @ifdef WEB
-  doSearch: ->
-    form = @refs.searchForm
-    @props.onSearch
-      sort: (input.value for input in form.sort when input.checked)[0]
-      mine: @refs.mine.checked
-      text: @refs.text.value
-      tags:
-        if @props.tags.length
-          parseInt input.value for input in form.tags when input.checked
+  clickPopular: ->
+    @props.onSearch update @props.searchParams,
+      sort: $set: 'popular'
+
+  clickMine: ->
+    @props.onSearch update @props.searchParams,
+      mine: $set: not @props.searchParams.mine
+
+  clickTag: (tag) ->
+    @props.onSearch update @props.searchParams,
+      tags: $apply: (tag_ids) =>
+        tag_ids ?= []
+        if tag.tag_id in tag_ids
+          tag_ids.filter (tag_id) => tag_id isnt tag.tag_id
         else
-          @props.searchParams.tags # don't touch tags until they're loaded
-      min_time: @min_time ? @props.searchParams.min_time
-      max_time: @max_time ? @props.searchParams.max_time
-  # @endif
+          tag_ids.concat tag.tag_id
+
+  changeDates: (min_time, max_time) ->
+    @props.onSearch update @props.searchParams,
+      min_time: $set: min_time
+      max_time: $set: max_time
 
   userTyped: ->
     clearTimeout(@timer) if @timer
     @timer = setTimeout =>
-      @doSearch()
+      @props.onSearch update @props.searchParams,
+        text: $set: @refs.text.value
     , 250
 
   render: ->
@@ -66,73 +74,90 @@ SearchNotes = React.createClass
     mine ?= false
     tags ?= []
     text ?= ''
+    min_time ?= 'min'
+    max_time ?= 'max'
     # @ifdef NATIVE
     <View>
       <View style={styles.horizontal}>
-        <Switch value={sort is 'recent'} onValueChange={(b) => @doSearch sort: if b then 'recent' else 'popular'} />
+        <Switch value={sort is 'recent'} onValueChange={(b) => if b then @clickRecent() else @clickPopular()} />
         <Text>Recent</Text>
       </View>
       <View style={styles.horizontal}>
-        <Switch value={sort is 'popular'} onValueChange={(b) => @doSearch sort: if b then 'popular' else 'recent'} />
+        <Switch value={sort is 'popular'} onValueChange={(b) => if b then @clickPopular() else @clickRecent()} />
         <Text>Popular</Text>
       </View>
       <View style={styles.horizontal}>
-        <Switch value={mine} onValueChange={(b) => @doSearch mine: b} />
+        <Switch value={mine} onValueChange={@clickMine} />
         <Text>My Notes</Text>
       </View>
     </View>
     # @endif
     # @ifdef WEB
     <div className="siftr-search">
-      <form ref="searchForm" onSubmit={(e) => e.preventDefault()}>
-        <p>
-          <input type="text" ref="text"
-            placeholder="Search notes..."
-            defaultValue={text}
-            onChange={@userTyped}
-          />
-        </p>
-        <TimeSlider
-          minBound={@props.game.created.getTime()}
-          maxBound={Date.now()}
-          p1={min_time ? 'min'}
-          p2={max_time ? 'max'}
-          onChange={(min_time, max_time) =>
-            @min_time = min_time
-            @max_time = max_time
-            @doSearch()
-          }
+      <p>
+        <input type="text" ref="text"
+          placeholder="Search…"
+          defaultValue={text}
+          onChange={@userTyped}
+          className="search-text"
         />
-        <label>
-          <p>
-            <input type="radio" name="sort" value="recent" onChange={@doSearch} checked={sort is 'recent'} /> Recent
-          </p>
-        </label>
-        <label>
-          <p>
-            <input type="radio" name="sort" value="popular" onChange={@doSearch} checked={sort is 'popular'} /> Popular
-          </p>
-        </label>
-        <label>
-          <p>
-            <input type="checkbox" ref="mine" onChange={@doSearch} checked={mine} /> My Notes
-          </p>
-        </label>
+      </p>
+      <hr />
+      <h2>BY DATE:</h2>
+      <TimeSlider
+        minBound={@props.game.created.getTime()}
+        maxBound={Date.now()}
+        p1={min_time}
+        p2={max_time}
+        onChange={@changeDates}
+      />
+      <hr />
+      <h2>BY ACTIVITY:</h2>
+      <div className="activity-buttons">
+        <a href="#"
+          className={"activity-button #{if sort is 'recent' then 'activity-on' else ''}"}
+          onClick={clicker @clickRecent}
+        >
+          newest
+        </a>
+        <a href="#"
+          className={"activity-button #{if sort is 'popular' then 'activity-on' else ''}"}
+          onClick={clicker @clickPopular}
+        >
+          popular
+        </a>
         {
-          <p>
-            {
-              @props.tags.map (tag) =>
-                <label key={tag.tag_id}>
-                  <input type="checkbox" name="tags" value={tag.tag_id}
-                    checked={tag.tag_id in tags}
-                    onChange={@doSearch}
-                  />
-                  { tag.tag }
-                </label>
-            }
-          </p>
+          if @props.auth.authToken?
+            <a href="#"
+              className={"activity-button #{if mine then 'activity-on' else ''}"}
+              onClick={clicker @clickMine}
+            >
+              mine
+            </a>
         }
-      </form>
+      </div>
+      <hr />
+      <h2>BY CATEGORY:</h2>
+      {
+        <p>
+          {
+            @props.tags.map (tag) =>
+              checked = tag.tag_id in tags
+              color = @props.getColor tag
+              <a href="#" key={tag.tag_id}
+                onClick={clicker => @clickTag tag}
+                className={"search-tag #{if checked then 'search-tag-on' else ''}"}
+                style={
+                  borderColor: color
+                  color: if checked then undefined else color
+                  backgroundColor: if checked then color else undefined
+                }
+              >
+                { if checked then "✓ #{tag.tag}" else "● #{tag.tag}" }
+              </a>
+          }
+        </p>
+      }
     </div>
     # @endif
 
