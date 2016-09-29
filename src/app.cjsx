@@ -28,14 +28,23 @@ AuthContainer = React.createClass
     onLogout: T.func
     hasBrowserButton: T.bool
     onBrowserButton: T.func
+    menuOpen: T.bool
+    onMenuMove: T.func
+
+  getDefaultProps: ->
+    onLogin: (->)
+    onLogout: (->)
+    hasBrowserButton: false
+    onBrowserButton: (->)
+    menuOpen: false
+    onMenuMove: (->)
 
   getInitialState: ->
-    menuOpen: false
     hasBrowserButton: false
     onBrowserButton: (->)
 
   goBackToBrowser: ->
-    @setState menuOpen: false
+    @props.onMenuMove false
     @props.onBrowserButton()
 
   # @ifdef NATIVE
@@ -64,10 +73,10 @@ AuthContainer = React.createClass
 
   # @ifdef WEB
   render: ->
-    <div className={"auth-container #{if @state.menuOpen then 'auth-menu-open' else 'auth-menu-closed'}"}>
+    <div className={"auth-container #{if @props.menuOpen then 'auth-menu-open' else 'auth-menu-closed'}"}>
       <div className="auth-nav">
         <a href="#"
-          onClick={clicker => @setState menuOpen: not @state.menuOpen}
+          onClick={clicker => @props.onMenuMove not @props.menuOpen}
           className="auth-nav-button"
         >☰</a>
         <span>
@@ -280,6 +289,7 @@ SiftrNative = React.createClass
     auth: null
     games: null
     game: null
+    menuOpen: false
 
   componentWillMount: ->
     @login()
@@ -296,11 +306,15 @@ SiftrNative = React.createClass
       @setState
         auth: newAuth
         games: null
-      @updateGames() if newAuth.authToken?
+      if newAuth.authToken?
+        @updateGames()
+        @setState menuOpen: false
 
   logout: ->
     (@state.auth ? new Auth).logout (newAuth) =>
-      @setState auth: newAuth
+      @setState
+        auth: newAuth
+        menuOpen: false
 
   gameBelongsToUser: (game) ->
     @state.games?.some (userGame) => userGame.game_id is game.game_id
@@ -311,6 +325,8 @@ SiftrNative = React.createClass
         auth={@state.auth} onLogin={@login} onLogout={@logout}
         hasBrowserButton={@state.game?}
         onBrowserButton={=> @setState game: null}
+        onMenuMove={(b) => @setState menuOpen: b}
+        menuOpen={@state.menuOpen}
       >
         {
           if @state.game?
@@ -319,6 +335,7 @@ SiftrNative = React.createClass
               auth={@state.auth}
               isAdmin={@gameBelongsToUser @state.game}
               onExit={=> @setState game: null}
+              onPromptLogin={=> @setState menuOpen: true}
             />
           else
             <DIV>

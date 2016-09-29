@@ -39,10 +39,12 @@ SiftrView = React.createClass
     auth: T.instanceOf(Auth).isRequired
     isAdmin: T.bool
     onExit: T.func
+    onPromptLogin: T.func
 
   getDefaultProps: ->
     isAdmin: false
     onExit: (->)
+    onPromptLogin: (->)
 
   getInitialState: ->
     center:
@@ -86,6 +88,9 @@ SiftrView = React.createClass
       if @state.viewingNote? and @props.auth.authToken?
         # if we were logged in, close the open note
         @setState viewingNote: null
+      if not nextProps.auth.authToken?
+        # cancel note creation on logout
+        @setState createNote: null
 
   # @ifdef WEB
   componentWillUpdate: (nextProps, nextState) ->
@@ -145,6 +150,9 @@ SiftrView = React.createClass
 
   selectNote: (note) ->
     @loadNoteByID note.note_id
+    @setState
+      searchOpen: false
+      createNote: null
 
   deleteNote: (note) ->
     @props.auth.call 'notes.deleteNote',
@@ -227,6 +235,13 @@ SiftrView = React.createClass
           lat: posn.coords.latitude
           lng: posn.coords.longitude
 
+  startCreate: ->
+    return if @state.createNote?
+    if @props.auth.authToken?
+      @setState createNote: {}
+    else
+      @props.onPromptLogin()
+
   renderCreateNote: ->
     unless @state.createNote?
       if @props.auth.authToken?
@@ -296,6 +311,7 @@ SiftrView = React.createClass
         longitude: fixLongitude location.lng
       tag_id: category.tag_id
     , withSuccess (note) =>
+      @setState createNote: null
       @loadResults()
       @loadNoteByID note.note_id
 
@@ -331,6 +347,9 @@ SiftrView = React.createClass
           </a>
         </div>
         <div className="siftr-view-nav-section">
+          <a href="#" onClick={clicker @startCreate}>
+            <img src="assets/img/mobile-plus.png" />
+          </a>
           <a href="#" onClick={clicker => @setState searchOpen: not @state.searchOpen}>
             <img src={"assets/img/search-#{if @state.searchOpen then 'on' else 'off'}.png"} />
           </a>

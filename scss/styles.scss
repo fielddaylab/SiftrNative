@@ -392,3 +392,8 @@ $auth-menu-width: 300px;
 .note-photo {
   width: 100%;
 }
+
+.create-step-1, .create-step-2, .create-step-3, .create-step-4 {
+  @include right-pane;
+  margin: 0;
+}

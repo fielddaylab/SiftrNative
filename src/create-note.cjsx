@@ -56,11 +56,11 @@ CreateStep1 = React.createClass
 
   render: ->
     if @state.progress?
-      <p>
+      <p className="create-step-1">
         Uploading... {Math.floor(@state.progress * 100)}%
       </p>
     else
-      <div>
+      <div className="create-step-1">
         <p>
           <input type="file" ref="fileInput" onChange={@getEXIF} />
           {' '}
@@ -106,7 +106,7 @@ CreateStep2 = React.createClass
     @props.onEnterCaption text
 
   render: ->
-    <P>
+    <p className="create-step-2">
       <input type="text" defaultValue={@props.defaultCaption} ref="inputText" placeholder="Enter a caption..." />
       {' '}
       <BUTTON onClick={@doEnterCaption}>Enter</BUTTON>
@@ -114,7 +114,7 @@ CreateStep2 = React.createClass
       <BUTTON onClick={@props.onBack}>Back</BUTTON>
       {' '}
       <BUTTON onClick={@props.onCancel}>Cancel</BUTTON>
-    </P>
+    </p>
   # @endif
 
 # Step 3: Location
@@ -130,13 +130,13 @@ CreateStep3 = React.createClass
     onCancel: (->)
 
   render: ->
-    <P>
+    <p className="create-step-3">
       <BUTTON onClick={@props.onPickLocation}>Pick Location</BUTTON>
       {' '}
       <BUTTON onClick={@props.onBack}>Back</BUTTON>
       {' '}
       <BUTTON onClick={@props.onCancel}>Cancel</BUTTON>
-    </P>
+    </p>
 
 # Step 4: Category
 CreateStep4 = React.createClass
@@ -165,7 +165,7 @@ CreateStep4 = React.createClass
         return
 
   render: ->
-    <p>
+    <p className="create-step-4">
       <select ref="inputSelect">
         {
           @props.categories.map (category) =>
