@@ -463,6 +463,51 @@ $auth-menu-width: 300px;
   bottom: 0;
 }
 
+.create-step-1, .create-step-2 {
+  display: flex;
+  flex-direction: column;
+}
+
+.create-content {
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  box-sizing: border-box;
+}
+
+.create-buttons {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  padding: 15px;
+  box-sizing: border-box;
+}
+
+.create-button-blue, .create-button-gray {
+  padding: 8px 20px;
+  text-decoration: none;
+  color: white;
+}
+.create-button-blue { background-color: rgb(97,201,226); }
+.create-button-gray { background-color: #cfcbcc; }
+
+.create-caption-box {
+  flex: 1;
+  align-self: stretch;
+  display: flex;
+  align-items: flex-start;
+}
+
+.create-caption {
+  margin-right: 8px;
+  height: 80px;
+  flex: 1;
+  resize: none;
+}
+
 .activity-buttons {
   display: table;
   width: 100%;
@@ -482,8 +527,15 @@ $auth-menu-width: 300px;
   color: white;
 }
 .activity-button:first-child {
-  border-radius: 999px 0 0 999px;
+  border-top-left-radius: 999px;
+  border-bottom-left-radius: 999px;
 }
 .activity-button:last-child {
-  border-radius: 0 999px 999px 0;
+  border-top-right-radius: 999px;
+  border-bottom-right-radius: 999px;
+}
+
+.file-form {
+  position: fixed;
+  left: 9999px;
 }

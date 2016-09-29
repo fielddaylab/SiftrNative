@@ -6,7 +6,7 @@ T = React.PropTypes
 EXIF = require 'exif-js'
 
 {Auth, Game, Tag} = require './aris'
-{withSuccess, P, BUTTON} = require './utils'
+{clicker, withSuccess, P, BUTTON} = require './utils'
 
 # Step 1: Upload
 CreateStep1 = React.createClass
@@ -48,7 +48,6 @@ CreateStep1 = React.createClass
         exif: EXIF.getAllTags file
 
   getEXIF: ->
-    @setState file: null
     file = (@refs.fileInput?.files ? [])[0]
     return unless file?
     EXIF.getData file, =>
@@ -56,27 +55,43 @@ CreateStep1 = React.createClass
 
   render: ->
     if @state.progress?
-      <p className="create-step-1">
-        Uploading... {Math.floor(@state.progress * 100)}%
-      </p>
+      <div className="create-step-1">
+        <div className="create-content">
+          <span>Uploading... {Math.floor(@state.progress * 100)}%</span>
+        </div>
+      </div>
     else
       <div className="create-step-1">
-        <p>
-          <input type="file" ref="fileInput" onChange={@getEXIF} />
-          {' '}
-          <BUTTON onClick={@beginUpload}>Upload</BUTTON>
-          {' '}
-          <BUTTON onClick={@props.onCancel}>Cancel</BUTTON>
-        </p>
-        {
-          if @state.file?
-            <div
-              className={"upload-preview exif-#{EXIF.getTag(@state.file, 'Orientation')}"}
-              style={
-                backgroundImage: "url(#{URL.createObjectURL @state.file})"
-              }
-            />
-        }
+        <form className="file-form">
+          <input ref="fileInput" type="file" name="raw_upload"
+            onChange={@getEXIF}
+          />
+        </form>
+        <div className="create-content">
+          {
+            if @state.file?
+              <a href="#" onClick={clicker => @refs.fileInput.click()}>
+                <div
+                  className={"upload-preview exif-#{EXIF.getTag(@state.file, 'Orientation')}"}
+                  style={
+                    backgroundImage: "url(#{URL.createObjectURL @state.file})"
+                  }
+                />
+              </a>
+            else
+              <a href="#" onClick={clicker => @refs.fileInput.click()}>
+                <img src="assets/img/select-image.png" />
+              </a>
+          }
+        </div>
+        <div className="create-buttons">
+          <a href="#" className="create-button-gray" onClick={clicker @props.onCancel}>
+            CANCEL
+          </a>
+          <a href="#" className="create-button-blue" onClick={clicker @beginUpload}>
+            DESCRIPTION {'>'}
+          </a>
+        </div>
       </div>
   # @endif
 
@@ -106,15 +121,28 @@ CreateStep2 = React.createClass
     @props.onEnterCaption text
 
   render: ->
-    <p className="create-step-2">
-      <input type="text" defaultValue={@props.defaultCaption} ref="inputText" placeholder="Enter a caption..." />
-      {' '}
-      <BUTTON onClick={@doEnterCaption}>Enter</BUTTON>
-      {' '}
-      <BUTTON onClick={@props.onBack}>Back</BUTTON>
-      {' '}
-      <BUTTON onClick={@props.onCancel}>Cancel</BUTTON>
-    </p>
+    <div className="create-step-2">
+      <div className="create-content">
+        <div className="create-caption-box">
+          <textarea className="create-caption"
+            defaultValue={@props.defaultCaption}
+            ref="inputText"
+            placeholder="Enter a caption..."
+          />
+          <a href="#" onClick={clicker @props.onCancel}>
+            <img src="assets/img/x-blue.png" />
+          </a>
+        </div>
+      </div>
+      <div className="create-buttons">
+        <a href="#" className="create-button-blue" onClick={clicker @props.onBack}>
+          {'<'} IMAGE
+        </a>
+        <a href="#" className="create-button-blue" onClick={clicker @doEnterCaption}>
+          LOCATION {'>'}
+        </a>
+      </div>
+    </div>
   # @endif
 
 # Step 3: Location

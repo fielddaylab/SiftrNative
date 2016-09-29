@@ -241,7 +241,10 @@ SiftrView = React.createClass
   startCreate: ->
     return if @state.createNote?
     if @props.auth.authToken?
-      @setState createNote: {}
+      @setState
+        createNote: {}
+        searchOpen: false
+        viewingNote: null
     else
       @props.onPromptLogin()
 
