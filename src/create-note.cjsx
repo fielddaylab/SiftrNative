@@ -5,8 +5,14 @@ T = React.PropTypes
 
 EXIF = require 'exif-js'
 
+# @ifdef NATIVE
+ImagePicker = require 'react-native-image-picker'
+{Platform, Image} = require 'react-native'
+{styles} = require './styles'
+# @endif
+
 {Auth, Game, Tag} = require './aris'
-{clicker, withSuccess, P, BUTTON} = require './utils'
+{clicker, withSuccess, P, BUTTON, DIV} = require './utils'
 
 # Step 1: Upload
 CreateStep1 = React.createClass
@@ -25,8 +31,77 @@ CreateStep1 = React.createClass
     file: null # file that has EXIF tags already loaded
 
   # @ifdef NATIVE
+  beginUpload: ->
+    file = @state.file
+    return unless file?
+    @setState progress: 0
+    updateProgress = (n) => @setState progress: n
+    @props.auth.rawUpload file, updateProgress, withSuccess (raw_upload_id) =>
+      @props.auth.call 'media.createMediaFromRawUpload',
+        file_name: file.name
+        raw_upload_id: raw_upload_id
+        game_id: @props.game.game_id
+        resize: 800
+      , withSuccess (media) => @props.onCreateMedia
+        media: media
+        exif: {} # EXIF.getAllTags file
+
   render: ->
-    null
+    if @state.progress?
+      return <P>Uploading... {Math.floor(@state.progress * 100)}%</P>
+    <DIV>
+      <BUTTON onClick={=>
+        ImagePicker.showImagePicker
+          mediaType: 'photo'
+          noData: true
+          storageOptions:
+            cameraRoll: true
+        , (result) =>
+          return if result.didCancel
+          unless result?.uri?
+            console.warn JSON.stringify result
+            return
+          if result.fileName? and result.type?
+            # android (rest are ios)
+            mime = result.type
+            name = result.fileName
+          else if result.uri.match(/\.jpe?g$/i)
+            mime = 'image/jpeg'
+            name = 'upload.jpg'
+          else if result.uri.match(/\.png$/i)
+            mime = 'image/png'
+            name = 'upload.png'
+          else if result.uri.match(/\.gif$/i)
+            mime = 'image/gif'
+            name = 'upload.gif'
+          else
+            console.warn JSON.stringify result
+            return
+          @setState file:
+            uri:
+              if Platform.OS is 'ios'
+                result.uri.replace('file://', '')
+              else
+                result.uri
+            isStatic: true
+            type: mime
+            name: name
+      }>
+        <P>Pick Image</P>
+      </BUTTON>
+      <BUTTON onClick={@beginUpload}>
+        <P>Upload</P>
+      </BUTTON>
+      <BUTTON onClick={@props.onCancel}>
+        <P>Cancel</P>
+      </BUTTON>
+      {
+        if @state.file?
+          <Image source={@state.file} style={styles.previewImage} />
+        else
+          <P>Pick an image.</P>
+      }
+    </DIV>
   # @endif
 
   # @ifdef WEB

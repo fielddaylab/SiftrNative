@@ -31,4 +31,8 @@ exports.styles = StyleSheet.create
   horizontal:
     flexDirection: 'row'
 
+  previewImage:
+    height: 400
+    width: 300
+
 # @endif
