@@ -251,7 +251,7 @@ SiftrView = React.createClass
   renderCreateNote: ->
     unless @state.createNote?
       if @props.auth.authToken?
-        <BUTTON onClick={=> @setState createNote: {}}>
+        <BUTTON onClick={@startCreate}>
           <P>Upload Photo</P>
         </BUTTON>
       else
@@ -304,6 +304,7 @@ SiftrView = React.createClass
               caption: @state.createNote.caption
           , => @startLocatingNote center: @state.createNote.location
         }
+        getColor={@getColor}
       />
 
   finishNoteCreation: (category) ->

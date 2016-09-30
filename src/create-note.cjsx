@@ -7,7 +7,7 @@ EXIF = require 'exif-js'
 
 # @ifdef NATIVE
 ImagePicker = require 'react-native-image-picker'
-{Platform, Image} = require 'react-native'
+{Platform, Image, View, TextInput, Picker} = require 'react-native'
 {styles} = require './styles'
 # @endif
 
@@ -49,7 +49,7 @@ CreateStep1 = React.createClass
   render: ->
     if @state.progress?
       return <P>Uploading... {Math.floor(@state.progress * 100)}%</P>
-    <DIV>
+    <View>
       <BUTTON onClick={=>
         ImagePicker.showImagePicker
           mediaType: 'photo'
@@ -101,7 +101,7 @@ CreateStep1 = React.createClass
         else
           <P>Pick an image.</P>
       }
-    </DIV>
+    </View>
   # @endif
 
   # @ifdef WEB
@@ -184,24 +184,38 @@ CreateStep2 = React.createClass
     onCancel: (->)
     defaultCaption: ''
 
-  # @ifdef NATIVE
-  render: ->
-    null
-  # @endif
+  componentWillMount: ->
+    @setState
+      text: @props.defaultCaption
 
-  # @ifdef WEB
   doEnterCaption: ->
-    text = @refs.inputText.value
+    text = @state.text
     return unless text.match(/\S/)
     @props.onEnterCaption text
 
+  # @ifdef NATIVE
+  render: ->
+    <View>
+      <TextInput
+        value={@state.text}
+        onChangeText={(text) => @setState {text}}
+        multiline={true}
+        style={styles.textInput}
+      />
+      <BUTTON onClick={@doEnterCaption}><P>Enter</P></BUTTON>
+      <BUTTON onClick={@props.onBack}><P>Back</P></BUTTON>
+      <BUTTON onClick={@props.onCancel}><P>Cancel</P></BUTTON>
+    </View>
+  # @endif
+
+  # @ifdef WEB
   render: ->
     <div className="create-step-2">
       <div className="create-content">
         <div className="create-caption-box">
           <textarea className="create-caption"
-            defaultValue={@props.defaultCaption}
-            ref="inputText"
+            value={@state.text}
+            onChange={(e) => @setState text: e.target.value}
             placeholder="Enter a caption..."
           />
           <a href="#" onClick={clicker @props.onCancel}>
@@ -232,6 +246,16 @@ CreateStep3 = React.createClass
     onBack: (->)
     onCancel: (->)
 
+  # @ifdef NATIVE
+  render: ->
+    <View>
+      <BUTTON onClick={@props.onPickLocation}><P>Pick Location</P></BUTTON>
+      <BUTTON onClick={@props.onBack}><P>Back</P></BUTTON>
+      <BUTTON onClick={@props.onCancel}><P>Cancel</P></BUTTON>
+    </View>
+  # @endif
+
+  # @ifdef WEB
   render: ->
     <p className="create-step-3">
       <BUTTON onClick={@props.onPickLocation}>Pick Location</BUTTON>
@@ -240,6 +264,7 @@ CreateStep3 = React.createClass
       {' '}
       <BUTTON onClick={@props.onCancel}>Cancel</BUTTON>
     </p>
+  # @endif
 
 # Step 4: Category
 CreateStep4 = React.createClass
@@ -248,40 +273,73 @@ CreateStep4 = React.createClass
     onPickCategory: T.func
     onBack: T.func
     onCancel: T.func
+    getColor: T.func
 
   getDefaultProps: ->
     onPickCategory: (->)
     onBack: (->)
     onCancel: (->)
+    getColor: -> 'black'
+
+  componentWillMount: ->
+    @setState
+      category: @props.categories[0]
+
+  pickCategory: ->
+    @props.onPickCategory @state.category
 
   # @ifdef NATIVE
   render: ->
-    null
+    <View>
+      <Picker
+        selectedValue={@state.category.tag_id}
+        onValueChange={(tag_id) =>
+          for category in @props.categories
+            if category.tag_id is tag_id
+              @setState {category}
+        }
+      >
+        {
+          @props.categories.map (category) =>
+            <Picker.Item label={category.tag} value={category.tag_id} key={category.tag_id} />
+        }
+      </Picker>
+      <BUTTON onClick={@pickCategory}><P>Finish</P></BUTTON>
+      <BUTTON onClick={@props.onBack}><P>Back</P></BUTTON>
+      <BUTTON onClick={@props.onCancel}><P>Cancel</P></BUTTON>
+    </View>
   # @endif
 
   # @ifdef WEB
-  doPickCategory: ->
-    tag_id = parseInt @refs.inputSelect.value
-    for category in @props.categories
-      if category.tag_id is tag_id
-        @props.onPickCategory category
-        return
-
   render: ->
-    <p className="create-step-4">
-      <select ref="inputSelect">
-        {
-          @props.categories.map (category) =>
-            <option key={category.tag_id} value={category.tag_id}>{category.tag}</option>
-        }
-      </select>
+    <div className="create-step-4">
+      {
+        <p>
+          {
+            @props.categories.map (category) =>
+              checked = category is @state.category
+              color = @props.getColor category
+              <a href="#" key={category.tag_id}
+                onClick={clicker => @setState {category}}
+                className={"search-tag #{if checked then 'search-tag-on' else ''}"}
+                style={
+                  borderColor: color
+                  color: if checked then undefined else color
+                  backgroundColor: if checked then color else undefined
+                }
+              >
+                { if checked then "✓ #{category.tag}" else "● #{category.tag}" }
+              </a>
+          }
+        </p>
+      }
       {' '}
-      <BUTTON onClick={@doPickCategory}>Finish</BUTTON>
+      <BUTTON onClick={@pickCategory}>Finish</BUTTON>
       {' '}
       <BUTTON onClick={@props.onBack}>Back</BUTTON>
       {' '}
       <BUTTON onClick={@props.onCancel}>Cancel</BUTTON>
-    </p>
+    </div>
   # @endif
 
 exports.CreateStep1 = CreateStep1

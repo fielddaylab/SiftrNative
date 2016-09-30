@@ -35,4 +35,8 @@ exports.styles = StyleSheet.create
     height: 400
     width: 300
 
+  textInput:
+    height: 400
+    width: 300
+
 # @endif
