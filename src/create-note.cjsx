@@ -7,7 +7,7 @@ EXIF = require 'exif-js'
 
 # @ifdef NATIVE
 ImagePicker = require 'react-native-image-picker'
-{Platform, Image, View, TextInput, Picker} = require 'react-native'
+{Platform, Image, View, TextInput, Picker, Text} = require 'react-native'
 {styles} = require './styles'
 # @endif
 
@@ -48,8 +48,26 @@ CreateStep1 = React.createClass
 
   render: ->
     if @state.progress?
-      return <P>Uploading... {Math.floor(@state.progress * 100)}%</P>
-    <View>
+      return <Text style={
+        backgroundColor: 'white'
+        position: 'absolute'
+        top: 0
+        bottom: 0
+        left: 0
+        right: 0
+        flexDirection: 'column'
+      }>
+        Uploading... {Math.floor(@state.progress * 100)}%
+      </Text>
+    <View style={
+      backgroundColor: 'white'
+      position: 'absolute'
+      top: 0
+      bottom: 0
+      left: 0
+      right: 0
+      flexDirection: 'column'
+    }>
       <BUTTON onClick={=>
         ImagePicker.showImagePicker
           mediaType: 'photo'
@@ -195,7 +213,14 @@ CreateStep2 = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    <View>
+    <View style={
+      backgroundColor: 'white'
+      position: 'absolute'
+      bottom: 0
+      left: 0
+      right: 0
+      flexDirection: 'column'
+    }>
       <TextInput
         value={@state.text}
         onChangeText={(text) => @setState {text}}
@@ -248,7 +273,14 @@ CreateStep3 = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    <View>
+    <View style={
+      backgroundColor: 'white'
+      position: 'absolute'
+      bottom: 0
+      left: 0
+      right: 0
+      flexDirection: 'column'
+    }>
       <BUTTON onClick={@props.onPickLocation}><P>Pick Location</P></BUTTON>
       <BUTTON onClick={@props.onBack}><P>Back</P></BUTTON>
       <BUTTON onClick={@props.onCancel}><P>Cancel</P></BUTTON>
@@ -290,7 +322,14 @@ CreateStep4 = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    <View>
+    <View style={
+      backgroundColor: 'white'
+      position: 'absolute'
+      bottom: 0
+      left: 0
+      right: 0
+      flexDirection: 'column'
+    }>
       <Picker
         selectedValue={@state.category.tag_id}
         onValueChange={(tag_id) =>

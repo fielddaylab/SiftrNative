@@ -253,12 +253,7 @@ SiftrView = React.createClass
 
   renderCreateNote: ->
     unless @state.createNote?
-      if @props.auth.authToken?
-        <BUTTON onClick={@startCreate}>
-          <P>Upload Photo</P>
-        </BUTTON>
-      else
-        <P>Log in to upload a photo.</P>
+      null
     else unless @state.createNote.media?
       <CreateStep1
         auth={@props.auth}
@@ -342,13 +337,17 @@ SiftrView = React.createClass
             [@renderMap(), @renderThumbnails()]
         }
         {@renderNoteView()}
+        {@renderCreateNote()}
       </View>
       <View style={
-        backgroundColor: 'red'
+        backgroundColor: '#224'
       }>
         <Text style={color: 'white'}>Now viewing {if @state.primaryMap then 'map' else 'thumbs'}</Text>
         <TouchableOpacity onPress={=> @setState primaryMap: not @state.primaryMap}>
           <Text style={color: 'white'}>Swap view</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={@startCreate}>
+          <Text style={color: 'white'}>Create Note</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -122,12 +122,18 @@ MapNote = React.createClass
 
 SiftrMap = React.createClass
   propTypes:
-    center: T.any.isRequired
+    center: T.shape({
+      lat: T.number.isRequired
+      lng: T.number.isRequired
+    }).isRequired
     # @ifdef NATIVE
-    delta: T.any.isRequired
+    delta: T.shape({
+      lat: T.number.isRequired
+      lng: T.number.isRequired
+    }).isRequired
     # @endif
     # @ifdef WEB
-    zoom: T.any.isRequired
+    zoom: T.number.isRequired
     # @endif
     map_notes: T.arrayOf T.instanceOf Note
     map_clusters: T.array
@@ -143,7 +149,23 @@ SiftrMap = React.createClass
     onLayout: (->)
     onSelectNote: (->)
 
-  getInitialState: -> {}
+  shouldComponentUpdate: (nextProps) ->
+    # very important optimization. the map takes the longest to rerender
+    same =
+      @props.center.lat is nextProps.center.lat and
+      @props.center.lng is nextProps.center.lng and
+      # @ifdef NATIVE
+      @props.delta.lat is nextProps.delta.lat and
+      @props.delta.lng is nextProps.delta.lng and
+      # @endif
+      # @ifdef WEB
+      @props.zoom is nextProps.zoom and
+      # @endif
+      @props.map_notes is nextProps.map_notes and
+      @props.map_clusters is nextProps.map_clusters and
+      # NOTE: onMove, onLayout, onSelectNote are all looked up dynamically when they happen
+      @props.getColor is nextProps.getColor
+    not same
 
   # @ifdef NATIVE
   openCluster: (cluster) ->
@@ -213,7 +235,7 @@ SiftrMap = React.createClass
         lng={map_note.longitude}
         note={map_note}
         getColor={@props.getColor}
-        onSelect={@props.onSelectNote}
+        onSelect={(args...) => @props.onSelectNote(args...)}
       />
 
   # @ifdef NATIVE
@@ -235,7 +257,7 @@ SiftrMap = React.createClass
 
   render: ->
     <MapView
-      onLayout={@props.onLayout}
+      onLayout={(args...) => @props.onLayout(args...)}
       style={
         position: 'absolute'
         top: 0

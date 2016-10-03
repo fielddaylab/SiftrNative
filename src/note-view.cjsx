@@ -13,6 +13,7 @@ T = React.PropTypes
 , View
 , TextInput
 , Image
+, ScrollView
 } = require 'react-native'
 # @endif
 
@@ -277,9 +278,9 @@ SiftrNoteView = React.createClass
       @props.onDelete @props.note
   # @endif
 
+  # @ifdef NATIVE
   render: ->
-    # @ifdef NATIVE
-    divProps =
+    <ScrollView style={
       backgroundColor: 'white'
       position: 'absolute'
       top: 0
@@ -287,30 +288,16 @@ SiftrNoteView = React.createClass
       left: 0
       right: 0
       flexDirection: 'column'
-    # @endif
-    # @ifdef WEB
-    divProps =
-      className: 'note-view'
-    # @endif
-    <DIV {...divProps}>
-      {
-      # @ifdef WEB
-        <p>
-          <img className="note-photo" src={@props.note.photo_url} />
-        </p>
-      # @endif
-      # @ifdef NATIVE
-        <View>
-          <Image
-            source={uri: @props.note.photo_url}
-            style={
-              width: 300
-              height: 300
-            }
-          />
-        </View>
-      # @endif
-      }
+    }>
+      <View>
+        <Image
+          source={uri: @props.note.photo_url}
+          style={
+            width: 300
+            height: 300
+          }
+        />
+      </View>
       <P>Posted by {@props.note.user.display_name} at {@props.note.created.toLocaleString()}</P>
       {
         switch @props.note.published
@@ -355,6 +342,60 @@ SiftrNoteView = React.createClass
       <BUTTON onClick={@props.onClose}>
         <P>Close Note</P>
       </BUTTON>
-    </DIV>
+    </ScrollView>
+  # @endif
+
+  # @ifdef WEB
+  render: ->
+    <div className="note-view">
+      <p>
+        <img className="note-photo" src={@props.note.photo_url} />
+      </p>
+      <P>Posted by {@props.note.user.display_name} at {@props.note.created.toLocaleString()}</P>
+      {
+        switch @props.note.published
+          when 'PENDING'
+            if @props.isAdmin
+              <BUTTON onClick={@approveNote}><P>Approve this note</P></BUTTON>
+            else
+              <P>This note is visible only to you until a moderator approves it.</P>
+          when 'AUTO'
+            <BUTTON onClick={@flagNote}><P>Flag this note</P></BUTTON>
+          when 'APPROVED'
+            null
+      }
+      {
+        if @props.auth.authToken?
+          if @props.note.player_liked
+            <BUTTON onClick={@unlikeNote}><P>Unlike this note</P></BUTTON>
+          else
+            <BUTTON onClick={@likeNote}><P>Like this note</P></BUTTON>
+        else
+          <P>Log in to like this note.</P>
+      }
+      {
+        if @props.note.user.user_id is @props.auth.authToken?.user_id or @props.isAdmin
+          <BUTTON onClick={@confirmDelete}><P>Delete this note</P></BUTTON>
+      }
+      <P>{@props.note.description}</P>
+      {
+        if @state.comments is null
+          <P>Loading comments...</P>
+        else
+          <SiftrComments
+            note={@props.note}
+            auth={@props.auth}
+            comments={@state.comments ? []}
+            onEditComment={@doEditComment}
+            onNewComment={@doNewComment}
+            onDeleteComment={@doDeleteComment}
+            isAdmin={@props.isAdmin}
+          />
+      }
+      <BUTTON onClick={@props.onClose}>
+        <P>Close Note</P>
+      </BUTTON>
+    </div>
+  # @endif
 
 exports.SiftrNoteView = SiftrNoteView
