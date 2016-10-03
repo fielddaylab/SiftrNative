@@ -6,20 +6,8 @@
 
 exports.styles = StyleSheet.create
 
-  container:
-    flex: 1
-    backgroundColor: '#F5FCFF'
-    padding: 10
-
-  welcome:
-    fontSize: 20
-    textAlign: 'center'
-    margin: 10
-
-  instructions:
-    textAlign: 'center'
-    color: '#333333'
-    marginBottom: 5
+  whiteBG:
+    backgroundColor: 'white'
 
   input:
     height: 50

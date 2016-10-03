@@ -11,6 +11,7 @@ T = React.PropTypes
 , ScrollView
 } = require 'react-native'
 {styles} = require './styles'
+SideMenu = require 'react-native-side-menu'
 # @endif
 
 { Auth
@@ -49,26 +50,55 @@ AuthContainer = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    <ScrollView style={styles.container}>
-      {
-        if @props.auth.authToken?
-          <View>
-            <Text>
-              Logged in as {@props.auth.authToken.display_name}
-            </Text>
-            <TouchableOpacity onPress={@props.onLogout}>
-              <Text>Logout</Text>
-            </TouchableOpacity>
-          </View>
-        else
-          <LoginBox onLogin={@props.onLogin} />
+    <SideMenu
+      isOpen={@props.menuOpen}
+      onChange={@props.onMenuMove}
+      edgeHitWidth={0}
+      menu={
+        <View>
+          {
+            if @props.auth.authToken?
+              <View>
+                <Text>
+                  Logged in as {@props.auth.authToken.display_name}
+                </Text>
+                <TouchableOpacity onPress={@props.onLogout}>
+                  <Text>Logout</Text>
+                </TouchableOpacity>
+              </View>
+            else
+              <LoginBox onLogin={@props.onLogin} />
+          }
+          {
+            if @props.hasBrowserButton
+              <BUTTON onClick={@goBackToBrowser}><P>Back to Browser</P></BUTTON>
+          }
+        </View>
       }
-      {
-        if @props.hasBrowserButton
-          <BUTTON onClick={@goBackToBrowser}><P>Back to Browser</P></BUTTON>
-      }
-      {@props.children}
-    </ScrollView>
+    >
+      <View style={flex: 1, flexDirection: 'column'}>
+        <View style={
+          backgroundColor: '#224'
+          flexDirection: 'row'
+        }>
+          <TouchableOpacity
+            onPress={=> @props.onMenuMove not @props.menuOpen}
+            style={margin: 10}
+          >
+            <Text style={color: 'white'}>MENU</Text>
+          </TouchableOpacity>
+          <Text style={color: 'white', margin: 10}>
+            {
+              if @props.auth.authToken?
+                "Logged in as #{@props.auth.authToken.display_name}"
+              else
+                "Log in"
+            }
+          </Text>
+        </View>
+        {@props.children}
+      </View>
+    </SideMenu>
   # @endif
 
   # @ifdef WEB
@@ -127,7 +157,10 @@ GameList = React.createClass
   # @ifdef NATIVE
   render: ->
     if @props.games?
-      <View>
+      <ScrollView style={
+        backgroundColor: 'white'
+        flex: 1
+      }>
         {
           @props.games.map (game) =>
             <TouchableOpacity key={game.game_id} onPress={=> @props.onSelect game}>
@@ -136,9 +169,9 @@ GameList = React.createClass
               </Text>
             </TouchableOpacity>
         }
-      </View>
+      </ScrollView>
     else
-      <Text>Loading games...</Text>
+      <Text style={styles.whiteBG}>Loading games...</Text>
   # @endif
 
   # @ifdef WEB
@@ -224,7 +257,7 @@ LoginBox = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    <View style={styles.container}>
+    <View>
       <TextInput
         placeholder="Username"
         style={styles.input}
@@ -242,7 +275,7 @@ LoginBox = React.createClass
         onChangeText={(password) => @password = password}
       />
       <TouchableOpacity onPress={@doLogin}>
-        <Text style={styles.instructions}>Login</Text>
+        <Text>Login</Text>
       </TouchableOpacity>
     </View>
   # @endif
@@ -275,8 +308,8 @@ LoginBox = React.createClass
 Loading = React.createClass
   # @ifdef NATIVE
   render: ->
-    <View style={styles.container}>
-      <Text style={styles.welcome}>Loading...</Text>
+    <View>
+      <Text>Loading...</Text>
     </View>
   # @endif
   # @ifdef WEB
@@ -338,13 +371,11 @@ SiftrNative = React.createClass
               onPromptLogin={=> @setState menuOpen: true}
             />
           else
-            <DIV>
-              {
-                if @state.auth.authToken?
-                  <GameList games={@state.games} onSelect={(game) => @setState {game}} />
-              }
-              <SiftrURL auth={@state.auth} onSelect={(game) => @setState {game}} />
-            </DIV>
+            [
+              if @state.auth.authToken?
+                <GameList key={1} games={@state.games} onSelect={(game) => @setState {game}} />
+              <SiftrURL key={2} auth={@state.auth} onSelect={(game) => @setState {game}} />
+            ]
         }
       </AuthContainer>
     else

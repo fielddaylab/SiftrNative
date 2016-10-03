@@ -7,6 +7,7 @@ T = React.PropTypes
 { Text
 , View
 , TextInput
+, TouchableOpacity
 } = require 'react-native'
 {styles} = require './styles'
 # @endif
@@ -199,6 +200,7 @@ SiftrView = React.createClass
       delta={@state.delta}
       getColor={@getColor}
       onSelectNote={@selectNote}
+      key={1}
     />
 
   renderThumbnails: ->
@@ -206,6 +208,7 @@ SiftrView = React.createClass
       notes={@state.results?.notes}
       getColor={@getColor}
       onSelectNote={@selectNote}
+      key={2}
     />
 
   startLocatingNote: ({exif, center}) ->
@@ -324,13 +327,31 @@ SiftrView = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    <DIV>
-      {@renderMap()}
-      {@renderThumbnails()}
-      {@renderNoteView()}
-      {@renderCreateNote()}
-      {@renderSearch()}
-    </DIV>
+    <View style={
+      backgroundColor: 'white'
+      flex: 1
+      flexDirection: 'column'
+    }>
+      <View style={
+        flex: 1
+      }>
+        {
+          if @state.primaryMap
+            [@renderThumbnails(), @renderMap()]
+          else
+            [@renderMap(), @renderThumbnails()]
+        }
+        {@renderNoteView()}
+      </View>
+      <View style={
+        backgroundColor: 'red'
+      }>
+        <Text style={color: 'white'}>Now viewing {if @state.primaryMap then 'map' else 'thumbs'}</Text>
+        <TouchableOpacity onPress={=> @setState primaryMap: not @state.primaryMap}>
+          <Text style={color: 'white'}>Swap view</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   # @endif
 
   # @ifdef WEB

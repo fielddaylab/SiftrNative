@@ -6,7 +6,6 @@ T = React.PropTypes
 # @ifdef NATIVE
 MapView = require 'react-native-maps'
 {styles} = require './styles'
-{Alert} = require 'react-native'
 # @endif
 
 # @ifdef WEB
@@ -237,7 +236,13 @@ SiftrMap = React.createClass
   render: ->
     <MapView
       onLayout={@props.onLayout}
-      style={styles.theMap}
+      style={
+        position: 'absolute'
+        top: 0
+        bottom: 0
+        left: 0
+        right: 0
+      }
       region={
         latitude: @props.center.lat
         longitude: @props.center.lng

@@ -12,6 +12,7 @@ T = React.PropTypes
 { Alert
 , View
 , TextInput
+, Image
 } = require 'react-native'
 # @endif
 
@@ -278,10 +279,18 @@ SiftrNoteView = React.createClass
 
   render: ->
     # @ifdef NATIVE
-    divProps = {}
+    divProps =
+      backgroundColor: 'white'
+      position: 'absolute'
+      top: 0
+      bottom: 0
+      left: 0
+      right: 0
+      flexDirection: 'column'
     # @endif
     # @ifdef WEB
-    divProps = {className: 'note-view'}
+    divProps =
+      className: 'note-view'
     # @endif
     <DIV {...divProps}>
       {
@@ -291,7 +300,15 @@ SiftrNoteView = React.createClass
         </p>
       # @endif
       # @ifdef NATIVE
-        null
+        <View>
+          <Image
+            source={uri: @props.note.photo_url}
+            style={
+              width: 300
+              height: 300
+            }
+          />
+        </View>
       # @endif
       }
       <P>Posted by {@props.note.user.display_name} at {@props.note.created.toLocaleString()}</P>
