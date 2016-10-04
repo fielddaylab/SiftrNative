@@ -8,6 +8,7 @@ T = React.PropTypes
 , View
 , TextInput
 , TouchableOpacity
+, Image
 } = require 'react-native'
 {styles} = require './styles'
 # @endif
@@ -338,17 +339,47 @@ SiftrView = React.createClass
         }
         {@renderNoteView()}
         {@renderCreateNote()}
+        {@renderSearch() if @state.searchOpen}
       </View>
       <View style={
-        backgroundColor: '#224'
+        backgroundColor: 'rgb(44,48,59)'
+        flexDirection: 'row'
+        justifyContent: 'space-between'
       }>
-        <Text style={color: 'white'}>Now viewing {if @state.primaryMap then 'map' else 'thumbs'}</Text>
-        <TouchableOpacity onPress={=> @setState primaryMap: not @state.primaryMap}>
-          <Text style={color: 'white'}>Swap view</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={@startCreate}>
-          <Text style={color: 'white'}>Create Note</Text>
-        </TouchableOpacity>
+        <View style={flexDirection: 'row'}>
+          <TouchableOpacity onPress={@props.onExit}>
+            <Image style={width: 60, height: 60} source={require('../web/assets/img/brand.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={=> @setState primaryMap: true}>
+            <Image style={width: 60, height: 60} source={
+              if @state.primaryMap
+                require('../web/assets/img/map-on.png')
+              else
+                require('../web/assets/img/map-off.png')
+            } />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={=> @setState primaryMap: false}>
+            <Image style={width: 60, height: 60} source={
+              if not @state.primaryMap
+                require('../web/assets/img/thumbs-on.png')
+              else
+                require('../web/assets/img/thumbs-off.png')
+            } />
+          </TouchableOpacity>
+        </View>
+        <View style={flexDirection: 'row'}>
+          <TouchableOpacity onPress={@startCreate}>
+            <Image style={width: 60, height: 60} source={require('../web/assets/img/mobile-plus.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={=> @setState searchOpen: not @state.searchOpen}>
+            <Image style={width: 60, height: 60} source={
+              if @state.searchOpen
+                require('../web/assets/img/search-on.png')
+              else
+                require('../web/assets/img/search-off.png')
+            } />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   # @endif

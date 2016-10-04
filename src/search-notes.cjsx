@@ -77,7 +77,15 @@ SearchNotes = React.createClass
     min_time ?= 'min'
     max_time ?= 'max'
     # @ifdef NATIVE
-    <View>
+    <View style={
+      backgroundColor: 'white'
+      position: 'absolute'
+      top: 0
+      bottom: 0
+      left: 0
+      right: 0
+      flexDirection: 'column'
+    }>
       <View style={styles.horizontal}>
         <Switch value={sort is 'recent'} onValueChange={(b) => if b then @clickRecent() else @clickPopular()} />
         <Text>Recent</Text>
