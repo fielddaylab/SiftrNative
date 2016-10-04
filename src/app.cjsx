@@ -9,9 +9,12 @@ T = React.PropTypes
 , TextInput
 , TouchableOpacity
 , ScrollView
+, Platform
+, StatusBar
 } = require 'react-native'
 {styles} = require './styles'
 SideMenu = require 'react-native-side-menu'
+Orientation = require 'react-native-orientation'
 # @endif
 
 { Auth
@@ -43,12 +46,27 @@ AuthContainer = React.createClass
   getInitialState: ->
     hasBrowserButton: false
     onBrowserButton: (->)
+    orientation: 'PORTRAIT'
 
   goBackToBrowser: ->
     @props.onMenuMove false
     @props.onBrowserButton()
 
   # @ifdef NATIVE
+  componentDidMount: ->
+    # TODO something's not linked right with orientation on android.
+    # we don't need it anyway, but for now just don't set it up
+    if Platform.OS is 'ios'
+      Orientation.getSpecificOrientation (err, orientation) =>
+        @setState {orientation}
+      @orientationListener = (orientation) =>
+        @setState {orientation}
+      Orientation.addSpecificOrientationListener @orientationListener
+
+  componentWillUnmount: ->
+    if Platform.OS is 'ios'
+      Orientation.removeSpecificOrientationListener @orientationListener
+
   render: ->
     <SideMenu
       isOpen={@props.menuOpen}
@@ -77,17 +95,26 @@ AuthContainer = React.createClass
       }
     >
       <View style={flex: 1, flexDirection: 'column'}>
+        <StatusBar
+          backgroundColor="#224"
+          barStyle="light-content"
+        />
         <View style={
           backgroundColor: '#224'
           flexDirection: 'row'
+          padding: 10
+          paddingTop:
+            if Platform.OS is 'ios' and @state.orientation is 'PORTRAIT'
+              25
+            else
+              undefined
         }>
           <TouchableOpacity
             onPress={=> @props.onMenuMove not @props.menuOpen}
-            style={margin: 10}
           >
             <Text style={color: 'white'}>MENU</Text>
           </TouchableOpacity>
-          <Text style={color: 'white', margin: 10}>
+          <Text style={color: 'white', marginLeft: 10}>
             {
               if @props.auth.authToken?
                 "Logged in as #{@props.auth.authToken.display_name}"
