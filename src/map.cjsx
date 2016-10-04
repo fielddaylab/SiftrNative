@@ -4,6 +4,9 @@ React = require 'react'
 T = React.PropTypes
 
 # @ifdef NATIVE
+{ Text
+, View
+} = require 'react-native'
 MapView = require 'react-native-maps'
 {styles} = require './styles'
 # @endif
@@ -40,6 +43,12 @@ MapCluster = React.createClass
 
   # @ifdef NATIVE
   render: ->
+    press = switch window.platform
+      when 'ios'
+        # onPress does not appear to work on iOS
+        onSelect: => @props.onSelect @props.cluster
+      when 'android'
+        onPress: => @props.onSelect @props.cluster # TODO test this
     <MapView.Marker
       coordinate={
         latitude: @props.lat
@@ -48,7 +57,25 @@ MapCluster = React.createClass
       title="Cluster"
       description="Tap to see the notes inside."
       pinColor="black"
-    />
+      {...press}
+    >
+      <View style={
+        backgroundColor: 'black'
+        paddingTop: 4
+        paddingBottom: 4
+        paddingLeft: 7
+        paddingRight: 7
+        borderTopLeftRadius: 5
+        borderTopRightRadius: 5
+        borderBottomLeftRadius: 5
+        borderBottomRightRadius: 5
+      }>
+        <Text style={
+          color: 'white'
+          fontSize: 17
+        }>{@props.cluster.note_count}</Text>
+      </View>
+    </MapView.Marker>
   # @endif
 
   # @ifdef WEB
@@ -169,7 +196,18 @@ SiftrMap = React.createClass
 
   # @ifdef NATIVE
   openCluster: (cluster) ->
-    null
+    coordinates = [
+      {latitude: cluster.min_latitude, longitude: cluster.min_longitude}
+      {latitude: cluster.max_latitude, longitude: cluster.max_longitude}
+    ]
+    options =
+      edgePadding:
+        top: 150
+        bottom: 150
+        left: 150
+        right: 150
+      animated: true
+    @refs.theMapView.fitToCoordinates coordinates, options
   # @endif
 
   # @ifdef WEB
@@ -257,6 +295,7 @@ SiftrMap = React.createClass
 
   render: ->
     <MapView
+      ref="theMapView"
       onLayout={(args...) => @props.onLayout(args...)}
       style={
         position: 'absolute'
@@ -265,7 +304,7 @@ SiftrMap = React.createClass
         left: 0
         right: 0
       }
-      region={
+      initialRegion={
         latitude: @props.center.lat
         longitude: @props.center.lng
         latitudeDelta: @props.delta.lat
