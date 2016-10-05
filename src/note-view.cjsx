@@ -19,6 +19,30 @@ T = React.PropTypes
 
 {clicker, withSuccess, P, UL, LI, DIV, BUTTON} = require './utils'
 
+# By Diego Perini. https://gist.github.com/dperini/729294
+# MT: removed the ^ and $, and removed the \.? "TLD may end with dot"
+# since it often breaks people's links
+urlRegex = /(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[/?#]\S*)?/i
+
+linkableText = (str) ->
+  md = str.match(urlRegex)
+  if md?
+    <span>
+      { str[0 ... md.index] }
+      <a href={md[0]} target="_blank">
+        { md[0] }
+      </a>
+      { linkableText str[(md.index + md[0].length)..] }
+    </span>
+  else
+    <span>{ str }</span>
+
+writeParagraphs = (text) ->
+  paras =
+    para for para in text.split("\n") when para.match(/\S/)
+  for para, i in paras
+    <p key={i}>{ linkableText para }</p>
+
 SiftrCommentInput = React.createClass
   propTypes:
     defaultText: T.string
@@ -57,17 +81,32 @@ SiftrCommentInput = React.createClass
 
   # @ifdef WEB
   render: ->
-    <p>
-      <input placeholder="Enter a comment" type="text"
+    <div className="note-comment">
+      <p className="note-comment-credit">
+        {
+          if @props.canCancel
+            'Editing comment...'
+          else
+            'New comment...'
+        }
+      </p>
+      <textarea placeholder="Enter a comment..."
         value={@state.text}
         onChange={(e) => @setState text: e.target.value}
       />
-      <button onClick={clicker => @doSave()}>Save</button>
-      {
-        if @props.canCancel
-          <button onClick={clicker @props.onCancel}>Cancel</button>
-      }
-    </p>
+      <p>
+        <a href="#" onClick={clicker @doSave} className="create-button-blue">
+          SAVE
+        </a>
+        {' '}
+        {
+          if @props.canCancel
+            <a href="#" onClick={clicker @props.onCancel} className="create-button-gray">
+              CANCEL
+            </a>
+        }
+      </p>
+    </div>
   # @endif
 
 SiftrComment = React.createClass
@@ -106,6 +145,7 @@ SiftrComment = React.createClass
       @props.onDelete @props.comment
   # @endif
 
+  # @ifdef NATIVE
   render: ->
     if @state.editing
       <SiftrCommentInput
@@ -135,6 +175,42 @@ SiftrComment = React.createClass
             </BUTTON>
         }
       </DIV>
+  # @endif
+
+  # @ifdef WEB
+  render: ->
+    if @state.editing
+      <SiftrCommentInput
+        defaultText={@props.comment.description}
+        canCancel={true}
+        onCancel={=> @setState editing: false}
+        onSave={(text) =>
+          @setState editing: false
+          @props.onEdit text
+        }
+      />
+    else
+      <div className="note-comment">
+        <p className="note-comment-credit">
+          { @props.comment.user.display_name } at { @props.comment.created.toLocaleString() }
+          {
+            if @props.auth.authToken?.user_id is @props.comment.user.user_id
+              <a className="note-comment-action" href="#" onClick={clicker => @setState editing: true}>
+                <img src="assets/img/freepik/edit45_blue.png" />
+              </a>
+          }
+          {
+            if @props.auth.authToken?.user_id is @props.comment.user.user_id or @props.isAdmin
+              <a className="note-comment-action" href="#" onClick={clicker @confirmDelete}>
+                <img src="assets/img/freepik/delete81_blue.png" />
+              </a>
+          }
+        </p>
+        <div>
+          { writeParagraphs @props.comment.description }
+        </div>
+      </div>
+  # @endif
 
 SiftrComments = React.createClass
   propTypes:
@@ -152,6 +228,7 @@ SiftrComments = React.createClass
     onDeleteComment: (->)
     isAdmin: false
 
+  # @ifdef NATIVE
   render: ->
     <DIV>
       {
@@ -184,6 +261,39 @@ SiftrComments = React.createClass
           <P>Log in to write a comment.</P>
       }
     </DIV>
+  # @endif
+
+  # @ifdef WEB
+  render: ->
+    <div>
+      {
+        if @props.comments.length is 0
+          <div className="note-comment">
+            <p className="note-comment-credit">No comments.</p>
+          </div>
+        else
+          @props.comments.map (comment) =>
+            <SiftrComment
+              key={comment.comment_id}
+              comment={comment}
+              note={@props.note}
+              auth={@props.auth}
+              onEdit={(text) => @props.onEditComment comment, text}
+              onDelete={@props.onDeleteComment}
+              isAdmin={@props.isAdmin}
+            />
+      }
+      {
+        if @props.auth.authToken?
+          <SiftrCommentInput
+            canCancel={false}
+            onSave={@props.onNewComment}
+          />
+        else
+          <p>Log in to write a comment.</p>
+      }
+    </div>
+  # @endif
 
 SiftrNoteView = React.createClass
   propTypes:
@@ -193,12 +303,14 @@ SiftrNoteView = React.createClass
     onDelete: T.func
     onReload: T.func
     isAdmin: T.bool
+    onPromptLogin: T.func
 
   getDefaultProps: ->
     onClose: (->)
     onDelete: (->)
     onReload: (->)
     isAdmin: false
+    onPromptLogin: (->)
 
   getInitialState: ->
     comments: null
@@ -238,28 +350,43 @@ SiftrNoteView = React.createClass
     , withSuccess => @loadComments()
 
   likeNote: ->
+    unless @props.auth.authToken?
+      @props.onPromptLogin()
+      return
     @props.auth.call 'notes.likeNote',
       game_id: @props.note.game_id
       note_id: @props.note.note_id
     , withSuccess => @props.onReload @props.note
 
   unlikeNote: ->
+    unless @props.auth.authToken?
+      @props.onPromptLogin()
+      return
     @props.auth.call 'notes.unlikeNote',
       game_id: @props.note.game_id
       note_id: @props.note.note_id
     , withSuccess => @props.onReload @props.note
 
   approveNote: ->
+    unless @props.auth.authToken?
+      @props.onPromptLogin()
+      return
     @props.auth.call 'notes.approveNote',
       note_id: @props.note.note_id
     , withSuccess => @props.onReload @props.note
 
-  flagNote: ->
-    @props.auth.call 'notes.flagNote',
-      note_id: @props.note.note_id
-    , withSuccess => @props.onReload @props.note
-
   # @ifdef NATIVE
+  confirmFlag: ->
+    msg = 'Are you sure you want to flag this note for inappropriate content?'
+    cancel =
+      text: 'Cancel'
+      style: 'cancel'
+      onPress: (->)
+    ok =
+      text: 'OK'
+      onPress: => @props.onFlag @props.note
+    Alert.alert 'Confirm Flag', msg, [cancel, ok]
+
   confirmDelete: ->
     msg = 'Are you sure you want to delete this note?'
     cancel =
@@ -273,6 +400,10 @@ SiftrNoteView = React.createClass
   # @endif
 
   # @ifdef WEB
+  confirmFlag: ->
+    if confirm 'Are you sure you want to flag this note for inappropriate content?'
+      @props.onFlag @props.note
+
   confirmDelete: ->
     if confirm 'Are you sure you want to delete this note?'
       @props.onDelete @props.note
@@ -307,7 +438,7 @@ SiftrNoteView = React.createClass
             else
               <P>This note is visible only to you until a moderator approves it.</P>
           when 'AUTO'
-            <BUTTON onClick={@flagNote}><P>Flag this note</P></BUTTON>
+            <BUTTON onClick={@confirmFlag}><P>Flag this note</P></BUTTON>
           when 'APPROVED'
             null
       }
@@ -348,10 +479,39 @@ SiftrNoteView = React.createClass
   # @ifdef WEB
   render: ->
     <div className="note-view">
-      <p>
-        <img className="note-photo" src={@props.note.photo_url} />
-      </p>
-      <P>Posted by {@props.note.user.display_name} at {@props.note.created.toLocaleString()}</P>
+      <div className="note-top">
+        <h2 className="note-credit">
+          {@props.note.user.display_name} at {@props.note.created.toLocaleString()}
+        </h2>
+        <a href="#" onClick={clicker @props.onClose} className="note-x">
+          <img src="assets/img/x-blue.png" />
+        </a>
+      </div>
+      <img className="note-photo" src={@props.note.photo_url} />
+      <div className="note-actions">
+        {
+          if @props.auth.authToken? and @props.note.player_liked
+            <a href="#" className="note-action" onClick={clicker @unlikeNote}>
+              <img src="assets/img/freepik/heart-filled.png" />
+            </a>
+          else
+            <a href="#" className="note-action" onClick={clicker @likeNote}>
+              <img src="assets/img/freepik/heart.png" />
+            </a>
+        }
+        {
+          if @props.note.user.user_id is @props.auth.authToken?.user_id or @props.isAdmin
+            <a href="#" className="note-action" onClick={clicker @confirmDelete}>
+              <img src="assets/img/freepik/delete81.png" />
+            </a>
+        }
+        {
+          if @props.note.published is 'AUTO' and @props.auth.authToken?.user_id isnt @props.note.user.user_id
+            <a href="#" className="note-action" onClick={clicker @confirmFlag}>
+              <img src="assets/img/freepik/warning.png" />
+            </a>
+        }
+      </div>
       {
         switch @props.note.published
           when 'PENDING'
@@ -359,42 +519,30 @@ SiftrNoteView = React.createClass
               <BUTTON onClick={@approveNote}><P>Approve this note</P></BUTTON>
             else
               <P>This note is visible only to you until a moderator approves it.</P>
-          when 'AUTO'
-            <BUTTON onClick={@flagNote}><P>Flag this note</P></BUTTON>
-          when 'APPROVED'
+          when 'AUTO', 'APPROVED'
             null
       }
-      {
-        if @props.auth.authToken?
-          if @props.note.player_liked
-            <BUTTON onClick={@unlikeNote}><P>Unlike this note</P></BUTTON>
+      <div className="note-caption">
+        { writeParagraphs @props.note.description }
+      </div>
+      <div className="note-comments">
+        {
+          if @state.comments is null
+            <div className="note-comment">
+              <p className="note-comment-credit">Loading comments...</p>
+            </div>
           else
-            <BUTTON onClick={@likeNote}><P>Like this note</P></BUTTON>
-        else
-          <P>Log in to like this note.</P>
-      }
-      {
-        if @props.note.user.user_id is @props.auth.authToken?.user_id or @props.isAdmin
-          <BUTTON onClick={@confirmDelete}><P>Delete this note</P></BUTTON>
-      }
-      <P>{@props.note.description}</P>
-      {
-        if @state.comments is null
-          <P>Loading comments...</P>
-        else
-          <SiftrComments
-            note={@props.note}
-            auth={@props.auth}
-            comments={@state.comments ? []}
-            onEditComment={@doEditComment}
-            onNewComment={@doNewComment}
-            onDeleteComment={@doDeleteComment}
-            isAdmin={@props.isAdmin}
-          />
-      }
-      <BUTTON onClick={@props.onClose}>
-        <P>Close Note</P>
-      </BUTTON>
+            <SiftrComments
+              note={@props.note}
+              auth={@props.auth}
+              comments={@state.comments ? []}
+              onEditComment={@doEditComment}
+              onNewComment={@doNewComment}
+              onDeleteComment={@doDeleteComment}
+              isAdmin={@props.isAdmin}
+            />
+        }
+      </div>
     </div>
   # @endif
 

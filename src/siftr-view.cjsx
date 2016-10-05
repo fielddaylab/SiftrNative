@@ -165,6 +165,13 @@ SiftrView = React.createClass
       @setState viewingNote: null
       @loadResults()
 
+  flagNote: (note) ->
+    @props.auth.call 'notes.flagNote',
+      note_id: note.note_id
+    , withSuccess =>
+      @setState viewingNote: null
+      @loadResults()
+
   renderSearch: ->
     <SearchNotes
       auth={@props.auth}
@@ -184,8 +191,10 @@ SiftrView = React.createClass
         onClose={=> @setState viewingNote: null}
         auth={@props.auth}
         onDelete={@deleteNote}
+        onFlag={@flagNote}
         onReload={(note) => @loadNoteByID note.note_id}
         isAdmin={@props.isAdmin}
+        onPromptLogin={@props.onPromptLogin}
       />
 
   renderMap: ->

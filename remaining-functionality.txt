@@ -2,7 +2,6 @@ SIFTR VIEW
 Edit note location if owner
 Edit note caption if owner
 Edit note category if owner
-Zoom in on cluster
 URL hash with note ID, create/edit step, latitude/longitude, search params?
 Scroll-loading for thumbnails
 
