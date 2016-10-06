@@ -446,6 +446,7 @@ $auth-menu-width: 300px;
 
 .note-view {
   @include right-pane;
+  overflow-y: scroll;
 }
 
 .note-top {

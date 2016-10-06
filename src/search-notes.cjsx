@@ -5,9 +5,11 @@ T = React.PropTypes
 update = require 'immutability-helper'
 
 # @ifdef NATIVE
-{ Switch
+{ TouchableOpacity
 , View
 , Text
+, ScrollView
+, StyleSheet
 } = require 'react-native'
 {styles} = require './styles'
 # @endif
@@ -68,6 +70,7 @@ SearchNotes = React.createClass
         text: $set: @refs.text.value
     , 250
 
+  # @ifdef NATIVE
   render: ->
     {sort, mine, tags, text, min_time, max_time} = @props.searchParams
     sort ?= 'recent'
@@ -76,31 +79,95 @@ SearchNotes = React.createClass
     text ?= ''
     min_time ?= 'min'
     max_time ?= 'max'
-    # @ifdef NATIVE
-    <View style={
+    activityOn =
+      flex: 1
+      justifyContent: 'center'
+      alignItems: 'center'
+      flexDirection: 'row'
+      padding: 10
+      backgroundColor: 'rgb(32,37,49)'
+      borderColor: 'rgb(32,37,49)'
+      borderWidth: StyleSheet.hairlineWidth
+    activityOff =
+      flex: 1
+      justifyContent: 'center'
+      alignItems: 'center'
+      flexDirection: 'row'
+      padding: 10
+      backgroundColor: 'white'
+      borderColor: 'rgb(32,37,49)'
+      borderWidth: StyleSheet.hairlineWidth
+    activityTextOn =
+      color: 'white'
+    activityTextOff =
+      color: 'rgb(32,37,49)'
+    <ScrollView style={
       backgroundColor: 'white'
       position: 'absolute'
       top: 0
       bottom: 0
       left: 0
       right: 0
-      flexDirection: 'column'
+    } contentContainerStyle={
+      alignItems: 'center'
     }>
-      <View style={styles.horizontal}>
-        <Switch value={sort is 'recent'} onValueChange={(b) => if b then @clickRecent() else @clickPopular()} />
-        <Text>Recent</Text>
+      <View style={
+        alignSelf: 'stretch'
+        flexDirection: 'row'
+        margin: 10
+      }>
+        <TouchableOpacity onPress={@clickRecent} style={flex: 1}>
+          <View style={
+            [
+              if sort is 'recent' then activityOn else activityOff
+              {borderTopLeftRadius: 12, borderBottomLeftRadius: 12}
+            ]
+          }>
+            <Text style={
+              if sort is 'recent' then activityTextOn else activityTextOff
+            }>newest</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={@clickPopular} style={flex: 1}>
+          <View style={
+            [
+              if sort is 'popular' then activityOn else activityOff
+              {borderTopRightRadius: 12, borderBottomRightRadius: 12} unless @props.auth.authToken?
+            ]
+          }>
+            <Text style={
+              if sort is 'popular' then activityTextOn else activityTextOff
+            }>popular</Text>
+          </View>
+        </TouchableOpacity>
+        {
+          if @props.auth.authToken?
+            <TouchableOpacity onPress={@clickMine} style={flex: 1}>
+              <View style={
+                [
+                  if mine then activityOn else activityOff
+                  {borderTopRightRadius: 12, borderBottomRightRadius: 12}
+                ]
+              }>
+                <Text style={
+                  if mine then activityTextOn else activityTextOff
+                }>mine</Text>
+              </View>
+            </TouchableOpacity>
+        }
       </View>
-      <View style={styles.horizontal}>
-        <Switch value={sort is 'popular'} onValueChange={(b) => if b then @clickPopular() else @clickRecent()} />
-        <Text>Popular</Text>
-      </View>
-      <View style={styles.horizontal}>
-        <Switch value={mine} onValueChange={@clickMine} />
-        <Text>My Notes</Text>
-      </View>
-    </View>
-    # @endif
-    # @ifdef WEB
+    </ScrollView>
+  # @endif
+
+  # @ifdef WEB
+  render: ->
+    {sort, mine, tags, text, min_time, max_time} = @props.searchParams
+    sort ?= 'recent'
+    mine ?= false
+    tags ?= []
+    text ?= ''
+    min_time ?= 'min'
+    max_time ?= 'max'
     <div className="siftr-search">
       <p>
         <input type="text" ref="text"
@@ -167,6 +234,6 @@ SearchNotes = React.createClass
         </p>
       }
     </div>
-    # @endif
+  # @endif
 
 exports.SearchNotes = SearchNotes
