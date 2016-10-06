@@ -11,6 +11,7 @@ T = React.PropTypes
 , ScrollView
 , Platform
 , StatusBar
+, Image
 } = require 'react-native'
 {styles} = require './styles'
 SideMenu = require 'react-native-side-menu'
@@ -102,19 +103,26 @@ AuthContainer = React.createClass
         <View style={
           backgroundColor: '#224'
           flexDirection: 'row'
-          padding: 10
+          alignItems: 'center'
+          justifyContent: 'flex-start'
           paddingTop:
             if Platform.OS is 'ios' and @state.orientation is 'PORTRAIT'
-              25
+              15 # 20?
             else
               undefined
         }>
           <TouchableOpacity
             onPress={=> @props.onMenuMove not @props.menuOpen}
+            style={
+              marginLeft: 10
+            }
           >
-            <Text style={color: 'white'}>MENU</Text>
+            <Image source={require '../web/assets/img/menu.png'} />
           </TouchableOpacity>
-          <Text style={color: 'white', marginLeft: 10}>
+          <Text style={
+            color: 'white'
+            margin: 10
+          }>
             {
               if @props.auth.authToken?
                 "Logged in as #{@props.auth.authToken.display_name}"
@@ -135,7 +143,7 @@ AuthContainer = React.createClass
         <a href="#"
           onClick={clicker => @props.onMenuMove not @props.menuOpen}
           className="auth-nav-button"
-        >☰</a>
+        ><img src="assets/img/menu.png" /></a>
         <span>
         {
           if @props.auth.authToken?
