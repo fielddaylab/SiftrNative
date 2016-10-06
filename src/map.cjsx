@@ -188,8 +188,12 @@ SiftrMap = React.createClass
       # @ifdef WEB
       @props.zoom is nextProps.zoom and
       # @endif
-      @props.map_notes is nextProps.map_notes and
-      @props.map_clusters is nextProps.map_clusters and
+      (@props.map_notes is nextProps.map_notes or
+        @props.map_notes.length is nextProps.map_notes.length is 0
+      ) and
+      (@props.map_clusters is nextProps.map_clusters or
+        @props.map_clusters.length is nextProps.map_clusters.length is 0
+      ) and
       # NOTE: onMove, onLayout, onSelectNote are all looked up dynamically when they happen
       @props.getColor is nextProps.getColor
     not same

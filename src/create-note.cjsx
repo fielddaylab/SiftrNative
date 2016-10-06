@@ -289,36 +289,41 @@ CreateStep3 = React.createClass
 
   # @ifdef WEB
   render: ->
-    <p className="create-step-3">
-      <BUTTON onClick={@props.onPickLocation}>Pick Location</BUTTON>
-      {' '}
-      <BUTTON onClick={@props.onBack}>Back</BUTTON>
-      {' '}
-      <BUTTON onClick={@props.onCancel}>Cancel</BUTTON>
-    </p>
+    <div className="create-step-3">
+      <div className="create-content-center">
+        <span>Pick Location</span>
+        <a href="#" className="create-float-x" onClick={clicker @props.onCancel}>
+          <img src="assets/img/x-blue.png" />
+        </a>
+      </div>
+      <div className="create-buttons">
+        <a href="#" className="create-button-blue" onClick={clicker @props.onBack}>
+          {'<'} CAPTION
+        </a>
+        <a href="#" className="create-button-blue" onClick={clicker @props.onPickLocation}>
+          CATEGORY {'>'}
+        </a>
+      </div>
+    </div>
   # @endif
 
 # Step 4: Category
 CreateStep4 = React.createClass
   propTypes:
     categories: T.arrayOf(T.instanceOf Tag).isRequired
+    category: T.instanceOf(Tag).isRequired
     onPickCategory: T.func
+    onFinish: T.func
     onBack: T.func
     onCancel: T.func
     getColor: T.func
 
   getDefaultProps: ->
     onPickCategory: (->)
+    onFinish: (->)
     onBack: (->)
     onCancel: (->)
     getColor: -> 'black'
-
-  componentWillMount: ->
-    @setState
-      category: @props.categories[0]
-
-  pickCategory: ->
-    @props.onPickCategory @state.category
 
   # @ifdef NATIVE
   render: ->
@@ -331,11 +336,11 @@ CreateStep4 = React.createClass
       flexDirection: 'column'
     }>
       <Picker
-        selectedValue={@state.category.tag_id}
+        selectedValue={@props.category.tag_id}
         onValueChange={(tag_id) =>
           for category in @props.categories
             if category.tag_id is tag_id
-              @setState {category}
+              @props.onPickCategory category
         }
       >
         {
@@ -343,7 +348,7 @@ CreateStep4 = React.createClass
             <Picker.Item label={category.tag} value={category.tag_id} key={category.tag_id} />
         }
       </Picker>
-      <BUTTON onClick={@pickCategory}><P>Finish</P></BUTTON>
+      <BUTTON onClick={=> @props.onFinish @props.category}><P>Finish</P></BUTTON>
       <BUTTON onClick={@props.onBack}><P>Back</P></BUTTON>
       <BUTTON onClick={@props.onCancel}><P>Cancel</P></BUTTON>
     </View>
@@ -352,14 +357,17 @@ CreateStep4 = React.createClass
   # @ifdef WEB
   render: ->
     <div className="create-step-4">
-      {
+      <div className="create-content-center">
+        <a href="#" className="create-float-x" onClick={clicker @props.onCancel}>
+          <img src="assets/img/x-blue.png" />
+        </a>
         <p>
           {
             @props.categories.map (category) =>
-              checked = category is @state.category
+              checked = category is @props.category
               color = @props.getColor category
               <a href="#" key={category.tag_id}
-                onClick={clicker => @setState {category}}
+                onClick={clicker => @props.onPickCategory category}
                 className={"search-tag #{if checked then 'search-tag-on' else ''}"}
                 style={
                   borderColor: color
@@ -371,13 +379,15 @@ CreateStep4 = React.createClass
               </a>
           }
         </p>
-      }
-      {' '}
-      <BUTTON onClick={@pickCategory}>Finish</BUTTON>
-      {' '}
-      <BUTTON onClick={@props.onBack}>Back</BUTTON>
-      {' '}
-      <BUTTON onClick={@props.onCancel}>Cancel</BUTTON>
+      </div>
+      <div className="create-buttons">
+        <a href="#" className="create-button-blue" onClick={clicker @props.onBack}>
+          {'<'} LOCATION
+        </a>
+        <a href="#" className="create-button-blue" onClick={clicker => @props.onFinish @props.category}>
+          FINISH
+        </a>
+      </div>
     </div>
   # @endif
 

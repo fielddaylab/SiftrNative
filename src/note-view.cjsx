@@ -487,7 +487,9 @@ SiftrNoteView = React.createClass
           <img src="assets/img/x-blue.png" />
         </a>
       </div>
-      <img className="note-photo" src={@props.note.photo_url} />
+      <a href={@props.note.photo_url} target="_blank">
+        <img className="note-photo" src={@props.note.photo_url} />
+      </a>
       <div className="note-actions">
         {
           if @props.auth.authToken? and @props.note.player_liked

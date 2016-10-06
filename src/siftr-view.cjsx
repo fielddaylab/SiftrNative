@@ -2,6 +2,7 @@
 
 React = require 'react'
 T = React.PropTypes
+update = require 'immutability-helper'
 
 # @ifdef NATIVE
 { Text
@@ -18,6 +19,7 @@ T = React.PropTypes
 { Auth
 , Game
 , Tag
+, Note
 } = require './aris'
 
 {timeToARIS} = require './time-slider'
@@ -153,6 +155,7 @@ SiftrView = React.createClass
     , withSuccess (data) => @setState viewingNote: data[0]
 
   selectNote: (note) ->
+    return if note.note_id is 0
     @loadNoteByID note.note_id
     @setState
       searchOpen: false
@@ -198,9 +201,29 @@ SiftrView = React.createClass
       />
 
   renderMap: ->
+    createStep3 = @state.createNote?.caption?
+    createStep4 = @state.createNote?.location?
     <SiftrMap
-      map_notes={@state.results?.map_notes}
-      map_clusters={@state.results?.map_clusters}
+      map_notes={
+        if createStep4
+          pin = new Note
+          pin.note_id = 0
+          pin.latitude = @state.createNote.location.lat
+          pin.longitude = @state.createNote.location.lng
+          pin.description = @state.createNote.caption
+          pin.tag_id = @state.createNote.category.tag_id
+          [pin]
+        else if createStep3
+          []
+        else
+          @state.results?.map_notes
+      }
+      map_clusters={
+        if createStep3
+          []
+        else
+          @state.results?.map_clusters
+      }
       onMove={@moveMap}
       onLayout={(event) =>
         @layout = event.nativeEvent.layout
@@ -292,6 +315,7 @@ SiftrView = React.createClass
           exif: @state.createNote.exif
           caption: @state.createNote.caption
           location: @state.center
+          category: @state.tags[0] # TODO handle empty case better
         }
         onCancel={=> @setState createNote: null}
         onBack={=> @setState createNote:
@@ -303,7 +327,12 @@ SiftrView = React.createClass
     else
       <CreateStep4
         categories={@state.tags ? []}
-        onPickCategory={@finishNoteCreation}
+        category={@state.createNote.category}
+        onPickCategory={(category) =>
+          @setState createNote: update @state.createNote,
+            category: $set: category
+        }
+        onFinish={@finishNoteCreation}
         onCancel={=> @setState createNote: null}
         onBack={=>
           @setState
@@ -316,6 +345,7 @@ SiftrView = React.createClass
       />
 
   finishNoteCreation: (category) ->
+    console.log category
     {media, caption, location} = @state.createNote
     @props.auth.call 'notes.createNote',
       game_id: @props.game.game_id
