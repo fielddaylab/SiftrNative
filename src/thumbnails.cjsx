@@ -9,7 +9,12 @@ T = React.PropTypes
 {clicker} = require './utils'
 
 # @ifdef NATIVE
-{ScrollView, Text} = require 'react-native'
+{ ScrollView
+, View
+, Text
+, TouchableOpacity
+, Image
+} = require 'react-native'
 # @endif
 
 SiftrThumbnails = React.createClass
@@ -36,9 +41,35 @@ SiftrThumbnails = React.createClass
       bottom: 0
       left: 0
       right: 0
-      flexDirection: 'column'
     }>
-      <Text>Thumbnails go here</Text>
+      <View style={
+        flexDirection: 'row'
+        flexWrap: 'wrap'
+        alignItems: 'center'
+        justifyContent: 'center'
+        flex: 1
+      }>
+        {
+          @props.notes.map (note) =>
+            <TouchableOpacity onPress={=> @props.onSelectNote note} key={note.note_id}>
+              <Image source={uri: note.thumb_url} style={
+                width: 160
+                height: 160
+                margin: 5
+              }>
+                <View style={
+                  position: 'absolute'
+                  top: 5
+                  right: 5
+                  width: 15
+                  height: 15
+                  borderRadius: 999
+                  backgroundColor: @props.getColor note.tag_id
+                } />
+              </Image>
+            </TouchableOpacity>
+        }
+      </View>
     </ScrollView>
   # @endif
 
