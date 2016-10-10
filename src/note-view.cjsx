@@ -14,7 +14,10 @@ T = React.PropTypes
 , TextInput
 , Image
 , ScrollView
+, Text
+, TouchableOpacity
 } = require 'react-native'
+{default: FitImage} = require 'react-native-fit-image'
 # @endif
 
 {clicker, withSuccess, P, UL, LI, DIV, BUTTON} = require './utils'
@@ -70,6 +73,10 @@ SiftrCommentInput = React.createClass
         placeholder="Enter a comment"
         value={@state.text}
         onChangeText={(text) => @setState {text}}
+        multiline={true}
+        style={
+          height: 100
+        }
       />
       <BUTTON onClick={@doSave}><P>Save</P></BUTTON>
       {
@@ -420,16 +427,58 @@ SiftrNoteView = React.createClass
       right: 0
       flexDirection: 'column'
     }>
+      <View style={
+        flexDirection: 'row'
+        justifyContent: 'space-between'
+        alignItems: 'center'
+      }>
+        <Text style={margin: 10, fontWeight: 'bold'}>
+          {@props.note.user.display_name} at {@props.note.created.toLocaleString()}
+        </Text>
+        <TouchableOpacity onPress={@props.onClose}>
+          <Image
+            source={require '../web/assets/img/x-blue.png'}
+            style={margin: 10}
+          />
+        </TouchableOpacity>
+      </View>
       <View>
-        <Image
+        <FitImage
           source={uri: @props.note.photo_url}
           style={
-            width: 300
-            height: 300
+            alignSelf: 'stretch'
           }
         />
       </View>
-      <P>Posted by {@props.note.user.display_name} at {@props.note.created.toLocaleString()}</P>
+      <View style={
+        backgroundColor: 'rgb(97,201,226)'
+        padding: 5
+        flexDirection: 'row'
+        justifyContent: 'flex-start'
+      }>
+        {
+          if @props.auth.authToken? and @props.note.player_liked
+            <TouchableOpacity onPress={@unlikeNote}>
+              <Image style={margin: 5} source={require "../web/assets/img/freepik/heart-filled.png"} />
+            </TouchableOpacity>
+          else
+            <TouchableOpacity onPress={@likeNote}>
+              <Image style={margin: 5} source={require "../web/assets/img/freepik/heart.png"} />
+            </TouchableOpacity>
+        }
+        {
+          if @props.note.user.user_id is @props.auth.authToken?.user_id or @props.isAdmin
+            <TouchableOpacity onPress={@confirmDelete}>
+              <Image style={margin: 5} source={require "../web/assets/img/freepik/delete81.png"} />
+            </TouchableOpacity>
+        }
+        {
+          if @props.note.published is 'AUTO' and @props.auth.authToken?.user_id isnt @props.note.user.user_id
+            <TouchableOpacity onPress={@confirmFlag}>
+              <Image style={margin: 5} source={require "../web/assets/img/freepik/warning.png"} />
+            </TouchableOpacity>
+        }
+      </View>
       {
         switch @props.note.published
           when 'PENDING'
@@ -437,28 +486,13 @@ SiftrNoteView = React.createClass
               <BUTTON onClick={@approveNote}><P>Approve this note</P></BUTTON>
             else
               <P>This note is visible only to you until a moderator approves it.</P>
-          when 'AUTO'
-            <BUTTON onClick={@confirmFlag}><P>Flag this note</P></BUTTON>
-          when 'APPROVED'
+          when 'AUTO', 'APPROVED'
             null
       }
-      {
-        if @props.auth.authToken?
-          if @props.note.player_liked
-            <BUTTON onClick={@unlikeNote}><P>Unlike this note</P></BUTTON>
-          else
-            <BUTTON onClick={@likeNote}><P>Like this note</P></BUTTON>
-        else
-          <P>Log in to like this note.</P>
-      }
-      {
-        if @props.note.user.user_id is @props.auth.authToken?.user_id or @props.isAdmin
-          <BUTTON onClick={@confirmDelete}><P>Delete this note</P></BUTTON>
-      }
-      <P>{@props.note.description}</P>
+      <Text style={margin: 10}>{@props.note.description}</Text>
       {
         if @state.comments is null
-          <P>Loading comments...</P>
+          <Text>Loading comments...</Text>
         else
           <SiftrComments
             note={@props.note}
@@ -470,9 +504,6 @@ SiftrNoteView = React.createClass
             isAdmin={@props.isAdmin}
           />
       }
-      <BUTTON onClick={@props.onClose}>
-        <P>Close Note</P>
-      </BUTTON>
     </ScrollView>
   # @endif
 
