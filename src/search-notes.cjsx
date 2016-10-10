@@ -10,6 +10,7 @@ update = require 'immutability-helper'
 , Text
 , ScrollView
 , StyleSheet
+, TextInput
 } = require 'react-native'
 {styles} = require './styles'
 # @endif
@@ -63,11 +64,11 @@ SearchNotes = React.createClass
       min_time: $set: min_time
       max_time: $set: max_time
 
-  userTyped: ->
+  userTyped: (text) ->
     clearTimeout(@timer) if @timer
     @timer = setTimeout =>
       @props.onSearch update @props.searchParams,
-        text: $set: @refs.text.value
+        text: $set: text
     , 250
 
   # @ifdef NATIVE
@@ -111,6 +112,22 @@ SearchNotes = React.createClass
     } contentContainerStyle={
       alignItems: 'center'
     }>
+      <TextInput
+        placeholder="Search…"
+        defaultValue={text}
+        onChangeText={@userTyped}
+        autoCapitalize="none"
+        autoCorrect={false}
+        style={
+          alignSelf: 'stretch'
+          height: 50
+          borderColor: '#bbb'
+          borderWidth: StyleSheet.hairlineWidth
+          margin: 10
+          padding: 10
+          borderRadius: 25
+        }
+      />
       <View style={
         alignSelf: 'stretch'
         flexDirection: 'row'
@@ -170,10 +187,10 @@ SearchNotes = React.createClass
     max_time ?= 'max'
     <div className="siftr-search">
       <p>
-        <input type="text" ref="text"
+        <input type="text"
           placeholder="Search…"
           defaultValue={text}
-          onChange={@userTyped}
+          onChange={(e) => @userTyped e.target.value}
           className="search-text"
         />
       </p>
