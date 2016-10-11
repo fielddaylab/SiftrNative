@@ -16,8 +16,10 @@ T = React.PropTypes
 , ScrollView
 , Text
 , TouchableOpacity
+, Linking
 } = require 'react-native'
 {default: FitImage} = require 'react-native-fit-image'
+Hyperlink = require 'react-native-hyperlink'
 # @endif
 
 {clicker, withSuccess, P, UL, LI, DIV, BUTTON} = require './utils'
@@ -55,7 +57,9 @@ writeParagraphs = (text) ->
   paras =
     para for para in text.split("\n") when para.match(/\S/)
   for para, i in paras
-    <Text style={margin: 10} key={i}>{ para }</Text>
+    <Hyperlink key={i} onPress={(url) => Linking.openURL url} linkStyle={color: '#176fb7'}>
+      <Text style={margin: 10}>{ para }</Text>
+    </Hyperlink>
 # @endif
 
 SiftrCommentInput = React.createClass
