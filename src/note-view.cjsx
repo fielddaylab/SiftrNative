@@ -22,6 +22,8 @@ T = React.PropTypes
 
 {clicker, withSuccess, P, UL, LI, DIV, BUTTON} = require './utils'
 
+# @ifdef WEB
+
 # By Diego Perini. https://gist.github.com/dperini/729294
 # MT: removed the ^ and $, and removed the \.? "TLD may end with dot"
 # since it often breaks people's links
@@ -46,6 +48,16 @@ writeParagraphs = (text) ->
   for para, i in paras
     <p key={i}>{ linkableText para }</p>
 
+# @endif
+
+# @ifdef NATIVE
+writeParagraphs = (text) ->
+  paras =
+    para for para in text.split("\n") when para.match(/\S/)
+  for para, i in paras
+    <Text style={margin: 10} key={i}>{ para }</Text>
+# @endif
+
 SiftrCommentInput = React.createClass
   propTypes:
     defaultText: T.string
@@ -68,7 +80,31 @@ SiftrCommentInput = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    <View>
+    <View style={
+      flexDirection: 'column'
+      alignItems: 'stretch'
+      backgroundColor: '#e8ebf5'
+      borderWidth: 1
+      borderColor: '#89c'
+      margin: 10
+    }>
+      <View style={
+        flexDirection: 'row'
+        justifyContent: 'flex-start'
+        alignItems: 'center'
+        margin: 10
+      }>
+        <Text style={
+          fontSize: 13
+        }>
+          {
+            if @props.canCancel
+              'Editing a comment...'
+            else
+              'New comment...'
+          }
+        </Text>
+      </View>
       <TextInput
         placeholder="Enter a comment"
         value={@state.text}
@@ -76,13 +112,46 @@ SiftrCommentInput = React.createClass
         multiline={true}
         style={
           height: 100
+          backgroundColor: 'white'
+          padding: 5
+          borderWidth: 1
+          borderColor: 'black'
+          fontSize: 15
+          marginLeft: 10
+          marginRight: 10
         }
       />
-      <BUTTON onClick={@doSave}><P>Save</P></BUTTON>
-      {
-        if @props.canCancel
-          <BUTTON onClick={@props.onCancel}><P>Cancel</P></BUTTON>
-      }
+      <View style={
+        margin: 10
+        flexDirection: 'row'
+        justifyContent: 'flex-start'
+        alignItems: 'stretch'
+      }>
+        <TouchableOpacity onPress={@doSave}>
+          <Text style={
+            color: 'white'
+            backgroundColor: '#61c9e2'
+            padding: 10
+            fontSize: 16
+          }>
+            SAVE
+          </Text>
+        </TouchableOpacity>
+        {
+          if @props.canCancel
+            <TouchableOpacity onPress={@props.onCancel}>
+              <Text style={
+                color: 'white'
+                backgroundColor: '#cfcbcc'
+                padding: 10
+                marginLeft: 3
+                fontSize: 16
+              }>
+                CANCEL
+              </Text>
+            </TouchableOpacity>
+        }
+      </View>
     </View>
   # @endif
 
@@ -165,23 +234,42 @@ SiftrComment = React.createClass
         }
       />
     else
-      <DIV>
-        <P>
-          [{ @props.comment.user.display_name }, { @props.comment.created.toLocaleString() }] { @props.comment.description }
-        </P>
-        {
-          if @props.auth.authToken?.user_id is @props.comment.user.user_id
-            <BUTTON onClick={=> @setState editing: true}>
-              <P>[Edit]</P>
-            </BUTTON>
-        }
-        {
-          if @props.auth.authToken?.user_id is @props.comment.user.user_id or @props.isAdmin
-            <BUTTON onClick={@confirmDelete}>
-              <P>[Delete]</P>
-            </BUTTON>
-        }
-      </DIV>
+      <View style={
+        flexDirection: 'column'
+        alignItems: 'stretch'
+        backgroundColor: '#e8ebf5'
+        borderWidth: 1
+        borderColor: '#89c'
+        margin: 10
+      }>
+        <View style={
+          flexDirection: 'row'
+          justifyContent: 'flex-start'
+          alignItems: 'center'
+          margin: 10
+        }>
+          <Text style={
+            fontSize: 13
+          }>
+            { @props.comment.user.display_name } at { @props.comment.created.toLocaleString() }
+          </Text>
+          {
+            if @props.auth.authToken?.user_id is @props.comment.user.user_id
+              <TouchableOpacity onPress={=> @setState editing: true}>
+                <Image style={marginLeft: 10} source={require '../web/assets/img/freepik/edit45_blue.png'} />
+              </TouchableOpacity>
+          }
+          {
+            if @props.auth.authToken?.user_id is @props.comment.user.user_id or @props.isAdmin
+              <TouchableOpacity onPress={@confirmDelete}>
+                <Image style={marginLeft: 10} source={require '../web/assets/img/freepik/delete81_blue.png'} />
+              </TouchableOpacity>
+          }
+        </View>
+        <View>
+          { writeParagraphs @props.comment.description }
+        </View>
+      </View>
   # @endif
 
   # @ifdef WEB
@@ -237,26 +325,41 @@ SiftrComments = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    <DIV>
+    <View>
       {
         if @props.comments.length is 0
-          <P>No comments.</P>
+          <View style={
+            flexDirection: 'column'
+            alignItems: 'stretch'
+            backgroundColor: '#e8ebf5'
+            borderWidth: 1
+            borderColor: '#89c'
+            margin: 10
+          }>
+            <View style={
+              flexDirection: 'row'
+              justifyContent: 'flex-start'
+              alignItems: 'center'
+              margin: 10
+            }>
+              <Text style={
+                fontSize: 13
+              }>
+                No comments.
+              </Text>
+            </View>
+          </View>
         else
-          <UL>
-            {
-              @props.comments.map (comment) =>
-                <LI key={comment.comment_id}>
-                  <SiftrComment
-                    comment={comment}
-                    note={@props.note}
-                    auth={@props.auth}
-                    onEdit={(text) => @props.onEditComment comment, text}
-                    onDelete={@props.onDeleteComment}
-                    isAdmin={@props.isAdmin}
-                  />
-                </LI>
-            }
-          </UL>
+          @props.comments.map (comment) =>
+            <SiftrComment
+              key={comment.comment_id}
+              comment={comment}
+              note={@props.note}
+              auth={@props.auth}
+              onEdit={(text) => @props.onEditComment comment, text}
+              onDelete={@props.onDeleteComment}
+              isAdmin={@props.isAdmin}
+            />
       }
       {
         if @props.auth.authToken?
@@ -265,9 +368,9 @@ SiftrComments = React.createClass
             onSave={@props.onNewComment}
           />
         else
-          <P>Log in to write a comment.</P>
+          <Text style={margin: 10}>Log in to write a comment.</Text>
       }
-    </DIV>
+    </View>
   # @endif
 
   # @ifdef WEB
@@ -489,7 +592,9 @@ SiftrNoteView = React.createClass
           when 'AUTO', 'APPROVED'
             null
       }
-      <Text style={margin: 10}>{@props.note.description}</Text>
+      <View>
+        { writeParagraphs @props.note.description }
+      </View>
       {
         if @state.comments is null
           <Text>Loading comments...</Text>
