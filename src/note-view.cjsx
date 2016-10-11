@@ -103,7 +103,7 @@ SiftrCommentInput = React.createClass
         }>
           {
             if @props.canCancel
-              'Editing a comment...'
+              'Editing...'
             else
               'New comment...'
           }
@@ -165,7 +165,7 @@ SiftrCommentInput = React.createClass
       <p className="note-comment-credit">
         {
           if @props.canCancel
-            'Editing comment...'
+            'Editing...'
           else
             'New comment...'
         }
@@ -428,6 +428,7 @@ SiftrNoteView = React.createClass
 
   getInitialState: ->
     comments: null
+    editingCaption: false
 
   componentWillMount: ->
     @loadComments()
@@ -487,6 +488,13 @@ SiftrNoteView = React.createClass
       return
     @props.auth.call 'notes.approveNote',
       note_id: @props.note.note_id
+    , withSuccess => @props.onReload @props.note
+
+  saveCaption: (text) ->
+    @props.auth.call 'notes.updateNote',
+      note_id: @props.note.note_id
+      game_id: @props.note.game_id
+      description: text
     , withSuccess => @props.onReload @props.note
 
   # @ifdef NATIVE
@@ -585,6 +593,12 @@ SiftrNoteView = React.createClass
               <Image style={margin: 5} source={require "../web/assets/img/freepik/warning.png"} />
             </TouchableOpacity>
         }
+        {
+          if @props.note.user.user_id is @props.auth.authToken?.user_id
+            <TouchableOpacity onPress={=> @setState editingCaption: true}>
+              <Image style={margin: 5} source={require "../web/assets/img/freepik/edit45.png"} />
+            </TouchableOpacity>
+        }
       </View>
       {
         switch @props.note.published
@@ -596,9 +610,22 @@ SiftrNoteView = React.createClass
           when 'AUTO', 'APPROVED'
             null
       }
-      <View>
-        { writeParagraphs @props.note.description }
-      </View>
+      {
+        if @state.editingCaption
+          <SiftrCommentInput
+            defaultText={@props.note.description}
+            canCancel={true}
+            onCancel={=> @setState editingCaption: false}
+            onSave={(text) =>
+              @setState editingCaption: false
+              @saveCaption text
+            }
+          />
+        else
+          <View>
+            { writeParagraphs @props.note.description }
+          </View>
+      }
       {
         if @state.comments is null
           <Text>Loading comments...</Text>
@@ -653,6 +680,12 @@ SiftrNoteView = React.createClass
               <img src="assets/img/freepik/warning.png" />
             </a>
         }
+        {
+          if @props.note.user.user_id is @props.auth.authToken?.user_id
+            <a href="#" className="note-action" onClick={clicker => @setState editingCaption: true}>
+              <img src="assets/img/freepik/edit45.png" />
+            </a>
+        }
       </div>
       {
         switch @props.note.published
@@ -664,9 +697,24 @@ SiftrNoteView = React.createClass
           when 'AUTO', 'APPROVED'
             null
       }
-      <div className="note-caption">
-        { writeParagraphs @props.note.description }
-      </div>
+      {
+        if @state.editingCaption
+          <div className="note-comments">
+            <SiftrCommentInput
+              defaultText={@props.note.description}
+              canCancel={true}
+              onCancel={=> @setState editingCaption: false}
+              onSave={(text) =>
+                @setState editingCaption: false
+                @saveCaption text
+              }
+            />
+          </div>
+        else
+          <div className="note-caption">
+            { writeParagraphs @props.note.description }
+          </div>
+      }
       <div className="note-comments">
         {
           if @state.comments is null
