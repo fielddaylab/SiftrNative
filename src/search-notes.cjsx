@@ -128,6 +128,13 @@ SearchNotes = React.createClass
           borderRadius: 25
         }
       />
+      <TimeSlider
+        minBound={@props.game.created.getTime()}
+        maxBound={Date.now()}
+        p1={min_time}
+        p2={max_time}
+        onChange={@changeDates}
+      />
       <View style={
         alignSelf: 'stretch'
         flexDirection: 'row'

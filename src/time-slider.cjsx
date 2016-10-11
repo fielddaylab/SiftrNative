@@ -3,8 +3,17 @@
 React = require 'react'
 T = React.PropTypes
 
+# @ifdef NATIVE
+{ Dimensions
+, View
+, Text
+} = require 'react-native'
+Slider = require './multi-slider'
+# @endif
+
 nubType = T.oneOfType([T.number, T.oneOf(['min', 'max'])])
 
+# @ifdef WEB
 TimeSliderNub = React.createClass
   propTypes:
     fraction: T.number.isRequired
@@ -16,12 +25,6 @@ TimeSliderNub = React.createClass
     onChange: (->)
     onPointerEnd: (->)
 
-  # @ifdef NATIVE
-  render: ->
-    null
-  # @endif
-
-  # @ifdef WEB
   pointerDown: (inputType) -> (event) =>
     return if @dragListener?
     @dragListener = (e) =>
@@ -52,7 +55,7 @@ TimeSliderNub = React.createClass
       onMouseDown={@pointerDown 'mouse'}
       onTouchStart={@pointerDown 'touch'}
     />
-  # @endif
+# @endif
 
 TimeSlider = React.createClass
   propTypes:
@@ -68,6 +71,8 @@ TimeSlider = React.createClass
   getInitialState: ->
     p1: @props.p1
     p2: @props.p2
+    p1_temp: @props.p1
+    p2_temp: @props.p2
 
   getFrac: (time) ->
     if time is 'min'
@@ -100,7 +105,41 @@ TimeSlider = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    null
+    ticks = 100
+    <View style={
+      flexDirection: 'column'
+      alignSelf: 'stretch'
+      alignItems: 'center'
+    }>
+      <View style={
+        flexDirection: 'row'
+        justifyContent: 'space-between'
+        alignSelf: 'stretch'
+      }>
+        <Text style={fontSize: 18, margin: 10}>{@showDate @state.p1_temp}</Text>
+        <Text style={fontSize: 18, margin: 10}>{@showDate @state.p2_temp}</Text>
+      </View>
+      <Slider
+        sliderLength={Dimensions.get('window').width - 75}
+        min={0}
+        max={ticks}
+        step={1}
+        values={[Math.round(@getFrac(@state.p1) * ticks), Math.round(@getFrac(@state.p2) * ticks)]}
+        onValuesChange={([v1, v2]) =>
+          p1 = @fracToTime(v1 / ticks)
+          p2 = @fracToTime(v2 / ticks)
+          @setState
+            p1_temp: p1
+            p2_temp: p2
+        }
+        onValuesChangeFinish={([v1, v2]) =>
+          p1 = @fracToTime(v1 / ticks)
+          p2 = @fracToTime(v2 / ticks)
+          @setState {p1, p2}
+          @props.onChange p1, p2
+        }
+      />
+    </View>
   # @endif
 
   showDate: (d) ->
