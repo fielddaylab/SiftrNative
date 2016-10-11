@@ -88,7 +88,7 @@ SearchNotes = React.createClass
       padding: 10
       backgroundColor: 'rgb(32,37,49)'
       borderColor: 'rgb(32,37,49)'
-      borderWidth: StyleSheet.hairlineWidth
+      borderWidth: 1
     activityOff =
       flex: 1
       justifyContent: 'center'
@@ -97,7 +97,7 @@ SearchNotes = React.createClass
       padding: 10
       backgroundColor: 'white'
       borderColor: 'rgb(32,37,49)'
-      borderWidth: StyleSheet.hairlineWidth
+      borderWidth: 1
     activityTextOn =
       color: 'white'
     activityTextOff =
@@ -122,12 +122,22 @@ SearchNotes = React.createClass
           alignSelf: 'stretch'
           height: 50
           borderColor: '#bbb'
-          borderWidth: StyleSheet.hairlineWidth
+          borderWidth: 1
           margin: 10
           padding: 10
           borderRadius: 25
         }
       />
+      <View style={
+        alignSelf: 'stretch'
+        borderTopColor: 'black'
+        borderTopWidth: 2
+        paddingTop: 10
+        paddingBottom: 5
+        alignItems: 'center'
+      }>
+        <Text style={fontSize: 18, fontWeight: 'bold'}>BY DATE:</Text>
+      </View>
       <TimeSlider
         minBound={@props.game.created.getTime()}
         maxBound={Date.now()}
@@ -135,6 +145,17 @@ SearchNotes = React.createClass
         p2={max_time}
         onChange={@changeDates}
       />
+      <View style={
+        alignSelf: 'stretch'
+        borderTopColor: 'black'
+        borderTopWidth: 2
+        paddingTop: 10
+        paddingBottom: 5
+        alignItems: 'center'
+        marginTop: 10
+      }>
+        <Text style={fontSize: 18, fontWeight: 'bold'}>BY ACTIVITY:</Text>
+      </View>
       <View style={
         alignSelf: 'stretch'
         flexDirection: 'row'
@@ -176,6 +197,47 @@ SearchNotes = React.createClass
                 <Text style={
                   if mine then activityTextOn else activityTextOff
                 }>mine</Text>
+              </View>
+            </TouchableOpacity>
+        }
+      </View>
+      <View style={
+        alignSelf: 'stretch'
+        borderTopColor: 'black'
+        borderTopWidth: 2
+        paddingTop: 10
+        paddingBottom: 5
+        alignItems: 'center'
+      }>
+        <Text style={fontSize: 18, fontWeight: 'bold'}>BY CATEGORY:</Text>
+      </View>
+      <View style={
+        alignSelf: 'stretch'
+        flexDirection: 'row'
+        flexWrap: 'wrap'
+        alignItems: 'center'
+        justifyContent: 'center'
+        padding: 10
+      }>
+        {
+          @props.tags.map (tag) =>
+            checked = tag.tag_id in tags
+            color = @props.getColor tag
+            <TouchableOpacity key={tag.tag_id} onPress={=> @clickTag tag}>
+              <View style={
+                backgroundColor: if checked then color else 'white'
+                borderColor: color
+                borderWidth: 1
+                padding: 3
+                borderRadius: 3
+                margin: 5
+              }>
+                <Text style={
+                  color: if checked then 'white' else color
+                  fontSize: 18
+                }>
+                  { if checked then "✓ #{tag.tag}" else "● #{tag.tag}" }
+                </Text>
               </View>
             </TouchableOpacity>
         }
