@@ -50,12 +50,6 @@ MapCluster = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    press = switch window.platform
-      when 'ios'
-        # onPress does not appear to work on iOS
-        onSelect: => @props.onSelect @props.cluster
-      when 'android'
-        onPress: => @props.onSelect @props.cluster # TODO test this
     w = 30
     r = w / 2
     stops = []
@@ -73,7 +67,11 @@ MapCluster = React.createClass
       title="Cluster"
       description="Tap to see the notes inside."
       pinColor="black"
-      {...press}
+      ref="theMarker"
+      onPress={=>
+        @refs.theMarker.hideCallout()
+        @props.onSelect @props.cluster
+      }
     >
       <Svg width={w + 1} height={w + 1}>
         {
@@ -105,6 +103,7 @@ MapCluster = React.createClass
           fontWeight="bold"
         >{@props.cluster.note_count}</SvgText>
       </Svg>
+      <MapView.Callout tooltip={false} />
     </MapView.Marker>
   # @endif
 
@@ -146,9 +145,15 @@ MapNote = React.createClass
     press = switch window.platform
       when 'ios'
         # onPress does not appear to work on iOS
-        onSelect: => @props.onSelect @props.note
+        onSelect: =>
+          setTimeout =>
+            @refs.theMarker.hideCallout()
+          , 500
+          @props.onSelect @props.note
       when 'android'
-        onPress: => @props.onSelect @props.note # TODO test this
+        onPress: =>
+          @refs.theMarker.hideCallout()
+          @props.onSelect @props.note
     <MapView.Marker
       coordinate={
         latitude: @props.lat
@@ -157,11 +162,10 @@ MapNote = React.createClass
       title="Note"
       description={@props.note.description}
       pinColor={@props.getColor @props.note.tag_id}
+      ref="theMarker"
       {...press}
     >
-      {
-        null # <MapView.Callout tooltip={true} />
-      }
+      <MapView.Callout tooltip={false} />
     </MapView.Marker>
   # @endif
 
