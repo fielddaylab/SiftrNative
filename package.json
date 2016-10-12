@@ -17,7 +17,8 @@
     "react-native-image-picker": "^0.22.9",
     "react-native-maps": "^0.10.0",
     "react-native-orientation": "github:ldom/react-native-orientation#use-statusbar-info",
-    "react-native-side-menu": "^0.20.1"
+    "react-native-side-menu": "^0.20.1",
+    "react-native-svg": "^4.3.1"
   },
   "devDependencies": {
     "gulp": "^3.9.1",

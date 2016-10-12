@@ -9,6 +9,11 @@ T = React.PropTypes
 } = require 'react-native'
 MapView = require 'react-native-maps'
 {styles} = require './styles'
+{ Path
+, default: Svg
+, Circle
+, Text: SvgText
+} = require 'react-native-svg'
 # @endif
 
 # @ifdef WEB
@@ -24,10 +29,12 @@ MapView = require 'react-native-maps'
 
 {clicker} = require './utils'
 
+# @ifdef WEB
 # Cache of gradient PNG data URLs
 allConicGradients = {}
 getConicGradient = (opts) ->
   allConicGradients["#{opts.stops}_#{opts.size}"] ?= new ConicGradient(opts).png
+# @endif
 
 MapCluster = React.createClass
   propTypes:
@@ -49,6 +56,15 @@ MapCluster = React.createClass
         onSelect: => @props.onSelect @props.cluster
       when 'android'
         onPress: => @props.onSelect @props.cluster # TODO test this
+    w = 30
+    r = w / 2
+    stops = []
+    startRads = 0
+    for tag_id, tag_count of @props.cluster.tags
+      endRads = startRads + (tag_count / @props.cluster.note_count) * 2 * Math.PI
+      color = @props.getColor tag_id
+      stops.push [startRads, endRads, color]
+      startRads = endRads
     <MapView.Marker
       coordinate={
         latitude: @props.lat
@@ -59,22 +75,36 @@ MapCluster = React.createClass
       pinColor="black"
       {...press}
     >
-      <View style={
-        backgroundColor: 'black'
-        paddingTop: 4
-        paddingBottom: 4
-        paddingLeft: 7
-        paddingRight: 7
-        borderTopLeftRadius: 5
-        borderTopRightRadius: 5
-        borderBottomLeftRadius: 5
-        borderBottomRightRadius: 5
-      }>
-        <Text style={
-          color: 'white'
-          fontSize: 17
-        }>{@props.cluster.note_count}</Text>
-      </View>
+      <Svg width={w + 1} height={w + 1}>
+        {
+          for [startRads, endRads, color], i in stops
+            x1 = Math.cos(startRads) * r + r
+            y1 = Math.sin(startRads) * r + r
+            x2 = Math.cos(endRads) * r + r
+            y2 = Math.sin(endRads) * r + r
+            large = if endRads - startRads >= Math.PI then 1 else 0
+            <Path
+              key={i}
+              d={"M#{r},#{r} L#{x1},#{y1} A#{r},#{r} 0 #{large},1 #{x2},#{y2} z"}
+              fill={color}
+            />
+        }
+        <Circle
+          cx={r}
+          cy={r}
+          r={r * (2/3)}
+          fill="black"
+        />
+        <SvgText
+          textAnchor="middle"
+          stroke="black"
+          fill="white"
+          x={r}
+          y="2"
+          fontSize={w * (2/3)}
+          fontWeight="bold"
+        >{@props.cluster.note_count}</SvgText>
+      </Svg>
     </MapView.Marker>
   # @endif
 
