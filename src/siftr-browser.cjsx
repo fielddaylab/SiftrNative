@@ -34,13 +34,24 @@ GameList = React.createClass
       <ScrollView style={
         backgroundColor: 'white'
         flex: 1
+      } contentContainerStyle={
+        alignItems: 'stretch'
       }>
         {
           @props.games.map (game) =>
             <TouchableOpacity key={game.game_id} onPress={=> @props.onSelect game}>
-              <Text>
-                {game.name}
-              </Text>
+              <View style={
+                borderColor: 'black'
+                borderWidth: 1
+                alignItems: 'flex-start'
+                flexDirection: 'column'
+                padding: 5
+                backgroundColor: '#eee'
+              }>
+                <Text style={margin: 5}>
+                  {game.name}
+                </Text>
+              </View>
             </TouchableOpacity>
         }
       </ScrollView>
@@ -85,7 +96,9 @@ SiftrURL = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    <View>
+    <View style={
+      backgroundColor: 'white'
+    }>
       <TextInput
         placeholder="Enter a Siftr URL"
         value={@state.url}
