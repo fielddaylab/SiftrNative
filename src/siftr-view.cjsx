@@ -198,6 +198,7 @@ SiftrView = React.createClass
         onReload={(note) => @loadNoteByID note.note_id}
         isAdmin={@props.isAdmin}
         onPromptLogin={@props.onPromptLogin}
+        getColor={@getColor}
       />
 
   renderMap: ->

@@ -418,6 +418,7 @@ SiftrNoteView = React.createClass
     onReload: T.func
     isAdmin: T.bool
     onPromptLogin: T.func
+    getColor: T.func
 
   getDefaultProps: ->
     onClose: (->)
@@ -425,6 +426,7 @@ SiftrNoteView = React.createClass
     onReload: (->)
     isAdmin: false
     onPromptLogin: (->)
+    getColor: -> 'black'
 
   getInitialState: ->
     comments: null
@@ -547,6 +549,13 @@ SiftrNoteView = React.createClass
         justifyContent: 'space-between'
         alignItems: 'center'
       }>
+        <View style={
+          backgroundColor: @props.getColor @props.note
+          height: 20
+          width: 20
+          borderRadius: 10
+          margin: 10
+        } />
         <Text style={margin: 10, fontWeight: 'bold'}>
           {@props.note.user.display_name} at {@props.note.created.toLocaleString()}
         </Text>
@@ -647,6 +656,9 @@ SiftrNoteView = React.createClass
   render: ->
     <div className="note-view">
       <div className="note-top">
+        <div className="note-dot" style={
+          backgroundColor: @props.getColor @props.note
+        } />
         <h2 className="note-credit">
           {@props.note.user.display_name} at {@props.note.created.toLocaleString()}
         </h2>
