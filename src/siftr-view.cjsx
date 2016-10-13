@@ -66,7 +66,10 @@ SiftrView = React.createClass
     # @ifdef WEB
     zoom: @props.game.zoom
     # @endif
-    results: null
+    map_notes: []
+    map_clusters: []
+    notes: []
+    loadedAll: true
     tags: null
     colors: null
     viewingNote: null
@@ -142,17 +145,62 @@ SiftrView = React.createClass
         # @ifdef WEB
         @state.zoom
         # @endif
-    , withSuccess (results) =>
-      @setState {results} if thisSearchTime is @lastSearchTime
+    , withSuccess ({map_notes, map_clusters, notes}) =>
+      return unless thisSearchTime is @lastSearchTime
+      @refs.thumbs?.scrollTop()
+      @loadingMore = false
+      @setState
+        map_notes: map_notes
+        map_clusters: map_clusters
+        notes: notes
+        loadedAll: false
+
+  loadMoreResults: ->
+    currentNotes = @state.notes
+    return if @loadingMore or @state.loadedAll or not currentNotes?
+    @loadingMore = true
+    thisSearchTime = @lastSearchTime = Date.now()
+    @props.auth.siftrSearch
+      offset: currentNotes.length
+      map_data: false
+      game_id: @props.game.game_id
+      min_latitude: @state.bounds.se.lat
+      max_latitude: @state.bounds.nw.lat
+      min_longitude: @state.bounds.nw.lng
+      max_longitude: @state.bounds.se.lng
+      search: @state.searchParams.text ? ''
+      order: @state.searchParams.sort ? 'recent'
+      filter: if @props.auth.authToken? and @state.searchParams.mine then 'mine' else undefined
+      tag_ids: @state.searchParams.tags ? undefined
+      min_time: timeToARIS @state.searchParams.min_time
+      max_time: timeToARIS @state.searchParams.max_time
+      limit: 50
+      zoom:
+        # @ifdef NATIVE
+        do =>
+          w = (@layout?.width  ? 400) * 2
+          h = (@layout?.height ? 400) * 2
+          fitBounds(@state.bounds, {width: w, height: h}).zoom
+        # @endif
+        # @ifdef WEB
+        @state.zoom
+        # @endif
+    , withSuccess ({notes}) =>
+      @loadingMore = false
+      return unless thisSearchTime is @lastSearchTime
+      @setState
+        notes: currentNotes.concat notes
+        loadedAll: notes.length < 50
 
   moveMap: (obj) ->
     @setState obj, => @loadResults()
 
   loadNoteByID: (note_id) ->
+    console.log note_id
     @props.auth.searchNotes
       game_id: @props.game.game_id
       note_id: note_id
-    , withSuccess (data) => @setState viewingNote: data[0]
+    , withSuccess (data) => console.log data; @setState viewingNote: data[0]
 
   selectNote: (note) ->
     return if note.note_id is 0
@@ -217,13 +265,13 @@ SiftrView = React.createClass
         else if createStep3
           []
         else
-          @state.results?.map_notes
+          @state.map_notes
       }
       map_clusters={
         if createStep3
           []
         else
-          @state.results?.map_clusters
+          @state.map_clusters
       }
       onMove={@moveMap}
       onLayout={(event) =>
@@ -240,10 +288,13 @@ SiftrView = React.createClass
 
   renderThumbnails: ->
     <SiftrThumbnails
-      notes={@state.results?.notes}
+      ref="thumbs"
+      notes={@state.notes}
       getColor={@getColor}
       onSelectNote={@selectNote}
       key={2}
+      hasMore={not @state.loadedAll}
+      loadMore={@loadMoreResults}
     />
 
   startLocatingNote: ({exif, center}) ->
