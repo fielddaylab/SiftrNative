@@ -232,6 +232,7 @@ SiftrView = React.createClass
       zoom={@state.zoom}
       delta={@state.delta}
       getColor={@getColor}
+      colors={@state.colors}
       onSelectNote={@selectNote}
       key={1}
     />

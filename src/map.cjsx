@@ -202,6 +202,7 @@ SiftrMap = React.createClass
     onLayout: T.func
     onSelectNote: T.func
     getColor: T.func
+    colors: T.any # only used to rerender map when colors are loaded
 
   getDefaultProps: ->
     map_notes: []
@@ -229,7 +230,8 @@ SiftrMap = React.createClass
         @props.map_clusters.length is nextProps.map_clusters.length is 0
       ) and
       # NOTE: onMove, onLayout, onSelectNote are all looked up dynamically when they happen
-      @props.getColor is nextProps.getColor
+      @props.getColor is nextProps.getColor and
+      @props.colors is nextProps.colors
     not same
 
   # @ifdef NATIVE
