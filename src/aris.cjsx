@@ -4,6 +4,7 @@
 { AsyncStorage
 } = require 'react-native'
 # @endif
+update = require 'immutability-helper'
 
 ARIS_URL = 'https://arisgames.org/server/'
 
@@ -156,66 +157,77 @@ class Auth
         null
 
   rawUpload: (file, reportProgress, cb) ->
-    retry = (n) =>
-      handleError = (error) =>
-        if n is 0
-          cb {error}
-        else
-          retry(n - 1)
-      req = new XMLHttpRequest
-      req.open 'POST', "#{ARIS_URL}/rawupload.php", true
-      req.onload = =>
-        if 200 <= req.status < 400
-          cb
-            returnCode: 0
-            data: req.responseText
-        else
-          handleError req.status
-      req.onerror = => handleError "Could not connect to Siftr"
-      req.upload.addEventListener 'progress', (evt) =>
-        if evt.lengthComputable
-          reportProgress(evt.loaded / evt.total)
-      , false
-      form = new FormData
-      form.append 'raw_upload', file
-      req.send form
-    retry 2
+    req = new XMLHttpRequest
+    req.open 'POST', "#{ARIS_URL}/rawupload.php", true
+    req.onload = =>
+      if 200 <= req.status < 400
+        cb
+          returnCode: 0
+          data: req.responseText
+      else
+        handleError req.status
+    req.onerror = => handleError "Could not connect to Siftr"
+    req.upload.addEventListener 'progress', (evt) =>
+      if evt.lengthComputable
+        reportProgress(evt.loaded / evt.total)
+    , false
+    form = new FormData
+    form.append 'raw_upload', file
+    tries = 3
+    handleError = (error) =>
+      if tries is 0
+        cb {error}
+      else
+        tries -= 1
+        req.send form
+    req.send form
+    req
+
+  loadSavedAuth: (cb) ->
+    if @authToken?
+      cb @authToken
+      return
+    # @ifdef NATIVE
+    AsyncStorage.getItem 'aris-auth', (err, result) =>
+      if result?
+        cb JSON.parse result
+      else
+        cb null
+    # @endif
+    # @ifdef WEB
+    if (result = window.localStorage?['aris-auth'])?
+      cb JSON.parse result
+    else
+      cb null
+    # @endif
 
   call: (func, json, cb) ->
-    if @authToken?
-      json.auth = @authToken
-    retry = (n) =>
-      handleError = (error) =>
-        if n is 0
-          cb {error}
+    req = new XMLHttpRequest
+    req.open 'POST', "#{ARIS_URL}/json.php/v2.#{func}", true
+    req.setRequestHeader 'Content-Type',
+      'application/json; charset=UTF-8'
+    @loadSavedAuth (auth) =>
+      json =
+        if auth?
+          update json, auth: $set: auth
         else
-          retry(n - 1)
-      req = new XMLHttpRequest
-      req.open 'POST', "#{ARIS_URL}/json.php/v2.#{func}", true
-      req.setRequestHeader 'Content-Type',
-        'application/json; charset=UTF-8'
+          json
+      jsonString = JSON.stringify json
       req.onload = =>
         if 200 <= req.status < 400
           cb JSON.parse req.responseText
         else
           handleError req.status
       req.onerror = => handleError "Could not connect to Siftr"
-      req.send JSON.stringify json
-    if @authToken?
-      json.auth = @authToken
-      retry 2
-    else
-      # @ifdef NATIVE
-      AsyncStorage.getItem 'aris-auth', (err, result) =>
-        if result?
-          json.auth = JSON.parse result
-        retry 2
-      # @endif
-      # @ifdef WEB
-      if (result = window.localStorage?['aris-auth'])?
-        json.auth = JSON.parse result
-      retry 2
-      # @endif
+      tries = 3
+      handleError = (error) =>
+        if tries is 0
+          cb {error}
+        else
+          tries -= 1
+          req.send jsonString
+      req.send jsonString
+    req
 
   login: (username, password, cb = (->)) ->
     @call 'users.logIn',

@@ -120,35 +120,39 @@ SiftrView = React.createClass
       return 'white'
     @state.colors["tag_#{@state.tags.indexOf(tag) % 8 + 1}"] ? 'white'
 
+  commonSearchParams: (auth) ->
+    game_id: @props.game.game_id
+    min_latitude: @state.bounds.se.lat
+    max_latitude: @state.bounds.nw.lat
+    min_longitude: @state.bounds.nw.lng
+    max_longitude: @state.bounds.se.lng
+    search: @state.searchParams.text ? ''
+    order: @state.searchParams.sort ? 'recent'
+    filter: if auth.authToken? and @state.searchParams.mine then 'mine' else undefined
+    tag_ids: @state.searchParams.tags ? undefined
+    min_time: timeToARIS @state.searchParams.min_time
+    max_time: timeToARIS @state.searchParams.max_time
+    zoom:
+      # @ifdef NATIVE
+      do =>
+        w = (@layout?.width  ? 400) * 2
+        h = (@layout?.height ? 400) * 2
+        fitBounds(@state.bounds, {width: w, height: h}).zoom
+      # @endif
+      # @ifdef WEB
+      @state.zoom
+      # @endif
+
   loadResults: (auth = @props.auth) ->
-    thisSearchTime = @lastSearchTime = Date.now()
-    auth.siftrSearch
-      game_id: @props.game.game_id
-      min_latitude: @state.bounds.se.lat
-      max_latitude: @state.bounds.nw.lat
-      min_longitude: @state.bounds.nw.lng
-      max_longitude: @state.bounds.se.lng
-      search: @state.searchParams.text ? ''
-      order: @state.searchParams.sort ? 'recent'
-      filter: if auth.authToken? and @state.searchParams.mine then 'mine' else undefined
-      tag_ids: @state.searchParams.tags ? undefined
-      min_time: timeToARIS @state.searchParams.min_time
-      max_time: timeToARIS @state.searchParams.max_time
-      limit: 50
-      zoom:
-        # @ifdef NATIVE
-        do =>
-          w = (@layout?.width  ? 400) * 2
-          h = (@layout?.height ? 400) * 2
-          fitBounds(@state.bounds, {width: w, height: h}).zoom
-        # @endif
-        # @ifdef WEB
-        @state.zoom
-        # @endif
+    @loading = true
+    @lastResultsXHR?.abort()
+    params = update @commonSearchParams(auth),
+      limit: $set: 50
+    @lastResultsXHR = auth.siftrSearch params
     , withSuccess ({map_notes, map_clusters, notes}) =>
-      return unless thisSearchTime is @lastSearchTime
+      @lastResultsXHR = null
       @refs.thumbs?.scrollTop()
-      @loadingMore = false
+      @loading = false
       @setState
         map_notes: map_notes
         map_clusters: map_clusters
@@ -157,37 +161,17 @@ SiftrView = React.createClass
 
   loadMoreResults: ->
     currentNotes = @state.notes
-    return if @loadingMore or @state.loadedAll or not currentNotes?
-    @loadingMore = true
-    thisSearchTime = @lastSearchTime = Date.now()
-    @props.auth.siftrSearch
-      offset: currentNotes.length
-      map_data: false
-      game_id: @props.game.game_id
-      min_latitude: @state.bounds.se.lat
-      max_latitude: @state.bounds.nw.lat
-      min_longitude: @state.bounds.nw.lng
-      max_longitude: @state.bounds.se.lng
-      search: @state.searchParams.text ? ''
-      order: @state.searchParams.sort ? 'recent'
-      filter: if @props.auth.authToken? and @state.searchParams.mine then 'mine' else undefined
-      tag_ids: @state.searchParams.tags ? undefined
-      min_time: timeToARIS @state.searchParams.min_time
-      max_time: timeToARIS @state.searchParams.max_time
-      limit: 50
-      zoom:
-        # @ifdef NATIVE
-        do =>
-          w = (@layout?.width  ? 400) * 2
-          h = (@layout?.height ? 400) * 2
-          fitBounds(@state.bounds, {width: w, height: h}).zoom
-        # @endif
-        # @ifdef WEB
-        @state.zoom
-        # @endif
+    return if @loading or @state.loadedAll or not currentNotes?
+    @loading = true
+    @lastResultsXHR?.abort()
+    params = update @commonSearchParams(auth),
+      offset: $set: currentNotes.length
+      map_data: $set: false
+      limit: $set: 50
+    @lastResultsXHR = @props.auth.siftrSearch params
     , withSuccess ({notes}) =>
-      @loadingMore = false
-      return unless thisSearchTime is @lastSearchTime
+      @lastResultsXHR = null
+      @loading = false
       @setState
         notes: currentNotes.concat notes
         loadedAll: notes.length < 50
