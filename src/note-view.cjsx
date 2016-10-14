@@ -20,6 +20,7 @@ T = React.PropTypes
 } = require 'react-native'
 {default: FitImage} = require 'react-native-fit-image'
 Hyperlink = require 'react-native-hyperlink'
+{styles} = require './styles'
 # @endif
 
 {clicker, withSuccess, P, UL, LI, DIV, BUTTON} = require './utils'
@@ -132,25 +133,14 @@ SiftrCommentInput = React.createClass
         alignItems: 'stretch'
       }>
         <TouchableOpacity onPress={@doSave}>
-          <Text style={
-            color: 'white'
-            backgroundColor: '#61c9e2'
-            padding: 10
-            fontSize: 16
-          }>
+          <Text style={styles.blueButton}>
             SAVE
           </Text>
         </TouchableOpacity>
         {
           if @props.canCancel
             <TouchableOpacity onPress={@props.onCancel}>
-              <Text style={
-                color: 'white'
-                backgroundColor: '#cfcbcc'
-                padding: 10
-                marginLeft: 3
-                fontSize: 16
-              }>
+              <Text style={[styles.grayButton, {marginLeft: 5}]}>
                 CANCEL
               </Text>
             </TouchableOpacity>
