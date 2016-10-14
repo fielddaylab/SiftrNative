@@ -303,9 +303,8 @@ SiftrView = React.createClass
       @setState center: center
       return
     # then get location from exif
-    lat = exif.GPSLatitude
-    lng = exif.GPSLongitude
-    console.log exif
+    lat = exif?.GPSLatitude
+    lng = exif?.GPSLongitude
     if lat? and lng?
       readRat = (rat) -> rat.numerator / rat.denominator
       readGPS = ([deg, min, sec]) ->

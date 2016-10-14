@@ -2,6 +2,8 @@ SIFTR VIEW
 Edit note location if owner
 Edit note category if owner
 URL hash with note ID, create/edit step, latitude/longitude, search params?
+Search for address on create step 3
+Location indicator on create step 3
 
 ROOT SCREEN
 Browse recent/popular siftrs

@@ -54,105 +54,79 @@ CreateStep1 = React.createClass
         media: media
         exif: {} # EXIF.getAllTags file
 
+  chooseImage: ->
+    ImagePicker.showImagePicker
+      mediaType: 'photo'
+      noData: true
+      storageOptions:
+        cameraRoll: true
+    , (result) =>
+      return if result.didCancel
+      unless result?.uri?
+        console.warn JSON.stringify result
+        return
+      if result.fileName? and result.type?
+        # android (rest are ios)
+        mime = result.type
+        name = result.fileName
+      else if result.uri.match(/\.jpe?g$/i)
+        mime = 'image/jpeg'
+        name = 'upload.jpg'
+      else if result.uri.match(/\.png$/i)
+        mime = 'image/png'
+        name = 'upload.png'
+      else if result.uri.match(/\.gif$/i)
+        mime = 'image/gif'
+        name = 'upload.gif'
+      else
+        console.warn JSON.stringify result
+        return
+      @setState file:
+        uri:
+          if Platform.OS is 'ios'
+            result.uri.replace('file://', '')
+          else
+            result.uri
+        isStatic: true
+        type: mime
+        name: name
+
   render: ->
     if @state.progress?
-      return <View style={
-        backgroundColor: 'white'
-        position: 'absolute'
-        top: 0
-        bottom: 0
-        left: 0
-        right: 0
-        flexDirection: 'column'
-        alignItems: 'center'
-        justifyContent: 'center'
-      }>
-        <ActivityIndicator
-          size="large"
-        />
+      <View style={styles.overlayWholeCenter}>
+        <ActivityIndicator size="large" />
         <Text style={fontSize: 20, margin: 10}>
           Uploading… {Math.floor(@state.progress * 100)}%
         </Text>
       </View>
-    <View style={
-      backgroundColor: 'white'
-      position: 'absolute'
-      top: 0
-      bottom: 0
-      left: 0
-      right: 0
-      flexDirection: 'column'
-      alignItems: 'stretch'
-    }>
-      <View style={
-        flex: 1
-        alignItems: 'center'
-        justifyContent: 'center'
-      }>
-        <TouchableOpacity
-          onPress={=>
-            ImagePicker.showImagePicker
-              mediaType: 'photo'
-              noData: true
-              storageOptions:
-                cameraRoll: true
-            , (result) =>
-              return if result.didCancel
-              unless result?.uri?
-                console.warn JSON.stringify result
-                return
-              if result.fileName? and result.type?
-                # android (rest are ios)
-                mime = result.type
-                name = result.fileName
-              else if result.uri.match(/\.jpe?g$/i)
-                mime = 'image/jpeg'
-                name = 'upload.jpg'
-              else if result.uri.match(/\.png$/i)
-                mime = 'image/png'
-                name = 'upload.png'
-              else if result.uri.match(/\.gif$/i)
-                mime = 'image/gif'
-                name = 'upload.gif'
+    else
+      <View style={styles.overlayWhole}>
+        <View style={
+          flex: 1
+          alignItems: 'center'
+          justifyContent: 'center'
+        }>
+          <TouchableOpacity onPress={@chooseImage}>
+            {
+              if @state.file?
+                <Image source={@state.file} resizeMode="contain" style={
+                  height: 300
+                  width: 300
+                } />
               else
-                console.warn JSON.stringify result
-                return
-              @setState file:
-                uri:
-                  if Platform.OS is 'ios'
-                    result.uri.replace('file://', '')
-                  else
-                    result.uri
-                isStatic: true
-                type: mime
-                name: name
-          }
-        >
-          {
-            if @state.file?
-              <Image source={@state.file} resizeMode="contain" style={
-                height: 300
-                width: 300
-              } />
-            else
-              <Image source={require '../web/assets/img/select-image.png'} />
-          }
-        </TouchableOpacity>
+                <Image source={require '../web/assets/img/select-image.png'} />
+            }
+          </TouchableOpacity>
+        </View>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity onPress={@props.onCancel}>
+            <Text style={styles.grayButton}>CANCEL</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={@beginUpload}>
+            <Text style={styles.blueButton}>DESCRIPTION {'>'}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={
-        flexDirection: 'row'
-        justifyContent: 'space-between'
-        alignItems: 'center'
-        padding: 10
-      }>
-        <TouchableOpacity onPress={@props.onCancel}>
-          <Text style={styles.grayButton}>CANCEL</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={@beginUpload}>
-          <Text style={styles.blueButton}>DESCRIPTION {'>'}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
   # @endif
 
   # @ifdef WEB
@@ -246,21 +220,14 @@ CreateStep2 = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    <View style={
-      backgroundColor: 'white'
-      position: 'absolute'
-      bottom: 0
-      left: 0
-      right: 0
-      flexDirection: 'column'
-      alignItems: 'stretch'
-    }>
+    <View style={styles.overlayBottom}>
       <View style={
         margin: 10
         flexDirection: 'row'
         alignItems: 'flex-start'
       }>
         <TextInput
+          placeholder="Enter a caption…"
           value={@state.text}
           onChangeText={(text) => @setState {text}}
           multiline={true}
@@ -277,12 +244,7 @@ CreateStep2 = React.createClass
           <Image source={require '../web/assets/img/x-blue.png'} />
         </TouchableOpacity>
       </View>
-      <View style={
-        flexDirection: 'row'
-        justifyContent: 'space-between'
-        alignItems: 'center'
-        padding: 10
-      }>
+      <View style={styles.buttonRow}>
         <TouchableOpacity onPress={@props.onBack}>
           <Text style={styles.blueButton}>{'<'} IMAGE</Text>
         </TouchableOpacity>
@@ -301,7 +263,7 @@ CreateStep2 = React.createClass
           <textarea className="create-caption"
             value={@state.text}
             onChange={(e) => @setState text: e.target.value}
-            placeholder="Enter a caption..."
+            placeholder="Enter a caption…"
           />
           <a href="#" onClick={clicker @props.onCancel}>
             <img src="assets/img/x-blue.png" />
@@ -333,17 +295,27 @@ CreateStep3 = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    <View style={
-      backgroundColor: 'white'
-      position: 'absolute'
-      bottom: 0
-      left: 0
-      right: 0
-      flexDirection: 'column'
-    }>
-      <BUTTON onClick={@props.onPickLocation}><P>Pick Location</P></BUTTON>
-      <BUTTON onClick={@props.onBack}><P>Back</P></BUTTON>
-      <BUTTON onClick={@props.onCancel}><P>Cancel</P></BUTTON>
+    <View style={styles.overlayBottom}>
+      <View style={
+        margin: 10
+        flexDirection: 'row'
+        alignItems: 'flex-start'
+      }>
+        <View style={flex: 1, alignItems: 'center', justifyContent: 'center'}>
+          <Text style={fontSize: 18}>Pick Location</Text>
+        </View>
+        <TouchableOpacity onPress={@props.onCancel}>
+          <Image source={require '../web/assets/img/x-blue.png'} />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.buttonRow}>
+        <TouchableOpacity onPress={@props.onBack}>
+          <Text style={styles.blueButton}>{'<'} CAPTION</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={@props.onPickLocation}>
+          <Text style={styles.blueButton}>CATEGORY {'>'}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   # @endif
 
@@ -387,30 +359,38 @@ CreateStep4 = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    <View style={
-      backgroundColor: 'white'
-      position: 'absolute'
-      bottom: 0
-      left: 0
-      right: 0
-      flexDirection: 'column'
-    }>
-      <Picker
-        selectedValue={@props.category.tag_id}
-        onValueChange={(tag_id) =>
-          for category in @props.categories
-            if category.tag_id is tag_id
-              @props.onPickCategory category
-        }
-      >
-        {
-          @props.categories.map (category) =>
-            <Picker.Item label={category.tag} value={category.tag_id} key={category.tag_id} />
-        }
-      </Picker>
-      <BUTTON onClick={=> @props.onFinish @props.category}><P>Finish</P></BUTTON>
-      <BUTTON onClick={@props.onBack}><P>Back</P></BUTTON>
-      <BUTTON onClick={@props.onCancel}><P>Cancel</P></BUTTON>
+    <View style={styles.overlayBottom}>
+      <View style={
+        margin: 10
+        flexDirection: 'row'
+        alignItems: 'flex-start'
+      }>
+        <Picker
+          style={flex: 1}
+          selectedValue={@props.category.tag_id}
+          onValueChange={(tag_id) =>
+            for category in @props.categories
+              if category.tag_id is tag_id
+                @props.onPickCategory category
+          }
+        >
+          {
+            @props.categories.map (category) =>
+              <Picker.Item label={category.tag} value={category.tag_id} key={category.tag_id} />
+          }
+        </Picker>
+        <TouchableOpacity onPress={@props.onCancel}>
+          <Image source={require '../web/assets/img/x-blue.png'} />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.buttonRow}>
+        <TouchableOpacity onPress={@props.onBack}>
+          <Text style={styles.blueButton}>{'<'} LOCATION</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={=> @props.onFinish @props.category}>
+          <Text style={styles.blueButton}>FINISH</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   # @endif
 

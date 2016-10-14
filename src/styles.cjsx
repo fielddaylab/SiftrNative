@@ -12,20 +12,8 @@ exports.styles = StyleSheet.create
   input:
     height: 50
 
-  theMap:
-    height: 400
-    width: 300
-
   horizontal:
     flexDirection: 'row'
-
-  previewImage:
-    height: 400
-    width: 300
-
-  textInput:
-    height: 400
-    width: 300
 
   grayButton:
     paddingLeft: 20
@@ -44,5 +32,41 @@ exports.styles = StyleSheet.create
     backgroundColor: '#61c9e2'
     color: 'white'
     fontSize: 18
+
+  overlayWhole:
+    backgroundColor: 'white'
+    position: 'absolute'
+    top: 0
+    bottom: 0
+    left: 0
+    right: 0
+    flexDirection: 'column'
+    alignItems: 'stretch'
+
+  overlayWholeCenter:
+    backgroundColor: 'white'
+    position: 'absolute'
+    top: 0
+    bottom: 0
+    left: 0
+    right: 0
+    flexDirection: 'column'
+    alignItems: 'center'
+    justifyContent: 'center'
+
+  overlayBottom:
+    backgroundColor: 'white'
+    position: 'absolute'
+    bottom: 0
+    left: 0
+    right: 0
+    flexDirection: 'column'
+    alignItems: 'stretch'
+
+  buttonRow:
+    flexDirection: 'row'
+    justifyContent: 'space-between'
+    alignItems: 'center'
+    padding: 10
 
 # @endif
