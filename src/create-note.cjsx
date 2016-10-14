@@ -7,7 +7,15 @@ EXIF = require 'exif-js'
 
 # @ifdef NATIVE
 ImagePicker = require 'react-native-image-picker'
-{Platform, Image, View, TextInput, Picker, Text} = require 'react-native'
+{ Platform
+, Image
+, View
+, TextInput
+, Picker
+, Text
+, TouchableOpacity
+, ActivityIndicator
+} = require 'react-native'
 {styles} = require './styles'
 # @endif
 
@@ -48,7 +56,7 @@ CreateStep1 = React.createClass
 
   render: ->
     if @state.progress?
-      return <Text style={
+      return <View style={
         backgroundColor: 'white'
         position: 'absolute'
         top: 0
@@ -56,9 +64,16 @@ CreateStep1 = React.createClass
         left: 0
         right: 0
         flexDirection: 'column'
+        alignItems: 'center'
+        justifyContent: 'center'
       }>
-        Uploading... {Math.floor(@state.progress * 100)}%
-      </Text>
+        <ActivityIndicator
+          size="large"
+        />
+        <Text style={fontSize: 20, margin: 10}>
+          Uploading… {Math.floor(@state.progress * 100)}%
+        </Text>
+      </View>
     <View style={
       backgroundColor: 'white'
       position: 'absolute'
@@ -67,58 +82,76 @@ CreateStep1 = React.createClass
       left: 0
       right: 0
       flexDirection: 'column'
+      alignItems: 'stretch'
     }>
-      <BUTTON onClick={=>
-        ImagePicker.showImagePicker
-          mediaType: 'photo'
-          noData: true
-          storageOptions:
-            cameraRoll: true
-        , (result) =>
-          return if result.didCancel
-          unless result?.uri?
-            console.warn JSON.stringify result
-            return
-          if result.fileName? and result.type?
-            # android (rest are ios)
-            mime = result.type
-            name = result.fileName
-          else if result.uri.match(/\.jpe?g$/i)
-            mime = 'image/jpeg'
-            name = 'upload.jpg'
-          else if result.uri.match(/\.png$/i)
-            mime = 'image/png'
-            name = 'upload.png'
-          else if result.uri.match(/\.gif$/i)
-            mime = 'image/gif'
-            name = 'upload.gif'
-          else
-            console.warn JSON.stringify result
-            return
-          @setState file:
-            uri:
-              if Platform.OS is 'ios'
-                result.uri.replace('file://', '')
-              else
-                result.uri
-            isStatic: true
-            type: mime
-            name: name
+      <View style={
+        flex: 1
+        alignItems: 'center'
+        justifyContent: 'center'
       }>
-        <P>Pick Image</P>
-      </BUTTON>
-      <BUTTON onClick={@beginUpload}>
-        <P>Upload</P>
-      </BUTTON>
-      <BUTTON onClick={@props.onCancel}>
-        <P>Cancel</P>
-      </BUTTON>
-      {
-        if @state.file?
-          <Image source={@state.file} style={styles.previewImage} />
-        else
-          <P>Pick an image.</P>
-      }
+        <TouchableOpacity
+          onPress={=>
+            ImagePicker.showImagePicker
+              mediaType: 'photo'
+              noData: true
+              storageOptions:
+                cameraRoll: true
+            , (result) =>
+              return if result.didCancel
+              unless result?.uri?
+                console.warn JSON.stringify result
+                return
+              if result.fileName? and result.type?
+                # android (rest are ios)
+                mime = result.type
+                name = result.fileName
+              else if result.uri.match(/\.jpe?g$/i)
+                mime = 'image/jpeg'
+                name = 'upload.jpg'
+              else if result.uri.match(/\.png$/i)
+                mime = 'image/png'
+                name = 'upload.png'
+              else if result.uri.match(/\.gif$/i)
+                mime = 'image/gif'
+                name = 'upload.gif'
+              else
+                console.warn JSON.stringify result
+                return
+              @setState file:
+                uri:
+                  if Platform.OS is 'ios'
+                    result.uri.replace('file://', '')
+                  else
+                    result.uri
+                isStatic: true
+                type: mime
+                name: name
+          }
+        >
+          {
+            if @state.file?
+              <Image source={@state.file} resizeMode="contain" style={
+                height: 300
+                width: 300
+              } />
+            else
+              <Image source={require '../web/assets/img/select-image.png'} />
+          }
+        </TouchableOpacity>
+      </View>
+      <View style={
+        flexDirection: 'row'
+        justifyContent: 'space-between'
+        alignItems: 'center'
+        padding: 10
+      }>
+        <TouchableOpacity onPress={@props.onCancel}>
+          <Text style={styles.grayButton}>CANCEL</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={@beginUpload}>
+          <Text style={styles.blueButton}>DESCRIPTION {'>'}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   # @endif
 
@@ -150,7 +183,7 @@ CreateStep1 = React.createClass
     if @state.progress?
       <div className="create-step-1">
         <div className="create-content">
-          <span>Uploading... {Math.floor(@state.progress * 100)}%</span>
+          <span>Uploading… {Math.floor(@state.progress * 100)}%</span>
         </div>
       </div>
     else
@@ -220,16 +253,43 @@ CreateStep2 = React.createClass
       left: 0
       right: 0
       flexDirection: 'column'
+      alignItems: 'stretch'
     }>
-      <TextInput
-        value={@state.text}
-        onChangeText={(text) => @setState {text}}
-        multiline={true}
-        style={styles.textInput}
-      />
-      <BUTTON onClick={@doEnterCaption}><P>Enter</P></BUTTON>
-      <BUTTON onClick={@props.onBack}><P>Back</P></BUTTON>
-      <BUTTON onClick={@props.onCancel}><P>Cancel</P></BUTTON>
+      <View style={
+        margin: 10
+        flexDirection: 'row'
+        alignItems: 'flex-start'
+      }>
+        <TextInput
+          value={@state.text}
+          onChangeText={(text) => @setState {text}}
+          multiline={true}
+          style={
+            height: 150
+            flex: 1
+            borderColor: '#222'
+            borderWidth: 1
+            padding: 10
+            fontSize: 16
+          }
+        />
+        <TouchableOpacity onPress={@props.onCancel} style={margin: 10}>
+          <Image source={require '../web/assets/img/x-blue.png'} />
+        </TouchableOpacity>
+      </View>
+      <View style={
+        flexDirection: 'row'
+        justifyContent: 'space-between'
+        alignItems: 'center'
+        padding: 10
+      }>
+        <TouchableOpacity onPress={@props.onBack}>
+          <Text style={styles.blueButton}>{'<'} IMAGE</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={@doEnterCaption}>
+          <Text style={styles.blueButton}>LOCATION {'>'}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   # @endif
 
