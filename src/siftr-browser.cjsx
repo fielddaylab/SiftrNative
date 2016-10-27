@@ -56,7 +56,7 @@ GameList = React.createClass
         }
       </ScrollView>
     else
-      <Text style={styles.whiteBG}>Loading games...</Text>
+      <Text style={[styles.whiteBG, flex: 1]}>Loading games...</Text>
   # @endif
 
   # @ifdef WEB
@@ -107,7 +107,9 @@ SiftrURL = React.createClass
         autoCapitalize="none"
         style={styles.input}
       />
-      <BUTTON onClick={@findSiftr}><P>Submit</P></BUTTON>
+      <TouchableOpacity onPress={@findSiftr}>
+        <Text style={[styles.blueButton, margin: 10]}>Submit</Text>
+      </TouchableOpacity>
     </View>
   # @endif
 

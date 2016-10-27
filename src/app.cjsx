@@ -268,7 +268,7 @@ LoginBox = React.createClass
         onChangeText={(password) => @password = password}
       />
       <TouchableOpacity onPress={@doLogin}>
-        <Text>Login</Text>
+        <Text style={[styles.blueButton, margin: 10]}>Login</Text>
       </TouchableOpacity>
     </View>
   # @endif
@@ -365,12 +365,19 @@ SiftrNative = React.createClass
               onExit={=> @setState game: null}
               onPromptLogin={=> @setState menuOpen: true}
             />
-          else
-            [
+        }
+        {
+          unless @state.game?
+            <GameList games={
               if @state.auth.authToken?
-                <GameList key={1} games={@state.games} onSelect={(game) => @setState {game}} />
-              <SiftrURL key={2} auth={@state.auth} onSelect={(game) => @setState {game}} />
-            ]
+                @state.games
+              else
+                []
+            } onSelect={(game) => @setState {game}} />
+        }
+        {
+          unless @state.game?
+            <SiftrURL auth={@state.auth} onSelect={(game) => @setState {game}} />
         }
       </AuthContainer>
     else

@@ -11,6 +11,9 @@ exports.styles = StyleSheet.create
 
   input:
     height: 50
+    backgroundColor: 'white'
+    color: 'black'
+    margin: 10
 
   horizontal:
     flexDirection: 'row'
