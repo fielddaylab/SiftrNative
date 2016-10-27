@@ -20,6 +20,7 @@ Orientation = require 'react-native-orientation'
 
 { Auth
 , Game
+, arisHTTPS
 } = require './aris'
 
 {SiftrView} = require './siftr-view'
@@ -49,10 +50,28 @@ AuthContainer = React.createClass
     hasBrowserButton: false
     onBrowserButton: (->)
     orientation: 'PORTRAIT'
+    userPicture: null
 
   goBackToBrowser: ->
     @props.onMenuMove false
     @props.onBrowserButton()
+
+  componentWillMount: ->
+    @fetchPicture()
+
+  componentWillReceiveProps: (nextProps) ->
+    if @props.auth isnt nextProps.auth
+      @fetchPicture nextProps.auth
+
+  fetchPicture: (auth = @props.auth) ->
+    media_id = auth.authToken?.media_id
+    unless media_id?
+      @setState userPicture: null
+      return
+    @props.auth.call 'media.getMedia',
+      media_id: media_id
+    , withSuccess (userPicture) =>
+      @setState {userPicture}
 
   # @ifdef NATIVE
   componentDidMount: ->
@@ -75,15 +94,34 @@ AuthContainer = React.createClass
       onChange={@props.onMenuMove}
       edgeHitWidth={0}
       menu={
-        <View>
+        <View style={backgroundColor: '#224', paddingTop: 30, flex: 1}>
           {
             if @props.auth.authToken?
-              <View>
-                <Text>
-                  Logged in as {@props.auth.authToken.display_name}
+              <View style={
+                flexDirection: 'column'
+                justifyContent: 'flex-start'
+                alignItems: 'center'
+              }>
+                {
+                  <Image
+                    source={uri: arisHTTPS @state.userPicture?.big_thumb_url}
+                    resizeMode="cover"
+                    style={
+                      height: 130
+                      width: 130
+                      backgroundColor: '#ccd'
+                      margin: 10
+                      borderRadius: 65
+                    }
+                  />
+                }
+                <Text style={textAlign: 'center', color: 'white', fontSize: 18}>
+                  {@props.auth.authToken.display_name}
                 </Text>
                 <TouchableOpacity onPress={@props.onLogout}>
-                  <Text>Logout</Text>
+                  <Text style={[styles.blueButton, margin: 10]}>
+                    Logout
+                  </Text>
                 </TouchableOpacity>
               </View>
             else
@@ -91,7 +129,15 @@ AuthContainer = React.createClass
           }
           {
             if @props.hasBrowserButton
-              <BUTTON onClick={@goBackToBrowser}><P>Back to Browser</P></BUTTON>
+              <TouchableOpacity onPress={@goBackToBrowser} style={
+                flexDirection: 'column'
+                justifyContent: 'flex-start'
+                alignItems: 'center'
+              }>
+                <Text style={[styles.blueButton, margin: 10]}>
+                  Back to Browser
+                </Text>
+              </TouchableOpacity>
           }
         </View>
       }
@@ -161,8 +207,13 @@ AuthContainer = React.createClass
         {
           if @props.auth.authToken?
             <div>
+              <div className="auth-menu-user-picture" style={
+                backgroundImage:
+                  if (url = @state.userPicture?.big_thumb_url)
+                    "url(#{arisHTTPS url})"
+              } />
               <p>
-                Logged in as {@props.auth.authToken.display_name}
+                {@props.auth.authToken.display_name}
               </p>
               <p>
                 <button type="button" onClick={@props.onLogout}>Logout</button>
@@ -231,6 +282,7 @@ LoginBox = React.createClass
           type="text"
           ref="username"
           onKeyDown={@handleEnter}
+          className="login-field"
         />
       </p>
       <p>
@@ -239,6 +291,7 @@ LoginBox = React.createClass
           type="password"
           ref="password"
           onKeyDown={@handleEnter}
+          className="login-field"
         />
       </p>
       <p>

@@ -324,5 +324,5 @@ class Auth
   getNoteCommentsForNote: (json, cb) ->
     @callWrapped 'note_comments.getNoteCommentsForNote', json, cb, (data) -> new Comment o for o in data
 
-for k, v of {Game, User, Tag, Comment, Note, Auth}
+for k, v of {Game, User, Tag, Comment, Note, Auth, arisHTTPS}
   exports[k] = v

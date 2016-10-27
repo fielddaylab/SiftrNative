@@ -238,8 +238,7 @@ $sqrt2: 1.4142135;
 
 $auth-menu-width: 300px;
 
-.auth-container
-{
+.auth-container {
   position: fixed;
   top: 0;
   left: 0;
@@ -258,21 +257,37 @@ $auth-menu-width: 300px;
   flex-direction: column;
 }
 
-.auth-menu
-{
+.auth-menu {
   position: absolute;
   height: 100%;
   width: $auth-menu-width;
   left: -$auth-menu-width;
   top: 0;
-  background-color: #bbb;
+  background-color: #224;
+  color: #eee;
   padding: 10px;
   box-sizing: border-box;
+  text-align: center;
 }
 
-.auth-container.auth-menu-open
-{
+.auth-menu-user-picture {
+  height: 130px;
+  width: 130px;
+  background-position: center;
+  background-size: cover;
+  border-radius: 999px;
+  display: inline-block;
+  margin-top: 20px;
+  background-color: #ccd;
+}
+
+.auth-container.auth-menu-open {
   left: $auth-menu-width;
+}
+
+.login-field {
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .auth-nav-button {

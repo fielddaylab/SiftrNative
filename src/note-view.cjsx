@@ -436,7 +436,9 @@ SiftrNoteView = React.createClass
       game_id: note.game_id
     , withSuccess (comments) =>
       if @props.note.note_id is note.note_id
-        @setState {comments}
+        @setState
+          comments:
+            comment for comment in comments when comment.description.match(/\S/)
 
   doNewComment: (text) ->
     @props.auth.createNoteComment
