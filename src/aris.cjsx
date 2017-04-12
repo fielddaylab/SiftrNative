@@ -7,6 +7,7 @@
 update = require 'immutability-helper'
 
 ARIS_URL = 'https://arisgames.org/server/'
+# ARIS_URL = 'http://localhost:10080/server/'
 
 class Game
   constructor: (json) ->
@@ -140,6 +141,32 @@ class Note
         continue unless comment.description.match(/\S/)
         comment
       @published    = json.published
+
+class Field
+  constructor: (json = null) ->
+    if json?
+      @field_id   = parseInt json.field_id
+      @game_id    = parseInt json.game_id
+      @field_type = json.field_type
+      @label      = json.label
+
+class FieldOption
+  constructor: (json = null) ->
+    if json?
+      @field_option_id = parseInt json.field_option_id
+      @field_id        = parseInt json.field_id
+      @game_id         = parseInt json.game_id
+      @option          = json.option
+
+class FieldData
+  constructor: (json = null) ->
+    if json?
+      @field_data_id   = parseInt json.field_data_id
+      @note_id         = parseInt json.note_id
+      @field_id        = parseInt json.field_id
+      @field_data      = json.field_data
+      @media_id        = parseInt json.media_id
+      @field_option_id = parseInt json.field_option_id
 
 # Handles Aris v2 authentication and API calls.
 class Auth
@@ -294,6 +321,17 @@ class Auth
   getUsersForGame: (json, cb) ->
     @callWrapped 'users.getUsersForGame', json, cb, (data) -> new User o for o in data
 
+  getFieldsForGame: (json, cb) ->
+    @callWrapped 'fields.getFieldsForGame', json, cb, (data) ->
+      fields =
+        new Field o for o in data.fields
+      options =
+        new FieldOption o for o in data.options
+      for field in fields
+        field.options =
+          opt for opt in options when field.field_id is opt.field_id
+      fields
+
   getGamesForUser: (json, cb) ->
     @callWrapped 'games.getGamesForUser', json, cb, (data) -> new Game o for o in data
 
@@ -323,6 +361,9 @@ class Auth
 
   getNoteCommentsForNote: (json, cb) ->
     @callWrapped 'note_comments.getNoteCommentsForNote', json, cb, (data) -> new Comment o for o in data
+
+  getFieldDataForNote: (json, cb) ->
+    @callWrapped 'fields.getFieldDataForNote', json, cb, (data) -> new FieldData o for o in data
 
 for k, v of {Game, User, Tag, Comment, Note, Auth, arisHTTPS}
   exports[k] = v

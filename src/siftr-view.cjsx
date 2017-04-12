@@ -77,6 +77,7 @@ SiftrView = React.createClass
     searchParams: {}
     searchOpen: false
     primaryMap: true
+    fields: null
 
   componentWillMount: ->
     @props.auth.getTagsForGame
@@ -87,6 +88,10 @@ SiftrView = React.createClass
       colors_id: @props.game.colors_id ? 1
     , withSuccess (colors) =>
       @setState {colors}
+    @props.auth.getFieldsForGame
+      game_id: @props.game.game_id
+    , withSuccess (fields) =>
+      @setState {fields}
 
   componentWillReceiveProps: (nextProps) ->
     if @props.auth.authToken?.user_id isnt nextProps.auth.authToken?.user_id
@@ -180,11 +185,10 @@ SiftrView = React.createClass
     @setState obj, => @loadResults()
 
   loadNoteByID: (note_id) ->
-    console.log note_id
     @props.auth.searchNotes
       game_id: @props.game.game_id
       note_id: note_id
-    , withSuccess (data) => console.log data; @setState viewingNote: data[0]
+    , withSuccess (data) => @setState viewingNote: data[0]
 
   selectNote: (note) ->
     return if note.note_id is 0
@@ -231,6 +235,7 @@ SiftrView = React.createClass
         isAdmin={@props.isAdmin}
         onPromptLogin={@props.onPromptLogin}
         getColor={@getColor}
+        fields={@state.fields}
       />
 
   renderMap: ->
@@ -381,7 +386,6 @@ SiftrView = React.createClass
       />
 
   finishNoteCreation: (category) ->
-    console.log category
     {media, caption, location} = @state.createNote
     @props.auth.call 'notes.createNote',
       game_id: @props.game.game_id

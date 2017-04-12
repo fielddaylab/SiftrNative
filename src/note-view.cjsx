@@ -423,14 +423,15 @@ SiftrNoteView = React.createClass
     editingCaption: false
 
   componentWillMount: ->
-    @loadComments()
+    @loadExtra()
 
   componentWillReceiveProps: (nextProps) ->
     if @props.note.note_id isnt nextProps.note.note_id
       @setState comments: null
-      @loadComments nextProps.note
+      @loadExtra nextProps.note
 
-  loadComments: (note = @props.note) ->
+  loadExtra: (note = @props.note) ->
+    # load comments
     @props.auth.getNoteCommentsForNote
       note_id: note.note_id
       game_id: note.game_id
@@ -439,24 +440,31 @@ SiftrNoteView = React.createClass
         @setState
           comments:
             comment for comment in comments when comment.description.match(/\S/)
+    # load field data
+    @props.auth.getFieldDataForNote
+      note_id: note.note_id
+    , withSuccess (data) =>
+      if @props.note.note_id is note.note_id
+        @setState
+          field_data: data
 
   doNewComment: (text) ->
     @props.auth.createNoteComment
       game_id: @props.note.game_id
       note_id: @props.note.note_id
       description: text
-    , withSuccess => @loadComments()
+    , withSuccess => @loadExtra()
 
   doEditComment: (comment, text) ->
     @props.auth.updateNoteComment
       note_comment_id: comment.comment_id
       description: text
-    , withSuccess => @loadComments()
+    , withSuccess => @loadExtra()
 
   doDeleteComment: (comment) ->
     @props.auth.call 'note_comments.deleteNoteComment',
       note_comment_id: comment.comment_id
-    , withSuccess => @loadComments()
+    , withSuccess => @loadExtra()
 
   likeNote: ->
     unless @props.auth.authToken?
