@@ -636,8 +636,35 @@ SiftrNoteView = React.createClass
           </View>
       }
       {
+        if not (@state.field_data? and @props.fields?)
+          <Text style={margin: 10}>Loading data...</Text>
+        else
+          for field in @props.fields
+            data =
+              d for d in @state.field_data when d.field_id is field.field_id
+            switch field.field_type
+              when 'TEXT', 'TEXTAREA'
+                <Text key={field.field_id} style={margin: 10}>
+                  [{field.label}] {data[0]?.field_data}
+                </Text>
+              when 'SINGLESELECT', 'MULTISELECT'
+                <Text key={field.field_id} style={margin: 10}>
+                  [{field.label}]
+                  {
+                    opts = []
+                    for d in data
+                      for opt in field.options
+                        if opt.field_option_id is d.field_option_id
+                          opts.push opt.option
+                    ' ' + opts.join(', ')
+                  }
+                </Text>
+              else
+                continue
+      }
+      {
         if @state.comments is null
-          <Text>Loading comments...</Text>
+          <Text style={margin: 10}>Loading comments...</Text>
         else
           <SiftrComments
             note={@props.note}
