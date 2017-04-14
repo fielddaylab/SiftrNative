@@ -6,6 +6,7 @@ T = React.PropTypes
 { Note
 , Auth
 , Comment
+, Field
 } = require './aris'
 
 # @ifdef NATIVE
@@ -409,6 +410,7 @@ SiftrNoteView = React.createClass
     isAdmin: T.bool
     onPromptLogin: T.func
     getColor: T.func
+    fields: T.arrayOf(T.instanceOf Field)
 
   getDefaultProps: ->
     onClose: (->)

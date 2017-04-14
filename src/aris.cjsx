@@ -365,5 +365,5 @@ class Auth
   getFieldDataForNote: (json, cb) ->
     @callWrapped 'fields.getFieldDataForNote', json, cb, (data) -> new FieldData o for o in data
 
-for k, v of {Game, User, Tag, Comment, Note, Auth, arisHTTPS}
+for k, v of {Game, User, Tag, Comment, Note, Auth, Field, FieldData, FieldOption, arisHTTPS}
   exports[k] = v

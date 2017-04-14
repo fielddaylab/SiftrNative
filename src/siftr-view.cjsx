@@ -28,7 +28,7 @@ update = require 'immutability-helper'
 {SiftrMap} = require './map'
 {SiftrThumbnails} = require './thumbnails'
 {SiftrNoteView} = require './note-view'
-{CreateStep1, CreateStep2, CreateStep3, CreateStep4} = require './create-note'
+{CreateStep1, CreateStep2, CreateStep3, CreateStep4, CreateStep5} = require './create-note'
 
 {clicker, withSuccess, DIV, P, BUTTON} = require './utils'
 
@@ -365,7 +365,7 @@ SiftrView = React.createClass
           defaultCaption: @state.createNote.caption
         }
       />
-    else
+    else unless @state.createNote.field_data?
       <CreateStep4
         categories={@state.tags ? []}
         category={@state.createNote.category}
@@ -373,7 +373,14 @@ SiftrView = React.createClass
           @setState createNote: update @state.createNote,
             category: $set: category
         }
-        onFinish={@finishNoteCreation}
+        onFinish={=> @setState createNote:
+          media: @state.createNote.media
+          exif: @state.createNote.exif
+          caption: @state.createNote.caption
+          location: @state.createNote.location
+          category: @state.createNote.category
+          field_data: []
+        }
         onCancel={=> @setState createNote: null}
         onBack={=>
           @setState
@@ -384,9 +391,28 @@ SiftrView = React.createClass
         }
         getColor={@getColor}
       />
+    else
+      <CreateStep5
+        onChangeData={(field_data) =>
+          @setState createNote: update @state.createNote,
+            field_data: $set: field_data
+        }
+        onFinish={@finishNoteCreation}
+        onCancel={=> @setState createNote: null}
+        onBack={=>
+          @setState createNote:
+            media: @state.createNote.media
+            exif: @state.createNote.exif
+            caption: @state.createNote.caption
+            location: @state.createNote.location
+            category: @state.createNote.category
+        }
+        fields={@state.fields}
+        field_data={@state.createNote.field_data}
+      />
 
-  finishNoteCreation: (category) ->
-    {media, caption, location} = @state.createNote
+  finishNoteCreation: (field_data) ->
+    {media, caption, location, category} = @state.createNote
     @props.auth.call 'notes.createNote',
       game_id: @props.game.game_id
       description: caption
@@ -395,6 +421,7 @@ SiftrView = React.createClass
         latitude: location.lat
         longitude: fixLongitude location.lng
       tag_id: category.tag_id
+      field_data: field_data
     , withSuccess (note) =>
       @setState createNote: null
       @loadResults()

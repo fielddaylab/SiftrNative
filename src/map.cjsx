@@ -278,10 +278,12 @@ SiftrMap = React.createClass
 
   renderClusters: ->
     @props.map_clusters.map (map_cluster, i) =>
+      lat = (map_cluster.min_latitude + map_cluster.max_latitude) / 2
+      lng = (map_cluster.min_longitude + map_cluster.max_longitude) / 2
       <MapCluster
-        key={i}
-        lat={(map_cluster.min_latitude + map_cluster.max_latitude) / 2}
-        lng={(map_cluster.min_longitude + map_cluster.max_longitude) / 2}
+        key={"#{lat} #{lng}"}
+        lat={lat}
+        lng={lng}
         cluster={map_cluster}
         getColor={@props.getColor}
         onSelect={@openCluster}

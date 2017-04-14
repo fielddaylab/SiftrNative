@@ -15,11 +15,13 @@ ImagePicker = require 'react-native-image-picker'
 , Text
 , TouchableOpacity
 , ActivityIndicator
+, ScrollView
+, Switch
 } = require 'react-native'
 {styles} = require './styles'
 # @endif
 
-{Auth, Game, Tag} = require './aris'
+{Auth, Game, Tag, Field, FieldData} = require './aris'
 {clicker, withSuccess, P, BUTTON, DIV} = require './utils'
 
 # Step 1: Upload
@@ -388,7 +390,7 @@ CreateStep4 = React.createClass
           <Text style={styles.blueButton}>{'<'} LOCATION</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={=> @props.onFinish @props.category}>
-          <Text style={styles.blueButton}>FINISH</Text>
+          <Text style={styles.blueButton}>FORM {'>'}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -425,6 +427,165 @@ CreateStep4 = React.createClass
           {'<'} LOCATION
         </a>
         <a href="#" className="create-button-blue" onClick={clicker => @props.onFinish @props.category}>
+          FORM {'>'}
+        </a>
+      </div>
+    </div>
+  # @endif
+
+# Step 5: Form
+CreateStep5 = React.createClass
+  propTypes:
+    onChangeData: T.func
+    onFinish: T.func
+    onBack: T.func
+    onCancel: T.func
+    fields: T.arrayOf(T.instanceOf Field)
+    field_data: T.arrayOf(T.instanceOf FieldData)
+
+  getDefaultProps: ->
+    onChangeData: (->)
+    onFinish: (->)
+    onBack: (->)
+    onCancel: (->)
+    fields: []
+    field_data: []
+
+  # @ifdef NATIVE
+  render: ->
+    <ScrollView contentContainerStyle={
+      backgroundColor: 'white'
+      flexDirection: 'column'
+      alignItems: 'stretch'
+    }>
+      <View style={
+        margin: 10
+        flexDirection: 'column'
+        alignItems: 'flex-start'
+      }>
+        <TouchableOpacity onPress={@props.onCancel} style={alignSelf: 'flex-end'}>
+          <Image source={require '../web/assets/img/x-blue.png'} />
+        </TouchableOpacity>
+        {
+          @props.fields.map (field) =>
+            <View key={field.field_id} style={alignSelf: 'stretch'}>
+              <Text>{ field.label }</Text>
+              {
+                getText = =>
+                  for data in @props.field_data
+                    if data.field_id is field.field_id
+                      return data.field_data
+                setText = (text) =>
+                  newData =
+                    data for data in @props.field_data when data.field_id isnt field.field_id
+                  newData.push new FieldData {
+                    field_id: field.field_id
+                    field_data: text
+                  }
+                  @props.onChangeData newData
+                switch field.field_type
+                  when 'TEXT'
+                    <TextInput
+                      multiline={false}
+                      value={getText()}
+                      onChangeText={setText}
+                      style={
+                        height: 50
+                        borderColor: '#222'
+                        borderWidth: 1
+                        padding: 10
+                        fontSize: 16
+                        alignSelf: 'stretch'
+                      }
+                    />
+                  when 'TEXTAREA'
+                    <TextInput
+                      multiline={true}
+                      value={getText()}
+                      onChangeText={setText}
+                      style={
+                        height: 120
+                        borderColor: '#222'
+                        borderWidth: 1
+                        padding: 10
+                        fontSize: 16
+                        alignSelf: 'stretch'
+                      }
+                    />
+                  when 'SINGLESELECT'
+                    <Picker
+                      selectedValue={do =>
+                        for data in @props.field_data
+                          if data.field_id is field.field_id
+                            return data.field_option_id
+                        field.options[0].field_option_id
+                      }
+                      onValueChange={(field_option_id) =>
+                        newData =
+                          data for data in @props.field_data when data.field_id isnt field.field_id
+                        newData.push new FieldData {
+                          field_id: field.field_id
+                          field_option_id: field_option_id
+                        }
+                        @props.onChangeData newData
+                      }
+                    >
+                      {
+                        field.options.map (option) =>
+                          <Picker.Item label={option.option} value={option.field_option_id} key={option.field_option_id} />
+                      }
+                    </Picker>
+                  when 'MULTISELECT'
+                    field.options.map (option) =>
+                      <View style={flexDirection: 'row'} key={option.field_option_id}>
+                        <Switch
+                          value={@props.field_data.some (data) =>
+                            data.field_id is field.field_id and data.field_option_id is option.field_option_id
+                          }
+                          onValueChange={(checked) =>
+                            newData =
+                              data for data in @props.field_data when not (data.field_id is field.field_id and data.field_option_id is option.field_option_id)
+                            if checked
+                              newData.push new FieldData {
+                                field_id: field.field_id
+                                field_option_id: option.field_option_id
+                              }
+                            @props.onChangeData newData
+                          }
+                        />
+                        <Text>{ option.option }</Text>
+                      </View>
+                  else
+                    <Text>(not implemented yet)</Text>
+              }
+            </View>
+        }
+      </View>
+      <View style={styles.buttonRow}>
+        <TouchableOpacity onPress={@props.onBack}>
+          <Text style={styles.blueButton}>{'<'} CATEGORY</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={=> @props.onFinish @props.field_data}>
+          <Text style={styles.blueButton}>FINISH</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  # @endif
+
+  # @ifdef WEB
+  render: ->
+    <div className="create-step-5">
+      <div className="create-content-center">
+        <a href="#" className="create-float-x" onClick={clicker @props.onCancel}>
+          <img src="assets/img/x-blue.png" />
+        </a>
+        <p>{ JSON.stringify @props.fields }</p>
+      </div>
+      <div className="create-buttons">
+        <a href="#" className="create-button-blue" onClick={clicker @props.onBack}>
+          {'<'} CATEGORY
+        </a>
+        <a href="#" className="create-button-blue" onClick={clicker => @props.onFinish @props.field_data}>
           FINISH
         </a>
       </div>
@@ -435,3 +596,4 @@ exports.CreateStep1 = CreateStep1
 exports.CreateStep2 = CreateStep2
 exports.CreateStep3 = CreateStep3
 exports.CreateStep4 = CreateStep4
+exports.CreateStep5 = CreateStep5
