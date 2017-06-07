@@ -12,6 +12,7 @@ T = React.PropTypes
 , Platform
 , StatusBar
 , Image
+, Linking
 } = require 'react-native'
 {styles} = require './styles'
 SideMenu = require 'react-native-side-menu'
@@ -27,6 +28,8 @@ Orientation = require 'react-native-orientation'
 {GameList, SiftrURL} = require './siftr-browser'
 
 {clicker, withSuccess, DIV, P, BUTTON} = require './utils'
+
+{parseUri} = require './parse-uri'
 
 AuthContainer = React.createClass
   propTypes:
@@ -321,6 +324,31 @@ SiftrNative = React.createClass
 
   componentWillMount: ->
     @login()
+
+  componentDidMount: ->
+    Linking.getInitialURL().then (url) =>
+      @parseURL(url) if url
+      @urlHandler = ({url}) => @parseURL(url)
+      Linking.addEventListener 'url', @urlHandler
+
+  componentWillUnmount: ->
+    Linking.removeEventListener 'url', @urlHandler
+
+  parseURL: (url) ->
+    mapping = {}
+    for kv in parseUri(url).query.split('&')
+      [k, v] = kv.split('=')
+      mapping[k] = v
+    siftr_id = parseInt(mapping.siftr_id)
+    if siftr_id
+      @launchByID siftr_id
+
+  launchByID: (siftr_id) ->
+    return if @state.game?.game_id is siftr_id
+    (@state.auth ? new Auth).getGame
+      game_id: siftr_id
+    , withSuccess (game) =>
+      @setState {game}
 
   updateGames: ->
     @state.auth.getGamesForUser {}, withSuccess (games) =>
