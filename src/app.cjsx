@@ -325,6 +325,7 @@ SiftrNative = React.createClass
   componentWillMount: ->
     @login()
 
+  # @ifdef NATIVE
   componentDidMount: ->
     Linking.getInitialURL().then (url) =>
       @parseURL(url) if url
@@ -340,15 +341,23 @@ SiftrNative = React.createClass
       [k, v] = kv.split('=')
       mapping[k] = v
     siftr_id = parseInt(mapping.siftr_id)
+    nomen_id = parseInt(mapping.nomen_id)
+    species_id = mapping.species_id
     if siftr_id
-      @launchByID siftr_id
+      @launchByID {siftr_id, nomen_id, species_id}
 
-  launchByID: (siftr_id) ->
+  launchByID: ({siftr_id, nomen_id, species_id}) ->
     return if @state.game?.game_id is siftr_id
     (@state.auth ? new Auth).getGame
       game_id: siftr_id
     , withSuccess (game) =>
-      @setState {game}
+      @setState
+        game: game
+        nomenData: {nomen_id, species_id}
+
+  clearNomenData: ->
+    @setState nomenData: null
+  # @endif
 
   updateGames: ->
     @state.auth.getGamesForUser {}, withSuccess (games) =>
@@ -392,6 +401,8 @@ SiftrNative = React.createClass
               isAdmin={@gameBelongsToUser @state.game}
               onExit={=> @setState game: null}
               onPromptLogin={=> @setState menuOpen: true}
+              nomenData={@state.nomenData}
+              clearNomenData={@clearNomenData}
             />
         }
         {

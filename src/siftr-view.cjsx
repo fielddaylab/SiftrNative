@@ -44,11 +44,15 @@ SiftrView = React.createClass
     isAdmin: T.bool
     onExit: T.func
     onPromptLogin: T.func
+    # nomenData
+    clearNomenData: T.func
 
   getDefaultProps: ->
     isAdmin: false
     onExit: (->)
     onPromptLogin: (->)
+    nomenData: null
+    clearNomenData: (->)
 
   getInitialState: ->
     center:
@@ -92,6 +96,8 @@ SiftrView = React.createClass
       game_id: @props.game.game_id
     , withSuccess (fields) =>
       @setState {fields}
+    if @props.nomenData?
+      @applyNomenData @props.nomenData
 
   componentWillReceiveProps: (nextProps) ->
     if @props.auth.authToken?.user_id isnt nextProps.auth.authToken?.user_id
@@ -103,6 +109,16 @@ SiftrView = React.createClass
       if not nextProps.auth.authToken?
         # cancel note creation on logout
         @setState createNote: null
+    if not @props.nomenData? and nextProps.nomenData?
+      @applyNomenData nextProps.nomenData
+
+  applyNomenData: (nomenData) ->
+    if @state.createNote?
+      # continue note filling in data
+      @setState {nomenData}
+    else
+      @startCreate nomenData
+    @props.clearNomenData()
 
   # @ifdef WEB
   componentWillUpdate: (nextProps, nextState) ->
@@ -315,13 +331,14 @@ SiftrView = React.createClass
           lat: posn.coords.latitude
           lng: posn.coords.longitude
 
-  startCreate: ->
+  startCreate: (nomenData) ->
     return if @state.createNote?
     if @props.auth.authToken?
       @setState
         createNote: {}
         searchOpen: false
         viewingNote: null
+        nomenData: nomenData
     else
       @props.onPromptLogin()
 
