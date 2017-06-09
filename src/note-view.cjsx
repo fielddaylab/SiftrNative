@@ -661,6 +661,10 @@ SiftrNoteView = React.createClass
                     ' ' + opts.join(', ')
                   }
                 </Text>
+              when 'NOMEN'
+                <Text key={field.field_id} style={margin: 10}>
+                  [Nomen {field.label}] {data[0]?.field_data}
+                </Text>
               else
                 continue
       }

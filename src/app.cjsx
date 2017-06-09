@@ -342,7 +342,7 @@ SiftrNative = React.createClass
       mapping[k] = v
     siftr_id = parseInt(mapping.siftr_id)
     nomen_id = parseInt(mapping.nomen_id)
-    species_id = mapping.species_id
+    species_id = decodeURIComponent((mapping.species_id+'').replace(/\+/g, '%20'))
     if siftr_id
       @launchByID {siftr_id, nomen_id, species_id}
 

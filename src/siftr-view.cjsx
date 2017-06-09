@@ -20,6 +20,7 @@ update = require 'immutability-helper'
 , Game
 , Tag
 , Note
+, FieldData
 } = require './aris'
 
 {timeToARIS} = require './time-slider'
@@ -99,6 +100,14 @@ SiftrView = React.createClass
     if @props.nomenData?
       @applyNomenData @props.nomenData
 
+  componentDidMount: ->
+    @nomenTimer = setInterval =>
+      @checkNomenFieldData()
+    , 1000
+
+  componentWillUnmount: ->
+    clearInterval @nomenTimer
+
   componentWillReceiveProps: (nextProps) ->
     if @props.auth.authToken?.user_id isnt nextProps.auth.authToken?.user_id
       # if we log in or out, reload the note search
@@ -119,6 +128,27 @@ SiftrView = React.createClass
     else
       @startCreate nomenData
     @props.clearNomenData()
+
+  checkNomenFieldData: ->
+    # check if there is nomenData to make into field_data
+    if @state.nomenData?
+      if @state.createNote?
+        if @state.createNote.field_data?
+          matchingFields =
+            field for field in @state.fields when field.field_type is 'NOMEN' and parseInt(field.label) is @state.nomenData.nomen_id
+          return if matchingFields.length is 0
+          field = matchingFields[0]
+          field_data = @state.createNote.field_data.filter (fieldData) => fieldData.field_id isnt field.field_id
+          field_data.push new FieldData {
+            field_id: field.field_id
+            field_data: @state.nomenData.species_id
+          }
+          @setState
+            nomenData: null
+            createNote: update @state.createNote,
+              field_data: $set: field_data
+      else
+        @setState nomenData: null
 
   # @ifdef WEB
   componentWillUpdate: (nextProps, nextState) ->

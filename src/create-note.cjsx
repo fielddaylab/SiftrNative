@@ -17,6 +17,7 @@ ImagePicker = require 'react-native-image-picker'
 , ActivityIndicator
 , ScrollView
 , Switch
+, Linking
 } = require 'react-native'
 {styles} = require './styles'
 # @endif
@@ -469,7 +470,7 @@ CreateStep5 = React.createClass
         {
           @props.fields.map (field) =>
             <View key={field.field_id} style={alignSelf: 'stretch'}>
-              <Text>{ field.label }</Text>
+              <Text>{ if field.field_type is 'NOMEN' then "Nomen #{field.label}" else field.label }</Text>
               {
                 getText = =>
                   for data in @props.field_data
@@ -555,6 +556,20 @@ CreateStep5 = React.createClass
                         />
                         <Text>{ option.option }</Text>
                       </View>
+                  when 'NOMEN'
+                    <TouchableOpacity onPress={=>
+                      Linking.openURL "nomen://?nomen_id=#{field.label}&siftr_id=6234" # TODO actual siftr_id
+                    }>
+                      <Text>
+                        {
+                          do =>
+                            for data in @props.field_data
+                              if data.field_id is field.field_id
+                                return data.field_data
+                        }
+                      </Text>
+                      <Text>Launch Nomen</Text>
+                    </TouchableOpacity>
                   else
                     <Text>(not implemented yet)</Text>
               }
