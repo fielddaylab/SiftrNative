@@ -1,10 +1,9 @@
 .PHONY: default first-time deploy-beta
 
 default:
-	gulp
-
-first-time:
-	npm install
+	yarn
+	# this fixes a weird naming collision issue
+	rm -rf node_modules/react-native-svg/node_modules/react-native
 	gulp
 
 deploy-beta:
