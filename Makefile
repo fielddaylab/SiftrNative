@@ -2,8 +2,6 @@
 
 default:
 	yarn
-	# this fixes a weird naming collision issue
-	rm -rf node_modules/react-native-svg/node_modules/react-native
 	gulp
 
 deploy-beta:

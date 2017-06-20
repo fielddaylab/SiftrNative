@@ -13,6 +13,7 @@ T = React.PropTypes
 , StatusBar
 , Image
 , Linking
+, NetInfo
 } = require 'react-native'
 {styles} = require './styles'
 SideMenu = require 'react-native-side-menu'
@@ -40,6 +41,7 @@ AuthContainer = React.createClass
     onBrowserButton: T.func
     menuOpen: T.bool
     onMenuMove: T.func
+    online: T.bool
 
   getDefaultProps: ->
     onLogin: (->)
@@ -174,10 +176,16 @@ AuthContainer = React.createClass
             margin: 10
           }>
             {
-              if @props.auth.authToken?
-                "Logged in as #{@props.auth.authToken.display_name}"
+              if @props.online
+                if @props.auth.authToken?
+                  "Logged in as #{@props.auth.authToken.display_name}"
+                else
+                  "Log in"
               else
-                "Log in"
+                if @props.auth.authToken?
+                  "Logged in as #{@props.auth.authToken.display_name} (offline)"
+                else
+                  "Offline"
             }
           </Text>
         </View>
@@ -321,6 +329,7 @@ SiftrNative = React.createClass
     games: null
     game: null
     menuOpen: false
+    online: true
 
   componentWillMount: ->
     @login()
@@ -331,8 +340,13 @@ SiftrNative = React.createClass
       @parseURL(url) if url
       @urlHandler = ({url}) => @parseURL(url)
       Linking.addEventListener 'url', @urlHandler
+    @withReach = (reach) =>
+      @setState online: reach not in ['none', 'NONE']
+    NetInfo.fetch().done @withReach
+    NetInfo.addEventListener 'change', @withReach
 
   componentWillUnmount: ->
+    NetInfo.removeEventListener 'change', @withReach
     Linking.removeEventListener 'url', @urlHandler
 
   parseURL: (url) ->
@@ -392,6 +406,7 @@ SiftrNative = React.createClass
         onBrowserButton={=> @setState game: null}
         onMenuMove={(b) => @setState menuOpen: b}
         menuOpen={@state.menuOpen}
+        online={@state.online}
       >
         {
           if @state.game?
