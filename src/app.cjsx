@@ -418,6 +418,7 @@ SiftrNative = React.createClass
               onPromptLogin={=> @setState menuOpen: true}
               nomenData={@state.nomenData}
               clearNomenData={@clearNomenData}
+              online={@state.online}
             />
         }
         {

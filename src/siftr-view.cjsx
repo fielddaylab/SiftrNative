@@ -11,6 +11,7 @@ update = require 'immutability-helper'
 , TouchableOpacity
 , Image
 } = require 'react-native'
+RNFS = require 'react-native-fs'
 {styles} = require './styles'
 # @endif
 
@@ -21,6 +22,8 @@ update = require 'immutability-helper'
 , Tag
 , Note
 , FieldData
+, Colors
+, Field
 } = require './aris'
 
 {timeToARIS} = require './time-slider'
@@ -47,6 +50,7 @@ SiftrView = React.createClass
     onPromptLogin: T.func
     # nomenData
     clearNomenData: T.func
+    online: T.bool
 
   getDefaultProps: ->
     isAdmin: false
@@ -85,18 +89,49 @@ SiftrView = React.createClass
     fields: null
 
   componentWillMount: ->
+    # @ifdef NATIVE
+    siftrDir = "#{RNFS.DocumentDirectoryPath}/siftrs/#{@props.game.game_id}"
+    RNFS.mkdir siftrDir, NSURLIsExcludedFromBackupKey: true
+    RNFS.writeFile "#{siftrDir}/game.txt", JSON.stringify @props.game
+    if @props.online
+      @props.auth.getTagsForGame
+        game_id: @props.game.game_id
+      , withSuccess (tags) =>
+        @setState {tags}
+        RNFS.writeFile "#{siftrDir}/tags.txt", JSON.stringify tags
+      @props.auth.getColors
+        colors_id: @props.game.colors_id ? 1
+      , withSuccess (colors) =>
+        @setState {colors}
+        RNFS.writeFile "#{siftrDir}/colors.txt", JSON.stringify colors
+      @props.auth.getFieldsForGame
+        game_id: @props.game.game_id
+      , withSuccess (fields) =>
+        @setState {fields}
+        RNFS.writeFile "#{siftrDir}/fields.txt", JSON.stringify fields
+    else
+      RNFS.readFile("#{siftrDir}/tags.txt").then (tags) =>
+        @setState tags:
+          for tag in JSON.parse tags
+            Object.assign(new Tag, tag)
+      RNFS.readFile("#{siftrDir}/colors.txt").then (colors) =>
+        @setState colors: Object.assign(new Colors, JSON.parse colors)
+      RNFS.readFile("#{siftrDir}/tags.txt").then (fields) =>
+        @setState fields:
+          for field in JSON.parse fields
+            Object.assign(new Field, field)
+    # @endif
+    # @ifdef WEB
     @props.auth.getTagsForGame
       game_id: @props.game.game_id
-    , withSuccess (tags) =>
-      @setState {tags}
+    , withSuccess (tags) => @setState {tags}
     @props.auth.getColors
       colors_id: @props.game.colors_id ? 1
-    , withSuccess (colors) =>
-      @setState {colors}
+    , withSuccess (colors) => @setState {colors}
     @props.auth.getFieldsForGame
       game_id: @props.game.game_id
-    , withSuccess (fields) =>
-      @setState {fields}
+    , withSuccess (fields) => @setState {fields}
+    # @endif
     if @props.nomenData?
       @applyNomenData @props.nomenData
 

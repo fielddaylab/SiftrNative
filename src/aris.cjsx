@@ -59,16 +59,17 @@ class Game
 
 class Colors
   constructor: (json) ->
-    @colors_id = parseInt json.colors_id
-    @name      = json.name
-    @tag_1     = json.tag_1
-    @tag_2     = json.tag_2
-    @tag_3     = json.tag_3
-    @tag_4     = json.tag_4
-    @tag_5     = json.tag_5
-    @tag_6     = json.tag_6
-    @tag_7     = json.tag_7
-    @tag_8     = json.tag_8
+    if json?
+      @colors_id = parseInt json.colors_id
+      @name      = json.name
+      @tag_1     = json.tag_1
+      @tag_2     = json.tag_2
+      @tag_3     = json.tag_3
+      @tag_4     = json.tag_4
+      @tag_5     = json.tag_5
+      @tag_6     = json.tag_6
+      @tag_7     = json.tag_7
+      @tag_8     = json.tag_8
 
 class User
   constructor: (json) ->
@@ -365,5 +366,5 @@ class Auth
   getFieldDataForNote: (json, cb) ->
     @callWrapped 'fields.getFieldDataForNote', json, cb, (data) -> new FieldData o for o in data
 
-for k, v of {Game, User, Tag, Comment, Note, Auth, Field, FieldData, FieldOption, arisHTTPS}
+for k, v of {Game, User, Tag, Comment, Note, Auth, Colors, Field, FieldData, FieldOption, arisHTTPS}
   exports[k] = v
