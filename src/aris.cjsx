@@ -57,6 +57,11 @@ class Game
     icon_media_id:  @icon_media_id
     prompt:         @prompt
 
+deserializeGame = (json) ->
+  g = Object.assign(new Game, json)
+  g.created = new Date(g.created)
+  g
+
 class Colors
   constructor: (json) ->
     if json?
@@ -366,5 +371,5 @@ class Auth
   getFieldDataForNote: (json, cb) ->
     @callWrapped 'fields.getFieldDataForNote', json, cb, (data) -> new FieldData o for o in data
 
-for k, v of {Game, User, Tag, Comment, Note, Auth, Colors, Field, FieldData, FieldOption, arisHTTPS}
+for k, v of {Game, deserializeGame, User, Tag, Comment, Note, Auth, Colors, Field, FieldData, FieldOption, arisHTTPS}
   exports[k] = v

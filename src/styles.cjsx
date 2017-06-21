@@ -72,4 +72,12 @@ exports.styles = StyleSheet.create
     alignItems: 'center'
     padding: 10
 
+  openSiftrButton:
+    borderColor: 'black'
+    borderWidth: 1
+    alignItems: 'flex-start'
+    flexDirection: 'column'
+    padding: 5
+    backgroundColor: '#eee'
+
 # @endif

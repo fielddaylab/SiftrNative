@@ -428,7 +428,7 @@ SiftrNative = React.createClass
                 @state.games
               else
                 []
-            } onSelect={(game) => @setState {game}} />
+            } onSelect={(game) => @setState {game}} online={@state.online} />
         }
         {
           unless @state.game?

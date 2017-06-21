@@ -230,6 +230,7 @@ SiftrView = React.createClass
       # @endif
 
   loadResults: (auth = @props.auth) ->
+    return unless @props.online
     @loading = true
     @lastResultsXHR?.abort()
     params = update @commonSearchParams(auth),
@@ -246,6 +247,7 @@ SiftrView = React.createClass
         loadedAll: false
 
   loadMoreResults: ->
+    return unless @props.online
     currentNotes = @state.notes
     return if @loading or @state.loadedAll or not currentNotes?
     @loading = true

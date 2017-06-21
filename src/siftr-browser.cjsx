@@ -10,11 +10,13 @@ T = React.PropTypes
 , TouchableOpacity
 , ScrollView
 } = require 'react-native'
+RNFS = require 'react-native-fs'
 {styles} = require './styles'
 # @endif
 
 { Auth
 , Game
+, deserializeGame
 } = require './aris'
 
 {clicker, withSuccess, P, BUTTON} = require './utils'
@@ -23,12 +25,32 @@ GameList = React.createClass
   propTypes:
     games: T.arrayOf T.instanceOf Game
     onSelect: T.func
+    online: T.bool
 
   getDefaultProps: ->
     games: null
     onSelect: (->)
+    online: true
+
+  getInitialState: ->
+    downloadedGames: null
 
   # @ifdef NATIVE
+  componentWillMount: ->
+    siftrsDir = "#{RNFS.DocumentDirectoryPath}/siftrs"
+    RNFS.exists(siftrsDir).then (dirExists) =>
+      if dirExists
+        RNFS.readDir(siftrsDir).then (files) =>
+          proms = for f in files
+            game_id = parseInt f.name
+            continue unless game_id isnt 0 and f.isDirectory()
+            RNFS.readFile "#{siftrsDir}/#{game_id}/game.txt"
+          Promise.all(proms).then (games) =>
+            @setState downloadedGames:
+              deserializeGame(JSON.parse game) for game in games
+      else
+        @setState downloadedGames: []
+
   render: ->
     if @props.games?
       <ScrollView style={
@@ -37,22 +59,35 @@ GameList = React.createClass
       } contentContainerStyle={
         alignItems: 'stretch'
       }>
+        <Text>My Siftrs</Text>
         {
-          @props.games.map (game) =>
-            <TouchableOpacity key={game.game_id} onPress={=> @props.onSelect game}>
-              <View style={
-                borderColor: 'black'
-                borderWidth: 1
-                alignItems: 'flex-start'
-                flexDirection: 'column'
-                padding: 5
-                backgroundColor: '#eee'
+          if @props.games?
+            @props.games.map (game) =>
+              <TouchableOpacity key={game.game_id} onPress={=> @props.onSelect game}>
+                <View style={styles.openSiftrButton}>
+                  <Text style={margin: 5}>
+                    {game.name}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+          else
+            <Text>Loading...</Text>
+        }
+        <Text>Downloaded Siftrs</Text>
+        {
+          if @state.downloadedGames?
+            @state.downloadedGames.map (game) =>
+              <TouchableOpacity key={game.game_id} onPress={=>
+                @props.onSelect game
               }>
-                <Text style={margin: 5}>
-                  {game.name}
-                </Text>
-              </View>
-            </TouchableOpacity>
+                <View style={styles.openSiftrButton}>
+                  <Text style={margin: 5}>
+                    {game.name}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+          else
+            <Text>Loading...</Text>
         }
       </ScrollView>
     else
