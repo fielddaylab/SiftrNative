@@ -331,8 +331,10 @@ SiftrNative = React.createClass
     menuOpen: false
     online: true
 
+  # @ifdef WEB
   componentWillMount: ->
     @login()
+  # @endif
 
   # @ifdef NATIVE
   componentDidMount: ->
@@ -341,7 +343,12 @@ SiftrNative = React.createClass
       @urlHandler = ({url}) => @parseURL(url)
       Linking.addEventListener 'url', @urlHandler
     @withReach = (reach) =>
-      @setState online: reach not in ['none', 'NONE']
+      online = reach not in ['none', 'NONE']
+      @setState {online}
+      if online
+        @login()
+      else if not @state.auth?
+        @state.auth = new Auth
     NetInfo.fetch().done @withReach
     NetInfo.addEventListener 'change', @withReach
 
@@ -379,6 +386,7 @@ SiftrNative = React.createClass
         game for game in games when game.is_siftr
 
   login: (username, password) ->
+    return unless @state.online
     (@state.auth ? new Auth).login username, password, (newAuth, err) =>
       if username? and password? and not newAuth.authToken?
         console.warn err
