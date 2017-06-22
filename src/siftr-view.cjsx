@@ -116,7 +116,7 @@ SiftrView = React.createClass
             Object.assign(new Tag, tag)
       RNFS.readFile("#{siftrDir}/colors.txt").then (colors) =>
         @setState colors: Object.assign(new Colors, JSON.parse colors)
-      RNFS.readFile("#{siftrDir}/tags.txt").then (fields) =>
+      RNFS.readFile("#{siftrDir}/fields.txt").then (fields) =>
         @setState fields:
           for field in JSON.parse fields
             Object.assign(new Field, field)
@@ -400,7 +400,7 @@ SiftrView = React.createClass
 
   startCreate: (nomenData) ->
     return if @state.createNote?
-    if @props.auth.authToken?
+    if @props.auth.authToken? or not @props.online
       @setState
         createNote: {}
         searchOpen: false
@@ -412,12 +412,14 @@ SiftrView = React.createClass
   renderCreateNote: ->
     unless @state.createNote?
       null
-    else unless @state.createNote.media?
+    else unless @state.createNote.media? or @state.createNote.file?
       <CreateStep1
         auth={@props.auth}
         game={@props.game}
         onCancel={=> @setState createNote: null}
-        onCreateMedia={({media, exif}) => @setState createNote: {media, exif}}
+        onCreateMedia={({media, exif}) => @setState createNote: {media, exif, online: true}}
+        onStoreMedia={({file}) => @setState createNote: {file, online: false}}
+        online={@props.online}
       />
     else unless @state.createNote.caption?
       <CreateStep2
@@ -426,6 +428,8 @@ SiftrView = React.createClass
             createNote:
               media: @state.createNote.media
               exif: @state.createNote.exif
+              file: @state.createNote.file
+              online: @state.createNote.online
               caption: caption
           , => @startLocatingNote exif: @state.createNote.exif
         }
@@ -438,6 +442,8 @@ SiftrView = React.createClass
         onPickLocation={(caption) => @setState createNote:
           media: @state.createNote.media
           exif: @state.createNote.exif
+          file: @state.createNote.file
+          online: @state.createNote.online
           caption: @state.createNote.caption
           location: @state.center
           category: @state.tags[0] # TODO handle empty case better
@@ -446,6 +452,8 @@ SiftrView = React.createClass
         onBack={=> @setState createNote:
           media: @state.createNote.media
           exif: @state.createNote.exif
+          file: @state.createNote.file
+          online: @state.createNote.online
           defaultCaption: @state.createNote.caption
         }
       />
@@ -460,6 +468,8 @@ SiftrView = React.createClass
         onFinish={=> @setState createNote:
           media: @state.createNote.media
           exif: @state.createNote.exif
+          file: @state.createNote.file
+          online: @state.createNote.online
           caption: @state.createNote.caption
           location: @state.createNote.location
           category: @state.createNote.category
@@ -487,6 +497,8 @@ SiftrView = React.createClass
           @setState createNote:
             media: @state.createNote.media
             exif: @state.createNote.exif
+            file: @state.createNote.file
+            online: @state.createNote.online
             caption: @state.createNote.caption
             location: @state.createNote.location
             category: @state.createNote.category
@@ -496,20 +508,34 @@ SiftrView = React.createClass
       />
 
   finishNoteCreation: (field_data) ->
-    {media, caption, location, category} = @state.createNote
-    @props.auth.call 'notes.createNote',
+    {media, file, online, caption, location, category} = @state.createNote
+    createArgs =
       game_id: @props.game.game_id
       description: caption
-      media_id: media.media_id
       trigger:
         latitude: location.lat
         longitude: fixLongitude location.lng
       tag_id: category.tag_id
       field_data: field_data
-    , withSuccess (note) =>
-      @setState createNote: null
-      @loadResults()
-      @loadNoteByID note.note_id
+    if online
+      # we've already uploaded media, now create note
+      createArgs.media_id = media.media_id
+      @props.auth.call 'notes.createNote', createArgs, withSuccess (note) =>
+        @setState createNote: null
+        @loadResults()
+        @loadNoteByID note.note_id
+    else
+      # save note for later upload queue
+      queueDir = "#{RNFS.DocumentDirectoryPath}/siftrqueue/#{Date.now()}"
+      RNFS.mkdir(queueDir).then =>
+        if file.uri.indexOf('content://') is -1
+          RNFS.copyFile(file.uri, "#{queueDir}/#{file.name}").then =>
+            createArgs.filename = file.name
+            RNFS.writeFile("#{queueDir}/createNote.json", JSON.stringify(createArgs)).then =>
+              @setState createNote: null
+        else
+          console.warn "TODO: handle content:// (picked from image roll on Android)"
+          @setState createNote: null
 
   # @ifdef NATIVE
   render: ->

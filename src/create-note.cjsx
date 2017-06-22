@@ -29,13 +29,17 @@ ImagePicker = require 'react-native-image-picker'
 CreateStep1 = React.createClass
   propTypes:
     onCreateMedia: T.func
+    onStoreMedia: T.func
     onCancel: T.func
     auth: T.instanceOf(Auth).isRequired
     game: T.instanceOf(Game).isRequired
+    online: T.bool
 
   getDefaultProps: ->
     onCreateMedia: (->)
+    onStoreMedia: (->)
     onCancel: (->)
+    online: true
 
   getInitialState: ->
     progress: null
@@ -43,19 +47,23 @@ CreateStep1 = React.createClass
 
   # @ifdef NATIVE
   beginUpload: ->
-    file = @state.file
-    return unless file?
-    @setState progress: 0
-    updateProgress = (n) => @setState progress: n
-    @props.auth.rawUpload file, updateProgress, withSuccess (raw_upload_id) =>
-      @props.auth.call 'media.createMediaFromRawUpload',
-        file_name: file.name
-        raw_upload_id: raw_upload_id
-        game_id: @props.game.game_id
-        resize: 800
-      , withSuccess (media) => @props.onCreateMedia
-        media: media
-        exif: {} # EXIF.getAllTags file
+    if @props.online
+      file = @state.file
+      return unless file?
+      @setState progress: 0
+      updateProgress = (n) => @setState progress: n
+      @props.auth.rawUpload file, updateProgress, withSuccess (raw_upload_id) =>
+        @props.auth.call 'media.createMediaFromRawUpload',
+          file_name: file.name
+          raw_upload_id: raw_upload_id
+          game_id: @props.game.game_id
+          resize: 800
+        , withSuccess (media) => @props.onCreateMedia
+          media: media
+          exif: {} # EXIF.getAllTags file
+    else
+      @props.onStoreMedia
+        file: @state.file
 
   chooseImage: ->
     ImagePicker.showImagePicker
