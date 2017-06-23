@@ -15,6 +15,7 @@ T = React.PropTypes
 , Linking
 , NetInfo
 } = require 'react-native'
+{UploadQueue} = require './upload-queue'
 {styles} = require './styles'
 SideMenu = require 'react-native-side-menu'
 Orientation = require 'react-native-orientation'
@@ -441,6 +442,14 @@ SiftrNative = React.createClass
         {
           unless @state.game?
             <SiftrURL auth={@state.auth} onSelect={(game) => @setState {game}} />
+        }
+        {
+          # @ifdef NATIVE
+          <UploadQueue />
+          # @endif
+          # @ifdef WEB
+          null
+          # @endif
         }
       </AuthContainer>
     else

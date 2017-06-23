@@ -43,7 +43,7 @@ GameList = React.createClass
         RNFS.readDir(siftrsDir).then (files) =>
           proms = for f in files
             game_id = parseInt f.name
-            continue unless game_id isnt 0 and f.isDirectory()
+            continue unless game_id and f.isDirectory()
             RNFS.readFile "#{siftrsDir}/#{game_id}/game.txt"
           Promise.all(proms).then (games) =>
             @setState downloadedGames:
