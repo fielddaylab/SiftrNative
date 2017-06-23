@@ -221,18 +221,16 @@ class Auth
     if @authToken?
       cb @authToken
       return
-    # @ifdef NATIVE
-    AsyncStorage.getItem 'aris-auth', (err, result) =>
-      if result?
-        cb JSON.parse result
+    useJSON = (json) =>
+      if json?
+        cb JSON.parse json
       else
         cb null
+    # @ifdef NATIVE
+    AsyncStorage.getItem 'aris-auth', (err, result) => useJSON result
     # @endif
     # @ifdef WEB
-    if (result = window.localStorage?['aris-auth'])?
-      cb JSON.parse result
-    else
-      cb null
+    useJSON window.localStorage?['aris-auth']
     # @endif
 
   call: (func, json, cb) ->

@@ -74,10 +74,11 @@ AuthContainer = React.createClass
     unless media_id?
       @setState userPicture: null
       return
-    @props.auth.call 'media.getMedia',
-      media_id: media_id
-    , withSuccess (userPicture) =>
-      @setState {userPicture}
+    if @props.online
+      @props.auth.call 'media.getMedia',
+        media_id: media_id
+      , withSuccess (userPicture) =>
+        @setState {userPicture}
 
   # @ifdef NATIVE
   componentDidMount: ->
@@ -345,11 +346,12 @@ SiftrNative = React.createClass
       Linking.addEventListener 'url', @urlHandler
     @withReach = (reach) =>
       online = reach not in ['none', 'NONE']
-      @setState {online}
-      if online
-        @login()
-      else if not @state.auth?
-        @state.auth = new Auth
+      @setState {online}, =>
+        if online
+          @login()
+        else if not @state.auth?
+          new Auth().loadSavedAuth (authToken) =>
+            @setState auth: Object.assign new Auth, {authToken}
     NetInfo.fetch().done @withReach
     NetInfo.addEventListener 'change', @withReach
 
@@ -395,7 +397,7 @@ SiftrNative = React.createClass
         auth: newAuth
         games: null
       if newAuth.authToken?
-        @updateGames()
+        @updateGames() if @state.online
         @setState menuOpen: false
 
   logout: ->
