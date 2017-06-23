@@ -445,7 +445,7 @@ SiftrNative = React.createClass
         }
         {
           # @ifdef NATIVE
-          <UploadQueue />
+          <UploadQueue auth={@state.auth} online={@state.online} />
           # @endif
           # @ifdef WEB
           null

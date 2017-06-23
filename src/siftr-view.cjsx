@@ -531,6 +531,7 @@ SiftrView = React.createClass
         if file.uri.indexOf('content://') is -1
           RNFS.copyFile(file.uri, "#{queueDir}/#{file.name}").then =>
             createArgs.filename = file.name
+            createArgs.mimetype = file.type # this is for us to reconstruct 'file' during upload
             RNFS.writeFile("#{queueDir}/createNote.json", JSON.stringify(createArgs)).then =>
               @setState createNote: null
         else

@@ -199,7 +199,7 @@ class Auth
           data: req.responseText
       else
         handleError req.status
-    req.onerror = => handleError "Could not connect to Siftr"
+    req.onerror = => handleError req.responseText
     req.upload.addEventListener 'progress', (evt) =>
       if evt.lengthComputable
         reportProgress(evt.loaded / evt.total)
@@ -212,6 +212,7 @@ class Auth
         cb {error}
       else
         tries -= 1
+        # TODO: check if req is open. if not, fail out (there is a setup error, not network error)
         req.send form
     req.send form
     req
@@ -305,6 +306,14 @@ class Auth
       if result.returnCode is 0 and result.data?
         result.data = wrap result.data
       cb result
+
+  promise: (method, args...) ->
+    new Promise (resolve, reject) =>
+      @[method].call @, args..., (result) =>
+        if result.returnCode is 0 and result.data?
+          resolve result.data
+        else
+          reject result
 
   getGame: (json, cb) ->
     @callWrapped 'games.getGame', json, cb, (data) -> new Game data
