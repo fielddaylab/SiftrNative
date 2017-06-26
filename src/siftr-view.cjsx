@@ -10,6 +10,7 @@ update = require 'immutability-helper'
 , TextInput
 , TouchableOpacity
 , Image
+, BackAndroid
 } = require 'react-native'
 RNFS = require 'react-native-fs'
 {styles} = require './styles'
@@ -120,6 +121,13 @@ SiftrView = React.createClass
         @setState fields:
           for field in JSON.parse fields
             Object.assign(new Field, field)
+    @hardwareBack = =>
+      if @state.searchOpen
+        @setState searchOpen: false
+      else
+        @props.onExit()
+      true
+    BackAndroid.addEventListener 'hardwareBackPress', @hardwareBack
     # @endif
     # @ifdef WEB
     @props.auth.getTagsForGame
@@ -142,6 +150,9 @@ SiftrView = React.createClass
 
   componentWillUnmount: ->
     clearInterval @nomenTimer
+    # @ifdef NATIVE
+    BackAndroid.removeEventListener 'hardwareBackPress', @hardwareBack
+    # @endif
 
   componentWillReceiveProps: (nextProps) ->
     if @props.auth.authToken?.user_id isnt nextProps.auth.authToken?.user_id

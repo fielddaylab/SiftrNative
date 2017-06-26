@@ -18,6 +18,7 @@ T = React.PropTypes
 , Text
 , TouchableOpacity
 , Linking
+, BackAndroid
 } = require 'react-native'
 {default: FitImage} = require 'react-native-fit-image'
 Hyperlink = require 'react-native-hyperlink'
@@ -426,6 +427,17 @@ SiftrNoteView = React.createClass
 
   componentWillMount: ->
     @loadExtra()
+    # @ifdef NATIVE
+    @hardwareBack = =>
+      @props.onClose()
+      true
+    BackAndroid.addEventListener 'hardwareBackPress', @hardwareBack
+    # @endif
+
+  # @ifdef NATIVE
+  componentWillUnmount: ->
+    BackAndroid.removeEventListener 'hardwareBackPress', @hardwareBack
+  # @endif
 
   componentWillReceiveProps: (nextProps) ->
     if @props.note.note_id isnt nextProps.note.note_id

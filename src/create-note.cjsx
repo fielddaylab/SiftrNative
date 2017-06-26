@@ -18,6 +18,7 @@ ImagePicker = require 'react-native-image-picker'
 , ScrollView
 , Switch
 , Linking
+, BackAndroid
 } = require 'react-native'
 {styles} = require './styles'
 # @endif
@@ -46,6 +47,15 @@ CreateStep1 = React.createClass
     file: null # file that has EXIF tags already loaded
 
   # @ifdef NATIVE
+  componentWillMount: ->
+    @hardwareBack = =>
+      @props.onCancel()
+      true
+    BackAndroid.addEventListener 'hardwareBackPress', @hardwareBack
+
+  componentWillUnmount: ->
+    BackAndroid.removeEventListener 'hardwareBackPress', @hardwareBack
+
   beginUpload: ->
     if @props.online
       file = @state.file
@@ -223,6 +233,12 @@ CreateStep2 = React.createClass
   componentWillMount: ->
     @setState
       text: @props.defaultCaption
+    # @ifdef NATIVE
+    @hardwareBack = =>
+      @props.onBack()
+      true
+    BackAndroid.addEventListener 'hardwareBackPress', @hardwareBack
+    # @endif
 
   doEnterCaption: ->
     text = @state.text
@@ -230,6 +246,9 @@ CreateStep2 = React.createClass
     @props.onEnterCaption text
 
   # @ifdef NATIVE
+  componentWillUnmount: ->
+    BackAndroid.removeEventListener 'hardwareBackPress', @hardwareBack
+
   render: ->
     <View style={styles.overlayBottom}>
       <View style={
@@ -305,6 +324,15 @@ CreateStep3 = React.createClass
     onCancel: (->)
 
   # @ifdef NATIVE
+  componentWillMount: ->
+    @hardwareBack = =>
+      @props.onBack()
+      true
+    BackAndroid.addEventListener 'hardwareBackPress', @hardwareBack
+
+  componentWillUnmount: ->
+    BackAndroid.removeEventListener 'hardwareBackPress', @hardwareBack
+
   render: ->
     <View style={styles.overlayBottom}>
       <View style={
@@ -369,6 +397,15 @@ CreateStep4 = React.createClass
     getColor: -> 'black'
 
   # @ifdef NATIVE
+  componentWillMount: ->
+    @hardwareBack = =>
+      @props.onBack()
+      true
+    BackAndroid.addEventListener 'hardwareBackPress', @hardwareBack
+
+  componentWillUnmount: ->
+    BackAndroid.removeEventListener 'hardwareBackPress', @hardwareBack
+
   render: ->
     <View style={styles.overlayBottom}>
       <View style={
@@ -461,6 +498,15 @@ CreateStep5 = React.createClass
     field_data: []
 
   # @ifdef NATIVE
+  componentWillMount: ->
+    @hardwareBack = =>
+      @props.onBack()
+      true
+    BackAndroid.addEventListener 'hardwareBackPress', @hardwareBack
+
+  componentWillUnmount: ->
+    BackAndroid.removeEventListener 'hardwareBackPress', @hardwareBack
+
   render: ->
     <ScrollView contentContainerStyle={
       backgroundColor: 'white'
