@@ -55,7 +55,6 @@ AuthContainer = React.createClass
   getInitialState: ->
     hasBrowserButton: false
     onBrowserButton: (->)
-    orientation: 'PORTRAIT'
     userPicture: null
 
   goBackToBrowser: ->
@@ -81,20 +80,6 @@ AuthContainer = React.createClass
         @setState {userPicture}
 
   # @ifdef NATIVE
-  componentDidMount: ->
-    # TODO something's not linked right with orientation on android.
-    # we don't need it anyway, but for now just don't set it up
-    if Platform.OS is 'ios'
-      Orientation.getSpecificOrientation (err, orientation) =>
-        @setState {orientation}
-      @orientationListener = (orientation) =>
-        @setState {orientation}
-      Orientation.addSpecificOrientationListener @orientationListener
-
-  componentWillUnmount: ->
-    if Platform.OS is 'ios'
-      Orientation.removeSpecificOrientationListener @orientationListener
-
   render: ->
     <SideMenu
       isOpen={@props.menuOpen}
@@ -150,7 +135,7 @@ AuthContainer = React.createClass
       }
     >
       <View style={flex: 1, flexDirection: 'column'}>
-        <StatusBar
+        <StatusSpace
           backgroundColor="#224"
           barStyle="light-content"
         />
@@ -159,11 +144,6 @@ AuthContainer = React.createClass
           flexDirection: 'row'
           alignItems: 'center'
           justifyContent: 'flex-start'
-          paddingTop:
-            if Platform.OS is 'ios' and @state.orientation is 'PORTRAIT'
-              15 # 20?
-            else
-              undefined
         }>
           <TouchableOpacity
             onPress={=> @props.onMenuMove not @props.menuOpen}
@@ -324,6 +304,120 @@ Loading = React.createClass
   render: ->
     <p>Loading...</p>
   # @endif
+
+# @ifdef NATIVE
+StatusSpace = React.createClass
+  getInitialState: ->
+    orientation: 'PORTRAIT'
+
+  componentDidMount: ->
+    # TODO something's not linked right with orientation on android.
+    # we don't need it anyway, but for now just don't set it up
+    if Platform.OS is 'ios'
+      Orientation.getSpecificOrientation (err, orientation) =>
+        @setState {orientation}
+      @orientationListener = (orientation) =>
+        @setState {orientation}
+      Orientation.addSpecificOrientationListener @orientationListener
+
+  componentWillUnmount: ->
+    if Platform.OS is 'ios'
+      Orientation.removeSpecificOrientationListener @orientationListener
+
+  render: ->
+    <View style={
+      flex: 0
+      height:
+        if Platform.OS is 'ios' and @state.orientation is 'PORTRAIT'
+          20
+        else
+          undefined
+      backgroundColor: @props.backgroundColor ? 'white'
+    }>
+      <StatusBar
+        backgroundColor={@props.backgroundColor ? 'white'}
+        barStyle={@props.barStyle ? 'dark-content'}
+      />
+    </View>
+# @endif
+# @ifdef WEB
+StatusSpace = React.createClass
+  render: -> null
+# @endif
+
+# @ifdef NATIVE
+NativeBrowser = React.createClass
+  getInitialState: ->
+    discoverPage: 'siftrs'
+
+  render: ->
+    <View style={
+      flexDirection: 'column'
+      flex: 1
+    }>
+      <StatusSpace />
+      <View style={
+        flexDirection: 'row'
+        justifyContent: 'space-between'
+        alignItems: 'center'
+      }>
+        <TouchableOpacity style={padding: 10}>
+          <Image style={resizeMode: 'contain', height: 18} source={require('../web/assets/img/icon-back.png')} />
+        </TouchableOpacity>
+        <Text>Discover</Text>
+        <TouchableOpacity style={padding: 10}>
+          <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-search.png')} />
+        </TouchableOpacity>
+      </View>
+      <View style={flexDirection: 'row'}>
+        <TouchableOpacity onPress={=> @setState discoverPage: 'siftrs'} style={
+          flex: 1
+          alignItems: 'center'
+          justifyContent: 'center'
+          borderBottomWidth: 2
+          borderBottomColor: if @state.discoverPage is 'siftrs' then '#FF7C6B' else '#B8B8B8'
+          paddingTop: 13
+          paddingBottom: 13
+        }>
+          <Text style={
+            color: if @state.discoverPage is 'siftrs' then 'black' else '#B8B8B8'
+          }>Siftrs</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={=> @setState discoverPage: 'people'} style={
+          flex: 1
+          alignItems: 'center'
+          justifyContent: 'center'
+          borderBottomWidth: 2
+          borderBottomColor: if @state.discoverPage is 'people' then '#FF7C6B' else '#B8B8B8'
+          paddingTop: 13
+          paddingBottom: 13
+        }>
+          <Text style={
+            color: if @state.discoverPage is 'people' then 'black' else '#B8B8B8'
+          }>People</Text>
+        </TouchableOpacity>
+      </View>
+      <ScrollView contentContainerStyle={flex: 1}>
+        <Text>The Fungus Among Us</Text>
+        <Text>Viola</Text>
+      </ScrollView>
+      <View style={
+        flexDirection: 'row'
+        justifyContent: 'space-between'
+        alignItems: 'center'
+      }>
+        <TouchableOpacity style={padding: 10}>
+          <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-home.png')} />
+        </TouchableOpacity>
+        <TouchableOpacity style={padding: 10}>
+          <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-add.png')} />
+        </TouchableOpacity>
+        <TouchableOpacity style={padding: 10}>
+          <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-user.png')} />
+        </TouchableOpacity>
+      </View>
+    </View>
+# @endif
 
 SiftrNative = React.createClass
   getInitialState: ->
