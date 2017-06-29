@@ -297,6 +297,7 @@ Loading = React.createClass
   # @ifdef NATIVE
   render: ->
     <View>
+      <StatusSpace />
       <Text>Loading...</Text>
     </View>
   # @endif
@@ -346,9 +347,102 @@ StatusSpace = React.createClass
 # @endif
 
 # @ifdef NATIVE
+NativeLogin = React.createClass
+  getDefaultProps: ->
+    onLogin: (->)
+
+  getInitialState: ->
+    page: 'sign-in'
+
+  doLogin: ->
+    @props.onLogin @username, @password
+
+  componentWillMount: ->
+    @username = ''
+    @password = ''
+
+  render: ->
+    <View style={
+      flex: 1
+      flexDirection: 'column'
+    }>
+      <View style={
+        flex: 1
+        flexDirection: 'column'
+        backgroundColor: 'green'
+        alignItems: 'center'
+        justifyContent: 'space-between'
+      }>
+        <View />
+        <Text>Siftr</Text>
+        <Text>Exploring our world together</Text>
+        <View style={
+          flexDirection: 'row'
+          alignItems: 'flex-end'
+          justifyContent: 'space-around'
+          alignSelf: 'stretch'
+        }>
+          <TouchableOpacity style={padding: 20} onPress={=> @setState page: 'sign-in'}>
+            <Text>Sign In</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={padding: 20} onPress={=> @setState page: 'sign-up'}>
+            <Text>Sign Up</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      {
+        switch @state.page
+          when 'sign-in'
+            <View style={
+              flex: 1
+              flexDirection: 'column'
+            }>
+              <View style={
+                flex: 1
+                justifyContent: 'center'
+                alignItems: 'center'
+              }>
+                <TextInput
+                  placeholder="Username"
+                  style={styles.input}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  autoFocus={true}
+                  onChangeText={(username) => @username = username}
+                  defaultValue={@username}
+                />
+                <TextInput
+                  placeholder="Password"
+                  secureTextEntry={true}
+                  style={styles.input}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  onChangeText={(password) => @password = password}
+                  defaultValue={@password}
+                />
+              </View>
+              <TouchableOpacity onPress={@doLogin} style={
+                backgroundColor: 'rgb(255,124,107)'
+                alignItems: 'center'
+                justifyContent: 'center'
+                paddingTop: 20
+                paddingBottom: 20
+              }>
+                <Text style={color: 'white'}>Log in</Text>
+              </TouchableOpacity>
+            </View>
+          when 'sign-up'
+            <View style={flex: 1} />
+      }
+    </View>
+
 NativeBrowser = React.createClass
   getInitialState: ->
     discoverPage: 'siftrs'
+
+  getDefaultProps: ->
+    onLogout: (->)
+    onSelect: (->)
 
   render: ->
     <View style={
@@ -361,7 +455,7 @@ NativeBrowser = React.createClass
         justifyContent: 'space-between'
         alignItems: 'center'
       }>
-        <TouchableOpacity style={padding: 10}>
+        <TouchableOpacity style={padding: 10} onPress={@props.onLogout}>
           <Image style={resizeMode: 'contain', height: 18} source={require('../web/assets/img/icon-back.png')} />
         </TouchableOpacity>
         <Text>Discover</Text>
@@ -397,10 +491,30 @@ NativeBrowser = React.createClass
           }>People</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView contentContainerStyle={flex: 1}>
-        <Text>The Fungus Among Us</Text>
-        <Text>Viola</Text>
-      </ScrollView>
+      {
+        switch @state.discoverPage
+          when 'siftrs'
+            <ScrollView contentContainerStyle={flex: 1}>
+              {
+                if @props.games?
+                  @props.games.map (game) =>
+                    <TouchableOpacity key={game.game_id} onPress={=> @props.onSelect game}>
+                      <View style={styles.openSiftrButton}>
+                        <Text style={margin: 5}>
+                          {game.name}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                else
+                  <Text>Loading...</Text>
+              }
+            </ScrollView>
+          when 'people'
+            <ScrollView contentContainerStyle={flex: 1}>
+              <Text>Person 1</Text>
+              <Text>Person 2</Text>
+            </ScrollView>
+      }
       <View style={
         flexDirection: 'row'
         justifyContent: 'space-between'
@@ -503,6 +617,23 @@ SiftrNative = React.createClass
   gameBelongsToUser: (game) ->
     @state.games?.some (userGame) => userGame.game_id is game.game_id
 
+  # @ifdef NATIVE
+  render: ->
+    if @state.auth?
+      if @state.auth.authToken?
+        <NativeBrowser
+          onLogout={@logout}
+          games={@state.games}
+          onSelect={(game) => @setState {game}}
+          online={@state.online}
+        />
+      else
+        <NativeLogin onLogin={@login} />
+    else
+      <Loading />
+  # @endif
+
+  # @ifdef WEB
   render: ->
     if @state.auth?
       <AuthContainer
@@ -550,5 +681,6 @@ SiftrNative = React.createClass
       </AuthContainer>
     else
       <Loading />
+  # @endif
 
 exports.SiftrNative = SiftrNative

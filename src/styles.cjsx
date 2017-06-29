@@ -13,7 +13,10 @@ exports.styles = StyleSheet.create
     height: 50
     backgroundColor: 'white'
     color: 'black'
-    margin: 10
+    marginTop: 8
+    marginBottom: 8
+    marginLeft: 30
+    marginRight: 30
 
   horizontal:
     flexDirection: 'row'
