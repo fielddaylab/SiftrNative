@@ -14,6 +14,7 @@ update = require 'immutability-helper'
 } = require 'react-native'
 RNFS = require 'react-native-fs'
 {styles} = require './styles'
+{StatusSpace} = require './status-space'
 # @endif
 
 {fitBounds} = require 'google-map-react/utils'
@@ -552,10 +553,23 @@ SiftrView = React.createClass
   # @ifdef NATIVE
   render: ->
     <View style={
-      backgroundColor: 'white'
-      flex: 1
       flexDirection: 'column'
+      flex: 1
     }>
+      <StatusSpace />
+      <View style={
+        flexDirection: 'row'
+        justifyContent: 'space-between'
+        alignItems: 'center'
+      }>
+        <TouchableOpacity style={padding: 10} onPress={@props.onExit}>
+          <Image style={resizeMode: 'contain', height: 18} source={require('../web/assets/img/icon-back.png')} />
+        </TouchableOpacity>
+        <Text>{@props.game.name}</Text>
+        <TouchableOpacity style={padding: 10}>
+          <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-4dots.png')} />
+        </TouchableOpacity>
+      </View>
       <View style={
         flex: 1
       }>
@@ -570,44 +584,23 @@ SiftrView = React.createClass
         {@renderSearch() if @state.searchOpen}
       </View>
       <View style={
-        backgroundColor: 'rgb(44,48,59)'
         flexDirection: 'row'
         justifyContent: 'space-between'
+        alignItems: 'center'
       }>
-        <View style={flexDirection: 'row'}>
-          <TouchableOpacity onPress={@props.onExit}>
-            <Image style={width: 60, height: 60} source={require('../web/assets/img/brand.png')} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={=> @setState primaryMap: true}>
-            <Image style={width: 60, height: 60} source={
-              if @state.primaryMap
-                require('../web/assets/img/map-on.png')
-              else
-                require('../web/assets/img/map-off.png')
-            } />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={=> @setState primaryMap: false}>
-            <Image style={width: 60, height: 60} source={
-              if not @state.primaryMap
-                require('../web/assets/img/thumbs-on.png')
-              else
-                require('../web/assets/img/thumbs-off.png')
-            } />
-          </TouchableOpacity>
-        </View>
-        <View style={flexDirection: 'row'}>
-          <TouchableOpacity onPress={@startCreate}>
-            <Image style={width: 60, height: 60} source={require('../web/assets/img/mobile-plus.png')} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={=> @setState searchOpen: not @state.searchOpen}>
-            <Image style={width: 60, height: 60} source={
-              if @state.searchOpen
-                require('../web/assets/img/search-on.png')
-              else
-                require('../web/assets/img/search-off.png')
-            } />
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={padding: 10} onPress={=>
+          @setState primaryMap: not @state.primaryMap
+        }>
+          <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-map.png')} />
+        </TouchableOpacity>
+        <TouchableOpacity style={padding: 10} onPress={@startCreate}>
+          <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-add.png')} />
+        </TouchableOpacity>
+        <TouchableOpacity style={padding: 10} onPress={=>
+          @setState searchOpen: not @state.searchOpen
+        }>
+          <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-filter.png')} />
+        </TouchableOpacity>
       </View>
     </View>
   # @endif

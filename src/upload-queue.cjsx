@@ -84,6 +84,6 @@ UploadQueue = React.createClass
     .catch (err) => console.warn err
 
   render: ->
-    null
+    @props.children
 
 exports.UploadQueue = UploadQueue

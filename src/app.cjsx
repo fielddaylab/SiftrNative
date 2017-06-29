@@ -9,16 +9,13 @@ T = React.PropTypes
 , TextInput
 , TouchableOpacity
 , ScrollView
-, Platform
-, StatusBar
 , Image
 , Linking
 , NetInfo
 } = require 'react-native'
 {UploadQueue} = require './upload-queue'
 {styles} = require './styles'
-SideMenu = require 'react-native-side-menu'
-Orientation = require 'react-native-orientation'
+{StatusSpace} = require './status-space'
 # @endif
 
 { Auth
@@ -81,99 +78,7 @@ AuthContainer = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    <SideMenu
-      isOpen={@props.menuOpen}
-      onChange={@props.onMenuMove}
-      edgeHitWidth={0}
-      menu={
-        <View style={backgroundColor: '#224', paddingTop: 30, flex: 1}>
-          {
-            if @props.auth.authToken?
-              <View style={
-                flexDirection: 'column'
-                justifyContent: 'flex-start'
-                alignItems: 'center'
-              }>
-                {
-                  <Image
-                    source={uri: arisHTTPS @state.userPicture?.big_thumb_url}
-                    resizeMode="cover"
-                    style={
-                      height: 130
-                      width: 130
-                      backgroundColor: '#ccd'
-                      margin: 10
-                      borderRadius: 65
-                    }
-                  />
-                }
-                <Text style={textAlign: 'center', color: 'white', fontSize: 18}>
-                  {@props.auth.authToken.display_name}
-                </Text>
-                <TouchableOpacity onPress={@props.onLogout}>
-                  <Text style={[styles.blueButton, margin: 10]}>
-                    Logout
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            else
-              <LoginBox onLogin={@props.onLogin} />
-          }
-          {
-            if @props.hasBrowserButton
-              <TouchableOpacity onPress={@goBackToBrowser} style={
-                flexDirection: 'column'
-                justifyContent: 'flex-start'
-                alignItems: 'center'
-              }>
-                <Text style={[styles.blueButton, margin: 10]}>
-                  Back to Browser
-                </Text>
-              </TouchableOpacity>
-          }
-        </View>
-      }
-    >
-      <View style={flex: 1, flexDirection: 'column'}>
-        <StatusSpace
-          backgroundColor="#224"
-          barStyle="light-content"
-        />
-        <View style={
-          backgroundColor: '#224'
-          flexDirection: 'row'
-          alignItems: 'center'
-          justifyContent: 'flex-start'
-        }>
-          <TouchableOpacity
-            onPress={=> @props.onMenuMove not @props.menuOpen}
-            style={
-              marginLeft: 10
-            }
-          >
-            <Image source={require '../web/assets/img/menu.png'} />
-          </TouchableOpacity>
-          <Text style={
-            color: 'white'
-            margin: 10
-          }>
-            {
-              if @props.online
-                if @props.auth.authToken?
-                  "Logged in as #{@props.auth.authToken.display_name}"
-                else
-                  "Log in"
-              else
-                if @props.auth.authToken?
-                  "Logged in as #{@props.auth.authToken.display_name} (offline)"
-                else
-                  "Offline"
-            }
-          </Text>
-        </View>
-        {@props.children}
-      </View>
-    </SideMenu>
+    null # removed
   # @endif
 
   # @ifdef WEB
@@ -305,46 +210,6 @@ Loading = React.createClass
   render: ->
     <p>Loading...</p>
   # @endif
-
-# @ifdef NATIVE
-StatusSpace = React.createClass
-  getInitialState: ->
-    orientation: 'PORTRAIT'
-
-  componentDidMount: ->
-    # TODO something's not linked right with orientation on android.
-    # we don't need it anyway, but for now just don't set it up
-    if Platform.OS is 'ios'
-      Orientation.getSpecificOrientation (err, orientation) =>
-        @setState {orientation}
-      @orientationListener = (orientation) =>
-        @setState {orientation}
-      Orientation.addSpecificOrientationListener @orientationListener
-
-  componentWillUnmount: ->
-    if Platform.OS is 'ios'
-      Orientation.removeSpecificOrientationListener @orientationListener
-
-  render: ->
-    <View style={
-      flex: 0
-      height:
-        if Platform.OS is 'ios' and @state.orientation is 'PORTRAIT'
-          20
-        else
-          undefined
-      backgroundColor: @props.backgroundColor ? 'white'
-    }>
-      <StatusBar
-        backgroundColor={@props.backgroundColor ? 'white'}
-        barStyle={@props.barStyle ? 'dark-content'}
-      />
-    </View>
-# @endif
-# @ifdef WEB
-StatusSpace = React.createClass
-  render: -> null
-# @endif
 
 # @ifdef NATIVE
 NativeLogin = React.createClass
@@ -620,15 +485,31 @@ SiftrNative = React.createClass
   # @ifdef NATIVE
   render: ->
     if @state.auth?
-      if @state.auth.authToken?
-        <NativeBrowser
-          onLogout={@logout}
-          games={@state.games}
-          onSelect={(game) => @setState {game}}
-          online={@state.online}
-        />
-      else
-        <NativeLogin onLogin={@login} />
+      <UploadQueue auth={@state.auth} online={@state.online}>
+        {
+          if @state.auth.authToken?
+            if @state.game?
+              <SiftrView
+                game={@state.game}
+                auth={@state.auth}
+                isAdmin={@gameBelongsToUser @state.game}
+                onExit={=> @setState game: null}
+                onPromptLogin={=> @setState menuOpen: true}
+                nomenData={@state.nomenData}
+                clearNomenData={@clearNomenData}
+                online={@state.online}
+              />
+            else
+              <NativeBrowser
+                onLogout={@logout}
+                games={@state.games}
+                onSelect={(game) => @setState {game}}
+                online={@state.online}
+              />
+          else
+            <NativeLogin onLogin={@login} />
+        }
+      </UploadQueue>
     else
       <Loading />
   # @endif
@@ -669,14 +550,6 @@ SiftrNative = React.createClass
         {
           unless @state.game?
             <SiftrURL auth={@state.auth} onSelect={(game) => @setState {game}} />
-        }
-        {
-          # @ifdef NATIVE
-          <UploadQueue auth={@state.auth} online={@state.online} />
-          # @endif
-          # @ifdef WEB
-          null
-          # @endif
         }
       </AuthContainer>
     else

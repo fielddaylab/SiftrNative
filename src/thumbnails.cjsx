@@ -64,7 +64,12 @@ SiftrThumbnails = React.createClass
         {
           @props.notes.map (note) =>
             <TouchableOpacity onPress={=> @props.onSelectNote note} key={note.note_id}>
-              <Image source={uri: note.thumb_url} style={
+              <Image source={
+                if note.thumb_url?
+                  uri: note.thumb_url
+                else
+                  null
+              } style={
                 width: 160
                 height: 160
                 margin: 5
