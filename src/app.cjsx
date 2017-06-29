@@ -12,6 +12,7 @@ T = React.PropTypes
 , Image
 , Linking
 , NetInfo
+, ActivityIndicator
 } = require 'react-native'
 {UploadQueue} = require './upload-queue'
 {styles} = require './styles'
@@ -201,9 +202,11 @@ LoginBox = React.createClass
 Loading = React.createClass
   # @ifdef NATIVE
   render: ->
-    <View>
+    <View style={flex: 1}>
       <StatusSpace />
-      <Text>Loading...</Text>
+      <View style={flex: 1, alignItems: 'center', justifyContent: 'center'}>
+        <ActivityIndicator size="large" />
+      </View>
     </View>
   # @endif
   # @ifdef WEB
@@ -265,7 +268,7 @@ NativeLogin = React.createClass
               <View style={
                 flex: 1
                 justifyContent: 'center'
-                alignItems: 'center'
+                alignItems: 'stretch'
               }>
                 <TextInput
                   placeholder="Username"
@@ -313,6 +316,7 @@ NativeBrowser = React.createClass
     <View style={
       flexDirection: 'column'
       flex: 1
+      backgroundColor: 'white'
     }>
       <StatusSpace />
       <View style={
@@ -359,9 +363,9 @@ NativeBrowser = React.createClass
       {
         switch @state.discoverPage
           when 'siftrs'
-            <ScrollView contentContainerStyle={flex: 1}>
-              {
-                if @props.games?
+            if @props.games?
+              <ScrollView contentContainerStyle={flex: 1}>
+                {
                   @props.games.map (game) =>
                     <TouchableOpacity key={game.game_id} onPress={=> @props.onSelect game}>
                       <View style={styles.openSiftrButton}>
@@ -370,10 +374,12 @@ NativeBrowser = React.createClass
                         </Text>
                       </View>
                     </TouchableOpacity>
-                else
-                  <Text>Loading...</Text>
-              }
-            </ScrollView>
+                }
+              </ScrollView>
+            else
+              <View style={flex: 1, alignItems: 'center', justifyContent: 'center'}>
+                <ActivityIndicator size="large" />
+              </View>
           when 'people'
             <ScrollView contentContainerStyle={flex: 1}>
               <Text>Person 1</Text>

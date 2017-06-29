@@ -558,28 +558,6 @@ SiftrNoteView = React.createClass
       right: 0
       flexDirection: 'column'
     }>
-      <View style={
-        flexDirection: 'row'
-        justifyContent: 'space-between'
-        alignItems: 'center'
-      }>
-        <View style={
-          backgroundColor: @props.getColor @props.note
-          height: 20
-          width: 20
-          borderRadius: 10
-          margin: 10
-        } />
-        <Text style={margin: 10, fontWeight: 'bold'}>
-          {@props.note.user.display_name} at {@props.note.created.toLocaleString()}
-        </Text>
-        <TouchableOpacity onPress={@props.onClose}>
-          <Image
-            source={require '../web/assets/img/x-blue.png'}
-            style={margin: 10}
-          />
-        </TouchableOpacity>
-      </View>
       <View>
         <FitImage
           source={uri: @props.note.photo_url}
@@ -633,6 +611,9 @@ SiftrNoteView = React.createClass
           when 'AUTO', 'APPROVED'
             null
       }
+      <Text style={margin: 10}>
+        { @props.note.created.toLocaleString() }
+      </Text>
       {
         if @state.editingCaption
           <SiftrCommentInput

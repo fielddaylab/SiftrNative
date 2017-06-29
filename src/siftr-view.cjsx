@@ -555,6 +555,7 @@ SiftrView = React.createClass
     <View style={
       flexDirection: 'column'
       flex: 1
+      backgroundColor: 'white'
     }>
       <StatusSpace />
       <View style={
@@ -562,10 +563,20 @@ SiftrView = React.createClass
         justifyContent: 'space-between'
         alignItems: 'center'
       }>
-        <TouchableOpacity style={padding: 10} onPress={@props.onExit}>
+        <TouchableOpacity style={padding: 10} onPress={
+          if @state.viewingNote?
+            => @setState viewingNote: null
+          else
+            @props.onExit
+        }>
           <Image style={resizeMode: 'contain', height: 18} source={require('../web/assets/img/icon-back.png')} />
         </TouchableOpacity>
-        <Text>{@props.game.name}</Text>
+        <Text>{
+          if @state.viewingNote?
+            @state.viewingNote.user.display_name
+          else
+            @props.game.name
+        }</Text>
         <TouchableOpacity style={padding: 10}>
           <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-4dots.png')} />
         </TouchableOpacity>
