@@ -3899,6 +3899,13 @@ react-native-infinite-scroll-view@^0.4.2:
     react-clone-referenced-element "^1.0.1"
     react-native-scrollable-mixin "^1.0.0"
 
+react-native-keyboard-aware-view@^0.0.12:
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/react-native-keyboard-aware-view/-/react-native-keyboard-aware-view-0.0.12.tgz#c31feda8490875d097f473b2dc914d73cdbd5e9a"
+  dependencies:
+    react-native ">=0.13.0"
+    react-timer-mixin "^0.13.3"
+
 react-native-maps@^0.13.1:
   version "0.13.1"
   resolved "https://registry.yarnpkg.com/react-native-maps/-/react-native-maps-0.13.1.tgz#ed2a7e62f155a51f43c49742eba5bc313eaf2f1e"
@@ -3922,7 +3929,7 @@ react-native-svg@5.1.6:
     color "^0.11.1"
     lodash "^4.16.6"
 
-react-native@0.42.3:
+react-native@0.42.3, react-native@>=0.13.0:
   version "0.42.3"
   resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.42.3.tgz#450c8a03a5e3e991a08a426f22776dd8feb80b26"
   dependencies:
@@ -4016,7 +4023,7 @@ react-test-renderer@15.4.2:
     fbjs "^0.8.4"
     object-assign "^4.1.0"
 
-react-timer-mixin@^0.13.2:
+react-timer-mixin@^0.13.2, react-timer-mixin@^0.13.3:
   version "0.13.3"
   resolved "https://registry.yarnpkg.com/react-timer-mixin/-/react-timer-mixin-0.13.3.tgz#0da8b9f807ec07dc3e854d082c737c65605b3d22"
 

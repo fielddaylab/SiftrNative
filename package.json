@@ -19,6 +19,7 @@
     "react-native-hyperlink": "0.0.8",
     "react-native-image-picker": "^0.26.2",
     "react-native-infinite-scroll-view": "^0.4.2",
+    "react-native-keyboard-aware-view": "^0.0.12",
     "react-native-maps": "^0.13.1",
     "react-native-orientation": "github:ldom/react-native-orientation#use-statusbar-info",
     "react-native-side-menu": "^0.20.1",

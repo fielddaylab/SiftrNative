@@ -13,10 +13,12 @@ T = React.PropTypes
 , Linking
 , NetInfo
 , ActivityIndicator
+, StatusBar
 } = require 'react-native'
 {UploadQueue} = require './upload-queue'
 {styles} = require './styles'
 {StatusSpace} = require './status-space'
+{KeyboardAwareView} = require 'react-native-keyboard-aware-view'
 # @endif
 
 { Auth
@@ -230,34 +232,59 @@ NativeLogin = React.createClass
     @password = ''
 
   render: ->
-    <View style={
+    <KeyboardAwareView style={
       flex: 1
       flexDirection: 'column'
     }>
-      <View style={
+      <StatusBar barStyle="light-content" />
+      <Image source={
+        if @state.page is 'sign-in'
+          require('../web/assets/img/bg1.jpg')
+        else
+          require('../web/assets/img/bg2.jpg')
+      } style={
         flex: 1
         flexDirection: 'column'
-        backgroundColor: 'green'
+        backgroundColor: 'rgba(0,0,0,0)'
         alignItems: 'center'
         justifyContent: 'space-between'
+        width: null
+        height: null
       }>
-        <View />
-        <Text>Siftr</Text>
-        <Text>Exploring our world together</Text>
+        <View style={height: 40} />
+        <View style={
+          flexDirection: 'column'
+          alignItems: 'center'
+        }>
+          <Image source={require('../web/assets/img/siftr-logo.png')} style={
+            width: 190 * 0.5
+            height: 196 * 0.5
+            marginBottom: 20
+          } />
+          <Text style={color: 'white'}>Exploring our world together</Text>
+        </View>
         <View style={
           flexDirection: 'row'
           alignItems: 'flex-end'
           justifyContent: 'space-around'
           alignSelf: 'stretch'
         }>
-          <TouchableOpacity style={padding: 20} onPress={=> @setState page: 'sign-in'}>
-            <Text>Sign In</Text>
+          <TouchableOpacity style={
+            padding: 16
+            borderBottomWidth: 7
+            borderBottomColor: if @state.page is 'sign-in' then 'white' else 'rgba(0,0,0,0)'
+          } onPress={=> @setState page: 'sign-in'}>
+            <Text style={color: 'white'}>Sign In</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={padding: 20} onPress={=> @setState page: 'sign-up'}>
-            <Text>Sign Up</Text>
+          <TouchableOpacity style={
+            padding: 16
+            borderBottomWidth: 7
+            borderBottomColor: if @state.page is 'sign-up' then 'white' else 'rgba(0,0,0,0)'
+          } onPress={=> @setState page: 'sign-up'}>
+            <Text style={color: 'white'}>Sign Up</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </Image>
       {
         switch @state.page
           when 'sign-in'
@@ -302,7 +329,7 @@ NativeLogin = React.createClass
           when 'sign-up'
             <View style={flex: 1} />
       }
-    </View>
+    </KeyboardAwareView>
 
 NativeBrowser = React.createClass
   getInitialState: ->

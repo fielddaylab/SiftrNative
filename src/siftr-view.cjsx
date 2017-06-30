@@ -15,6 +15,7 @@ update = require 'immutability-helper'
 RNFS = require 'react-native-fs'
 {styles} = require './styles'
 {StatusSpace} = require './status-space'
+{KeyboardAwareView} = require 'react-native-keyboard-aware-view'
 # @endif
 
 {fitBounds} = require 'google-map-react/utils'
@@ -552,7 +553,7 @@ SiftrView = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    <View style={
+    <KeyboardAwareView style={
       flexDirection: 'column'
       flex: 1
       backgroundColor: 'white'
@@ -613,7 +614,7 @@ SiftrView = React.createClass
           <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-filter.png')} />
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAwareView>
   # @endif
 
   # @ifdef WEB
