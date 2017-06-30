@@ -301,7 +301,22 @@ SiftrMap = React.createClass
       />
 
   # @ifdef NATIVE
+  componentWillMount: ->
+    @movements = 0
+    @moveMapNative
+      latitude: @props.center.lat
+      longitude: @props.center.lng
+      latitudeDelta: @props.delta.lat
+      longitudeDelta: @props.delta.lng
+
   moveMapNative: ({latitude, longitude, latitudeDelta, longitudeDelta}) ->
+    @movements++
+    return if @movements is 2
+    # above is a hack. the first onRegionChangeComplete from the MapView
+    # is usually wrong for some reason (it's some zoomed out world view,
+    # not the initialRegion). so we run onMove for the initial @props bounds
+    # via componentWillMount (that's @movements == 1) then ignore the first
+    # onRegionChangeComplete (that's @movements == 2).
     @props.onMove
       center:
         lat: latitude
