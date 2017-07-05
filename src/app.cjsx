@@ -331,6 +331,63 @@ NativeLogin = React.createClass
       }
     </KeyboardAwareView>
 
+NativeCard = React.createClass
+  getInitialState: ->
+    contributors: null
+    posts: null
+    authors: null
+
+  getDefaultProps: ->
+    onOpen: (->)
+
+  componentWillMount: ->
+    @props.auth.getUsersForGame
+      game_id: @props.game.game_id
+    , withSuccess (authors) =>
+      @setState
+        authors:
+          author.display_name for author in authors
+    @props.auth.searchNotes
+      game_id: @props.game.game_id
+    , withSuccess (notes) =>
+      @setState
+        posts: notes.length
+        contributors: do =>
+          user_ids = {}
+          for note in notes
+            user_ids[note.user.user_id] = true
+            for comment in note.comments
+              user_ids[comment.user.user_id] = true
+          Object.keys(user_ids).length
+
+  render: ->
+    <TouchableOpacity onPress={@props.onOpen} style={
+      borderBottomColor: '#E0E0E0'
+      borderBottomWidth: 2
+    }>
+      <View style={flexDirection: 'row', justifyContent: 'space-between', padding: 10, alignItems: 'center'}>
+        <View>
+          <Text>{@props.game.name}</Text>
+          <Text>{@state.authors?.join(', ') ? '…'}</Text>
+        </View>
+        <TouchableOpacity style={padding: 10} onPress={->}>
+          <Image source={require('../web/assets/img/icon-3dots.png')} style={width: 34 * 0.6, height: 8 * 0.6} />
+        </TouchableOpacity>
+      </View>
+      <View>
+        <View style={height: 70, width: 70, backgroundColor: 'gray'} />
+      </View>
+      <View style={flexDirection: 'row', justifyContent: 'space-between', padding: 10, alignItems: 'center'}>
+        <View>
+          <Text>{@state.contributors ? '…'} contributors</Text>
+          <Text>{@state.posts ? '…'} posts</Text>
+        </View>
+        <TouchableOpacity style={padding: 10} onPress={->}>
+          <Image source={require('../web/assets/img/icon-4dots.png')} style={width: 38 * 0.7, height: 40 * 0.7} />
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+
 NativeBrowser = React.createClass
   getInitialState: ->
     discoverPage: 'siftrs'
@@ -394,13 +451,7 @@ NativeBrowser = React.createClass
               <ScrollView contentContainerStyle={flex: 1}>
                 {
                   @props.games.map (game) =>
-                    <TouchableOpacity key={game.game_id} onPress={=> @props.onSelect game}>
-                      <View style={styles.openSiftrButton}>
-                        <Text style={margin: 5}>
-                          {game.name}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
+                    <NativeCard key={game.game_id} game={game} onOpen={=> @props.onSelect game} auth={@props.auth} />
                 }
               </ScrollView>
             else
@@ -534,6 +585,7 @@ SiftrNative = React.createClass
               />
             else
               <NativeBrowser
+                auth={@state.auth}
                 onLogout={@logout}
                 games={@state.games}
                 onSelect={(game) => @setState {game}}
