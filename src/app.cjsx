@@ -335,22 +335,31 @@ NativeCard = React.createClass
   getInitialState: ->
     contributors: null
     posts: null
+    photos: null
     authors: null
 
   getDefaultProps: ->
     onOpen: (->)
 
   componentWillMount: ->
+    @isMounted = true
     @props.auth.getUsersForGame
       game_id: @props.game.game_id
     , withSuccess (authors) =>
+      return unless @isMounted
       @setState
         authors:
           author.display_name for author in authors
     @props.auth.searchNotes
       game_id: @props.game.game_id
     , withSuccess (notes) =>
+      return unless @isMounted
       @setState
+        photos:
+          for note in notes.slice(8)
+            continue unless note.thumb_url?
+            url: note.thumb_url
+            note_id: note.note_id
         posts: notes.length
         contributors: do =>
           user_ids = {}
@@ -359,6 +368,9 @@ NativeCard = React.createClass
             for comment in note.comments
               user_ids[comment.user.user_id] = true
           Object.keys(user_ids).length
+
+  componentWillUnmount: ->
+    @isMounted = false
 
   render: ->
     <TouchableOpacity onPress={@props.onOpen} style={
@@ -374,8 +386,14 @@ NativeCard = React.createClass
           <Image source={require('../web/assets/img/icon-3dots.png')} style={width: 34 * 0.6, height: 8 * 0.6} />
         </TouchableOpacity>
       </View>
-      <View>
-        <View style={height: 70, width: 70, backgroundColor: 'gray'} />
+      <View style={flexDirection: 'row'}>
+        {
+          if @state.photos?
+            for {url, note_id} in @state.photos
+              <Image key={note_id} source={uri: url} style={height: 100, width: 100} />
+          else
+            <View style={height: 100, width: 100} />
+        }
       </View>
       <View style={flexDirection: 'row', justifyContent: 'space-between', padding: 10, alignItems: 'center'}>
         <View>

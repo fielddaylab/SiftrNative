@@ -92,6 +92,7 @@ SiftrView = React.createClass
     fields: null
 
   componentWillMount: ->
+    @isMounted = true
     # @ifdef NATIVE
     siftrDir = "#{RNFS.DocumentDirectoryPath}/siftrs/#{@props.game.game_id}"
     RNFS.mkdir siftrDir, NSURLIsExcludedFromBackupKey: true
@@ -100,32 +101,38 @@ SiftrView = React.createClass
       @props.auth.getTagsForGame
         game_id: @props.game.game_id
       , withSuccess (tags) =>
+        return unless @isMounted
         @setState {tags}
         RNFS.writeFile "#{siftrDir}/tags.txt", JSON.stringify tags
       @props.auth.getColors
         colors_id: @props.game.colors_id ? 1
       , withSuccess (colors) =>
+        return unless @isMounted
         @setState {colors}
         RNFS.writeFile "#{siftrDir}/colors.txt", JSON.stringify colors
       @props.auth.getFieldsForGame
         game_id: @props.game.game_id
       , withSuccess (fields) =>
+        return unless @isMounted
         @setState {fields}
         RNFS.writeFile "#{siftrDir}/fields.txt", JSON.stringify fields
     else
       RNFS.readFile("#{siftrDir}/tags.txt").then (tags) =>
+        return unless @isMounted
         @setState tags:
           for tag in JSON.parse tags
             Object.assign(new Tag, tag)
       RNFS.readFile("#{siftrDir}/colors.txt").then (colors) =>
+        return unless @isMounted
         @setState colors: Object.assign(new Colors, JSON.parse colors)
       RNFS.readFile("#{siftrDir}/fields.txt").then (fields) =>
+        return unless @isMounted
         @setState fields:
           for field in JSON.parse fields
             Object.assign(new Field, field)
     @hardwareBack = =>
       if @state.searchOpen
-        @setState searchOpen: false
+        if @isMounted then @setState searchOpen: false
       else
         @props.onExit()
       true
@@ -134,13 +141,13 @@ SiftrView = React.createClass
     # @ifdef WEB
     @props.auth.getTagsForGame
       game_id: @props.game.game_id
-    , withSuccess (tags) => @setState {tags}
+    , withSuccess (tags) => if @isMounted then @setState {tags}
     @props.auth.getColors
       colors_id: @props.game.colors_id ? 1
-    , withSuccess (colors) => @setState {colors}
+    , withSuccess (colors) => if @isMounted then @setState {colors}
     @props.auth.getFieldsForGame
       game_id: @props.game.game_id
-    , withSuccess (fields) => @setState {fields}
+    , withSuccess (fields) => if @isMounted then @setState {fields}
     # @endif
     if @props.nomenData?
       @applyNomenData @props.nomenData
@@ -151,6 +158,7 @@ SiftrView = React.createClass
     , 1000
 
   componentWillUnmount: ->
+    @isMounted = false
     clearInterval @nomenTimer
     # @ifdef NATIVE
     BackAndroid.removeEventListener 'hardwareBackPress', @hardwareBack
@@ -162,17 +170,17 @@ SiftrView = React.createClass
       @loadResults nextProps.auth
       if @state.viewingNote? and @props.auth.authToken?
         # if we were logged in, close the open note
-        @setState viewingNote: null
+        if @isMounted then @setState viewingNote: null
       if not nextProps.auth.authToken?
         # cancel note creation on logout
-        @setState createNote: null
+        if @isMounted then @setState createNote: null
     if not @props.nomenData? and nextProps.nomenData?
       @applyNomenData nextProps.nomenData
 
   applyNomenData: (nomenData) ->
     if @state.createNote?
       # continue note filling in data
-      @setState {nomenData}
+      if @isMounted then @setState {nomenData}
     else
       @startCreate nomenData
     @props.clearNomenData()
@@ -191,12 +199,12 @@ SiftrView = React.createClass
             field_id: field.field_id
             field_data: @state.nomenData.species_id
           }
-          @setState
+          if @isMounted then @setState
             nomenData: null
             createNote: update @state.createNote,
               field_data: $set: field_data
       else
-        @setState nomenData: null
+        if @isMounted then @setState nomenData: null
 
   # @ifdef WEB
   componentWillUpdate: (nextProps, nextState) ->
@@ -253,7 +261,7 @@ SiftrView = React.createClass
       @lastResultsXHR = null
       @refs.thumbs?.scrollTop()
       @loading = false
-      @setState
+      if @isMounted then @setState
         map_notes: map_notes
         map_clusters: map_clusters
         notes: notes
@@ -273,18 +281,18 @@ SiftrView = React.createClass
     , withSuccess ({notes}) =>
       @lastResultsXHR = null
       @loading = false
-      @setState
+      if @isMounted then @setState
         notes: currentNotes.concat notes
         loadedAll: notes.length < 50
 
   moveMap: (obj) ->
-    @setState obj, => @loadResults()
+    if @isMounted then @setState obj, => @loadResults()
 
   loadNoteByID: (note_id) ->
     @props.auth.searchNotes
       game_id: @props.game.game_id
       note_id: note_id
-    , withSuccess (data) => @setState viewingNote: data[0]
+    , withSuccess (data) => if @isMounted then @setState viewingNote: data[0]
 
   selectNote: (note) ->
     return if note.note_id is 0
@@ -297,6 +305,7 @@ SiftrView = React.createClass
     @props.auth.call 'notes.deleteNote',
       note_id: note.note_id
     , withSuccess =>
+      return unless @isMounted
       @setState viewingNote: null
       @loadResults()
 
@@ -304,6 +313,7 @@ SiftrView = React.createClass
     @props.auth.call 'notes.flagNote',
       note_id: note.note_id
     , withSuccess =>
+      return unless @isMounted
       @setState viewingNote: null
       @loadResults()
 
@@ -314,6 +324,7 @@ SiftrView = React.createClass
       tags={@state.tags ? []}
       searchParams={@state.searchParams}
       onSearch={(searchParams) =>
+        return unless @isMounted
         @setState {searchParams}, => @loadResults()
       }
       getColor={@getColor}
@@ -323,7 +334,7 @@ SiftrView = React.createClass
     if @state.viewingNote?
       <SiftrNoteView
         note={@state.viewingNote}
-        onClose={=> @setState viewingNote: null}
+        onClose={=> if @isMounted then @setState viewingNote: null}
         auth={@props.auth}
         onDelete={@deleteNote}
         onFlag={@flagNote}
@@ -383,6 +394,7 @@ SiftrView = React.createClass
     />
 
   startLocatingNote: ({exif, center}) ->
+    return unless @isMounted
     # first use provided center
     if center?
       @setState center: center
@@ -407,6 +419,7 @@ SiftrView = React.createClass
         lng: @props.game.longitude
     , =>
       navigator.geolocation?.getCurrentPosition (posn) =>
+        return unless @isMounted
         @setState center:
           lat: posn.coords.latitude
           lng: posn.coords.longitude
