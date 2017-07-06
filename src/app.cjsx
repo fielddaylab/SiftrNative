@@ -19,11 +19,13 @@ T = React.PropTypes
 {styles} = require './styles'
 {StatusSpace} = require './status-space'
 {KeyboardAwareView} = require 'react-native-keyboard-aware-view'
+RNFS = require 'react-native-fs'
 # @endif
 
 { Auth
 , Game
 , arisHTTPS
+, deserializeGame
 } = require './aris'
 
 {SiftrView} = require './siftr-view'
@@ -339,7 +341,7 @@ NativeCard = React.createClass
     authors: null
 
   getDefaultProps: ->
-    onOpen: (->)
+    onSelect: (->)
 
   componentWillMount: ->
     @isMounted = true
@@ -373,7 +375,7 @@ NativeCard = React.createClass
     @isMounted = false
 
   render: ->
-    <TouchableOpacity onPress={@props.onOpen} style={
+    <TouchableOpacity onPress={@props.onSelect} style={
       borderBottomColor: '#E0E0E0'
       borderBottomWidth: 2
     }>
@@ -383,7 +385,7 @@ NativeCard = React.createClass
           <Text>{@state.authors?.join(', ') ? '…'}</Text>
         </View>
         <TouchableOpacity style={padding: 10} onPress={->}>
-          <Image source={require('../web/assets/img/icon-3dots.png')} style={width: 34 * 0.6, height: 8 * 0.6} />
+          <Image source={require('../web/assets/img/icon-3dots.png')} style={width: 34 * 0.6, height: 8 * 0.6, resizeMode: 'contain'} />
         </TouchableOpacity>
       </View>
       <View style={flexDirection: 'row'}>
@@ -401,14 +403,73 @@ NativeCard = React.createClass
           <Text>{@state.posts ? '…'} posts</Text>
         </View>
         <TouchableOpacity style={padding: 10} onPress={->}>
-          <Image source={require('../web/assets/img/icon-4dots.png')} style={width: 38 * 0.7, height: 40 * 0.7} />
+          <Image source={require('../web/assets/img/icon-4dots.png')} style={width: 38 * 0.7, height: 40 * 0.7, resizeMode: 'contain'} />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
 
+BrowserList = React.createClass
+  render: ->
+    if @props.games?
+      <ScrollView contentContainerStyle={flex: 1}>
+        {
+          @props.games.map (game) =>
+            <NativeCard key={game.game_id} game={game} onSelect={=> @props.onSelect game} auth={@props.auth} />
+        }
+      </ScrollView>
+    else
+      <View style={flex: 1, alignItems: 'center', justifyContent: 'center'}>
+        <ActivityIndicator size="large" />
+      </View>
+
+makeBrowser = (getGames) ->
+  React.createClass
+    getInitialState: ->
+      games: null
+
+    componentWillMount: ->
+      @isMounted = true
+      @updateGames()
+
+    componentWillUnmount: ->
+      @isMounted = false
+
+    updateGames: ->
+      getGames @, (games) =>
+        return unless @isMounted
+        @setState {games}
+
+    componentWillReceiveProps: (newProps) ->
+      if not @props.auth? or @props.auth isnt newProps.auth
+        @updateGames()
+
+    render: ->
+      <BrowserList auth={@props.auth} games={@state.games} onSelect={@props.onSelect} />
+
+BrowserMine = makeBrowser (browser, cb) =>
+  browser.props.auth.getGamesForUser {}, withSuccess (games) =>
+    cb( game for game in games when game.is_siftr )
+
+BrowserFollowed = makeBrowser (browser, cb) =>
+  cb null
+
+BrowserDownloaded = makeBrowser (browser, cb) =>
+  siftrsDir = "#{RNFS.DocumentDirectoryPath}/siftrs"
+  RNFS.exists(siftrsDir).then (dirExists) =>
+    if dirExists
+      RNFS.readDir(siftrsDir).then (files) =>
+        proms = for f in files
+          game_id = parseInt f.name
+          continue unless game_id and f.isDirectory()
+          RNFS.readFile "#{siftrsDir}/#{game_id}/game.txt"
+        Promise.all(proms).then (games) =>
+          cb( deserializeGame(JSON.parse game) for game in games )
+    else
+      cb []
+
 NativeBrowser = React.createClass
   getInitialState: ->
-    discoverPage: 'siftrs'
+    discoverPage: 'mine'
 
   getDefaultProps: ->
     onLogout: (->)
@@ -435,52 +496,54 @@ NativeBrowser = React.createClass
         </TouchableOpacity>
       </View>
       <View style={flexDirection: 'row'}>
-        <TouchableOpacity onPress={=> @setState discoverPage: 'siftrs'} style={
+        <TouchableOpacity onPress={=> @setState discoverPage: 'mine'} style={
           flex: 1
           alignItems: 'center'
           justifyContent: 'center'
           borderBottomWidth: 2
-          borderBottomColor: if @state.discoverPage is 'siftrs' then '#FF7C6B' else '#B8B8B8'
+          borderBottomColor: if @state.discoverPage is 'mine' then '#FF7C6B' else '#B8B8B8'
           paddingTop: 13
           paddingBottom: 13
         }>
           <Text style={
-            color: if @state.discoverPage is 'siftrs' then 'black' else '#B8B8B8'
-          }>Siftrs</Text>
+            color: if @state.discoverPage is 'mine' then 'black' else '#B8B8B8'
+          }>Mine</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={=> @setState discoverPage: 'people'} style={
+        <TouchableOpacity onPress={=> @setState discoverPage: 'followed'} style={
           flex: 1
           alignItems: 'center'
           justifyContent: 'center'
           borderBottomWidth: 2
-          borderBottomColor: if @state.discoverPage is 'people' then '#FF7C6B' else '#B8B8B8'
+          borderBottomColor: if @state.discoverPage is 'followed' then '#FF7C6B' else '#B8B8B8'
           paddingTop: 13
           paddingBottom: 13
         }>
           <Text style={
-            color: if @state.discoverPage is 'people' then 'black' else '#B8B8B8'
-          }>People</Text>
+            color: if @state.discoverPage is 'followed' then 'black' else '#B8B8B8'
+          }>Followed</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={=> @setState discoverPage: 'downloaded'} style={
+          flex: 1
+          alignItems: 'center'
+          justifyContent: 'center'
+          borderBottomWidth: 2
+          borderBottomColor: if @state.discoverPage is 'downloaded' then '#FF7C6B' else '#B8B8B8'
+          paddingTop: 13
+          paddingBottom: 13
+        }>
+          <Text style={
+            color: if @state.discoverPage is 'downloaded' then 'black' else '#B8B8B8'
+          }>Downloaded</Text>
         </TouchableOpacity>
       </View>
       {
         switch @state.discoverPage
-          when 'siftrs'
-            if @props.games?
-              <ScrollView contentContainerStyle={flex: 1}>
-                {
-                  @props.games.map (game) =>
-                    <NativeCard key={game.game_id} game={game} onOpen={=> @props.onSelect game} auth={@props.auth} />
-                }
-              </ScrollView>
-            else
-              <View style={flex: 1, alignItems: 'center', justifyContent: 'center'}>
-                <ActivityIndicator size="large" />
-              </View>
-          when 'people'
-            <ScrollView contentContainerStyle={flex: 1}>
-              <Text>Person 1</Text>
-              <Text>Person 2</Text>
-            </ScrollView>
+          when 'mine'
+            <BrowserMine auth={@props.auth} onSelect={@props.onSelect} />
+          when 'followed'
+            <BrowserFollowed auth={@props.auth} onSelect={@props.onSelect} />
+          when 'downloaded'
+            <BrowserDownloaded auth={@props.auth} onSelect={@props.onSelect} />
       }
       <View style={
         flexDirection: 'row'
@@ -605,7 +668,6 @@ SiftrNative = React.createClass
               <NativeBrowser
                 auth={@state.auth}
                 onLogout={@logout}
-                games={@state.games}
                 onSelect={(game) => @setState {game}}
                 online={@state.online}
               />
