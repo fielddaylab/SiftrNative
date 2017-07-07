@@ -36,10 +36,13 @@ StatusSpace = React.createClass
           undefined
       backgroundColor: @props.backgroundColor ? 'white'
     }>
-      <StatusBar
-        backgroundColor={@props.backgroundColor ? 'white'}
-        barStyle={@props.barStyle ? 'dark-content'}
-      />
+      {
+        unless @props.leaveBar
+          <StatusBar
+            backgroundColor={@props.backgroundColor ? 'white'}
+            barStyle={@props.barStyle ? 'dark-content'}
+          />
+      }
     </View>
 
 exports.StatusSpace = StatusSpace

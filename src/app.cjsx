@@ -28,7 +28,7 @@ RNFS = require 'react-native-fs'
 , deserializeGame
 } = require './aris'
 
-{SiftrView} = require './siftr-view'
+{SiftrView, SiftrInfo} = require './siftr-view'
 {GameList, SiftrURL} = require './siftr-browser'
 
 {clicker, withSuccess, DIV, P, BUTTON} = require './utils'
@@ -342,6 +342,7 @@ NativeCard = React.createClass
 
   getDefaultProps: ->
     onSelect: (->)
+    onInfo: (->)
 
   componentWillMount: ->
     @isMounted = true
@@ -402,19 +403,23 @@ NativeCard = React.createClass
           <Text>{@state.contributors ? '…'} contributors</Text>
           <Text>{@state.posts ? '…'} posts</Text>
         </View>
-        <TouchableOpacity style={padding: 10} onPress={->}>
+        <TouchableOpacity style={padding: 10} onPress={@props.onInfo}>
           <Image source={require('../web/assets/img/icon-4dots.png')} style={width: 38 * 0.7, height: 40 * 0.7, resizeMode: 'contain'} />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
 
 BrowserList = React.createClass
+  getDefaultProps: ->
+    onSelect: (->)
+    onInfo: (->)
+
   render: ->
     if @props.games?
       <ScrollView contentContainerStyle={flex: 1}>
         {
           @props.games.map (game) =>
-            <NativeCard key={game.game_id} game={game} onSelect={=> @props.onSelect game} auth={@props.auth} />
+            <NativeCard key={game.game_id} game={game} onSelect={=> @props.onSelect game} auth={@props.auth} onInfo={=> @props.onInfo game} />
         }
       </ScrollView>
     else
@@ -424,6 +429,10 @@ BrowserList = React.createClass
 
 makeBrowser = (getGames) ->
   React.createClass
+    getDefaultProps: ->
+      onSelect: (->)
+      onInfo: (->)
+
     getInitialState: ->
       games: null
 
@@ -444,7 +453,7 @@ makeBrowser = (getGames) ->
         @updateGames()
 
     render: ->
-      <BrowserList auth={@props.auth} games={@state.games} onSelect={@props.onSelect} />
+      <BrowserList auth={@props.auth} games={@state.games} onSelect={@props.onSelect} onInfo={@props.onInfo} />
 
 BrowserMine = makeBrowser (browser, cb) =>
   browser.props.auth.getGamesForUser {}, withSuccess (games) =>
@@ -470,97 +479,103 @@ BrowserDownloaded = makeBrowser (browser, cb) =>
 NativeBrowser = React.createClass
   getInitialState: ->
     discoverPage: 'mine'
+    viewingGameInfo: null
 
   getDefaultProps: ->
     onLogout: (->)
     onSelect: (->)
 
   render: ->
-    <View style={
-      flexDirection: 'column'
-      flex: 1
-      backgroundColor: 'white'
-    }>
-      <StatusSpace />
+    <SiftrInfo
+      game={@state.viewingGameInfo}
+      isOpen={@state.viewingGameInfo?}
+    >
       <View style={
-        flexDirection: 'row'
-        justifyContent: 'space-between'
-        alignItems: 'center'
+        flexDirection: 'column'
+        flex: 1
+        backgroundColor: 'white'
       }>
-        <TouchableOpacity style={padding: 10} onPress={@props.onLogout}>
-          <Image style={resizeMode: 'contain', height: 18} source={require('../web/assets/img/icon-back.png')} />
-        </TouchableOpacity>
-        <Text>Discover</Text>
-        <TouchableOpacity style={padding: 10}>
-          <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-search.png')} />
-        </TouchableOpacity>
-      </View>
-      <View style={flexDirection: 'row'}>
-        <TouchableOpacity onPress={=> @setState discoverPage: 'mine'} style={
-          flex: 1
+        <StatusSpace />
+        <View style={
+          flexDirection: 'row'
+          justifyContent: 'space-between'
           alignItems: 'center'
-          justifyContent: 'center'
-          borderBottomWidth: 2
-          borderBottomColor: if @state.discoverPage is 'mine' then '#FF7C6B' else '#B8B8B8'
-          paddingTop: 13
-          paddingBottom: 13
         }>
-          <Text style={
-            color: if @state.discoverPage is 'mine' then 'black' else '#B8B8B8'
-          }>Mine</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={=> @setState discoverPage: 'followed'} style={
-          flex: 1
+          <TouchableOpacity style={padding: 10} onPress={@props.onLogout}>
+            <Image style={resizeMode: 'contain', height: 18} source={require('../web/assets/img/icon-back.png')} />
+          </TouchableOpacity>
+          <Text>Discover</Text>
+          <TouchableOpacity style={padding: 10}>
+            <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-search.png')} />
+          </TouchableOpacity>
+        </View>
+        <View style={flexDirection: 'row'}>
+          <TouchableOpacity onPress={=> @setState discoverPage: 'mine'} style={
+            flex: 1
+            alignItems: 'center'
+            justifyContent: 'center'
+            borderBottomWidth: 2
+            borderBottomColor: if @state.discoverPage is 'mine' then '#FF7C6B' else '#B8B8B8'
+            paddingTop: 13
+            paddingBottom: 13
+          }>
+            <Text style={
+              color: if @state.discoverPage is 'mine' then 'black' else '#B8B8B8'
+            }>Mine</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={=> @setState discoverPage: 'followed'} style={
+            flex: 1
+            alignItems: 'center'
+            justifyContent: 'center'
+            borderBottomWidth: 2
+            borderBottomColor: if @state.discoverPage is 'followed' then '#FF7C6B' else '#B8B8B8'
+            paddingTop: 13
+            paddingBottom: 13
+          }>
+            <Text style={
+              color: if @state.discoverPage is 'followed' then 'black' else '#B8B8B8'
+            }>Followed</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={=> @setState discoverPage: 'downloaded'} style={
+            flex: 1
+            alignItems: 'center'
+            justifyContent: 'center'
+            borderBottomWidth: 2
+            borderBottomColor: if @state.discoverPage is 'downloaded' then '#FF7C6B' else '#B8B8B8'
+            paddingTop: 13
+            paddingBottom: 13
+          }>
+            <Text style={
+              color: if @state.discoverPage is 'downloaded' then 'black' else '#B8B8B8'
+            }>Downloaded</Text>
+          </TouchableOpacity>
+        </View>
+        {
+          switch @state.discoverPage
+            when 'mine'
+              <BrowserMine auth={@props.auth} onSelect={@props.onSelect} onInfo={(game) => @setState viewingGameInfo: game} />
+            when 'followed'
+              <BrowserFollowed auth={@props.auth} onSelect={@props.onSelect} onInfo={(game) => @setState viewingGameInfo: game} />
+            when 'downloaded'
+              <BrowserDownloaded auth={@props.auth} onSelect={@props.onSelect} onInfo={(game) => @setState viewingGameInfo: game} />
+        }
+        <View style={
+          flexDirection: 'row'
+          justifyContent: 'space-between'
           alignItems: 'center'
-          justifyContent: 'center'
-          borderBottomWidth: 2
-          borderBottomColor: if @state.discoverPage is 'followed' then '#FF7C6B' else '#B8B8B8'
-          paddingTop: 13
-          paddingBottom: 13
         }>
-          <Text style={
-            color: if @state.discoverPage is 'followed' then 'black' else '#B8B8B8'
-          }>Followed</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={=> @setState discoverPage: 'downloaded'} style={
-          flex: 1
-          alignItems: 'center'
-          justifyContent: 'center'
-          borderBottomWidth: 2
-          borderBottomColor: if @state.discoverPage is 'downloaded' then '#FF7C6B' else '#B8B8B8'
-          paddingTop: 13
-          paddingBottom: 13
-        }>
-          <Text style={
-            color: if @state.discoverPage is 'downloaded' then 'black' else '#B8B8B8'
-          }>Downloaded</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={padding: 10}>
+            <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-home.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity style={padding: 10}>
+            <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-add.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity style={padding: 10}>
+            <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-user.png')} />
+          </TouchableOpacity>
+        </View>
       </View>
-      {
-        switch @state.discoverPage
-          when 'mine'
-            <BrowserMine auth={@props.auth} onSelect={@props.onSelect} />
-          when 'followed'
-            <BrowserFollowed auth={@props.auth} onSelect={@props.onSelect} />
-          when 'downloaded'
-            <BrowserDownloaded auth={@props.auth} onSelect={@props.onSelect} />
-      }
-      <View style={
-        flexDirection: 'row'
-        justifyContent: 'space-between'
-        alignItems: 'center'
-      }>
-        <TouchableOpacity style={padding: 10}>
-          <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-home.png')} />
-        </TouchableOpacity>
-        <TouchableOpacity style={padding: 10}>
-          <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-add.png')} />
-        </TouchableOpacity>
-        <TouchableOpacity style={padding: 10}>
-          <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-user.png')} />
-        </TouchableOpacity>
-      </View>
-    </View>
+    </SiftrInfo>
 # @endif
 
 SiftrNative = React.createClass

@@ -11,11 +11,15 @@ update = require 'immutability-helper'
 , TouchableOpacity
 , Image
 , BackAndroid
+, Modal
+, ScrollView
 } = require 'react-native'
 RNFS = require 'react-native-fs'
 {styles} = require './styles'
 {StatusSpace} = require './status-space'
 {KeyboardAwareView} = require 'react-native-keyboard-aware-view'
+SideMenu = require 'react-native-side-menu'
+{default: Markdown} = require 'react-native-simple-markdown'
 # @endif
 
 {fitBounds} = require 'google-map-react/utils'
@@ -43,6 +47,95 @@ fixLongitude = (longitude) ->
   longitude %%= 360
   longitude -= 360 if longitude > 180
   longitude
+
+# @ifdef NATIVE
+SiftrInfo = React.createClass
+  propTypes: ->
+    game: T.instanceOf Game
+    tags: T.arrayOf T.instanceOf Tag
+    notes: T.arrayOf T.instanceOf Note
+    isOpen: T.bool
+    onChange: T.func
+    getColor: T.func
+
+  getDefaultProps: ->
+    onChange: (->)
+    isOpen: false
+    notes: null
+
+  render: ->
+    <SideMenu
+      menu={
+        <View style={
+          flex: 1
+        }>
+          <View style={
+            backgroundColor: 'rgb(249,249,249)'
+          }>
+            <StatusSpace leaveBar={true} backgroundColor="rgba(0,0,0,0)" />
+            <Text style={margin: 10}>
+              {@props.game?.name}
+            </Text>
+          </View>
+          <ScrollView contentContainerStyle={
+            flex: 1
+            backgroundColor: 'white'
+          }>
+            <Text style={margin: 10, fontWeight: 'bold'}>
+              Instructions:
+            </Text>
+            <View style={margin: 10}>
+              <Markdown>
+                {@props.game?.description}
+              </Markdown>
+            </View>
+            <Text style={margin: 10, fontWeight: 'bold'}>
+              Tags:
+            </Text>
+            {
+              for tag in @props.tags ? []
+                <View key={tag.tag_id} style={
+                  justifyContent: 'space-between'
+                  flexDirection: 'row'
+                  alignItems: 'center'
+                }>
+                  <Text style={margin: 10, color: 'rgb(182,182,182)'}>
+                    {tag.tag}
+                  </Text>
+                  <View style={margin: 10, backgroundColor: @props.getColor(tag), padding: 3, borderRadius: 999}>
+                    <Text style={color: 'white'}>
+                      {
+                        if @props.notes?
+                          matches =
+                            for note in @props.notes
+                              continue unless note.tag_id is tag.tag_id
+                              note
+                          matches.length
+                        else
+                          '…'
+                      }
+                    </Text>
+                  </View>
+                </View>
+            }
+            <Text style={margin: 10, fontWeight: 'bold'}>
+              Integrations:
+            </Text>
+          </ScrollView>
+        </View>
+      }
+      menuPosition="right"
+      isOpen={@props.isOpen}
+      onChange={@props.onChange}
+    >
+      {@props.children}
+    </SideMenu>
+# @endif
+# @ifdef WEB
+SiftrInfo = React.createClass
+  render: ->
+    @props.children
+# @endif
 
 SiftrView = React.createClass
   propTypes:
@@ -81,6 +174,7 @@ SiftrView = React.createClass
     map_notes: []
     map_clusters: []
     notes: []
+    allNotes: null
     loadedAll: true
     tags: null
     colors: null
@@ -90,6 +184,7 @@ SiftrView = React.createClass
     searchOpen: false
     primaryMap: true
     fields: null
+    infoOpen: false
 
   componentWillMount: ->
     @isMounted = true
@@ -116,6 +211,12 @@ SiftrView = React.createClass
         return unless @isMounted
         @setState {fields}
         RNFS.writeFile "#{siftrDir}/fields.txt", JSON.stringify fields
+      @props.auth.searchNotes
+        game_id: @props.game.game_id
+      , withSuccess (notes) =>
+        return unless @isMounted
+        @setState allNotes: notes
+        RNFS.writeFile "#{siftrDir}/notes.txt", JSON.stringify notes
     else
       RNFS.readFile("#{siftrDir}/tags.txt").then (tags) =>
         return unless @isMounted
@@ -130,6 +231,10 @@ SiftrView = React.createClass
         @setState fields:
           for field in JSON.parse fields
             Object.assign(new Field, field)
+      RNFS.readFile("#{siftrDir}/notes.txt").then (notes) =>
+        return unless @isMounted
+        @setState allNotes:
+          deserializeNote(note) for note in JSON.parse notes
     @hardwareBack = =>
       if @state.searchOpen
         if @isMounted then @setState searchOpen: false
@@ -571,62 +676,73 @@ SiftrView = React.createClass
       flex: 1
       backgroundColor: 'white'
     }>
-      <StatusSpace />
-      <View style={
-        flexDirection: 'row'
-        justifyContent: 'space-between'
-        alignItems: 'center'
-      }>
-        <TouchableOpacity style={padding: 10} onPress={
-          if @state.viewingNote?
-            => @setState viewingNote: null
-          else
-            @props.onExit
+      <SiftrInfo
+        game={@props.game}
+        isOpen={@state.infoOpen}
+        onChange={(b) => @setState infoOpen: b}
+        tags={@state.tags}
+        getColor={@getColor}
+        notes={@state.allNotes}
+      >
+        <StatusSpace />
+        <View style={
+          flexDirection: 'row'
+          justifyContent: 'space-between'
+          alignItems: 'center'
+          backgroundColor: 'white'
         }>
-          <Image style={resizeMode: 'contain', height: 18} source={require('../web/assets/img/icon-back.png')} />
-        </TouchableOpacity>
-        <Text>{
-          if @state.viewingNote?
-            @state.viewingNote.user.display_name
-          else
-            @props.game.name
-        }</Text>
-        <TouchableOpacity style={padding: 10}>
-          <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-4dots.png')} />
-        </TouchableOpacity>
-      </View>
-      <View style={
-        flex: 1
-      }>
-        {
-          if @state.primaryMap
-            [@renderThumbnails(), @renderMap()]
-          else
-            [@renderMap(), @renderThumbnails()]
-        }
-        {@renderNoteView()}
-        {@renderCreateNote()}
-        {@renderSearch() if @state.searchOpen}
-      </View>
-      <View style={
-        flexDirection: 'row'
-        justifyContent: 'space-between'
-        alignItems: 'center'
-      }>
-        <TouchableOpacity style={padding: 10} onPress={=>
-          @setState primaryMap: not @state.primaryMap
+          <TouchableOpacity style={padding: 10} onPress={
+            if @state.viewingNote?
+              => @setState viewingNote: null
+            else
+              @props.onExit
+          }>
+            <Image style={resizeMode: 'contain', height: 18} source={require('../web/assets/img/icon-back.png')} />
+          </TouchableOpacity>
+          <Text>{
+            if @state.viewingNote?
+              @state.viewingNote.user.display_name
+            else
+              @props.game.name
+          }</Text>
+          <TouchableOpacity style={padding: 10} onPress={=> @setState infoOpen: not @state.infoOpen}>
+            <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-4dots.png')} />
+          </TouchableOpacity>
+        </View>
+        <View style={
+          flex: 1
         }>
-          <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-map.png')} />
-        </TouchableOpacity>
-        <TouchableOpacity style={padding: 10} onPress={@startCreate}>
-          <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-add.png')} />
-        </TouchableOpacity>
-        <TouchableOpacity style={padding: 10} onPress={=>
-          @setState searchOpen: not @state.searchOpen
+          {
+            if @state.primaryMap
+              [@renderThumbnails(), @renderMap()]
+            else
+              [@renderMap(), @renderThumbnails()]
+          }
+          {@renderNoteView()}
+          {@renderCreateNote()}
+          {@renderSearch() if @state.searchOpen}
+        </View>
+        <View style={
+          flexDirection: 'row'
+          justifyContent: 'space-between'
+          alignItems: 'center'
+          backgroundColor: 'white'
         }>
-          <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-filter.png')} />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={padding: 10} onPress={=>
+            @setState primaryMap: not @state.primaryMap
+          }>
+            <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-map.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity style={padding: 10} onPress={@startCreate}>
+            <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-add.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity style={padding: 10} onPress={=>
+            @setState searchOpen: not @state.searchOpen
+          }>
+            <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-filter.png')} />
+          </TouchableOpacity>
+        </View>
+      </SiftrInfo>
     </KeyboardAwareView>
   # @endif
 
@@ -670,3 +786,4 @@ SiftrView = React.createClass
   # @endif
 
 exports.SiftrView = SiftrView
+exports.SiftrInfo = SiftrInfo

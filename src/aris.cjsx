@@ -148,6 +148,14 @@ class Note
         comment
       @published    = json.published
 
+deserializeNote = (json) ->
+  n = Object.assign(new Note, json)
+  n.user = Object.assign(new User, n.user)
+  n.created = new Date(n.created)
+  n.comments =
+    Object.assign(new Comment, o) for o in n.comments
+  n
+
 class Field
   constructor: (json = null) ->
     if json?
