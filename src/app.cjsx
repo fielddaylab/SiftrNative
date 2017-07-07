@@ -416,7 +416,7 @@ BrowserList = React.createClass
 
   render: ->
     if @props.games?
-      <ScrollView contentContainerStyle={flex: 1}>
+      <ScrollView style={flex: 1}>
         {
           @props.games.map (game) =>
             <NativeCard key={game.game_id} game={game} onSelect={=> @props.onSelect game} auth={@props.auth} onInfo={=> @props.onInfo game} />
@@ -454,6 +454,35 @@ makeBrowser = (getGames) ->
 
     render: ->
       <BrowserList auth={@props.auth} games={@state.games} onSelect={@props.onSelect} onInfo={@props.onInfo} />
+
+BrowserSearch = makeBrowser (browser, cb) =>
+  browser.props.auth.searchSiftrs
+    search: browser.props.search
+    count: 10
+  , withSuccess (games) =>
+    cb games
+
+BrowserSearchPane = React.createClass
+  getInitialState: ->
+    search: ''
+
+  render: ->
+    <View style={flex: 1}>
+      <TextInput
+        style={
+          height: 40
+          borderWidth: 2
+          borderColor: 'gray'
+          padding: 10
+        }
+        placeholder="Search…"
+        autoCapitalize="none"
+        autoCorrect={true}
+        autoFocus={false}
+        onChangeText={(search) => @setState search: search}
+      />
+      <BrowserSearch auth={@props.auth} onSelect={@props.onSelect} onInfo={@props.onInfo} search={@state.search} />
+    </View>
 
 BrowserMine = makeBrowser (browser, cb) =>
   browser.props.auth.getGamesForUser {}, withSuccess (games) =>
@@ -505,7 +534,7 @@ NativeBrowser = React.createClass
             <Image style={resizeMode: 'contain', height: 18} source={require('../web/assets/img/icon-back.png')} />
           </TouchableOpacity>
           <Text>Discover</Text>
-          <TouchableOpacity style={padding: 10}>
+          <TouchableOpacity style={padding: 10} onPress={=> @setState discoverPage: 'search'}>
             <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-search.png')} />
           </TouchableOpacity>
         </View>
@@ -558,6 +587,8 @@ NativeBrowser = React.createClass
               <BrowserFollowed auth={@props.auth} onSelect={@props.onSelect} onInfo={(game) => @setState viewingGameInfo: game} />
             when 'downloaded'
               <BrowserDownloaded auth={@props.auth} onSelect={@props.onSelect} onInfo={(game) => @setState viewingGameInfo: game} />
+            when 'search'
+              <BrowserSearchPane auth={@props.auth} onSelect={@props.onSelect} onInfo={(game) => @setState viewingGameInfo: game} />
         }
         <View style={
           flexDirection: 'row'

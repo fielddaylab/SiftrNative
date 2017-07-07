@@ -77,8 +77,7 @@ SiftrInfo = React.createClass
               {@props.game?.name}
             </Text>
           </View>
-          <ScrollView contentContainerStyle={
-            flex: 1
+          <ScrollView style={flex: 1} contentContainerStyle={
             backgroundColor: 'white'
           }>
             <Text style={margin: 10, fontWeight: 'bold'}>
@@ -127,6 +126,7 @@ SiftrInfo = React.createClass
       menuPosition="right"
       isOpen={@props.isOpen}
       onChange={@props.onChange}
+      disableGestures={not @props.isOpen}
     >
       {@props.children}
     </SideMenu>

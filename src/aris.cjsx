@@ -144,7 +144,7 @@ class Note
       @note_likes   = parseInt json.note_likes
       @comments     = for o in (json.comments?.data ? [])
         comment = new Comment o
-        continue unless comment.description.match(/\S/)
+        continue unless comment.description?.match(/\S/)
         comment
       @published    = json.published
 
