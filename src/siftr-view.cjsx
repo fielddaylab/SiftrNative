@@ -180,11 +180,13 @@ SiftrView = React.createClass
     colors: null
     viewingNote: null
     createNote: null
-    searchParams: {}
+    searchParams:
+      sort: 'recent'
     searchOpen: false
     primaryMap: true
     fields: null
     infoOpen: false
+    primaryMenuOpen: false
 
   componentWillMount: ->
     @isMounted = true
@@ -722,6 +724,67 @@ SiftrView = React.createClass
           {@renderCreateNote()}
           {@renderSearch() if @state.searchOpen}
         </View>
+        {
+          if @state.primaryMenuOpen
+            <View style={
+              flexDirection: 'row'
+              justifyContent: 'space-between'
+              alignItems: 'center'
+              backgroundColor: 'white'
+            }>
+              <View style={
+                flexDirection: 'row'
+                alignItems: 'center'
+              }>
+                <TouchableOpacity style={padding: 10} onPress={=>
+                  @setState primaryMap: true
+                }>
+                  <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-map.png')} />
+                </TouchableOpacity>
+                <TouchableOpacity style={padding: 10} onPress={=>
+                  @setState primaryMap: false
+                }>
+                  <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-grid.png')} />
+                </TouchableOpacity>
+              </View>
+              <View style={
+                flexDirection: 'row'
+                alignItems: 'center'
+              }>
+                <View style={padding: 6}>
+                  <Text>Sort by:</Text>
+                </View>
+                <TouchableOpacity style={
+                  padding: 6
+                  borderBottomWidth: 3
+                  borderBottomColor: if @state.searchParams.sort is 'recent' then 'black' else 'white'
+                } onPress={=>
+                  @setState (state) =>
+                    update state,
+                      searchParams:
+                        sort:
+                          $set: 'recent'
+                  , => @loadResults()
+                }>
+                  <Text>newest</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={
+                  padding: 6
+                  borderBottomWidth: 3
+                  borderBottomColor: if @state.searchParams.sort is 'popular' then 'black' else 'white'
+                } onPress={=>
+                  @setState (state) =>
+                    update state,
+                      searchParams:
+                        sort:
+                          $set: 'popular'
+                  , => @loadResults()
+                }>
+                  <Text>popularity</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+        }
         <View style={
           flexDirection: 'row'
           justifyContent: 'space-between'
@@ -729,9 +792,14 @@ SiftrView = React.createClass
           backgroundColor: 'white'
         }>
           <TouchableOpacity style={padding: 10} onPress={=>
-            @setState primaryMap: not @state.primaryMap
+            @setState primaryMenuOpen: not @state.primaryMenuOpen
           }>
-            <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-map.png')} />
+            <Image style={resizeMode: 'contain', height: 30} source={
+              if @state.primaryMap
+                require('../web/assets/img/icon-map.png')
+              else
+                require('../web/assets/img/icon-grid.png')
+            } />
           </TouchableOpacity>
           <TouchableOpacity style={padding: 10} onPress={@startCreate}>
             <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-add.png')} />
