@@ -505,7 +505,105 @@ BrowserDownloaded = makeBrowser (browser, cb) =>
     else
       cb []
 
-NativeBrowser = React.createClass
+BrowserFeatured = makeBrowser (browser, cb) =>
+  cb null
+
+BrowserPopular = makeBrowser (browser, cb) =>
+  browser.props.auth.call 'games.searchSiftrs',
+    count: 20 # TODO infinite scroll
+    offset: 0
+    order_by: 'popular'
+  , withSuccess cb
+
+BrowserNearMe = makeBrowser (browser, cb) =>
+  cb null
+
+NativeExplore = React.createClass
+  getInitialState: ->
+    discoverPage: 'featured'
+    viewingGameInfo: null
+
+  getDefaultProps: ->
+    onLogout: (->)
+    onSelect: (->)
+
+  render: ->
+    <SiftrInfo
+      game={@state.viewingGameInfo}
+      isOpen={@state.viewingGameInfo?}
+    >
+      <View style={
+        flexDirection: 'column'
+        flex: 1
+        backgroundColor: 'white'
+      }>
+        <StatusSpace />
+        <View style={
+          flexDirection: 'row'
+          justifyContent: 'space-between'
+          alignItems: 'center'
+        }>
+          <TouchableOpacity style={padding: 10} onPress={@props.onLogout}>
+            <Image style={resizeMode: 'contain', height: 18} source={require('../web/assets/img/icon-back.png')} />
+          </TouchableOpacity>
+          <Text>Explore</Text>
+          <TouchableOpacity style={padding: 10} onPress={=> @setState discoverPage: 'search'}>
+            <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-search.png')} />
+          </TouchableOpacity>
+        </View>
+        <View style={flexDirection: 'row'}>
+          <TouchableOpacity onPress={=> @setState discoverPage: 'featured'} style={
+            if @state.discoverPage is 'featured' then styles.exploreTabOn else styles.exploreTabOff
+          }>
+            <Text style={
+              color: if @state.discoverPage is 'featured' then 'black' else '#B8B8B8'
+            }>Featured</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={=> @setState discoverPage: 'popular'} style={
+            if @state.discoverPage is 'popular' then styles.exploreTabOn else styles.exploreTabOff
+          }>
+            <Text style={
+              color: if @state.discoverPage is 'popular' then 'black' else '#B8B8B8'
+            }>Popular</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={=> @setState discoverPage: 'nearme'} style={
+            if @state.discoverPage is 'nearme' then styles.exploreTabOn else styles.exploreTabOff
+          }>
+            <Text style={
+              color: if @state.discoverPage is 'nearme' then 'black' else '#B8B8B8'
+            }>Near Me</Text>
+          </TouchableOpacity>
+        </View>
+        {
+          switch @state.discoverPage
+            when 'featured'
+              <BrowserFeatured auth={@props.auth} onSelect={@props.onSelect} onInfo={(game) => @setState viewingGameInfo: game} />
+            when 'popular'
+              <BrowserPopular auth={@props.auth} onSelect={@props.onSelect} onInfo={(game) => @setState viewingGameInfo: game} />
+            when 'nearme'
+              <BrowserNearMe auth={@props.auth} onSelect={@props.onSelect} onInfo={(game) => @setState viewingGameInfo: game} />
+            when 'search'
+              <BrowserSearchPane auth={@props.auth} onSelect={@props.onSelect} onInfo={(game) => @setState viewingGameInfo: game} />
+        }
+        <View style={
+          flexDirection: 'row'
+          justifyContent: 'space-between'
+          alignItems: 'center'
+        }>
+          <TouchableOpacity style={padding: 10} onPress={@props.onHome}>
+            <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-home.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity style={padding: 10}>
+            <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-add.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity style={padding: 10}>
+            <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-user.png')} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SiftrInfo>
+
+NativeHome = React.createClass
   getInitialState: ->
     discoverPage: 'mine'
     viewingGameInfo: null
@@ -533,46 +631,28 @@ NativeBrowser = React.createClass
           <TouchableOpacity style={padding: 10} onPress={@props.onLogout}>
             <Image style={resizeMode: 'contain', height: 18} source={require('../web/assets/img/icon-back.png')} />
           </TouchableOpacity>
-          <Text>Discover</Text>
+          <Text>Home</Text>
           <TouchableOpacity style={padding: 10} onPress={=> @setState discoverPage: 'search'}>
             <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-search.png')} />
           </TouchableOpacity>
         </View>
         <View style={flexDirection: 'row'}>
           <TouchableOpacity onPress={=> @setState discoverPage: 'mine'} style={
-            flex: 1
-            alignItems: 'center'
-            justifyContent: 'center'
-            borderBottomWidth: 2
-            borderBottomColor: if @state.discoverPage is 'mine' then '#FF7C6B' else '#B8B8B8'
-            paddingTop: 13
-            paddingBottom: 13
+            if @state.discoverPage is 'mine' then styles.exploreTabOn else styles.exploreTabOff
           }>
             <Text style={
               color: if @state.discoverPage is 'mine' then 'black' else '#B8B8B8'
             }>Mine</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={=> @setState discoverPage: 'followed'} style={
-            flex: 1
-            alignItems: 'center'
-            justifyContent: 'center'
-            borderBottomWidth: 2
-            borderBottomColor: if @state.discoverPage is 'followed' then '#FF7C6B' else '#B8B8B8'
-            paddingTop: 13
-            paddingBottom: 13
+            if @state.discoverPage is 'followed' then styles.exploreTabOn else styles.exploreTabOff
           }>
             <Text style={
               color: if @state.discoverPage is 'followed' then 'black' else '#B8B8B8'
             }>Followed</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={=> @setState discoverPage: 'downloaded'} style={
-            flex: 1
-            alignItems: 'center'
-            justifyContent: 'center'
-            borderBottomWidth: 2
-            borderBottomColor: if @state.discoverPage is 'downloaded' then '#FF7C6B' else '#B8B8B8'
-            paddingTop: 13
-            paddingBottom: 13
+            if @state.discoverPage is 'downloaded' then styles.exploreTabOn else styles.exploreTabOff
           }>
             <Text style={
               color: if @state.discoverPage is 'downloaded' then 'black' else '#B8B8B8'
@@ -595,7 +675,7 @@ NativeBrowser = React.createClass
           justifyContent: 'space-between'
           alignItems: 'center'
         }>
-          <TouchableOpacity style={padding: 10}>
+          <TouchableOpacity style={padding: 10} onPress={@props.onExplore}>
             <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-home.png')} />
           </TouchableOpacity>
           <TouchableOpacity style={padding: 10}>
@@ -616,6 +696,7 @@ SiftrNative = React.createClass
     game: null
     menuOpen: false
     online: true
+    explore: false
 
   # @ifdef WEB
   componentWillMount: ->
@@ -710,12 +791,21 @@ SiftrNative = React.createClass
                 clearNomenData={@clearNomenData}
                 online={@state.online}
               />
-            else
-              <NativeBrowser
+            else if @state.explore
+              <NativeExplore
                 auth={@state.auth}
                 onLogout={@logout}
                 onSelect={(game) => @setState {game}}
                 online={@state.online}
+                onHome={=> @setState explore: false}
+              />
+            else
+              <NativeHome
+                auth={@state.auth}
+                onLogout={@logout}
+                onSelect={(game) => @setState {game}}
+                online={@state.online}
+                onExplore={=> @setState explore: true}
               />
           else
             <NativeLogin onLogin={@login} />

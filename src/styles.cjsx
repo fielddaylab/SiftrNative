@@ -83,4 +83,22 @@ exports.styles = StyleSheet.create
     padding: 5
     backgroundColor: '#eee'
 
+  exploreTabOff:
+    flex: 1
+    alignItems: 'center'
+    justifyContent: 'center'
+    borderBottomWidth: 2
+    borderBottomColor: '#B8B8B8'
+    paddingTop: 13
+    paddingBottom: 13
+
+  exploreTabOn:
+    flex: 1
+    alignItems: 'center'
+    justifyContent: 'center'
+    borderBottomWidth: 2
+    borderBottomColor: '#FF7C6B'
+    paddingTop: 13
+    paddingBottom: 13
+
 # @endif
