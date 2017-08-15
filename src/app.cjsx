@@ -443,21 +443,23 @@ makeBrowser = (getGames) ->
     componentWillUnmount: ->
       @isMounted = false
 
-    updateGames: ->
-      getGames @, (games) =>
+    updateGames: (props = @props) ->
+      thisSearch = @lastSearch = Date.now()
+      getGames props, (games) =>
         return unless @isMounted
+        return unless thisSearch is @lastSearch
         @setState {games}
 
     componentWillReceiveProps: (newProps) ->
-      if not @props.auth? or @props.auth isnt newProps.auth
-        @updateGames()
+      if not @props.auth? or @props.auth isnt newProps.auth or @props.search isnt newProps.search
+        @updateGames newProps
 
     render: ->
       <BrowserList auth={@props.auth} games={@state.games} onSelect={@props.onSelect} onInfo={@props.onInfo} />
 
-BrowserSearch = makeBrowser (browser, cb) =>
-  browser.props.auth.searchSiftrs
-    search: browser.props.search
+BrowserSearch = makeBrowser (props, cb) =>
+  props.auth.searchSiftrs
+    search: props.search
     count: 10
   , withSuccess (games) =>
     cb games
@@ -484,14 +486,14 @@ BrowserSearchPane = React.createClass
       <BrowserSearch auth={@props.auth} onSelect={@props.onSelect} onInfo={@props.onInfo} search={@state.search} />
     </View>
 
-BrowserMine = makeBrowser (browser, cb) =>
-  browser.props.auth.getGamesForUser {}, withSuccess (games) =>
+BrowserMine = makeBrowser (props, cb) =>
+  props.auth.getGamesForUser {}, withSuccess (games) =>
     cb( game for game in games when game.is_siftr )
 
-BrowserFollowed = makeBrowser (browser, cb) =>
+BrowserFollowed = makeBrowser (props, cb) =>
   cb null
 
-BrowserDownloaded = makeBrowser (browser, cb) =>
+BrowserDownloaded = makeBrowser (props, cb) =>
   siftrsDir = "#{RNFS.DocumentDirectoryPath}/siftrs"
   RNFS.exists(siftrsDir).then (dirExists) =>
     if dirExists
@@ -505,17 +507,17 @@ BrowserDownloaded = makeBrowser (browser, cb) =>
     else
       cb []
 
-BrowserFeatured = makeBrowser (browser, cb) =>
+BrowserFeatured = makeBrowser (props, cb) =>
   cb null
 
-BrowserPopular = makeBrowser (browser, cb) =>
-  browser.props.auth.call 'games.searchSiftrs',
+BrowserPopular = makeBrowser (props, cb) =>
+  props.auth.call 'games.searchSiftrs',
     count: 20 # TODO infinite scroll
     offset: 0
     order_by: 'popular'
   , withSuccess cb
 
-BrowserNearMe = makeBrowser (browser, cb) =>
+BrowserNearMe = makeBrowser (props, cb) =>
   cb null
 
 NativeExplore = React.createClass
