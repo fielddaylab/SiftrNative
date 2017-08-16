@@ -513,7 +513,7 @@ BrowserFeatured = makeBrowser (props, cb) =>
   cb null
 
 BrowserPopular = makeBrowser (props, cb) =>
-  props.auth.call 'games.searchSiftrs',
+  props.auth.searchSiftrs
     count: 20 # TODO infinite scroll
     offset: 0
     order_by: 'popular'

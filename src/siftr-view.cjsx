@@ -161,10 +161,7 @@ SiftrView = React.createClass
       lng: @props.game.longitude
     # @ifdef NATIVE
     delta: do =>
-      delta =
-        switch @props.game.zoom
-          when 13 then 0.05
-          else 0.05 # TODO
+      delta = 26 / (2 ** (@props.game.zoom - 4)) # more research needed, this is a hack
       lat: delta
       lng: delta
     # @endif
