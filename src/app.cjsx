@@ -377,8 +377,10 @@ NativeCard = React.createClass
 
   render: ->
     <TouchableOpacity onPress={@props.onSelect} style={
-      borderBottomColor: '#E0E0E0'
-      borderBottomWidth: 2
+      backgroundColor: 'white'
+      margin: 12
+      marginBottom: 0
+      borderRadius: 12
     }>
       <View style={flexDirection: 'row', justifyContent: 'space-between', padding: 10, alignItems: 'center'}>
         <View>
@@ -389,7 +391,7 @@ NativeCard = React.createClass
           <Image source={require('../web/assets/img/icon-3dots.png')} style={width: 34 * 0.6, height: 8 * 0.6, resizeMode: 'contain'} />
         </TouchableOpacity>
       </View>
-      <View style={flexDirection: 'row'}>
+      <View style={flexDirection: 'row', overflow: 'hidden'}>
         {
           if @state.photos?
             for {url, note_id} in @state.photos
@@ -416,7 +418,7 @@ BrowserList = React.createClass
 
   render: ->
     if @props.games?
-      <ScrollView style={flex: 1}>
+      <ScrollView style={flex: 1, backgroundColor: 'rgb(233,240,240)'}>
         {
           @props.games.map (game) =>
             <NativeCard key={game.game_id} game={game} onSelect={=> @props.onSelect game} auth={@props.auth} onInfo={=> @props.onInfo game} />
