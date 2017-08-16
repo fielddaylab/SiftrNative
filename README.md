@@ -4,9 +4,11 @@ Instructions on Mac:
 
 1. If you don't have Homebrew, [http://brew.sh/](http://brew.sh/)
 2. `brew install yarn`
-3. `sudo npm install -g gulp react-native-cli`
-4. Run `make`.
-5. Run `make` again after you make any changes.
+3. `brew install pkg-config`
+4. `brew install --HEAD watchman`
+5. `sudo npm install -g gulp react-native-cli`
+6. Run `make`.
+7. Run `make` again after you make any changes.
 
 iOS: open `ios/SiftrNative.xcodeproj`
 
