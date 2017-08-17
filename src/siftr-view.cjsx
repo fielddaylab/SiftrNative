@@ -57,13 +57,25 @@ SiftrInfo = React.createClass
     isOpen: T.bool
     onChange: T.func
     getColor: T.func
+    followed: T.arrayOf T.instanceOf Game
+    followGame: T.func
+    unfollowGame: T.func
 
   getDefaultProps: ->
     onChange: (->)
     isOpen: false
     notes: null
+    followed: []
+    followGame: (->)
+    unfollowGame: (->)
 
   render: ->
+    isFollowing =
+      if @props.game?
+        @props.followed.some (game) => game.game_id is @props.game.game_id
+      else
+        false
+
     <SideMenu
       menu={
         <View style={
@@ -76,6 +88,11 @@ SiftrInfo = React.createClass
             <Text style={margin: 10}>
               {@props.game?.name}
             </Text>
+            <TouchableOpacity onPress={if isFollowing then @props.unfollowGame else @props.followGame}>
+              <Text style={margin: 10}>
+                {if isFollowing then 'Following' else 'Not following'}
+              </Text>
+            </TouchableOpacity>
           </View>
           <ScrollView style={flex: 1} contentContainerStyle={
             backgroundColor: 'white'
@@ -88,9 +105,12 @@ SiftrInfo = React.createClass
                 {@props.game?.description}
               </Markdown>
             </View>
-            <Text style={margin: 10, fontWeight: 'bold'}>
-              Tags:
-            </Text>
+            {
+              if @props.tags?.length
+                <Text style={margin: 10, fontWeight: 'bold'}>
+                  Tags:
+                </Text>
+            }
             {
               for tag in @props.tags ? []
                 <View key={tag.tag_id} style={
@@ -117,9 +137,12 @@ SiftrInfo = React.createClass
                   </View>
                 </View>
             }
-            <Text style={margin: 10, fontWeight: 'bold'}>
-              Integrations:
-            </Text>
+            {
+              if false
+                <Text style={margin: 10, fontWeight: 'bold'}>
+                  Integrations:
+                </Text>
+            }
           </ScrollView>
         </View>
       }

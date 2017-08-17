@@ -386,5 +386,8 @@ class Auth
   getFieldDataForNote: (json, cb) ->
     @callWrapped 'fields.getFieldDataForNote', json, cb, (data) -> new FieldData o for o in data
 
+  getFollowedGamesForUser: (json, cb) ->
+    @callWrapped 'games.getFollowedGamesForUser', json, cb, (data) -> new Game o for o in data
+
 for k, v of {Game, deserializeGame, User, Tag, Comment, Note, Auth, Colors, Field, FieldData, FieldOption, arisHTTPS}
   exports[k] = v

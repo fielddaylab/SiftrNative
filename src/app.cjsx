@@ -482,7 +482,7 @@ makeBrowser = (getGames) ->
         @setState {games}
 
     componentWillReceiveProps: (newProps) ->
-      if not @props.auth? or @props.auth isnt newProps.auth or @props.search isnt newProps.search
+      if not @props.auth? or ['auth', 'search', 'mine', 'followed'].some((x) => @props[x] isnt newProps[x])
         @updateGames newProps
 
     render: ->
@@ -521,11 +521,10 @@ BrowserSearchPane = React.createClass
     </View>
 
 BrowserMine = makeBrowser (props, cb) =>
-  props.auth.getGamesForUser {}, withSuccess (games) =>
-    cb( game for game in games when game.is_siftr )
+  cb props.mine
 
 BrowserFollowed = makeBrowser (props, cb) =>
-  cb null
+  cb props.followed
 
 BrowserDownloaded = makeBrowser (props, cb) =>
   siftrsDir = "#{RNFS.DocumentDirectoryPath}/siftrs"
@@ -563,6 +562,10 @@ NativeHome = React.createClass
   getDefaultProps: ->
     onLogout: (->)
     onSelect: (->)
+    mine: null
+    followed: null
+    followGame: (->)
+    unfollowGame: (->)
 
   render: ->
     isHome = @state.discoverPage in ['mine', 'followed', 'downloaded']
@@ -579,6 +582,9 @@ NativeHome = React.createClass
       game={@state.viewingGameInfo}
       isOpen={@state.viewingGameInfo?}
       onChange={(b) => if not b then @setState viewingGameInfo: null}
+      followed={@props.followed}
+      followGame={=> @props.followGame @state.viewingGameInfo}
+      unfollowGame={=> @props.unfollowGame @state.viewingGameInfo}
     >
       <View style={
         flexDirection: 'column'
@@ -669,6 +675,8 @@ NativeHome = React.createClass
           onSelect={@props.onSelect}
           cardMode={@state.cardMode}
           onInfo={(game) => @setState viewingGameInfo: game}
+          mine={@props.mine}
+          followed={@props.followed}
         />
         <View style={
           flexDirection: 'row'
@@ -697,6 +705,7 @@ SiftrNative = React.createClass
   getInitialState: ->
     auth: null
     games: null
+    followed: null
     game: null
     menuOpen: false
     online: true
@@ -756,6 +765,21 @@ SiftrNative = React.createClass
       @setState games:
         game for game in games when game.is_siftr
 
+  updateFollowed: ->
+    @state.auth.getFollowedGamesForUser {}, withSuccess (games) =>
+      @setState followed:
+        game for game in games when game.is_siftr
+
+  followGame: (game) ->
+    @state.auth.call 'games.followGame',
+      game_id: game.game_id
+    , withSuccess => @updateFollowed()
+
+  unfollowGame: (game) ->
+    @state.auth.call 'games.unfollowGame',
+      game_id: game.game_id
+    , withSuccess => @updateFollowed()
+
   login: (username, password) ->
     return unless @state.online
     (@state.auth ? new Auth).login username, password, (newAuth, err) =>
@@ -765,7 +789,9 @@ SiftrNative = React.createClass
         auth: newAuth
         games: null
       if newAuth.authToken?
-        @updateGames() if @state.online
+        if @state.online
+          @updateGames()
+          @updateFollowed()
         @setState menuOpen: false
 
   logout: ->
@@ -800,6 +826,10 @@ SiftrNative = React.createClass
                 onLogout={@logout}
                 onSelect={(game) => @setState {game}}
                 online={@state.online}
+                mine={@state.games}
+                followed={@state.followed}
+                followGame={@followGame}
+                unfollowGame={@unfollowGame}
               />
           else
             <NativeLogin onLogin={@login} />
