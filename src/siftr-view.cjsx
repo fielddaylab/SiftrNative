@@ -167,6 +167,9 @@ SiftrView = React.createClass
     isAdmin: T.bool
     onExit: T.func
     onPromptLogin: T.func
+    following: T.arrayOf T.instanceOf Game
+    followGame: T.func
+    unfollowGame: T.func
     # nomenData
     clearNomenData: T.func
     online: T.bool
@@ -177,6 +180,9 @@ SiftrView = React.createClass
     onPromptLogin: (->)
     nomenData: null
     clearNomenData: (->)
+    following: null
+    followGame: (->)
+    unfollowGame: (->)
 
   getInitialState: ->
     center:
@@ -705,6 +711,9 @@ SiftrView = React.createClass
         tags={@state.tags}
         getColor={@getColor}
         notes={@state.allNotes}
+        followed={@props.followed}
+        followGame={=> @props.followGame @props.game}
+        unfollowGame={=> @props.unfollowGame @props.game}
       >
         <StatusSpace />
         <View style={
