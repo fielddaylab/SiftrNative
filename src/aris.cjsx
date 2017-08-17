@@ -389,5 +389,8 @@ class Auth
   getFollowedGamesForUser: (json, cb) ->
     @callWrapped 'games.getFollowedGamesForUser', json, cb, (data) -> new Game o for o in data
 
+  getStaffPicks: (json, cb) ->
+    @callWrapped 'games.getStaffPicks', json, cb, (data) -> new Game o for o in data
+
 for k, v of {Game, deserializeGame, User, Tag, Comment, Note, Auth, Colors, Field, FieldData, FieldOption, arisHTTPS}
   exports[k] = v

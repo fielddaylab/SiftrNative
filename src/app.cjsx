@@ -541,7 +541,8 @@ BrowserDownloaded = makeBrowser (props, cb) =>
       cb []
 
 BrowserFeatured = makeBrowser (props, cb) =>
-  cb null
+  props.auth.getStaffPicks {}, withSuccess (games) =>
+    cb(game for game in games when game.is_siftr)
 
 BrowserPopular = makeBrowser (props, cb) =>
   props.auth.searchSiftrs
