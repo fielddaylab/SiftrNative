@@ -101,4 +101,26 @@ exports.styles = StyleSheet.create
     paddingTop: 13
     paddingBottom: 13
 
+  settingsHeader:
+    backgroundColor: 'rgb(249,249,249)'
+    borderTopColor: 'rgb(230,230,230)'
+    borderBottomColor: 'rgb(230,230,230)'
+    borderTopWidth: 1
+    borderBottomWidth: 1
+    padding: 10
+    paddingTop: 18
+    paddingBottom: 6
+
+  settingsHeaderText:
+    fontSize: 12
+    color: 'rgb(172,172,172)'
+
+  settingsButton:
+    backgroundColor: 'white'
+    borderTopColor: 'rgb(230,230,230)'
+    borderBottomColor: 'rgb(230,230,230)'
+    borderTopWidth: 1
+    borderBottomWidth: 1
+    padding: 14
+
 # @endif

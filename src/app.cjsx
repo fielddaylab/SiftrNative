@@ -564,6 +564,7 @@ NativeHome = React.createClass
     discoverPage: 'mine'
     viewingGameInfo: null
     cardMode: 'full'
+    settings: false
 
   getDefaultProps: ->
     onLogout: (->)
@@ -574,7 +575,8 @@ NativeHome = React.createClass
     unfollowGame: (->)
 
   render: ->
-    isHome = @state.discoverPage in ['mine', 'followed', 'downloaded']
+    isHome     = @state.discoverPage in ['mine', 'followed', 'downloaded'         ] and not @state.settings
+    isDiscover = @state.discoverPage in ['featured', 'popular', 'nearme', 'search'] and not @state.settings
     CurrentBrowser = switch @state.discoverPage
       when 'mine'       then BrowserMine
       when 'followed'   then BrowserFollowed
@@ -598,36 +600,53 @@ NativeHome = React.createClass
         backgroundColor: 'white'
       }>
         <StatusSpace />
-        <View style={
-          flexDirection: 'row'
-          justifyContent: 'space-between'
-          alignItems: 'center'
-        }>
-          <TouchableOpacity style={padding: 10} onPress={=> @setState discoverPage: 'search'}>
-            <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-search.png')} />
-          </TouchableOpacity>
-          <Text>
-            {
-              if isHome then 'Home' else 'Explore'
-            }
-          </Text>
-          <TouchableOpacity style={padding: 0} onPress={=>
-            @setState cardMode:
-              if @state.cardMode is 'full'
-                'compact'
-              else
-                'full'
-          }>
-            <Image style={resizeMode: 'contain', height: 20} source={
-              if @state.cardMode is 'full'
-                require('../web/assets/img/icon-cards.png')
-              else
-                require('../web/assets/img/icon-compact.png')
-            } />
-          </TouchableOpacity>
-        </View>
         {
-          if isHome
+          if @state.settings
+            <View style={
+              flexDirection: 'row'
+              justifyContent: 'space-between'
+              alignItems: 'center'
+            }>
+              <TouchableOpacity style={padding: 10} onPress={=> @setState settings: false}>
+                <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-back.png')} />
+              </TouchableOpacity>
+              <Text>Settings</Text>
+              <View style={width: 50} />
+            </View>
+          else
+            <View style={
+              flexDirection: 'row'
+              justifyContent: 'space-between'
+              alignItems: 'center'
+            }>
+              <TouchableOpacity style={padding: 10} onPress={=> @setState discoverPage: 'search'}>
+                <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-search.png')} />
+              </TouchableOpacity>
+              <Text>
+                {
+                  if isHome then 'Home' else 'Explore'
+                }
+              </Text>
+              <TouchableOpacity style={padding: 0} onPress={=>
+                @setState cardMode:
+                  if @state.cardMode is 'full'
+                    'compact'
+                  else
+                    'full'
+              }>
+                <Image style={resizeMode: 'contain', height: 20} source={
+                  if @state.cardMode is 'full'
+                    require('../web/assets/img/icon-cards.png')
+                  else
+                    require('../web/assets/img/icon-compact.png')
+                } />
+              </TouchableOpacity>
+            </View>
+        }
+        {
+          if @state.settings
+            undefined
+          else if isHome
             <View style={flexDirection: 'row'}>
               <TouchableOpacity key={1} onPress={=> @setState discoverPage: 'mine'} style={
                 if @state.discoverPage is 'mine' then styles.exploreTabOn else styles.exploreTabOff
@@ -676,30 +695,60 @@ NativeHome = React.createClass
               </TouchableOpacity>
             </View>
         }
-        <CurrentBrowser
-          auth={@props.auth}
-          onSelect={@props.onSelect}
-          cardMode={@state.cardMode}
-          onInfo={(game) => @setState viewingGameInfo: game}
-          mine={@props.mine}
-          followed={@props.followed}
-        />
+        {
+          if @state.settings
+            <ScrollView style={flex: 1}>
+              <View style={styles.settingsHeader}>
+                <Text style={styles.settingsHeaderText}>Account</Text>
+              </View>
+              <TouchableOpacity style={styles.settingsButton}>
+                <Text>Edit Profile</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.settingsButton}>
+                <Text>Change Password</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.settingsButton} onPress={@props.onLogout}>
+                <Text>Logout</Text>
+              </TouchableOpacity>
+              <View style={styles.settingsHeader}>
+                <Text style={styles.settingsHeaderText}>About</Text>
+              </View>
+              <TouchableOpacity style={styles.settingsButton}>
+                <Text>Terms</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.settingsButton}>
+                <Text>Open Source</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.settingsButton}>
+                <Text>Privacy Policy</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          else
+            <CurrentBrowser
+              auth={@props.auth}
+              onSelect={@props.onSelect}
+              cardMode={@state.cardMode}
+              onInfo={(game) => @setState viewingGameInfo: game}
+              mine={@props.mine}
+              followed={@props.followed}
+            />
+        }
         <View style={
           flexDirection: 'row'
           justifyContent: 'space-between'
           alignItems: 'center'
         }>
           <TouchableOpacity style={padding: 10} onPress={=>
-            if not isHome then @setState discoverPage: 'mine'
+            if not isHome then @setState discoverPage: 'mine', settings: false
           }>
             <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-home.png')} />
           </TouchableOpacity>
           <TouchableOpacity style={padding: 10} onPress={=>
-            if isHome then @setState discoverPage: 'featured'
+            if not isDiscover then @setState discoverPage: 'featured', settings: false
           }>
             <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-eye.png')} />
           </TouchableOpacity>
-          <TouchableOpacity style={padding: 10} onPress={@props.onLogout}>
+          <TouchableOpacity style={padding: 10} onPress={=> @setState settings: true}>
             <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-user.png')} />
           </TouchableOpacity>
         </View>
