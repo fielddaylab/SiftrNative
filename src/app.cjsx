@@ -488,14 +488,14 @@ makeBrowser = (getGames) ->
     render: ->
       <BrowserList auth={@props.auth} games={@state.games} onSelect={@props.onSelect} onInfo={@props.onInfo} cardMode={@props.cardMode} />
 
-BrowserSearch = makeBrowser (props, cb) =>
+BrowserSearch = makeBrowser (props, cb) ->
   if props.search is ''
     cb []
   else
     props.auth.searchSiftrs
       search: props.search
       count: 10
-    , withSuccess (games) =>
+    , withSuccess (games) ->
       cb games
 
 BrowserSearchPane = React.createClass
@@ -520,39 +520,44 @@ BrowserSearchPane = React.createClass
       <BrowserSearch auth={@props.auth} onSelect={@props.onSelect} onInfo={@props.onInfo} search={@state.search} />
     </View>
 
-BrowserMine = makeBrowser (props, cb) =>
+BrowserMine = makeBrowser (props, cb) ->
   cb props.mine
 
-BrowserFollowed = makeBrowser (props, cb) =>
+BrowserFollowed = makeBrowser (props, cb) ->
   cb props.followed
 
-BrowserDownloaded = makeBrowser (props, cb) =>
+BrowserDownloaded = makeBrowser (props, cb) ->
   siftrsDir = "#{RNFS.DocumentDirectoryPath}/siftrs"
-  RNFS.exists(siftrsDir).then (dirExists) =>
+  RNFS.exists(siftrsDir).then (dirExists) ->
     if dirExists
-      RNFS.readDir(siftrsDir).then (files) =>
+      RNFS.readDir(siftrsDir).then (files) ->
         proms = for f in files
           game_id = parseInt f.name
           continue unless game_id and f.isDirectory()
           RNFS.readFile "#{siftrsDir}/#{game_id}/game.txt"
-        Promise.all(proms).then (games) =>
+        Promise.all(proms).then (games) ->
           cb( deserializeGame(JSON.parse game) for game in games )
     else
       cb []
 
-BrowserFeatured = makeBrowser (props, cb) =>
-  props.auth.getStaffPicks {}, withSuccess (games) =>
+BrowserFeatured = makeBrowser (props, cb) ->
+  props.auth.getStaffPicks {}, withSuccess (games) ->
     cb(game for game in games when game.is_siftr)
 
-BrowserPopular = makeBrowser (props, cb) =>
+BrowserPopular = makeBrowser (props, cb) ->
   props.auth.searchSiftrs
     count: 20 # TODO infinite scroll
     offset: 0
     order_by: 'popular'
   , withSuccess cb
 
-BrowserNearMe = makeBrowser (props, cb) =>
-  cb null
+BrowserNearMe = makeBrowser (props, cb) ->
+  navigator.geolocation.getCurrentPosition (res) ->
+    props.auth.getNearbyGamesForPlayer
+      latitude: res.coords.latitude
+      longitude: res.coords.longitude
+      filter: 'siftr'
+    , withSuccess cb
 
 NativeHome = React.createClass
   getInitialState: ->
