@@ -269,30 +269,39 @@ class Auth
       req.send jsonString
     req
 
+  useLoginResult: (obj, logoutOnFail, cb = (->)) ->
+    {data: json, returnCode} = obj
+    if returnCode is 0 and json.user_id isnt null
+      auth = new Auth json
+      # @ifdef NATIVE
+      AsyncStorage.setItem 'aris-auth', JSON.stringify(auth.authToken), => cb auth
+      # @endif
+      # @ifdef WEB
+      try
+        window.localStorage['aris-auth'] = JSON.stringify auth.authToken
+      catch err
+        # Private mode in iOS Safari disables local storage.
+        # just don't bother remembering the auth.
+        null
+      cb auth
+      # @endif
+    else if logoutOnFail
+      @logout (auth) =>
+        cb auth, obj
+
   login: (username, password, cb = (->)) ->
     @call 'users.logIn',
       user_name: username
       password: password
       permission: 'read_write'
-    , (obj) =>
-      {data: json, returnCode} = obj
-      if returnCode is 0 and json.user_id isnt null
-        auth = new Auth json
-        # @ifdef NATIVE
-        AsyncStorage.setItem 'aris-auth', JSON.stringify(auth.authToken), => cb auth
-        # @endif
-        # @ifdef WEB
-        try
-          window.localStorage['aris-auth'] = JSON.stringify auth.authToken
-        catch err
-          # Private mode in iOS Safari disables local storage.
-          # just don't bother remembering the auth.
-          null
-        cb auth
-        # @endif
-      else
-        @logout (auth) =>
-          cb auth, obj
+    , (obj) => @useLoginResult obj, true, cb
+
+  changePassword: ({username, oldPassword, newPassword}, cb = (->)) ->
+    @call 'users.changePassword',
+      user_name: username
+      old_password: oldPassword
+      new_password: newPassword
+    , (obj) => @useLoginResult obj, false, cb
 
   logout: (cb = (->)) ->
     # @ifdef NATIVE

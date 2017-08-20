@@ -559,6 +559,143 @@ BrowserNearMe = makeBrowser (props, cb) ->
       filter: 'siftr'
     , withSuccess cb
 
+NativePassword = React.createClass
+  getDefaultProps: ->
+    onClose: (->)
+    onChangePassword: (->)
+
+  render: ->
+    <View style={
+      flexDirection: 'column'
+      flex: 1
+      backgroundColor: 'white'
+    }>
+      <StatusSpace />
+      <View style={
+        flexDirection: 'row'
+        justifyContent: 'space-between'
+        alignItems: 'center'
+      }>
+        <TouchableOpacity style={padding: 10} onPress={@props.onClose}>
+          <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-back.png')} />
+        </TouchableOpacity>
+        <Text>Change Password</Text>
+        <View style={width: 50} />
+      </View>
+      <ScrollView style={flex: 1}>
+        <View style={styles.settingsHeader}>
+          <Text style={styles.settingsHeaderText}>Current password</Text>
+        </View>
+        <TextInput
+          placeholder="Current password"
+          secureTextEntry={true}
+          style={styles.input}
+          autoCapitalize="none"
+          autoCorrect={false}
+          onChangeText={(str) => @oldPassword = str}
+        />
+        <View style={styles.settingsHeader}>
+          <Text style={styles.settingsHeaderText}>New password</Text>
+        </View>
+        <TextInput
+          placeholder="New password"
+          secureTextEntry={true}
+          style={styles.input}
+          autoCapitalize="none"
+          autoCorrect={false}
+          onChangeText={(str) => @newPassword1 = str}
+        />
+        <View style={styles.settingsHeader}>
+          <Text style={styles.settingsHeaderText}>New password, once more</Text>
+        </View>
+        <TextInput
+          placeholder="New password, once more"
+          secureTextEntry={true}
+          style={styles.input}
+          autoCapitalize="none"
+          autoCorrect={false}
+          onChangeText={(str) => @newPassword2 = str}
+        />
+        <TouchableOpacity style={styles.settingsButton} onPress={=>
+          if @newPassword1 is @newPassword2
+            @props.onChangePassword
+              username: @props.auth.authToken.username
+              oldPassword: @oldPassword
+              newPassword: @newPassword1
+            , (changed) =>
+              if changed
+                @props.onClose()
+              else
+                console.warn 'did not change'
+        }>
+          <Text>Save</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </View>
+
+NativeSettings = React.createClass
+  getInitialState: ->
+    setting: null
+
+  getDefaultProps: ->
+    onLogout: (->)
+    onClose: (->)
+    onChangePassword: (->)
+
+  render: ->
+    switch @state.setting
+      when 'password'
+        <NativePassword
+          onClose={=> @setState setting: null}
+          auth={@props.auth}
+          onChangePassword={@props.onChangePassword}
+        />
+      else
+        <View style={
+          flexDirection: 'column'
+          flex: 1
+          backgroundColor: 'white'
+        }>
+          <StatusSpace />
+          <View style={
+            flexDirection: 'row'
+            justifyContent: 'space-between'
+            alignItems: 'center'
+          }>
+            <TouchableOpacity style={padding: 10} onPress={@props.onClose}>
+              <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-back.png')} />
+            </TouchableOpacity>
+            <Text>Settings</Text>
+            <View style={width: 50} />
+          </View>
+          <ScrollView style={flex: 1}>
+            <View style={styles.settingsHeader}>
+              <Text style={styles.settingsHeaderText}>Account</Text>
+            </View>
+            <TouchableOpacity style={styles.settingsButton}>
+              <Text>Edit Profile</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.settingsButton} onPress={=> @setState setting: 'password'}>
+              <Text>Change Password</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.settingsButton} onPress={@props.onLogout}>
+              <Text>Logout</Text>
+            </TouchableOpacity>
+            <View style={styles.settingsHeader}>
+              <Text style={styles.settingsHeaderText}>About</Text>
+            </View>
+            <TouchableOpacity style={styles.settingsButton}>
+              <Text>Terms</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.settingsButton}>
+              <Text>Open Source</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.settingsButton}>
+              <Text>Privacy Policy</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+
 NativeHome = React.createClass
   getInitialState: ->
     discoverPage: 'mine'
@@ -573,6 +710,7 @@ NativeHome = React.createClass
     followed: null
     followGame: (->)
     unfollowGame: (->)
+    onChangePassword: (->)
 
   render: ->
     isHome     = @state.discoverPage in ['mine', 'followed', 'downloaded'         ] and not @state.settings
@@ -594,26 +732,21 @@ NativeHome = React.createClass
       followGame={=> @props.followGame @state.viewingGameInfo}
       unfollowGame={=> @props.unfollowGame @state.viewingGameInfo}
     >
-      <View style={
-        flexDirection: 'column'
-        flex: 1
-        backgroundColor: 'white'
-      }>
-        <StatusSpace />
-        {
-          if @state.settings
-            <View style={
-              flexDirection: 'row'
-              justifyContent: 'space-between'
-              alignItems: 'center'
-            }>
-              <TouchableOpacity style={padding: 10} onPress={=> @setState settings: false}>
-                <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-back.png')} />
-              </TouchableOpacity>
-              <Text>Settings</Text>
-              <View style={width: 50} />
-            </View>
-          else
+      {
+        if @state.settings
+          <NativeSettings
+            onClose={=> @setState settings: false}
+            onLogout={@props.onLogout}
+            auth={@props.auth}
+            onChangePassword={@props.onChangePassword}
+          />
+        else
+          <View style={
+            flexDirection: 'column'
+            flex: 1
+            backgroundColor: 'white'
+          }>
+            <StatusSpace />
             <View style={
               flexDirection: 'row'
               justifyContent: 'space-between'
@@ -642,88 +775,56 @@ NativeHome = React.createClass
                 } />
               </TouchableOpacity>
             </View>
-        }
-        {
-          if @state.settings
-            undefined
-          else if isHome
-            <View style={flexDirection: 'row'}>
-              <TouchableOpacity key={1} onPress={=> @setState discoverPage: 'mine'} style={
-                if @state.discoverPage is 'mine' then styles.exploreTabOn else styles.exploreTabOff
-              }>
-                <Text style={
-                  color: if @state.discoverPage is 'mine' then 'black' else '#B8B8B8'
-                }>Mine</Text>
-              </TouchableOpacity>
-              <TouchableOpacity key={2} onPress={=> @setState discoverPage: 'followed'} style={
-                if @state.discoverPage is 'followed' then styles.exploreTabOn else styles.exploreTabOff
-              }>
-                <Text style={
-                  color: if @state.discoverPage is 'followed' then 'black' else '#B8B8B8'
-                }>Followed</Text>
-              </TouchableOpacity>
-              <TouchableOpacity key={3} onPress={=> @setState discoverPage: 'downloaded'} style={
-                if @state.discoverPage is 'downloaded' then styles.exploreTabOn else styles.exploreTabOff
-              }>
-                <Text style={
-                  color: if @state.discoverPage is 'downloaded' then 'black' else '#B8B8B8'
-                }>Downloaded</Text>
-              </TouchableOpacity>
-            </View>
-          else
-            <View style={flexDirection: 'row'}>
-              <TouchableOpacity onPress={=> @setState discoverPage: 'featured'} style={
-                if @state.discoverPage is 'featured' then styles.exploreTabOn else styles.exploreTabOff
-              }>
-                <Text style={
-                  color: if @state.discoverPage is 'featured' then 'black' else '#B8B8B8'
-                }>Featured</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={=> @setState discoverPage: 'popular'} style={
-                if @state.discoverPage is 'popular' then styles.exploreTabOn else styles.exploreTabOff
-              }>
-                <Text style={
-                  color: if @state.discoverPage is 'popular' then 'black' else '#B8B8B8'
-                }>Popular</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={=> @setState discoverPage: 'nearme'} style={
-                if @state.discoverPage is 'nearme' then styles.exploreTabOn else styles.exploreTabOff
-              }>
-                <Text style={
-                  color: if @state.discoverPage is 'nearme' then 'black' else '#B8B8B8'
-                }>Near Me</Text>
-              </TouchableOpacity>
-            </View>
-        }
-        {
-          if @state.settings
-            <ScrollView style={flex: 1}>
-              <View style={styles.settingsHeader}>
-                <Text style={styles.settingsHeaderText}>Account</Text>
-              </View>
-              <TouchableOpacity style={styles.settingsButton}>
-                <Text>Edit Profile</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.settingsButton}>
-                <Text>Change Password</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.settingsButton} onPress={@props.onLogout}>
-                <Text>Logout</Text>
-              </TouchableOpacity>
-              <View style={styles.settingsHeader}>
-                <Text style={styles.settingsHeaderText}>About</Text>
-              </View>
-              <TouchableOpacity style={styles.settingsButton}>
-                <Text>Terms</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.settingsButton}>
-                <Text>Open Source</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.settingsButton}>
-                <Text>Privacy Policy</Text>
-              </TouchableOpacity>
-            </ScrollView>
-          else
+            {
+              if isHome
+                <View style={flexDirection: 'row'}>
+                  <TouchableOpacity key={1} onPress={=> @setState discoverPage: 'mine'} style={
+                    if @state.discoverPage is 'mine' then styles.exploreTabOn else styles.exploreTabOff
+                  }>
+                    <Text style={
+                      color: if @state.discoverPage is 'mine' then 'black' else '#B8B8B8'
+                    }>Mine</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity key={2} onPress={=> @setState discoverPage: 'followed'} style={
+                    if @state.discoverPage is 'followed' then styles.exploreTabOn else styles.exploreTabOff
+                  }>
+                    <Text style={
+                      color: if @state.discoverPage is 'followed' then 'black' else '#B8B8B8'
+                    }>Followed</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity key={3} onPress={=> @setState discoverPage: 'downloaded'} style={
+                    if @state.discoverPage is 'downloaded' then styles.exploreTabOn else styles.exploreTabOff
+                  }>
+                    <Text style={
+                      color: if @state.discoverPage is 'downloaded' then 'black' else '#B8B8B8'
+                    }>Downloaded</Text>
+                  </TouchableOpacity>
+                </View>
+              else
+                <View style={flexDirection: 'row'}>
+                  <TouchableOpacity onPress={=> @setState discoverPage: 'featured'} style={
+                    if @state.discoverPage is 'featured' then styles.exploreTabOn else styles.exploreTabOff
+                  }>
+                    <Text style={
+                      color: if @state.discoverPage is 'featured' then 'black' else '#B8B8B8'
+                    }>Featured</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={=> @setState discoverPage: 'popular'} style={
+                    if @state.discoverPage is 'popular' then styles.exploreTabOn else styles.exploreTabOff
+                  }>
+                    <Text style={
+                      color: if @state.discoverPage is 'popular' then 'black' else '#B8B8B8'
+                    }>Popular</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={=> @setState discoverPage: 'nearme'} style={
+                    if @state.discoverPage is 'nearme' then styles.exploreTabOn else styles.exploreTabOff
+                  }>
+                    <Text style={
+                      color: if @state.discoverPage is 'nearme' then 'black' else '#B8B8B8'
+                    }>Near Me</Text>
+                  </TouchableOpacity>
+                </View>
+            }
             <CurrentBrowser
               auth={@props.auth}
               onSelect={@props.onSelect}
@@ -732,27 +833,27 @@ NativeHome = React.createClass
               mine={@props.mine}
               followed={@props.followed}
             />
-        }
-        <View style={
-          flexDirection: 'row'
-          justifyContent: 'space-between'
-          alignItems: 'center'
-        }>
-          <TouchableOpacity style={padding: 10} onPress={=>
-            if not isHome then @setState discoverPage: 'mine', settings: false
-          }>
-            <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-home.png')} />
-          </TouchableOpacity>
-          <TouchableOpacity style={padding: 10} onPress={=>
-            if not isDiscover then @setState discoverPage: 'featured', settings: false
-          }>
-            <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-eye.png')} />
-          </TouchableOpacity>
-          <TouchableOpacity style={padding: 10} onPress={=> @setState settings: true}>
-            <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-user.png')} />
-          </TouchableOpacity>
-        </View>
-      </View>
+            <View style={
+              flexDirection: 'row'
+              justifyContent: 'space-between'
+              alignItems: 'center'
+            }>
+              <TouchableOpacity style={padding: 10} onPress={=>
+                if not isHome then @setState discoverPage: 'mine', settings: false
+              }>
+                <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-home.png')} />
+              </TouchableOpacity>
+              <TouchableOpacity style={padding: 10} onPress={=>
+                if not isDiscover then @setState discoverPage: 'featured', settings: false
+              }>
+                <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-eye.png')} />
+              </TouchableOpacity>
+              <TouchableOpacity style={padding: 10} onPress={=> @setState settings: true}>
+                <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-user.png')} />
+              </TouchableOpacity>
+            </View>
+          </View>
+      }
     </SiftrInfo>
 # @endif
 
@@ -858,6 +959,17 @@ SiftrNative = React.createClass
   gameBelongsToUser: (game) ->
     @state.games?.some (userGame) => userGame.game_id is game.game_id
 
+  changePassword: (args, cb) ->
+    if @state.online
+      (@state.auth ? new Auth).changePassword args, (newAuth, err) =>
+        if newAuth.authToken
+          @setState auth: newAuth
+          cb true
+        else
+          cb false
+    else
+      cb false
+
   # @ifdef NATIVE
   render: ->
     if @state.auth?
@@ -888,6 +1000,7 @@ SiftrNative = React.createClass
                 followed={@state.followed}
                 followGame={@followGame}
                 unfollowGame={@unfollowGame}
+                onChangePassword={@changePassword}
               />
           else
             <NativeLogin onLogin={@login} />
