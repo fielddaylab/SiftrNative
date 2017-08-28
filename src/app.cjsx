@@ -29,7 +29,9 @@ RNFS = require 'react-native-fs'
 } = require './aris'
 
 {SiftrView, SiftrInfo} = require './siftr-view'
+# @ifdef WEB
 {GameList, SiftrURL} = require './siftr-browser'
+# @endif
 
 {clicker, withSuccess, DIV, P, BUTTON} = require './utils'
 

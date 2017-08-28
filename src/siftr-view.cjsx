@@ -360,7 +360,7 @@ SiftrView = React.createClass
       return 'white'
     @state.colors["tag_#{@state.tags.indexOf(tag) % 8 + 1}"] ? 'white'
 
-  commonSearchParams: (auth) ->
+  commonSearchParams: (auth = @props.auth) ->
     game_id: @props.game.game_id
     min_latitude: @state.bounds.se.lat
     max_latitude: @state.bounds.nw.lat
@@ -406,7 +406,7 @@ SiftrView = React.createClass
     return if @loading or @state.loadedAll or not currentNotes?
     @loading = true
     @lastResultsXHR?.abort()
-    params = update @commonSearchParams(auth),
+    params = update @commonSearchParams(),
       offset: $set: currentNotes.length
       map_data: $set: false
       limit: $set: 50
