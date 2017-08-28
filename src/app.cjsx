@@ -628,7 +628,82 @@ NativePassword = React.createClass
               if changed
                 @props.onClose()
               else
-                console.warn 'did not change'
+                console.warn 'could not change password'
+        }>
+          <Text>Save</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </View>
+
+NativeProfile = React.createClass
+  getDefaultProps: ->
+    onClose: (->)
+    onEditProfile: (->)
+
+  getInitialState: ->
+    display_name: @props.auth.authToken.display_name
+    website: ''
+    bio: ''
+
+  render: ->
+    <View style={
+      flexDirection: 'column'
+      flex: 1
+      backgroundColor: 'white'
+    }>
+      <StatusSpace />
+      <View style={
+        flexDirection: 'row'
+        justifyContent: 'space-between'
+        alignItems: 'center'
+      }>
+        <TouchableOpacity style={padding: 10} onPress={@props.onClose}>
+          <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-back.png')} />
+        </TouchableOpacity>
+        <Text>Edit Profile</Text>
+        <View style={width: 50} />
+      </View>
+      <ScrollView style={flex: 1}>
+        <TextInput
+          placeholder="Username"
+          style={styles.input}
+          value={@props.auth.authToken.username}
+          editable={false}
+        />
+        <TextInput
+          placeholder="Display name"
+          style={styles.input}
+          autoCapitalize="words"
+          autoCorrect={false}
+          onChangeText={(str) => @setState display_name: str}
+          value={@state.display_name}
+        />
+        <TextInput
+          placeholder="Website"
+          style={styles.input}
+          autoCapitalize="none"
+          autoCorrect={false}
+          onChangeText={(str) => @setState website: str}
+          value={@state.website}
+        />
+        <TextInput
+          placeholder="Bio"
+          style={styles.input}
+          autoCapitalize="sentences"
+          autoCorrect={true}
+          onChangeText={(str) => @setState bio: str}
+          value={@state.bio}
+        />
+        <TouchableOpacity style={styles.settingsButton} onPress={=>
+          @props.onEditProfile
+            display_name: @state.display_name
+            website: @state.website
+            bio: @state.bio
+          , (changed) =>
+            if changed
+              @props.onClose()
+            else
+              console.warn 'could not save profile'
         }>
           <Text>Save</Text>
         </TouchableOpacity>
@@ -643,9 +718,16 @@ NativeSettings = React.createClass
     onLogout: (->)
     onClose: (->)
     onChangePassword: (->)
+    onEditProfile: (->)
 
   render: ->
     switch @state.setting
+      when 'profile'
+        <NativeProfile
+          onClose={=> @setState setting: null}
+          auth={@props.auth}
+          onEditProfile={@props.onEditProfile}
+        />
       when 'password'
         <NativePassword
           onClose={=> @setState setting: null}
@@ -674,7 +756,7 @@ NativeSettings = React.createClass
             <View style={styles.settingsHeader}>
               <Text style={styles.settingsHeaderText}>Account</Text>
             </View>
-            <TouchableOpacity style={styles.settingsButton}>
+            <TouchableOpacity style={styles.settingsButton} onPress={=> @setState setting: 'profile'}>
               <Text>Edit Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.settingsButton} onPress={=> @setState setting: 'password'}>
@@ -713,6 +795,7 @@ NativeHome = React.createClass
     followGame: (->)
     unfollowGame: (->)
     onChangePassword: (->)
+    onEditProfile: (->)
 
   render: ->
     isHome     = @state.discoverPage in ['mine', 'followed', 'downloaded'         ] and not @state.settings
@@ -741,6 +824,7 @@ NativeHome = React.createClass
             onLogout={@props.onLogout}
             auth={@props.auth}
             onChangePassword={@props.onChangePassword}
+            onEditProfile={@props.onEditProfile}
           />
         else
           <View style={
@@ -972,6 +1056,17 @@ SiftrNative = React.createClass
     else
       cb false
 
+  editProfile: (args, cb) ->
+    if @state.online
+      (@state.auth ? new Auth).editProfile args, (newAuth, err) =>
+        if newAuth.authToken
+          @setState auth: newAuth
+          cb true
+        else
+          cb false
+    else
+      cb false
+
   # @ifdef NATIVE
   render: ->
     if @state.auth?
@@ -1003,6 +1098,7 @@ SiftrNative = React.createClass
                 followGame={@followGame}
                 unfollowGame={@unfollowGame}
                 onChangePassword={@changePassword}
+                onEditProfile={@editProfile}
               />
           else
             <NativeLogin onLogin={@login} />

@@ -30,11 +30,13 @@ export const P = Text;
 export const DIV = View;
 export const UL = View;
 export const LI = View;
-export const BUTTON = React.createClass
+export const BUTTON = React.createClass({
   render() {
     return <TouchableOpacity onPress={this.props.onClick}>
       {this.props.children}
     </TouchableOpacity>;
+  },
+});
 // @endif
 // @ifdef WEB
 export const P = 'p';

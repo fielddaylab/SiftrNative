@@ -303,6 +303,11 @@ class Auth
       new_password: newPassword
     , (obj) => @useLoginResult obj, false, cb
 
+  editProfile: ({display_name}, cb = (->)) ->
+    @call 'users.updateUser',
+      display_name: display_name
+    , (obj) => @useLoginResult obj, false, cb
+
   logout: (cb = (->)) ->
     # @ifdef NATIVE
     AsyncStorage.removeItem 'aris-auth', => cb(new Auth)
