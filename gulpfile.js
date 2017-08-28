@@ -38,7 +38,21 @@ gulp.task('cjsx-web', ['pre-web', 'pre-web-js'], function() {
 });
 gulp.task('webpack', ['cjsx-web'], function() {
   return gulp.src('src-web/web.js')
-    .pipe(webpack({output: {filename: 'dist.js'}}))
+    .pipe(webpack({
+      output: {filename: 'dist.js'},
+      module: {
+        loaders: [
+          {
+            test: /.jsx?$/,
+            loader: 'babel-loader',
+            exclude: /node_modules/,
+            query: {
+              presets: ['es2015', 'react']
+            }
+          }
+        ]
+      }
+    }))
     .pipe(gulp.dest('web/'));
 });
 

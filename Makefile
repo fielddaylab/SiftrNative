@@ -1,6 +1,7 @@
 .PHONY: default first-time deploy-beta
 
 default:
+	rm -f src-*/*
 	yarn
 	gulp
 
