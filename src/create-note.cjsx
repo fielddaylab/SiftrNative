@@ -6,9 +6,7 @@ T = React.PropTypes
 EXIF = require 'exif-js'
 
 # @ifdef NATIVE
-ImagePicker = require 'react-native-image-picker'
-{ Platform
-, Image
+{ Image
 , View
 , TextInput
 , Picker
@@ -25,6 +23,7 @@ ImagePicker = require 'react-native-image-picker'
 
 {Auth, Game, Tag, Field, FieldData} = require './aris'
 {clicker, withSuccess, P, BUTTON, DIV} = require './utils'
+Photos = require './photos'
 
 # Step 1: Upload
 CreateStep1 = React.createClass
@@ -46,6 +45,18 @@ CreateStep1 = React.createClass
     progress: null
     file: null # file that has EXIF tags already loaded
 
+  beginUpload: ->
+    # @ifdef NATIVE
+    if not @props.online
+      @props.onStoreMedia
+        file: @state.file
+      return
+    # @endif
+    file = @state.file
+    return unless file?
+    updateProgress = (n) => @setState progress: n
+    Photos.uploadImage file, @props.auth, @props.game, updateProgress, @props.onCreateMedia
+
   # @ifdef NATIVE
   componentWillMount: ->
     @hardwareBack = =>
@@ -56,61 +67,8 @@ CreateStep1 = React.createClass
   componentWillUnmount: ->
     BackAndroid.removeEventListener 'hardwareBackPress', @hardwareBack
 
-  beginUpload: ->
-    if @props.online
-      file = @state.file
-      return unless file?
-      @setState progress: 0
-      updateProgress = (n) => @setState progress: n
-      @props.auth.rawUpload file, updateProgress, withSuccess (raw_upload_id) =>
-        @props.auth.call 'media.createMediaFromRawUpload',
-          file_name: file.name
-          raw_upload_id: raw_upload_id
-          game_id: @props.game.game_id
-          resize: 800
-        , withSuccess (media) => @props.onCreateMedia
-          media: media
-          exif: {} # EXIF.getAllTags file
-    else
-      @props.onStoreMedia
-        file: @state.file
-
   chooseImage: ->
-    ImagePicker.showImagePicker
-      mediaType: 'photo'
-      noData: true
-      storageOptions:
-        cameraRoll: true
-    , (result) =>
-      return if result.didCancel
-      unless result?.uri?
-        console.warn JSON.stringify result
-        return
-      if result.fileName? and result.type?
-        # android (rest are ios)
-        mime = result.type
-        name = result.fileName
-      else if result.uri.match(/\.jpe?g$/i)
-        mime = 'image/jpeg'
-        name = 'upload.jpg'
-      else if result.uri.match(/\.png$/i)
-        mime = 'image/png'
-        name = 'upload.png'
-      else if result.uri.match(/\.gif$/i)
-        mime = 'image/gif'
-        name = 'upload.gif'
-      else
-        console.warn JSON.stringify result
-        return
-      @setState file:
-        uri:
-          if Platform.OS is 'ios'
-            result.uri.replace('file://', '')
-          else
-            result.uri
-        isStatic: true
-        type: mime
-        name: name
+    Photos.requestImage (file) => @setState {file}
 
   render: ->
     if @state.progress?
@@ -151,22 +109,6 @@ CreateStep1 = React.createClass
   # @endif
 
   # @ifdef WEB
-  beginUpload: ->
-    file = @state.file
-    return unless file?
-    name = file.name
-    ext = name[name.indexOf('.') + 1 ..]
-    @setState progress: 0
-    updateProgress = (n) => @setState progress: n
-    @props.auth.rawUpload file, updateProgress, withSuccess (raw_upload_id) =>
-      @props.auth.call 'media.createMediaFromRawUpload',
-        file_name: "upload.#{ext}"
-        raw_upload_id: raw_upload_id
-        game_id: @props.game.game_id
-        resize: 800
-      , withSuccess (media) => @props.onCreateMedia
-        media: media
-        exif: EXIF.getAllTags file
 
   getEXIF: ->
     file = (@refs.fileInput?.files ? [])[0]

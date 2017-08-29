@@ -5,6 +5,7 @@
 } = require 'react-native'
 # @endif
 update = require 'immutability-helper'
+Photos = require './photos'
 
 ARIS_URL = 'https://arisgames.org/server/'
 # ARIS_URL = 'http://localhost:10080/server/'
@@ -305,12 +306,19 @@ class Auth
       new_password: newPassword
     , (obj) => @useLoginResult obj, false, cb
 
-  editProfile: ({display_name, url, bio}, cb = (->)) ->
-    @call 'users.updateUser',
-      display_name: display_name
-      url: url
-      bio: bio
-    , (obj) => @useLoginResult obj, false, cb
+  editProfile: ({display_name, url, bio, newPicture}, updateProgress = (->), cb = (->)) ->
+    withMediaID = (media_id) =>
+      @call 'users.updateUser',
+        display_name: display_name
+        url: url
+        bio: bio
+        media_id: media_id
+      , (obj) => @useLoginResult obj, false, cb
+    if newPicture?
+      Photos.uploadImage newPicture, @, null, updateProgress, ({media}) =>
+        withMediaID media.media_id
+    else
+      withMediaID undefined
 
   logout: (cb = (->)) ->
     # @ifdef NATIVE

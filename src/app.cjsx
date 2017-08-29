@@ -29,6 +29,7 @@ RNFS = require 'react-native-fs'
 } = require './aris'
 
 {SiftrView, SiftrInfo} = require './siftr-view'
+Photos = require './photos'
 # @ifdef WEB
 {GameList, SiftrURL} = require './siftr-browser'
 # @endif
@@ -644,7 +645,9 @@ NativeProfile = React.createClass
     display_name: @props.auth.authToken.display_name
     url: @props.auth.url
     bio: @props.auth.bio
-    userPicture: null
+    currentPicture: null
+    newPicture: null
+    progress: null
 
   componentWillMount: ->
     @fetchPicture()
@@ -655,9 +658,10 @@ NativeProfile = React.createClass
       @props.auth.call 'media.getMedia',
         media_id: media_id
       , withSuccess (userMedia) =>
-        @setState userPicture: userMedia.url.replace('http://', 'https://')
+        @setState currentPicture:
+          uri: userMedia.url.replace('http://', 'https://')
     else
-      @setState userPicture: null
+      @setState currentPicture: null
 
   render: ->
     <View style={
@@ -683,9 +687,14 @@ NativeProfile = React.createClass
           justifyContent: 'center'
           paddingTop: 15
         }>
-          <TouchableOpacity onPress={=>}>
+          <TouchableOpacity onPress={=>
+            return if @state.progress?
+            Photos.requestImage (img) =>
+              if img?
+                @setState newPicture: img
+          }>
             <Image
-              source={uri: @state.userPicture ? undefined}
+              source={@state.newPicture ? @state.currentPicture}
               style={
                 height: 120
                 width: 120
@@ -711,6 +720,7 @@ NativeProfile = React.createClass
           autoCorrect={false}
           onChangeText={(str) => @setState display_name: str}
           value={@state.display_name}
+          editable={not @state.progress?}
         />
         <View style={styles.settingsHeader}>
           <Text style={styles.settingsHeaderText}>Website</Text>
@@ -722,6 +732,7 @@ NativeProfile = React.createClass
           autoCorrect={false}
           onChangeText={(str) => @setState url: str}
           value={@state.url}
+          editable={not @state.progress?}
         />
         <View style={styles.settingsHeader}>
           <Text style={styles.settingsHeaderText}>Bio</Text>
@@ -733,19 +744,31 @@ NativeProfile = React.createClass
           autoCorrect={true}
           onChangeText={(str) => @setState bio: str}
           value={@state.bio}
+          editable={not @state.progress?}
         />
         <TouchableOpacity style={styles.settingsButton} onPress={=>
+          return if @state.progress?
           @props.onEditProfile
             display_name: @state.display_name
             url: @state.url
             bio: @state.bio
+            newPicture: @state.newPicture
+          , (progress) =>
+            @setState {progress}
           , (changed) =>
             if changed
               @props.onClose()
             else
               console.warn 'could not save profile'
         }>
-          <Text>Save</Text>
+          <Text>
+            {
+              if @state.progress?
+                "Uploading photo… #{Math.floor(@state.progress * 100)}%"
+              else
+                "Save"
+            }
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -1096,9 +1119,9 @@ SiftrNative = React.createClass
     else
       cb false
 
-  editProfile: (args, cb) ->
+  editProfile: (args, progress, cb) ->
     if @state.online
-      (@state.auth ? new Auth).editProfile args, (newAuth, err) =>
+      (@state.auth ? new Auth).editProfile args, progress, (newAuth, err) =>
         if newAuth.authToken
           @setState auth: newAuth
           cb true
