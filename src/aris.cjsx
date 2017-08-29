@@ -196,6 +196,8 @@ class Auth
         email:        json.email
       else
         null
+    @bio = json?.bio
+    @url = json?.url
 
   rawUpload: (file, reportProgress, cb) ->
     req = new XMLHttpRequest
@@ -303,9 +305,11 @@ class Auth
       new_password: newPassword
     , (obj) => @useLoginResult obj, false, cb
 
-  editProfile: ({display_name}, cb = (->)) ->
+  editProfile: ({display_name, url, bio}, cb = (->)) ->
     @call 'users.updateUser',
       display_name: display_name
+      url: url
+      bio: bio
     , (obj) => @useLoginResult obj, false, cb
 
   logout: (cb = (->)) ->

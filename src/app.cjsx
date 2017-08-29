@@ -642,8 +642,22 @@ NativeProfile = React.createClass
 
   getInitialState: ->
     display_name: @props.auth.authToken.display_name
-    website: ''
-    bio: ''
+    url: @props.auth.url
+    bio: @props.auth.bio
+    userPicture: null
+
+  componentWillMount: ->
+    @fetchPicture()
+
+  fetchPicture: ->
+    media_id = @props.auth.authToken.media_id
+    if media_id?
+      @props.auth.call 'media.getMedia',
+        media_id: media_id
+      , withSuccess (userMedia) =>
+        @setState userPicture: userMedia.url.replace('http://', 'https://')
+    else
+      @setState userPicture: null
 
   render: ->
     <View style={
@@ -663,13 +677,33 @@ NativeProfile = React.createClass
         <Text>Edit Profile</Text>
         <View style={width: 50} />
       </View>
-      <ScrollView style={flex: 1}>
+      <ScrollView style={flex: 1} contentContainerStyle={alignItems: 'stretch'}>
+        <View style={
+          flexDirection: 'row'
+          justifyContent: 'center'
+          paddingTop: 15
+        }>
+          <TouchableOpacity onPress={=>}>
+            <Image
+              source={uri: @state.userPicture ? undefined}
+              style={
+                height: 120
+                width: 120
+                borderRadius: 60
+                backgroundColor: '#ddd'
+              }
+            />
+          </TouchableOpacity>
+        </View>
         <TextInput
           placeholder="Username"
           style={styles.input}
           value={@props.auth.authToken.username}
           editable={false}
         />
+        <View style={styles.settingsHeader}>
+          <Text style={styles.settingsHeaderText}>Display name</Text>
+        </View>
         <TextInput
           placeholder="Display name"
           style={styles.input}
@@ -678,14 +712,20 @@ NativeProfile = React.createClass
           onChangeText={(str) => @setState display_name: str}
           value={@state.display_name}
         />
+        <View style={styles.settingsHeader}>
+          <Text style={styles.settingsHeaderText}>Website</Text>
+        </View>
         <TextInput
           placeholder="Website"
           style={styles.input}
           autoCapitalize="none"
           autoCorrect={false}
-          onChangeText={(str) => @setState website: str}
-          value={@state.website}
+          onChangeText={(str) => @setState url: str}
+          value={@state.url}
         />
+        <View style={styles.settingsHeader}>
+          <Text style={styles.settingsHeaderText}>Bio</Text>
+        </View>
         <TextInput
           placeholder="Bio"
           style={styles.input}
@@ -697,7 +737,7 @@ NativeProfile = React.createClass
         <TouchableOpacity style={styles.settingsButton} onPress={=>
           @props.onEditProfile
             display_name: @state.display_name
-            website: @state.website
+            url: @state.url
             bio: @state.bio
           , (changed) =>
             if changed
