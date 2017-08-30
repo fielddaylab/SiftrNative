@@ -379,10 +379,18 @@ NativeCard = React.createClass
   componentWillUnmount: ->
     @isMounted = false
 
+  shouldComponentUpdate: (nextProps, nextState) ->
+    @props.cardMode isnt nextProps.cardMode or
+    @props.game isnt nextProps.game or
+    @state.authors isnt nextState.authors or
+    @state.photos isnt nextState.photos or
+    @state.contributors isnt nextState.contributors or
+    @state.posts isnt nextState.posts
+
   render: ->
     switch @props.cardMode
       when 'full'
-        <TouchableOpacity onPress={@props.onSelect} style={
+        <TouchableOpacity onPress={(args...) => @props.onSelect(args...)} style={
           backgroundColor: 'white'
           margin: 12
           marginBottom: 0
@@ -411,13 +419,13 @@ NativeCard = React.createClass
               <Text>{@state.contributors ? '…'} contributors</Text>
               <Text>{@state.posts ? '…'} posts</Text>
             </View>
-            <TouchableOpacity style={padding: 10} onPress={@props.onInfo}>
+            <TouchableOpacity style={padding: 10} onPress={(args...) => @props.onInfo(args...)}>
               <Image source={require('../web/assets/img/icon-4dots.png')} style={width: 38 * 0.7, height: 40 * 0.7, resizeMode: 'contain'} />
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
       when 'compact'
-        <TouchableOpacity onPress={@props.onSelect} style={
+        <TouchableOpacity onPress={(args...) => @props.onSelect(args...)} style={
           backgroundColor: 'white'
           margin: 12
           marginBottom: 0
@@ -428,7 +436,7 @@ NativeCard = React.createClass
               <Text>{@props.game.name}</Text>
               <Text>{@state.authors?.join(', ') ? '…'}</Text>
             </View>
-            <TouchableOpacity style={padding: 10} onPress={@props.onInfo}>
+            <TouchableOpacity style={padding: 10} onPress={(args...) => @props.onInfo(args...)}>
               <Image source={require('../web/assets/img/icon-4dots.png')} style={width: 38 * 0.7, height: 40 * 0.7, resizeMode: 'contain'} />
             </TouchableOpacity>
           </View>
@@ -439,6 +447,12 @@ BrowserList = React.createClass
     onSelect: (->)
     onInfo: (->)
     cardMode: 'full'
+
+  shouldComponentUpdate: (nextProps, nextState) ->
+    @props.games isnt nextProps.games or
+    @props.cardMode isnt nextProps.cardMode or
+    @props.auth isnt nextProps.auth
+    # onSelect and onInfo are function-wrapped
 
   render: ->
     if @props.games?
@@ -484,12 +498,24 @@ makeBrowser = (getGames) ->
         return unless thisSearch is @lastSearch
         @setState {games}
 
+    shouldComponentUpdate: (nextProps, nextState) ->
+      @props.auth isnt nextProps.auth or
+      @state.games isnt nextState.games or
+      @props.cardMode isnt nextProps.cardMode
+      # onSelect and onInfo are function-wrapped
+
     componentWillReceiveProps: (newProps) ->
       if not @props.auth? or ['auth', 'search', 'mine', 'followed'].some((x) => @props[x] isnt newProps[x])
         @updateGames newProps
 
     render: ->
-      <BrowserList auth={@props.auth} games={@state.games} onSelect={@props.onSelect} onInfo={@props.onInfo} cardMode={@props.cardMode} />
+      <BrowserList
+        auth={@props.auth}
+        games={@state.games}
+        onSelect={(args...) => @props.onSelect(args...)}
+        onInfo={(args...) => @props.onInfo(args...)}
+        cardMode={@props.cardMode}
+      />
 
 BrowserSearch = makeBrowser (props, cb) ->
   if props.search is ''
@@ -504,6 +530,11 @@ BrowserSearch = makeBrowser (props, cb) ->
 BrowserSearchPane = React.createClass
   getInitialState: ->
     search: ''
+
+  shouldComponentUpdate: (nextProps, nextState) ->
+    @props.auth isnt nextProps.auth or
+    @state.search isnt nextState.search
+    # onSelect and onInfo are function-wrapped
 
   render: ->
     <View style={flex: 1}>
@@ -520,7 +551,12 @@ BrowserSearchPane = React.createClass
         autoFocus={false}
         onChangeText={(search) => @setState search: search}
       />
-      <BrowserSearch auth={@props.auth} onSelect={@props.onSelect} onInfo={@props.onInfo} search={@state.search} />
+      <BrowserSearch
+        auth={@props.auth}
+        onSelect={(args...) => @props.onSelect(args...)}
+        onInfo={(args...) => @props.onInfo(args...)}
+        search={@state.search}
+      />
     </View>
 
 BrowserMine = makeBrowser (props, cb) ->

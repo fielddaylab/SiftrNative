@@ -55,10 +55,13 @@ MapCluster = React.createClass
     stops = []
     startRads = 0
     for tag_id, tag_count of @props.cluster.tags
-      endRads = startRads + (tag_count / @props.cluster.note_count) * 2 * Math.PI
       color = @props.getColor tag_id
-      stops.push [startRads, endRads, color]
-      startRads = endRads
+      if tag_count is @props.cluster.note_count
+        stops.push ['circle', 'circle', color]
+      else
+        endRads = startRads + (tag_count / @props.cluster.note_count) * 2 * Math.PI
+        stops.push [startRads, endRads, color]
+        startRads = endRads
     <MapView.Marker
       coordinate={
         latitude: @props.lat
@@ -67,21 +70,30 @@ MapCluster = React.createClass
       title="Cluster"
       description="Tap to see the notes inside."
       pinColor="black"
-      onCalloutPress={=> @props.onSelect @props.cluster}
+      onPress={=> @props.onSelect @props.cluster}
     >
       <Svg width={w + 1} height={w + 1}>
         {
           for [startRads, endRads, color], i in stops
-            x1 = Math.cos(startRads) * r + r
-            y1 = Math.sin(startRads) * r + r
-            x2 = Math.cos(endRads) * r + r
-            y2 = Math.sin(endRads) * r + r
-            large = if endRads - startRads >= Math.PI then 1 else 0
-            <Path
-              key={i}
-              d={"M#{r},#{r} L#{x1},#{y1} A#{r},#{r} 0 #{large},1 #{x2},#{y2} z"}
-              fill={color}
-            />
+            if startRads is 'circle'
+              <Circle
+                key={i}
+                cx={r}
+                cy={r}
+                r={r}
+                fill={color}
+              />
+            else
+              x1 = Math.cos(startRads) * r + r
+              y1 = Math.sin(startRads) * r + r
+              x2 = Math.cos(endRads) * r + r
+              y2 = Math.sin(endRads) * r + r
+              large = if endRads - startRads >= Math.PI then 1 else 0
+              <Path
+                key={i}
+                d={"M#{r},#{r} L#{x1},#{y1} A#{r},#{r} 0 #{large},1 #{x2},#{y2} z"}
+                fill={color}
+              />
         }
         <Circle
           cx={r}
@@ -99,6 +111,7 @@ MapCluster = React.createClass
           fontWeight="bold"
         >{@props.cluster.note_count}</SvgText>
       </Svg>
+      <MapView.Callout tooltip={true} />
     </MapView.Marker>
   # @endif
 
@@ -224,10 +237,10 @@ SiftrMap = React.createClass
     ]
     options =
       edgePadding:
-        top: 150
-        bottom: 150
-        left: 150
-        right: 150
+        top: 25
+        bottom: 25
+        left: 25
+        right: 25
       animated: true
     @refs.theMapView.fitToCoordinates coordinates, options
   # @endif
