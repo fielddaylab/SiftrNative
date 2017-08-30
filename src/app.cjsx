@@ -359,11 +359,12 @@ NativeCard = React.createClass
           author.display_name for author in authors
     @props.auth.searchNotes
       game_id: @props.game.game_id
+      order_by: 'recent'
     , withSuccess (notes) =>
       return unless @isMounted
       @setState
         photos:
-          for note in notes.slice(8)
+          for note in notes.slice(0, 8)
             continue unless note.thumb_url?
             url: note.thumb_url
             note_id: note.note_id
