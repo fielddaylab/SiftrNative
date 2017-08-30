@@ -47,7 +47,7 @@
 		</dict>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>Allows Siftr to show where you are on the map.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Upload your photos to Siftr.</string>
 	<key>UILaunchStoryboardName</key>

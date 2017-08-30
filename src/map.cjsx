@@ -363,6 +363,7 @@ SiftrMap = React.createClass
         longitudeDelta: @props.delta.lng
       }
       onRegionChangeComplete={@moveMapNative}
+      showsUserLocation={true}
     >
       {@renderClusters()}
       {@renderNotes()}

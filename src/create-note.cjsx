@@ -68,7 +68,7 @@ CreateStep1 = React.createClass
     BackAndroid.removeEventListener 'hardwareBackPress', @hardwareBack
 
   chooseImage: ->
-    Photos.requestImage (file) => @setState {file}
+    Photos.requestImage (file) => @setState {file} if file?
 
   render: ->
     if @state.progress?
