@@ -16,7 +16,7 @@ EXIF = require 'exif-js'
 , ScrollView
 , Switch
 , Linking
-, BackAndroid
+, BackHandler
 } = require 'react-native'
 {styles} = require './styles'
 # @endif
@@ -62,10 +62,10 @@ CreateStep1 = React.createClass
     @hardwareBack = =>
       @props.onCancel()
       true
-    BackAndroid.addEventListener 'hardwareBackPress', @hardwareBack
+    BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
 
   componentWillUnmount: ->
-    BackAndroid.removeEventListener 'hardwareBackPress', @hardwareBack
+    BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
 
   chooseImage: ->
     Photos.requestImage (file) => @setState {file} if file?
@@ -179,7 +179,7 @@ CreateStep2 = React.createClass
     @hardwareBack = =>
       @props.onBack()
       true
-    BackAndroid.addEventListener 'hardwareBackPress', @hardwareBack
+    BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
     # @endif
 
   doEnterCaption: ->
@@ -189,7 +189,7 @@ CreateStep2 = React.createClass
 
   # @ifdef NATIVE
   componentWillUnmount: ->
-    BackAndroid.removeEventListener 'hardwareBackPress', @hardwareBack
+    BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
 
   render: ->
     <View style={styles.overlayBottom}>
@@ -270,10 +270,10 @@ CreateStep3 = React.createClass
     @hardwareBack = =>
       @props.onBack()
       true
-    BackAndroid.addEventListener 'hardwareBackPress', @hardwareBack
+    BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
 
   componentWillUnmount: ->
-    BackAndroid.removeEventListener 'hardwareBackPress', @hardwareBack
+    BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
 
   render: ->
     <View style={styles.overlayBottom}>
@@ -343,10 +343,10 @@ CreateStep4 = React.createClass
     @hardwareBack = =>
       @props.onBack()
       true
-    BackAndroid.addEventListener 'hardwareBackPress', @hardwareBack
+    BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
 
   componentWillUnmount: ->
-    BackAndroid.removeEventListener 'hardwareBackPress', @hardwareBack
+    BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
 
   render: ->
     <View style={styles.overlayBottom}>
@@ -444,10 +444,10 @@ CreateStep5 = React.createClass
     @hardwareBack = =>
       @props.onBack()
       true
-    BackAndroid.addEventListener 'hardwareBackPress', @hardwareBack
+    BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
 
   componentWillUnmount: ->
-    BackAndroid.removeEventListener 'hardwareBackPress', @hardwareBack
+    BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
 
   render: ->
     <ScrollView contentContainerStyle={

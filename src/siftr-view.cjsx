@@ -10,7 +10,7 @@ update = require 'immutability-helper'
 , TextInput
 , TouchableOpacity
 , Image
-, BackAndroid
+, BackHandler
 , Modal
 , ScrollView
 } = require 'react-native'
@@ -18,7 +18,7 @@ RNFS = require 'react-native-fs'
 {styles} = require './styles'
 {StatusSpace} = require './status-space'
 {KeyboardAwareView} = require 'react-native-keyboard-aware-view'
-SideMenu = require 'react-native-side-menu'
+{default: SideMenu} = require 'react-native-side-menu'
 {default: Markdown} = require 'react-native-simple-markdown'
 # @endif
 
@@ -269,7 +269,7 @@ SiftrView = React.createClass
       else
         @props.onExit()
       true
-    BackAndroid.addEventListener 'hardwareBackPress', @hardwareBack
+    BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
     # @endif
     # @ifdef WEB
     @props.auth.getTagsForGame
@@ -294,7 +294,7 @@ SiftrView = React.createClass
     @isMounted = false
     clearInterval @nomenTimer
     # @ifdef NATIVE
-    BackAndroid.removeEventListener 'hardwareBackPress', @hardwareBack
+    BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
     # @endif
 
   componentWillReceiveProps: (nextProps) ->
@@ -362,10 +362,10 @@ SiftrView = React.createClass
 
   commonSearchParams: (auth = @props.auth) ->
     game_id: @props.game.game_id
-    min_latitude: @state.bounds.se.lat
-    max_latitude: @state.bounds.nw.lat
-    min_longitude: @state.bounds.nw.lng
-    max_longitude: @state.bounds.se.lng
+    min_latitude: @state.bounds?.se?.lat
+    max_latitude: @state.bounds?.nw?.lat
+    min_longitude: @state.bounds?.nw?.lng
+    max_longitude: @state.bounds?.se?.lng
     search: @state.searchParams.text ? ''
     order: @state.searchParams.sort ? 'recent'
     filter: if auth.authToken? and @state.searchParams.mine then 'mine' else undefined
@@ -375,6 +375,7 @@ SiftrView = React.createClass
     zoom:
       # @ifdef NATIVE
       do =>
+        return 1 unless @state.bounds?
         w = (@layout?.width  ? 400) * 2
         h = (@layout?.height ? 400) * 2
         fitBounds(@state.bounds, {width: w, height: h}).zoom

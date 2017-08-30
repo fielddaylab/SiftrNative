@@ -736,7 +736,7 @@ NativeProfile = React.createClass
                 height: 120
                 width: 120
                 borderRadius: 60
-                backgroundColor: '#ddd'
+                backgroundColor: 'rgba(0,0,0,0)'
               }
             />
           </TouchableOpacity>

@@ -18,10 +18,10 @@ T = React.PropTypes
 , Text
 , TouchableOpacity
 , Linking
-, BackAndroid
+, BackHandler
 } = require 'react-native'
 {default: FitImage} = require 'react-native-fit-image'
-Hyperlink = require 'react-native-hyperlink'
+{default: Hyperlink} = require 'react-native-hyperlink'
 {styles} = require './styles'
 # @endif
 
@@ -431,12 +431,12 @@ SiftrNoteView = React.createClass
     @hardwareBack = =>
       @props.onClose()
       true
-    BackAndroid.addEventListener 'hardwareBackPress', @hardwareBack
+    BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
     # @endif
 
   # @ifdef NATIVE
   componentWillUnmount: ->
-    BackAndroid.removeEventListener 'hardwareBackPress', @hardwareBack
+    BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
   # @endif
 
   componentWillReceiveProps: (nextProps) ->

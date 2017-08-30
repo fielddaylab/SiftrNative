@@ -3,6 +3,7 @@ package com.siftrnative;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.github.yamill.orientation.OrientationPackage;
 import com.rnfs.RNFSPackage;
 import com.horcrux.svg.SvgPackage;
 import com.facebook.react.ReactNativeHost;
@@ -11,7 +12,6 @@ import com.facebook.react.shell.MainReactPackage;
 
 import com.imagepicker.ImagePickerPackage;
 import com.airbnb.android.react.maps.MapsPackage;
-import com.github.yamill.orientation.OrientationPackage;
 import com.facebook.soloader.SoLoader;
 
 import java.util.Arrays;
@@ -29,11 +29,11 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-            new RNFSPackage(),
-            new SvgPackage(),
+          new OrientationPackage(),
+          new RNFSPackage(),
+          new SvgPackage(),
           new ImagePickerPackage(),
-          new MapsPackage(),
-          new OrientationPackage()
+          new MapsPackage()
       );
     }
   };
