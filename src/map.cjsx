@@ -337,6 +337,16 @@ SiftrMap = React.createClass
           lat: latitude - latitudeDelta
           lng: longitude + longitudeDelta
 
+  componentDidMount: ->
+    # this is a hack, because of a problem with react-native-maps.
+    # see https://github.com/airbnb/react-native-maps/issues/1577
+    @refs.theMapView.animateToRegion
+      latitude: @props.center.lat
+      longitude: @props.center.lng
+      latitudeDelta: @props.delta.lat
+      longitudeDelta: @props.delta.lng
+    , 1
+
   render: ->
     <MapView
       ref="theMapView"
