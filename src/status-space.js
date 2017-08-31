@@ -42,7 +42,7 @@ export class StatusSpace extends React.Component {
     return <View style={{
       flex: 0,
       height: (
-        (Platform.OS === 'ios' && this.state.orientation === 'PORTRAIT')
+        (Platform.OS === 'ios' && ['PORTRAIT', 'PORTRAITUPSIDEDOWN', 'UNKNOWN'].indexOf(this.state.orientation) !== -1)
         ? 20
         : undefined
       ),
