@@ -493,7 +493,13 @@ SiftrView = React.createClass
           pin.tag_id = @state.createNote.category.tag_id
           [pin]
         else if createStep3
-          []
+          pin = new Note
+          pin.note_id = 0
+          pin.latitude = @state.center.lat
+          pin.longitude = @state.center.lng
+          pin.description = @state.createNote.caption
+          pin.tag_id = @state.tags[0]
+          [pin]
         else
           @state.map_notes
       }
@@ -514,6 +520,7 @@ SiftrView = React.createClass
       colors={@state.colors}
       onSelectNote={@selectNote}
       key={1}
+      ref="theSiftrMap"
     />
 
   renderThumbnails: ->
@@ -529,9 +536,12 @@ SiftrView = React.createClass
 
   startLocatingNote: ({exif, center}) ->
     return unless @isMounted
+    goToCenter = (center) =>
+      @setState {center}
+      @refs.theSiftrMap?.moveToPoint center
     # first use provided center
     if center?
-      @setState center: center
+      goToCenter center
       return
     # then get location from exif
     lat = exif?.GPSLatitude
@@ -544,7 +554,7 @@ SiftrView = React.createClass
       lat *= -1 if exif.GPSLatitudeRef is 'S'
       lng = readGPS lng
       lng *= -1 if exif.GPSLongitudeRef is 'W'
-      @setState center: {lat, lng}
+      goToCenter {lat, lng}
       return
     # then, use game's location, but try to override from browser
     @setState
@@ -554,7 +564,7 @@ SiftrView = React.createClass
     , =>
       navigator.geolocation?.getCurrentPosition (posn) =>
         return unless @isMounted
-        @setState center:
+        goToCenter
           lat: posn.coords.latitude
           lng: posn.coords.longitude
 

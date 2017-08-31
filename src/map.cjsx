@@ -347,6 +347,14 @@ SiftrMap = React.createClass
       longitudeDelta: @props.delta.lng
     , 1
 
+  moveToPoint: (center) ->
+    @refs.theMapView.animateToRegion
+      latitude: center.lat
+      longitude: center.lng
+      latitudeDelta: @props.delta.lat
+      longitudeDelta: @props.delta.lng
+    , 500
+
   render: ->
     <MapView
       ref="theMapView"
