@@ -39,7 +39,7 @@ RNFS = require 'react-native-fs'
 {SiftrMap} = require './map'
 {SiftrThumbnails} = require './thumbnails'
 {SiftrNoteView} = require './note-view'
-{CreateStep1, CreateStep2, CreateStep3, CreateStep4, CreateStep5} = require './create-note'
+{CreateStep1, CreateStep2, CreateStep3, CreateStep4, CreateStep5, CreateData} = require './create-note'
 
 {clicker, withSuccess, DIV, P, BUTTON} = require './utils'
 
@@ -190,7 +190,9 @@ SiftrView = React.createClass
       lng: @props.game.longitude
     # @ifdef NATIVE
     delta: do =>
-      delta = 26 / (2 ** (@props.game.zoom - 4)) # more research needed, this is a hack
+      # more research needed, this is a hack
+      delta = 26 / (2 ** (@props.game.zoom - 4))
+      delta = Math.min(90, delta)
       lat: delta
       lng: delta
     # @endif
@@ -484,6 +486,7 @@ SiftrView = React.createClass
     createStep4 = @state.createNote?.location?
     <SiftrMap
       map_notes={
+        # @ifdef WEB
         if createStep4
           pin = new Note
           pin.note_id = 0
@@ -500,6 +503,17 @@ SiftrView = React.createClass
           pin.description = @state.createNote.caption
           pin.tag_id = @state.tags[0]
           [pin]
+        # @endif
+        # @ifdef NATIVE
+        if @state.createNote?.category?
+          pin = new Note
+          pin.note_id = 0
+          pin.latitude = @state.center.lat
+          pin.longitude = @state.center.lng
+          pin.description = @state.createNote.caption
+          pin.tag_id = @state.createNote.category.tag_id
+          [pin]
+        # @endif
         else
           @state.map_notes
       }
@@ -582,6 +596,45 @@ SiftrView = React.createClass
   renderCreateNote: ->
     unless @state.createNote?
       null
+    # @ifdef NATIVE
+    else unless @state.createNote.media? or @state.createNote.file?
+      <CreateStep1
+        auth={@props.auth}
+        game={@props.game}
+        onCancel={=> @setState createNote: null}
+        onCreateMedia={({media, exif}) => @setState createNote: {
+          media: media
+          exif: exif
+          caption: ''
+          location: @state.center
+          category: @state.tags[0]
+          field_data: []
+          online: true
+        }}
+        onStoreMedia={({file}) => @setState createNote: {
+          file: file
+          caption: ''
+          location: @state.center
+          category: @state.tags[0]
+          field_data: []
+          online: false
+        }}
+        online={@props.online}
+      />
+    else
+      <CreateData
+        createNote={@state.createNote}
+        onUpdateNote={(createNote) => @setState {createNote}}
+        onStartLocation={=> @startLocatingNote exif: @state.createNote.exif}
+        getLocation={=> @state.center}
+        categories={@state.tags ? []}
+        fields={@state.fields ? []}
+        onFinish={@finishNoteCreation}
+        onCancel={=> @setState createNote: null}
+        onBack={=> @setState createNote: {}}
+      />
+    # @endif
+    # @ifdef WEB
     else unless @state.createNote.media? or @state.createNote.file?
       <CreateStep1
         auth={@props.auth}
@@ -676,8 +729,9 @@ SiftrView = React.createClass
         fields={@state.fields}
         field_data={@state.createNote.field_data}
       />
+    # @endif
 
-  finishNoteCreation: (field_data) ->
+  finishNoteCreation: (field_data = @state.createNote?.field_data ? []) ->
     {media, file, online, caption, location, category} = @state.createNote
     createArgs =
       game_id: @props.game.game_id
