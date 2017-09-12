@@ -781,30 +781,33 @@ SiftrView = React.createClass
         unfollowGame={=> @props.unfollowGame @props.game}
       >
         <StatusSpace />
-        <View style={
-          flexDirection: 'row'
-          justifyContent: 'space-between'
-          alignItems: 'center'
-          backgroundColor: 'white'
-        }>
-          <TouchableOpacity style={padding: 10} onPress={
-            if @state.viewingNote?
-              => @setState viewingNote: null
-            else
-              @props.onExit
-          }>
-            <Image style={resizeMode: 'contain', height: 18} source={require('../web/assets/img/icon-back.png')} />
-          </TouchableOpacity>
-          <Text>{
-            if @state.viewingNote?
-              @state.viewingNote.user.display_name
-            else
-              @props.game.name
-          }</Text>
-          <TouchableOpacity style={padding: 10} onPress={=> @setState infoOpen: not @state.infoOpen}>
-            <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-4dots.png')} />
-          </TouchableOpacity>
-        </View>
+        {
+          unless @state.createNote?
+            <View style={
+              flexDirection: 'row'
+              justifyContent: 'space-between'
+              alignItems: 'center'
+              backgroundColor: 'white'
+            }>
+              <TouchableOpacity style={padding: 10} onPress={
+                if @state.viewingNote?
+                  => @setState viewingNote: null
+                else
+                  @props.onExit
+              }>
+                <Image style={resizeMode: 'contain', height: 18} source={require('../web/assets/img/icon-back.png')} />
+              </TouchableOpacity>
+              <Text>{
+                if @state.viewingNote?
+                  @state.viewingNote.user.display_name
+                else
+                  @props.game.name
+              }</Text>
+              <TouchableOpacity style={padding: 10} onPress={=> @setState infoOpen: not @state.infoOpen}>
+                <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-4dots.png')} />
+              </TouchableOpacity>
+            </View>
+        }
         <View style={
           flex: 1
         }>

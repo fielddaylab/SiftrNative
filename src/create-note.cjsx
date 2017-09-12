@@ -81,6 +81,17 @@ CreateStep1 = React.createClass
       </View>
     else
       <View style={styles.overlayWhole}>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity onPress={@props.onCancel}>
+            <Text style={styles.orangeViolaButton}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={@beginUpload}>
+            {
+              if @state.file?
+                <Text style={styles.blackViolaButton}>Next</Text>
+            }
+          </TouchableOpacity>
+        </View>
         <View style={
           flex: 1
           alignItems: 'center'
@@ -96,14 +107,6 @@ CreateStep1 = React.createClass
               else
                 <Image source={require '../web/assets/img/select-image.png'} />
             }
-          </TouchableOpacity>
-        </View>
-        <View style={styles.buttonRow}>
-          <TouchableOpacity onPress={@props.onCancel}>
-            <Text style={styles.grayButton}>CANCEL</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={@beginUpload}>
-            <Text style={styles.blueButton}>INFO {'>'}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -200,15 +203,13 @@ CreateStep2 = React.createClass
         alignItems: 'flex-start'
       }>
         <TextInput
-          placeholder="Enter a caption…"
+          placeholder="Add a description…"
           value={@state.text}
           onChangeText={(text) => @setState {text}}
           multiline={true}
           style={
             height: 150
             flex: 1
-            borderColor: '#222'
-            borderWidth: 1
             padding: 10
             fontSize: 16
           }
@@ -662,181 +663,178 @@ CreateData = React.createClass
         </View>
       </View>
     else
-      <ScrollView style={flex: 1, backgroundColor: 'white'} contentContainerStyle={
-        flexDirection: 'column'
-        alignItems: 'stretch'
-      }>
-        <View style={
-          margin: 10
+      <View style={flex: 1}>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity onPress={@props.onBack}>
+            <Text style={styles.blackViolaButton}>Back</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={=> @props.onFinish @props.onCreateNote}>
+            <Text style={styles.blackViolaButton}>Post</Text>
+          </TouchableOpacity>
+        </View>
+        <ScrollView style={flex: 1, backgroundColor: 'white'} contentContainerStyle={
           flexDirection: 'column'
           alignItems: 'stretch'
         }>
-          <TouchableOpacity onPress={@props.onCancel} style={alignSelf: 'flex-end'}>
-            <Image source={require '../web/assets/img/x-blue.png'} />
-          </TouchableOpacity>
-          <TextInput
-            placeholder="Enter a caption…"
-            value={@props.createNote.caption}
-            onChangeText={(text) =>
-              @props.onUpdateNote update @props.createNote,
-                caption: $set: text
-            }
-            multiline={true}
-            style={
-              height: 150
-              flex: 1
-              borderColor: '#222'
-              borderWidth: 1
-              padding: 10
-              fontSize: 16
-            }
-          />
-          <View style={styles.buttonRow}>
-            <TouchableOpacity onPress={=>
-              @setState isPickingLocation: true
-              @props.onStartLocation()
-            }>
-              <Text style={styles.blueButton}>Pick Location</Text>
-            </TouchableOpacity>
-          </View>
-          <Picker
-            selectedValue={(@props.createNote.category ? @props.categories[0]).tag_id}
-            onValueChange={(tag_id) =>
-              for category in @props.categories
-                if category.tag_id is tag_id
-                  @props.onUpdateNote update @props.createNote,
-                    category: $set: category
-                  break
-            }
-          >
-            {
-              @props.categories.map (category) =>
-                <Picker.Item label={category.tag} value={category.tag_id} key={category.tag_id} />
-            }
-          </Picker>
-          {
-            @props.fields.map (field) =>
-              <View key={field.field_id} style={alignSelf: 'stretch'}>
-                <Text>{ if field.field_type is 'NOMEN' then "Nomen #{field.label}" else field.label }</Text>
-                {
-                  field_data = @props.createNote.field_data ? []
-                  onChangeData = (newData) =>
+          <View style={
+            margin: 10
+            flexDirection: 'column'
+            alignItems: 'stretch'
+          }>
+            <TextInput
+              placeholder="Add a description…"
+              value={@props.createNote.caption}
+              onChangeText={(text) =>
+                @props.onUpdateNote update @props.createNote,
+                  caption: $set: text
+              }
+              multiline={true}
+              style={
+                height: 150
+                flex: 1
+                padding: 10
+                fontSize: 16
+              }
+            />
+            <View style={styles.buttonRow}>
+              <TouchableOpacity onPress={=>
+                @setState isPickingLocation: true
+                @props.onStartLocation()
+              }>
+                <Text style={styles.blueButton}>Pick Location</Text>
+              </TouchableOpacity>
+            </View>
+            <Picker
+              selectedValue={(@props.createNote.category ? @props.categories[0]).tag_id}
+              onValueChange={(tag_id) =>
+                for category in @props.categories
+                  if category.tag_id is tag_id
                     @props.onUpdateNote update @props.createNote,
-                      field_data:
-                        $set: newData
-                  getText = =>
-                    for data in field_data
-                      if data.field_id is field.field_id
-                        return data.field_data
-                  setText = (text) =>
-                    newData =
-                      data for data in field_data when data.field_id isnt field.field_id
-                    newData.push new FieldData {
-                      field_id: field.field_id
-                      field_data: text
-                    }
-                    onChangeData newData
-                  switch field.field_type
-                    when 'TEXT'
-                      <TextInput
-                        multiline={false}
-                        value={getText()}
-                        onChangeText={setText}
-                        style={
-                          height: 50
-                          borderColor: '#222'
-                          borderWidth: 1
-                          padding: 10
-                          fontSize: 16
-                          alignSelf: 'stretch'
-                        }
-                      />
-                    when 'TEXTAREA'
-                      <TextInput
-                        multiline={true}
-                        value={getText()}
-                        onChangeText={setText}
-                        style={
-                          height: 120
-                          borderColor: '#222'
-                          borderWidth: 1
-                          padding: 10
-                          fontSize: 16
-                          alignSelf: 'stretch'
-                        }
-                      />
-                    when 'SINGLESELECT'
-                      <Picker
-                        selectedValue={do =>
-                          for data in field_data
-                            if data.field_id is field.field_id
-                              return data.field_option_id
-                          field.options[0].field_option_id
-                        }
-                        onValueChange={(field_option_id) =>
-                          newData =
-                            data for data in field_data when data.field_id isnt field.field_id
-                          newData.push new FieldData {
-                            field_id: field.field_id
-                            field_option_id: field_option_id
+                      category: $set: category
+                    break
+              }
+            >
+              {
+                @props.categories.map (category) =>
+                  <Picker.Item label={category.tag} value={category.tag_id} key={category.tag_id} />
+              }
+            </Picker>
+            {
+              @props.fields.map (field) =>
+                <View key={field.field_id} style={alignSelf: 'stretch'}>
+                  <Text>{ if field.field_type is 'NOMEN' then "Nomen #{field.label}" else field.label }</Text>
+                  {
+                    field_data = @props.createNote.field_data ? []
+                    onChangeData = (newData) =>
+                      @props.onUpdateNote update @props.createNote,
+                        field_data:
+                          $set: newData
+                    getText = =>
+                      for data in field_data
+                        if data.field_id is field.field_id
+                          return data.field_data
+                    setText = (text) =>
+                      newData =
+                        data for data in field_data when data.field_id isnt field.field_id
+                      newData.push new FieldData {
+                        field_id: field.field_id
+                        field_data: text
+                      }
+                      onChangeData newData
+                    switch field.field_type
+                      when 'TEXT'
+                        <TextInput
+                          multiline={false}
+                          value={getText()}
+                          onChangeText={setText}
+                          style={
+                            height: 50
+                            borderColor: '#222'
+                            borderWidth: 1
+                            padding: 10
+                            fontSize: 16
+                            alignSelf: 'stretch'
                           }
-                          onChangeData newData
-                        }
-                      >
-                        {
-                          field.options.map (option) =>
-                            <Picker.Item label={option.option} value={option.field_option_id} key={option.field_option_id} />
-                        }
-                      </Picker>
-                    when 'MULTISELECT'
-                      field.options.map (option) =>
-                        <View style={flexDirection: 'row'} key={option.field_option_id}>
-                          <Switch
-                            value={field_data.some (data) =>
-                              data.field_id is field.field_id and data.field_option_id is option.field_option_id
+                        />
+                      when 'TEXTAREA'
+                        <TextInput
+                          multiline={true}
+                          value={getText()}
+                          onChangeText={setText}
+                          style={
+                            height: 120
+                            borderColor: '#222'
+                            borderWidth: 1
+                            padding: 10
+                            fontSize: 16
+                            alignSelf: 'stretch'
+                          }
+                        />
+                      when 'SINGLESELECT'
+                        <Picker
+                          selectedValue={do =>
+                            for data in field_data
+                              if data.field_id is field.field_id
+                                return data.field_option_id
+                            field.options[0].field_option_id
+                          }
+                          onValueChange={(field_option_id) =>
+                            newData =
+                              data for data in field_data when data.field_id isnt field.field_id
+                            newData.push new FieldData {
+                              field_id: field.field_id
+                              field_option_id: field_option_id
                             }
-                            onValueChange={(checked) =>
-                              newData =
-                                data for data in field_data when not (data.field_id is field.field_id and data.field_option_id is option.field_option_id)
-                              if checked
-                                newData.push new FieldData {
-                                  field_id: field.field_id
-                                  field_option_id: option.field_option_id
-                                }
-                              onChangeData newData
-                            }
-                          />
-                          <Text>{ option.option }</Text>
-                        </View>
-                    when 'NOMEN'
-                      <TouchableOpacity onPress={=>
-                        Linking.openURL "nomen://?nomen_id=#{field.label}&siftr_id=6234" # TODO actual siftr_id
-                      }>
-                        <Text>
+                            onChangeData newData
+                          }
+                        >
                           {
-                            do =>
-                              for data in field_data
-                                if data.field_id is field.field_id
-                                  return data.field_data
+                            field.options.map (option) =>
+                              <Picker.Item label={option.option} value={option.field_option_id} key={option.field_option_id} />
                           }
-                        </Text>
-                        <Text>Launch Nomen</Text>
-                      </TouchableOpacity>
-                    else
-                      <Text>(not implemented yet)</Text>
-                }
-              </View>
-          }
-        </View>
-        <View style={styles.buttonRow}>
-          <TouchableOpacity onPress={@props.onBack}>
-            <Text style={styles.blueButton}>{'<'} PHOTO</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={=> @props.onFinish @props.onCreateNote}>
-            <Text style={styles.blueButton}>FINISH</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+                        </Picker>
+                      when 'MULTISELECT'
+                        field.options.map (option) =>
+                          <View style={flexDirection: 'row'} key={option.field_option_id}>
+                            <Switch
+                              value={field_data.some (data) =>
+                                data.field_id is field.field_id and data.field_option_id is option.field_option_id
+                              }
+                              onValueChange={(checked) =>
+                                newData =
+                                  data for data in field_data when not (data.field_id is field.field_id and data.field_option_id is option.field_option_id)
+                                if checked
+                                  newData.push new FieldData {
+                                    field_id: field.field_id
+                                    field_option_id: option.field_option_id
+                                  }
+                                onChangeData newData
+                              }
+                            />
+                            <Text>{ option.option }</Text>
+                          </View>
+                      when 'NOMEN'
+                        <TouchableOpacity onPress={=>
+                          Linking.openURL "nomen://?nomen_id=#{field.label}&siftr_id=6234" # TODO actual siftr_id
+                        }>
+                          <Text>
+                            {
+                              do =>
+                                for data in field_data
+                                  if data.field_id is field.field_id
+                                    return data.field_data
+                            }
+                          </Text>
+                          <Text>Launch Nomen</Text>
+                        </TouchableOpacity>
+                      else
+                        <Text>(not implemented yet)</Text>
+                  }
+                </View>
+            }
+          </View>
+        </ScrollView>
+      </View>
 
 # @endif
 
