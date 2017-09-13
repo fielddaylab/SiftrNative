@@ -634,6 +634,7 @@ CreateData = React.createClass
 
   getInitialState: ->
     isPickingLocation: false
+    tagListOpen: false
 
   componentWillMount: ->
     @hardwareBack = =>
@@ -677,7 +678,6 @@ CreateData = React.createClass
           alignItems: 'stretch'
         }>
           <View style={
-            margin: 10
             flexDirection: 'column'
             alignItems: 'stretch'
           }>
@@ -704,25 +704,66 @@ CreateData = React.createClass
                 <Text style={styles.blueButton}>Pick Location</Text>
               </TouchableOpacity>
             </View>
-            <Picker
-              selectedValue={(@props.createNote.category ? @props.categories[0]).tag_id}
-              onValueChange={(tag_id) =>
-                for category in @props.categories
-                  if category.tag_id is tag_id
-                    @props.onUpdateNote update @props.createNote,
-                      category: $set: category
-                    break
-              }
-            >
-              {
-                @props.categories.map (category) =>
-                  <Picker.Item label={category.tag} value={category.tag_id} key={category.tag_id} />
-              }
-            </Picker>
+            <TouchableOpacity onPress={=>
+              @setState tagListOpen: not @state.tagListOpen
+            } style={
+              borderTopColor: 'rgb(230,230,230)'
+              borderTopWidth: 1
+              padding: 13
+              flexDirection: 'row'
+              alignItems: 'center'
+              justifyContent: 'space-between'
+            }>
+              <View style={
+                backgroundColor: @props.getColor(@props.createNote.category)
+                height: 16
+                width: 16
+                borderRadius: 8
+                marginRight: 20
+              } />
+              <Text style={flex: 1}>{ @props.createNote.category?.tag }</Text>
+              <Image source={require('../web/assets/img/icon-expand.png')} style={
+                width: 32 * 0.7
+                height: 18 * 0.7
+                resizeMode: 'contain'
+              } />
+            </TouchableOpacity>
+            {
+              if @state.tagListOpen
+                <View>
+                  {
+                    @props.categories.map (category) =>
+                      <TouchableOpacity key={category.tag_id} onPress={=>
+                        @setState tagListOpen: false
+                        @props.onUpdateNote update @props.createNote,
+                          category: $set: category
+                      } style={
+                        borderTopColor: 'rgb(230,230,230)'
+                        borderTopWidth: 1
+                        padding: 13
+                        flexDirection: 'row'
+                        alignItems: 'center'
+                        justifyContent: 'space-between'
+                        backgroundColor: 'rgb(240,240,240)'
+                      }>
+                        <View style={
+                          backgroundColor: @props.getColor(category)
+                          height: 16
+                          width: 16
+                          borderRadius: 8
+                          marginRight: 20
+                        } />
+                        <Text style={flex: 1}>{ category.tag }</Text>
+                      </TouchableOpacity>
+                  }
+                </View>
+            }
             {
               @props.fields.map (field) =>
                 <View key={field.field_id} style={alignSelf: 'stretch'}>
-                  <Text>{ if field.field_type is 'NOMEN' then "Nomen #{field.label}" else field.label }</Text>
+                  <View style={styles.settingsHeader}>
+                    <Text style={styles.settingsHeaderText}>{ if field.field_type is 'NOMEN' then "Nomen #{field.label}" else field.label }</Text>
+                  </View>
                   {
                     field_data = @props.createNote.field_data ? []
                     onChangeData = (newData) =>
@@ -747,14 +788,8 @@ CreateData = React.createClass
                           multiline={false}
                           value={getText()}
                           onChangeText={setText}
-                          style={
-                            height: 50
-                            borderColor: '#222'
-                            borderWidth: 1
-                            padding: 10
-                            fontSize: 16
-                            alignSelf: 'stretch'
-                          }
+                          style={styles.input}
+                          placeholder={field.label}
                         />
                       when 'TEXTAREA'
                         <TextInput

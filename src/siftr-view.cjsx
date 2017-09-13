@@ -632,6 +632,7 @@ SiftrView = React.createClass
         onFinish={@finishNoteCreation}
         onCancel={=> @setState createNote: null}
         onBack={=> @setState createNote: {}}
+        getColor={@getColor}
       />
     # @endif
     # @ifdef WEB
