@@ -398,13 +398,10 @@ NativeCard = React.createClass
           borderRadius: 12
         }>
           <View style={flexDirection: 'row', justifyContent: 'space-between', padding: 10, alignItems: 'center'}>
-            <View>
+            <View style={flex: 1}>
               <Text>{@props.game.name}</Text>
               <Text>{@state.authors?.join(', ') ? '…'}</Text>
             </View>
-            <TouchableOpacity style={padding: 10} onPress={->}>
-              <Image source={require('../web/assets/img/icon-3dots.png')} style={width: 34 * 0.6, height: 8 * 0.6, resizeMode: 'contain'} />
-            </TouchableOpacity>
           </View>
           <View style={flexDirection: 'row', overflow: 'hidden'}>
             {
@@ -868,14 +865,10 @@ NativeSettings = React.createClass
             <View style={styles.settingsHeader}>
               <Text style={styles.settingsHeaderText}>About</Text>
             </View>
-            <TouchableOpacity style={styles.settingsButton}>
-              <Text>Terms</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.settingsButton}>
+            <TouchableOpacity style={styles.settingsButton} onPress={=>
+              Linking.openURL "https://github.com/fielddaylab/SiftrNative"
+            }>
               <Text>Open Source</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.settingsButton}>
-              <Text>Privacy Policy</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
