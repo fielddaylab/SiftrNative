@@ -597,18 +597,33 @@ SiftrView = React.createClass
     unless @state.createNote?
       null
     # @ifdef NATIVE
-    else unless @state.createNote.media? or @state.createNote.file?
+    else unless @state.createNote.media? or @state.createNote.file? or @state.createNote.uploading
       <CreateStep1
         auth={@props.auth}
         game={@props.game}
         onCancel={=> @setState createNote: null}
-        onCreateMedia={({media, exif}) => @setState createNote: {
-          media: media
-          exif: exif
+        onStartUpload={=> @setState createNote: {
+          uploading: true
           caption: ''
           location: @state.center
           category: @state.tags[0]
           field_data: []
+          online: true
+        }}
+        onProgress={(n) =>
+          t = Date.now()
+          if not @state.progressTime? or t - @state.progressTime > 300
+            @setState
+              progress: n
+              progressTime: t
+        }
+        onCreateMedia={({media, exif}) => @setState createNote: {
+          media: media
+          exif: exif
+          caption: @state.createNote?.caption ? ''
+          location: @state.createNote?.center ? @state.center
+          category: @state.createNote?.category ? @state.tags[0]
+          field_data: @state.createNote?.field_data ? []
           online: true
         }}
         onStoreMedia={({file}) => @setState createNote: {
@@ -633,6 +648,7 @@ SiftrView = React.createClass
         onCancel={=> @setState createNote: null}
         onBack={=> @setState createNote: {}}
         getColor={@getColor}
+        progress={@state.progress}
       />
     # @endif
     # @ifdef WEB

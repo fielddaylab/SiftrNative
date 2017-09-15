@@ -64,7 +64,7 @@ UploadQueue = React.createClass
     file =
       uri:
         if Platform.OS is 'ios'
-          "#{dir}/#{json.filename}"
+          "#{dir.path}/#{json.filename}"
         else
           "file://#{dir.path}/#{json.filename}"
       type: json.mimetype

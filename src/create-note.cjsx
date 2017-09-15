@@ -30,33 +30,50 @@ Photos = require './photos'
 CreateStep1 = React.createClass
   propTypes:
     onCreateMedia: T.func
-    onStoreMedia: T.func
     onCancel: T.func
+    # @ifdef NATIVE
+    onStoreMedia: T.func
+    onStartUpload: T.func
+    onProgress: T.func
+    # @endif
     auth: T.instanceOf(Auth).isRequired
     game: T.instanceOf(Game).isRequired
     online: T.bool
 
   getDefaultProps: ->
     onCreateMedia: (->)
-    onStoreMedia: (->)
     onCancel: (->)
+    # @ifdef NATIVE
+    onStoreMedia: (->)
+    onStartUpload: (->)
+    onProgress: (->)
+    # @endif
     online: true
 
   getInitialState: ->
     progress: null
     file: null # file that has EXIF tags already loaded
 
+  # @ifdef NATIVE
   beginUpload: ->
-    # @ifdef NATIVE
     if not @props.online
       @props.onStoreMedia
         file: @state.file
       return
-    # @endif
+    file = @state.file
+    return unless file?
+    updateProgress = @props.onProgress
+    Photos.uploadImage file, @props.auth, @props.game, updateProgress, @props.onCreateMedia
+    @props.onStartUpload()
+  # @endif
+
+  # @ifdef WEB
+  beginUpload: ->
     file = @state.file
     return unless file?
     updateProgress = (n) => @setState progress: n
     Photos.uploadImage file, @props.auth, @props.game, updateProgress, @props.onCreateMedia
+  # @endif
 
   # @ifdef NATIVE
   componentWillMount: ->
@@ -669,8 +686,18 @@ CreateData = React.createClass
           <TouchableOpacity onPress={@props.onBack}>
             <Text style={styles.blackViolaButton}>Back</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={=> @props.onFinish @props.onCreateNote}>
-            <Text style={styles.blackViolaButton}>Post</Text>
+          <TouchableOpacity onPress={=>
+            unless @props.createNote.uploading
+              @props.onFinish @props.onCreateNote
+          }>
+            <Text style={styles.blackViolaButton}>
+              {
+                if @props.createNote.uploading
+                  "Uploading… (#{Math.floor((@props.progress ? 0) * 100)}%)"
+                else
+                  "Post"
+              }
+            </Text>
           </TouchableOpacity>
         </View>
         <ScrollView style={flex: 1, backgroundColor: 'white'} contentContainerStyle={
