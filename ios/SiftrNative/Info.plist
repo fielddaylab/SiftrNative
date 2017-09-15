@@ -32,7 +32,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>12</string>
+	<string>13</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -46,10 +46,10 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Allows Siftr to show where you are on the map.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Allows Siftr to take photos.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Allows Siftr to show where you are on the map.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Upload your photos to Siftr.</string>
 	<key>UILaunchStoryboardName</key>
