@@ -76,8 +76,13 @@ CreateStep1 = React.createClass
     files = @filesReady()
     return unless files.every ({file}) => file? # TODO should field files be optional
     updateProgress = @props.onProgress
-    Photos.uploadImages files.map(({file}) => file), @props.auth, @props.game, updateProgress, (medias) =>
-      @props.onCreateMedia medias[0]
+    Photos.uploadImages files.map(({file}) => file), @props.auth, @props.game, updateProgress, (results) =>
+      fieldMedia = []
+      for {field_id}, i in files
+        continue if i is 0
+        {media} = results[i]
+        fieldMedia.push {field_id: field_id, media_id: media.media_id}
+      @props.onCreateMedia results[0], fieldMedia
     @props.onStartUpload()
   # @endif
 
@@ -518,6 +523,7 @@ CreateStep5 = React.createClass
         </TouchableOpacity>
         {
           @props.fields.map (field) =>
+            return null if field.field_type is 'MEDIA'
             <View key={field.field_id} style={alignSelf: 'stretch'}>
               <Text>{ if field.field_type is 'NOMEN' then "Nomen #{field.label}" else field.label }</Text>
               {
@@ -619,8 +625,6 @@ CreateStep5 = React.createClass
                       </Text>
                       <Text>Launch Nomen</Text>
                     </TouchableOpacity>
-                  when 'MEDIA'
-                    null # handled in CreateStep1
                   else
                     <Text>(not implemented yet)</Text>
               }
@@ -823,6 +827,7 @@ CreateData = React.createClass
             }
             {
               @props.fields.map (field) =>
+                return null if field.field_type is 'MEDIA'
                 <View key={field.field_id} style={alignSelf: 'stretch'}>
                   <View style={styles.settingsHeader}>
                     <Text style={styles.settingsHeaderText}>{ if field.field_type is 'NOMEN' then "Nomen #{field.label}" else field.label }</Text>

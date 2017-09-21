@@ -618,7 +618,7 @@ SiftrView = React.createClass
               progress: n
               progressTime: t
         }
-        onCreateMedia={({media, exif}) =>
+        onCreateMedia={({media, exif}, fieldMedia) =>
           return unless @isMounted and @state.createNote?
           @setState createNote: {
             media: media
@@ -626,7 +626,7 @@ SiftrView = React.createClass
             caption: @state.createNote?.caption ? ''
             location: @state.createNote?.center ? @state.center
             category: @state.createNote?.category ? @state.tags[0]
-            field_data: @state.createNote?.field_data ? []
+            field_data: (@state.createNote?.field_data ? []).concat(fieldMedia)
             online: true
           }
         }
