@@ -78,3 +78,20 @@ export function uploadImage(file, auth, game, updateProgress, cb) {
     }));
   }));
 }
+
+export function uploadImages(files, auth, game, updateProgress, cb) {
+  let results = [];
+  function downloadIndex(i) {
+    if (i === files.length) {
+      cb(results);
+    } else {
+      uploadImage(files[i], auth, game, function(p){
+        updateProgress((i + p) / files.length);
+      }, function(res){
+        results.push(res);
+        downloadIndex(i + 1);
+      });
+    }
+  }
+  downloadIndex(0);
+}

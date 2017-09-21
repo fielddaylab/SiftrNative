@@ -3,6 +3,7 @@
 React = require 'react'
 T = React.PropTypes
 update = require 'immutability-helper'
+{ Map, Set } = require 'immutable';
 
 EXIF = require 'exif-js'
 
@@ -39,6 +40,7 @@ CreateStep1 = React.createClass
     auth: T.instanceOf(Auth).isRequired
     game: T.instanceOf(Game).isRequired
     online: T.bool
+    fields: T.arrayOf(T.instanceOf Field)
 
   getDefaultProps: ->
     onCreateMedia: (->)
@@ -53,6 +55,17 @@ CreateStep1 = React.createClass
   getInitialState: ->
     progress: null
     file: null # file that has EXIF tags already loaded
+    extraFiles: Map()
+
+  filesReady: ->
+    files = []
+    files.push {field_id: null, file: @state.file}
+    for field in @props.fields
+      continue unless field.field_type is 'MEDIA'
+      files.push
+        field_id: field.field_id
+        file: @state.extraFiles.get(field.field_id, null)
+    files
 
   # @ifdef NATIVE
   beginUpload: ->
@@ -60,10 +73,11 @@ CreateStep1 = React.createClass
       @props.onStoreMedia
         file: @state.file
       return
-    file = @state.file
-    return unless file?
+    files = @filesReady()
+    return unless files.every ({file}) => file? # TODO should field files be optional
     updateProgress = @props.onProgress
-    Photos.uploadImage file, @props.auth, @props.game, updateProgress, @props.onCreateMedia
+    Photos.uploadImages files.map(({file}) => file), @props.auth, @props.game, updateProgress, (medias) =>
+      @props.onCreateMedia medias[0]
     @props.onStartUpload()
   # @endif
 
@@ -85,8 +99,13 @@ CreateStep1 = React.createClass
   componentWillUnmount: ->
     BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
 
-  chooseImage: ->
-    Photos.requestImage (file) => @setState {file} if file?
+  chooseImage: (field_id = null) ->
+    Photos.requestImage (file) =>
+      if file?
+        if field_id is null
+          @setState {file}
+        else
+          @setState extraFiles: @state.extraFiles.set(field_id, file)
 
   render: ->
     if @state.progress?
@@ -104,17 +123,15 @@ CreateStep1 = React.createClass
           </TouchableOpacity>
           <TouchableOpacity onPress={@beginUpload}>
             {
-              if @state.file?
+              if @filesReady().every(({file}) => file?)
                 <Text style={styles.blackViolaButton}>Next</Text>
             }
           </TouchableOpacity>
         </View>
-        <View style={
+        <ScrollView style={
           flex: 1
-          alignItems: 'center'
-          justifyContent: 'center'
         }>
-          <TouchableOpacity onPress={@chooseImage}>
+          <TouchableOpacity onPress={=> @chooseImage()}>
             {
               if @state.file?
                 <Image source={@state.file} resizeMode="contain" style={
@@ -125,7 +142,24 @@ CreateStep1 = React.createClass
                 <Image source={require '../web/assets/img/select-image.png'} />
             }
           </TouchableOpacity>
-        </View>
+          {
+            @props.fields.filter((field) => field.field_type is 'MEDIA').map (field) =>
+              <View key={field.field_id}>
+                <Text>{ field.label }</Text>
+                <TouchableOpacity onPress={=> @chooseImage field.field_id}>
+                  {
+                    if (file = @state.extraFiles.get(field.field_id, null))?
+                      <Image source={file} resizeMode="contain" style={
+                        height: 300
+                        width: 300
+                      } />
+                    else
+                      <Image source={require '../web/assets/img/select-image.png'} />
+                  }
+                </TouchableOpacity>
+              </View>
+          }
+        </ScrollView>
       </View>
   # @endif
 
@@ -585,6 +619,8 @@ CreateStep5 = React.createClass
                       </Text>
                       <Text>Launch Nomen</Text>
                     </TouchableOpacity>
+                  when 'MEDIA'
+                    null # handled in CreateStep1
                   else
                     <Text>(not implemented yet)</Text>
               }

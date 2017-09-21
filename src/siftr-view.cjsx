@@ -611,21 +611,25 @@ SiftrView = React.createClass
           online: true
         }}
         onProgress={(n) =>
+          return unless @isMounted and @state.createNote?
           t = Date.now()
           if not @state.progressTime? or t - @state.progressTime > 300
             @setState
               progress: n
               progressTime: t
         }
-        onCreateMedia={({media, exif}) => @setState createNote: {
-          media: media
-          exif: exif
-          caption: @state.createNote?.caption ? ''
-          location: @state.createNote?.center ? @state.center
-          category: @state.createNote?.category ? @state.tags[0]
-          field_data: @state.createNote?.field_data ? []
-          online: true
-        }}
+        onCreateMedia={({media, exif}) =>
+          return unless @isMounted and @state.createNote?
+          @setState createNote: {
+            media: media
+            exif: exif
+            caption: @state.createNote?.caption ? ''
+            location: @state.createNote?.center ? @state.center
+            category: @state.createNote?.category ? @state.tags[0]
+            field_data: @state.createNote?.field_data ? []
+            online: true
+          }
+        }
         onStoreMedia={({file}) => @setState createNote: {
           file: file
           caption: ''
@@ -635,6 +639,7 @@ SiftrView = React.createClass
           online: false
         }}
         online={@props.online}
+        fields={@state.fields ? []}
       />
     else
       <CreateData
