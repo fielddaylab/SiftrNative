@@ -274,7 +274,7 @@ babel-code-frame@^6.26.0:
     esutils "^2.0.2"
     js-tokens "^3.0.2"
 
-babel-core@^6.0.0, babel-core@^6.24.1, babel-core@^6.26.0, babel-core@^6.7.2:
+babel-core@^6, babel-core@^6.0.0, babel-core@^6.24.1, babel-core@^6.26.0, babel-core@^6.7.2:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-core/-/babel-core-6.26.0.tgz#af32f78b31a6fcef119c87b0fd8d9753f03a0bb8"
   dependencies:
@@ -1491,26 +1491,15 @@ code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
 
-coffee-react-jstransform@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/coffee-react-jstransform/-/coffee-react-jstransform-1.0.0.tgz#d3d343cede33c8f2b2ea37cb7fa0f84987236214"
-
-coffee-react-transform@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/coffee-react-transform/-/coffee-react-transform-4.0.0.tgz#731a79fd445a56e93926c72e983eff937f7c6fde"
-
-coffee-react@^5.0.0:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/coffee-react/-/coffee-react-5.0.1.tgz#3d03566e8646894c962193c42c2e895f91f49ecb"
-  dependencies:
-    coffee-react-jstransform "^1.0.0"
-    coffee-react-transform "^4.0.0"
-    coffee-script "^1.10.0"
-    mkdirp "^0.5.0"
-
 coffee-script@^1.10.0:
   version "1.12.7"
   resolved "https://registry.yarnpkg.com/coffee-script/-/coffee-script-1.12.7.tgz#c05dae0cb79591d05b3070a8433a98c9a89ccc53"
+
+coffeescript@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/coffeescript/-/coffeescript-2.0.0.tgz#61bcc70989cc18a0aab6b3d8be110d2ec7743c9a"
+  optionalDependencies:
+    babel-core "^6"
 
 color-convert@^1.3.0, color-convert@^1.9.0:
   version "1.9.0"
@@ -2632,12 +2621,12 @@ growly@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/growly/-/growly-1.3.0.tgz#f10748cbe76af964b7c96c93c6bcc28af120c081"
 
-gulp-cjsx@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/gulp-cjsx/-/gulp-cjsx-4.1.0.tgz#4034ea7780c3fee4bba4a3ee20af947297f30cb7"
+gulp-coffee@^2.3.4:
+  version "2.3.4"
+  resolved "https://registry.yarnpkg.com/gulp-coffee/-/gulp-coffee-2.3.4.tgz#e9975faf3f26746fb2e72da9e3f32c9db5746daa"
   dependencies:
-    coffee-react "^5.0.0"
-    gulp-util "^3.0.4"
+    coffee-script "^1.10.0"
+    gulp-util "^3.0.2"
     merge "^1.2.0"
     through2 "^2.0.1"
     vinyl-sourcemaps-apply "^0.2.1"
@@ -2660,7 +2649,7 @@ gulp-sass@^3.1.0:
     through2 "^2.0.0"
     vinyl-sourcemaps-apply "^0.2.0"
 
-gulp-util@^3.0, gulp-util@^3.0.0, gulp-util@^3.0.4, gulp-util@^3.0.7, gulp-util@^3.0.8:
+gulp-util@^3.0, gulp-util@^3.0.0, gulp-util@^3.0.2, gulp-util@^3.0.4, gulp-util@^3.0.7, gulp-util@^3.0.8:
   version "3.0.8"
   resolved "https://registry.yarnpkg.com/gulp-util/-/gulp-util-3.0.8.tgz#0054e1e744502e27c04c187c3ecc505dd54bbb4f"
   dependencies:
