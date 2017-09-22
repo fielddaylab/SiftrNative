@@ -69,12 +69,13 @@ CreateStep1 = React.createClass
 
   # @ifdef NATIVE
   beginUpload: ->
+    files = @filesReady()
+    return unless files.every ({file}) => file? # TODO should field files be optional
     if not @props.online
+      # TODO handle field media
       @props.onStoreMedia
         file: @state.file
       return
-    files = @filesReady()
-    return unless files.every ({file}) => file? # TODO should field files be optional
     updateProgress = @props.onProgress
     Photos.uploadImages files.map(({file}) => file), @props.auth, @props.game, updateProgress, (results) =>
       fieldMedia = []
