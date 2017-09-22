@@ -22,7 +22,7 @@
     "react-native-infinite-scroll-view": "^0.4.3",
     "react-native-keyboard-aware-view": "^0.0.12",
     "react-native-maps": "^0.16.2",
-    "react-native-orientation": "^3.0.0",
+    "react-native-orientation": "^3.1.0",
     "react-native-side-menu": "^1.0.2",
     "react-native-simple-markdown": "^1.0.60-rc.3",
     "react-native-svg": "^5.4.1"
