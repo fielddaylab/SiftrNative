@@ -71,6 +71,7 @@ export const styles = StyleSheet.create({
     right: 0,
     flexDirection: 'column',
     alignItems: 'stretch',
+    justifyContent: 'space-between',
   },
 
   overlayWholeCenter: {
@@ -155,6 +156,14 @@ export const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderBottomWidth: 1,
     padding: 14,
+  },
+
+  photoSlot: {
+    width: 70,
+    height: 70,
+    resizeMode: 'cover',
+    margin: 10,
+    borderRadius: 8,
   },
 
 });

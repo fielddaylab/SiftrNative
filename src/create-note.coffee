@@ -21,6 +21,7 @@ EXIF = require 'exif-js'
 , BackHandler
 } = require 'react-native'
 {styles} = require './styles'
+import Camera from 'react-native-camera'
 # @endif
 
 {Auth, Game, Tag, Field, FieldData} = require './aris'
@@ -114,59 +115,95 @@ CreateStep1 = React.createClass
           @setState extraFiles: @state.extraFiles.set(field_id, file)
 
   render: ->
-    if @state.progress?
-      <View style={styles.overlayWholeCenter}>
-        <ActivityIndicator size="large" />
-        <Text style={fontSize: 20, margin: 10}>
-          Uploading… {Math.floor(@state.progress * 100)}%
-        </Text>
-      </View>
-    else
-      <View style={styles.overlayWhole}>
-        <View style={styles.buttonRow}>
-          <TouchableOpacity onPress={@props.onCancel}>
-            <Text style={styles.orangeViolaButton}>Cancel</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={@beginUpload}>
-            {
-              if @filesReady().every(({file}) => file?)
-                <Text style={styles.blackViolaButton}>Next</Text>
-            }
-          </TouchableOpacity>
-        </View>
-        <ScrollView style={
-          flex: 1
-        }>
-          <TouchableOpacity onPress={=> @chooseImage()}>
-            {
-              if @state.file?
-                <Image source={@state.file} resizeMode="contain" style={
-                  height: 300
-                  width: 300
-                } />
-              else
-                <Image source={require '../web/assets/img/select-image.png'} />
-            }
-          </TouchableOpacity>
+    pictureSlots = []
+    # main picture
+    pictureSlots.push
+      field_id: undefined
+      currentImage: => @state.file
+    # other pictures
+    for field in @props.fields.filter((field) => field.field_type is 'MEDIA')
+      pictureSlots.push
+        field_id: field.field_id
+        currentImage: => @state.extraFiles.get(field.field_id, null)
+
+    <View style={styles.overlayWhole}>
+      <View style={styles.buttonRow}>
+        <TouchableOpacity onPress={@props.onCancel}>
+          <Text style={styles.orangeViolaButton}>Cancel</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={@beginUpload}>
           {
-            @props.fields.filter((field) => field.field_type is 'MEDIA').map (field) =>
-              <View key={field.field_id}>
-                <Text>{ field.label }</Text>
-                <TouchableOpacity onPress={=> @chooseImage field.field_id}>
-                  {
-                    if (file = @state.extraFiles.get(field.field_id, null))?
-                      <Image source={file} resizeMode="contain" style={
-                        height: 300
-                        width: 300
-                      } />
+            if @filesReady().every(({file}) => file?)
+              <Text style={styles.blackViolaButton}>Next</Text>
+          }
+        </TouchableOpacity>
+      </View>
+      <View>
+        <ScrollView horizontal={true} style={
+          backgroundColor: 'rgb(240,240,240)'
+        }>
+          {
+            pictureSlots.map ({field_id, currentImage}) =>
+              <TouchableOpacity key={field_id ? 0} onPress={=> @chooseImage(field_id)}>
+                {
+                  <Image source={
+                    if (file = currentImage())?
+                      file
                     else
-                      <Image source={require '../web/assets/img/select-image.png'} />
-                  }
-                </TouchableOpacity>
-              </View>
+                      require '../web/assets/img/icon-needs-pic.png'
+                  } style={styles.photoSlot} />
+                }
+              </TouchableOpacity>
           }
         </ScrollView>
       </View>
+      <View style={
+        flex: 1
+        backgroundColor: 'black'
+      }>
+        <Camera
+          ref={(cam) => this.camera = cam}
+          style={
+            flex: 1
+          }
+        />
+      </View>
+      <View style={
+        flexDirection: 'row'
+        justifyContent: 'space-around'
+        alignItems: 'center'
+      }>
+        <TouchableOpacity onPress={=>}>
+          <Image source={require '../web/assets/img/icon-switch-camera.png'} style={
+            width: 30
+            height: 30
+            margin: 10
+          } />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={=>
+          return unless this.camera?
+          this.camera.capture({}).then ({path}) =>
+            @setState file:
+              uri: path
+              isStatic: true
+              type: 'image/jpeg'
+              name: 'upload.jpg'
+        }>
+          <Image source={require '../web/assets/img/icon-take-picture.png'} style={
+            width: 50
+            height: 50
+            margin: 10
+          } />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={=>}>
+          <Image source={require '../web/assets/img/icon-flash.png'} style={
+            width: 32 * 0.7
+            height: 46 * 0.7
+            margin: 10
+          } />
+        </TouchableOpacity>
+      </View>
+    </View>
   # @endif
 
   # @ifdef WEB

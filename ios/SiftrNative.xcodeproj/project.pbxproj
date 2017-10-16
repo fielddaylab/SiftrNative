@@ -38,6 +38,7 @@
 		534241391F57339B00327826 /* libRNSVG.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 535719E81E8C3A6C0018DDA2 /* libRNSVG.a */; };
 		5342413B1F5733A400327826 /* libAirMaps.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 534241371F57334C00327826 /* libAirMaps.a */; };
 		5342413C1F5733A800327826 /* libRNImagePicker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 535719E51E8C3A6C0018DDA2 /* libRNImagePicker.a */; };
+		5382FEF71F95478A007BA728 /* libRCTCameraRoll.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5382FEF51F951F17007BA728 /* libRCTCameraRoll.a */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		94E9326CA63B4BC0BB0E4B88 /* libRCTCamera.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 88A6A541ABD94705A5098736 /* libRCTCamera.a */; };
@@ -376,6 +377,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5382FEF71F95478A007BA728 /* libRCTCameraRoll.a in Frameworks */,
 				5342413C1F5733A800327826 /* libRNImagePicker.a in Frameworks */,
 				5342413B1F5733A400327826 /* libAirMaps.a in Frameworks */,
 				534241391F57339B00327826 /* libRNSVG.a in Frameworks */,
@@ -589,6 +591,13 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		5382FEF61F95478A007BA728 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		53FB82B41F950B1F00C978F6 /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
@@ -658,6 +667,7 @@
 				00E356EF1AD99517003FC87E /* SiftrNativeTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				53FB82B41F950B1F00C978F6 /* Recovered References */,
+				5382FEF61F95478A007BA728 /* Frameworks */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
