@@ -19,6 +19,7 @@ EXIF = require 'exif-js'
 , Switch
 , Linking
 , BackHandler
+, CameraRoll
 } = require 'react-native'
 {styles} = require './styles'
 import Camera from 'react-native-camera'
@@ -27,6 +28,45 @@ import Camera from 'react-native-camera'
 {Auth, Game, Tag, Field, FieldData} = require './aris'
 {clicker, withSuccess, P, BUTTON, DIV} = require './utils'
 Photos = require './photos'
+
+# @ifdef NATIVE
+SiftrRoll = React.createClass
+  getDefaultProps: ->
+    onSelectImage: (->)
+
+  getInitialState: ->
+    photos: null
+
+  componentWillMount: ->
+    CameraRoll.getPhotos
+      first: 20
+      assetType: 'Photos'
+    .then ({edges}) =>
+      @setState photos: edges.map ({node}) => node
+
+  render: ->
+    <ScrollView style={
+      flex: 1
+    } contentContainerStyle={
+      flexDirection: 'row'
+      flexWrap: 'wrap'
+      alignItems: 'center'
+      justifyContent: 'center'
+    }>
+      {
+        (this.state.photos ? []).map (photo) =>
+          <TouchableOpacity onPress={=> this.props.onSelectImage photo.image.uri} key={photo.image.uri}>
+            <Image source={
+              uri: photo.image.uri
+            } style={
+              width: 160
+              height: 160
+              margin: 5
+            } />
+          </TouchableOpacity>
+      }
+    </ScrollView>
+# @endif
 
 # Step 1: Upload
 CreateStep1 = React.createClass
@@ -151,58 +191,77 @@ CreateStep1 = React.createClass
           }
         </ScrollView>
       </View>
-      <View style={
-        flex: 1
-        backgroundColor: 'black'
-      }>
-        <Camera
-          ref={(cam) => this.camera = cam}
-          style={
-            flex: 1
-          }
-          type={@state.camera}
-          flashMode={if @state.flash then Camera.constants.FlashMode.on else Camera.constants.FlashMode.off}
-        />
-      </View>
-      <View style={
-        flexDirection: 'row'
-        justifyContent: 'space-around'
-        alignItems: 'center'
-      }>
-        <TouchableOpacity onPress={=>
-          @setState camera: if @state.camera is 'front' then 'back' else 'front'
-        }>
-          <Image source={require '../web/assets/img/icon-switch-camera.png'} style={
-            width: 30
-            height: 30
-            margin: 10
-          } />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={=>
-          return unless this.camera?
-          this.camera.capture({}).then ({path}) =>
-            @setState file:
-              uri: path
-              isStatic: true
-              type: 'image/jpeg'
-              name: 'upload.jpg'
-        }>
-          <Image source={require '../web/assets/img/icon-take-picture.png'} style={
-            width: 50
-            height: 50
-            margin: 10
-          } />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={=>
-          @setState flash: not @state.flash
-        }>
-          <Image source={require '../web/assets/img/icon-flash.png'} style={
-            width: 32 * 0.7
-            height: 46 * 0.7
-            margin: 10
-          } />
-        </TouchableOpacity>
-      </View>
+      {
+        switch @state.source
+          when 'camera'
+            <View style={flex: 1}>
+              <View style={
+                flex: 1
+                backgroundColor: 'black'
+              }>
+                <Camera
+                  ref={(cam) => this.camera = cam}
+                  style={
+                    flex: 1
+                  }
+                  type={@state.camera}
+                  flashMode={if @state.flash then Camera.constants.FlashMode.on else Camera.constants.FlashMode.off}
+                />
+              </View>
+              <View style={
+                flexDirection: 'row'
+                justifyContent: 'space-around'
+                alignItems: 'center'
+              }>
+                <TouchableOpacity onPress={=>
+                  @setState camera: if @state.camera is 'front' then 'back' else 'front'
+                }>
+                  <Image source={require '../web/assets/img/icon-switch-camera.png'} style={
+                    width: 30
+                    height: 30
+                    margin: 10
+                  } />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={=>
+                  return unless this.camera?
+                  this.camera.capture({}).then ({path}) =>
+                    @setState file:
+                      uri: path
+                      isStatic: true
+                      type: 'image/jpeg'
+                      name: 'upload.jpg'
+                }>
+                  <Image source={require '../web/assets/img/icon-take-picture.png'} style={
+                    width: 50
+                    height: 50
+                    margin: 10
+                  } />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={=>
+                  @setState flash: not @state.flash
+                }>
+                  <Image source={require '../web/assets/img/icon-flash.png'} style={
+                    width: 32 * 0.7
+                    height: 46 * 0.7
+                    margin: 10
+                  } />
+                </TouchableOpacity>
+              </View>
+            </View>
+          when 'roll'
+            <View style={flex: 1}>
+              <SiftrRoll
+                onSelectImage={(path) =>
+                  @setState file:
+                    uri: path
+                    isStatic: true
+                    # TODO do we need to support other types
+                    type: 'image/jpeg'
+                    name: 'upload.jpg'
+                }
+              />
+            </View>
+      }
       <View style={styles.buttonRow}>
         <TouchableOpacity onPress={@props.onCancel}>
           <Text style={[styles.blackViolaButton, {color: 'rgb(188,188,188)'}]}>cancel</Text>

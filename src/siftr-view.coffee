@@ -835,7 +835,9 @@ SiftrView = React.createClass
           flex: 1
         }>
           {
-            if @state.primaryMap
+            if @state.createNote?
+              undefined
+            else if @state.primaryMap
               [@renderThumbnails(), @renderMap()]
             else
               [@renderMap(), @renderThumbnails()]
