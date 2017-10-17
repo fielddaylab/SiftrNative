@@ -57,6 +57,11 @@ CreateStep1 = React.createClass
     progress: null
     file: null # file that has EXIF tags already loaded
     extraFiles: Map()
+    # @ifdef NATIVE
+    source: 'camera'
+    camera: 'back'
+    flash: false
+    # @endif
 
   filesReady: ->
     files = []
@@ -127,17 +132,6 @@ CreateStep1 = React.createClass
         currentImage: => @state.extraFiles.get(field.field_id, null)
 
     <View style={styles.overlayWhole}>
-      <View style={styles.buttonRow}>
-        <TouchableOpacity onPress={@props.onCancel}>
-          <Text style={styles.orangeViolaButton}>Cancel</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={@beginUpload}>
-          {
-            if @filesReady().every(({file}) => file?)
-              <Text style={styles.blackViolaButton}>Next</Text>
-          }
-        </TouchableOpacity>
-      </View>
       <View>
         <ScrollView horizontal={true} style={
           backgroundColor: 'rgb(240,240,240)'
@@ -166,6 +160,8 @@ CreateStep1 = React.createClass
           style={
             flex: 1
           }
+          type={@state.camera}
+          flashMode={if @state.flash then Camera.constants.FlashMode.on else Camera.constants.FlashMode.off}
         />
       </View>
       <View style={
@@ -173,7 +169,9 @@ CreateStep1 = React.createClass
         justifyContent: 'space-around'
         alignItems: 'center'
       }>
-        <TouchableOpacity onPress={=>}>
+        <TouchableOpacity onPress={=>
+          @setState camera: if @state.camera is 'front' then 'back' else 'front'
+        }>
           <Image source={require '../web/assets/img/icon-switch-camera.png'} style={
             width: 30
             height: 30
@@ -195,12 +193,43 @@ CreateStep1 = React.createClass
             margin: 10
           } />
         </TouchableOpacity>
-        <TouchableOpacity onPress={=>}>
+        <TouchableOpacity onPress={=>
+          @setState flash: not @state.flash
+        }>
           <Image source={require '../web/assets/img/icon-flash.png'} style={
             width: 32 * 0.7
             height: 46 * 0.7
             margin: 10
           } />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.buttonRow}>
+        <TouchableOpacity onPress={@props.onCancel}>
+          <Text style={[styles.blackViolaButton, {color: 'rgb(188,188,188)'}]}>cancel</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={=> @setState source: 'camera'}>
+          <Image style={width: 52 * 0.7, height: 38 * 0.7} source={
+            if @state.source is 'camera'
+              require '../web/assets/img/icon-from-camera.png'
+            else
+              require '../web/assets/img/icon-from-camera-gray.png'
+          } />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={=> @setState source: 'roll'}>
+          <Image style={width: 52 * 0.7, height: 52 * 0.7} source={
+            if @state.source is 'roll'
+              require '../web/assets/img/icon-from-roll.png'
+            else
+              require '../web/assets/img/icon-from-roll-gray.png'
+          } />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={@beginUpload}>
+          <Text style={
+            if @filesReady().every(({file}) => file?)
+              styles.blackViolaButton
+            else
+              [styles.blackViolaButton, {color: 'rgb(188,188,188)'}]
+          }>next</Text>
         </TouchableOpacity>
       </View>
     </View>

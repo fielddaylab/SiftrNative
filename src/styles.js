@@ -44,15 +44,6 @@ export const styles = StyleSheet.create({
     fontSize: 18,
   },
 
-  orangeViolaButton: {
-    paddingLeft: 16,
-    paddingRight: 16,
-    paddingTop: 8,
-    paddingBottom: 8,
-    color: '#FF7C6B',
-    fontSize: 16,
-  },
-
   blackViolaButton: {
     paddingLeft: 16,
     paddingRight: 16,

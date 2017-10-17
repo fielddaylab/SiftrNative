@@ -6,6 +6,7 @@ T = React.PropTypes
 # @ifdef NATIVE
 { Text
 , View
+, Platform
 } = require 'react-native'
 MapView = require 'react-native-maps'
 {styles} = require './styles'
@@ -340,12 +341,13 @@ SiftrMap = React.createClass
   componentDidMount: ->
     # this is a hack, because of a problem with react-native-maps.
     # see https://github.com/airbnb/react-native-maps/issues/1577
-    @refs.theMapView.animateToRegion
-      latitude: @props.center.lat
-      longitude: @props.center.lng
-      latitudeDelta: @props.delta.lat
-      longitudeDelta: @props.delta.lng
-    , 1
+    if Platform.OS is 'ios'
+      @refs.theMapView.animateToRegion
+        latitude: @props.center.lat
+        longitude: @props.center.lng
+        latitudeDelta: @props.delta.lat
+        longitudeDelta: @props.delta.lng
+      , 1
 
   moveToPoint: (center) ->
     @refs.theMapView.animateToRegion
