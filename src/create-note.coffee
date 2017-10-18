@@ -20,6 +20,7 @@ EXIF = require 'exif-js'
 , Linking
 , BackHandler
 , CameraRoll
+, FlatList
 } = require 'react-native'
 {styles} = require './styles'
 import Camera from 'react-native-camera'
@@ -35,14 +36,22 @@ SiftrRoll = React.createClass
     onSelectImage: (->)
 
   getInitialState: ->
-    photos: null
+    photos: []
 
   componentWillMount: ->
+    @getMorePhotos()
+
+  getMorePhotos: ->
     CameraRoll.getPhotos
       first: 20
+      after: this.state.photoCursor
       assetType: 'Photos'
-    .then ({edges}) =>
-      @setState photos: edges.map ({node}) => node
+    .then (result) =>
+      if result.edges.length > 0
+        @setState
+          photos: result.edges.map ({node}) =>
+            key: node.image.uri
+          photoCursor: result.page_info.end_cursor
 
   render: ->
     <ScrollView style={
@@ -53,18 +62,23 @@ SiftrRoll = React.createClass
       alignItems: 'center'
       justifyContent: 'center'
     }>
-      {
-        (this.state.photos ? []).map (photo) =>
-          <TouchableOpacity onPress={=> this.props.onSelectImage photo.image.uri} key={photo.image.uri}>
+      <FlatList
+        numColumns={2}
+        data={this.state.photos}
+        renderItem={({item}) =>
+          uri = item.key
+          <TouchableOpacity onPress={=> this.props.onSelectImage uri}>
             <Image source={
-              uri: photo.image.uri
+              uri: uri
             } style={
               width: 160
               height: 160
               margin: 5
             } />
           </TouchableOpacity>
-      }
+        }
+        onEndReached={=> @getMorePhotos()}
+      />
     </ScrollView>
 # @endif
 
