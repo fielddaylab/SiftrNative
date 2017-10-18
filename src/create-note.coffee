@@ -173,7 +173,7 @@ CreateStep1 = React.createClass
 
     <View style={styles.overlayWhole}>
       <View>
-        <ScrollView horizontal={true} style={
+        <ScrollView horizontal={true} centerContent={true} style={
           backgroundColor: 'rgb(240,240,240)'
         }>
           {

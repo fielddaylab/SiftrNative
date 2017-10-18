@@ -835,7 +835,7 @@ SiftrView = React.createClass
           flex: 1
         }>
           {
-            if @state.createNote?
+            if @state.createNote? and not (@state.createNote.media? or @state.createNote.file? or @state.createNote.uploading)
               undefined
             else if @state.primaryMap
               [@renderThumbnails(), @renderMap()]
