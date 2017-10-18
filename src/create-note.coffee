@@ -101,6 +101,7 @@ CreateStep1 = React.createClass
     source: 'camera'
     camera: 'back'
     flash: false
+    field_id: null
     # @endif
 
   filesReady: ->
@@ -151,13 +152,12 @@ CreateStep1 = React.createClass
   componentWillUnmount: ->
     BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
 
-  chooseImage: (field_id = null) ->
-    Photos.requestImage (file) =>
-      if file?
-        if field_id is null
-          @setState {file}
-        else
-          @setState extraFiles: @state.extraFiles.set(field_id, file)
+  chooseImage: (field_id, file) ->
+    return unless file?
+    if field_id?
+      @setState extraFiles: @state.extraFiles.set(field_id, file)
+    else
+      @setState {file}
 
   render: ->
     pictureSlots = []
@@ -178,7 +178,7 @@ CreateStep1 = React.createClass
         }>
           {
             pictureSlots.map ({field_id, currentImage}) =>
-              <TouchableOpacity key={field_id ? 0} onPress={=> @chooseImage(field_id)}>
+              <TouchableOpacity key={field_id ? 0} onPress={=> @setState {field_id}}>
                 {
                   <Image source={
                     if (file = currentImage())?
@@ -190,6 +190,17 @@ CreateStep1 = React.createClass
               </TouchableOpacity>
           }
         </ScrollView>
+      </View>
+      <View style={backgroundColor: 'white', padding: 3}>
+        <Text style={color: '#979797', textAlign: 'center'}>
+          {
+            if @state.field_id?
+              field = @props.fields.find((field) => field.field_id is @state.field_id)
+              "Add image of: #{field.label}".toUpperCase()
+            else
+              'Add main image'.toUpperCase()
+          }
+        </Text>
       </View>
       {
         switch @state.source
@@ -225,7 +236,7 @@ CreateStep1 = React.createClass
                 <TouchableOpacity onPress={=>
                   return unless this.camera?
                   this.camera.capture({}).then ({path}) =>
-                    @setState file:
+                    @chooseImage @state.field_id,
                       uri: path
                       isStatic: true
                       type: 'image/jpeg'
@@ -252,7 +263,7 @@ CreateStep1 = React.createClass
             <View style={flex: 1}>
               <SiftrRoll
                 onSelectImage={(path) =>
-                  @setState file:
+                  @chooseImage @state.field_id,
                     uri: path
                     isStatic: true
                     # TODO do we need to support other types
