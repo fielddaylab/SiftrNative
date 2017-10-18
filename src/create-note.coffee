@@ -20,10 +20,11 @@ EXIF = require 'exif-js'
 , Linking
 , BackHandler
 , CameraRoll
-, FlatList
+, ListView
 } = require 'react-native'
 {styles} = require './styles'
 import Camera from 'react-native-camera'
+import InfiniteScrollView from 'react-native-infinite-scroll-view'
 # @endif
 
 {Auth, Game, Tag, Field, FieldData} = require './aris'
@@ -37,49 +38,54 @@ SiftrRoll = React.createClass
 
   getInitialState: ->
     photos: []
+    canLoadMore: true
+    dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 != r2})
 
   componentWillMount: ->
     @getMorePhotos()
 
   getMorePhotos: ->
+    thisGet = this.lastGet = Date.now()
     CameraRoll.getPhotos
       first: 20
       after: this.state.photoCursor
       assetType: 'Photos'
     .then (result) =>
+      return unless thisGet is this.lastGet
       if result.edges.length > 0
         @setState
-          photos: result.edges.map ({node}) =>
-            key: node.image.uri
+          photos: @state.photos.concat result.edges.map ({node}) => node.image.uri
           photoCursor: result.page_info.end_cursor
+          canLoadMore: result.page_info.has_next_page
+      else
+        @setState canLoadMore: false
 
   render: ->
-    <ScrollView style={
-      flex: 1
-    } contentContainerStyle={
-      flexDirection: 'row'
-      flexWrap: 'wrap'
-      alignItems: 'center'
-      justifyContent: 'center'
-    }>
-      <FlatList
-        numColumns={2}
-        data={this.state.photos}
-        renderItem={({item}) =>
-          uri = item.key
-          <TouchableOpacity onPress={=> this.props.onSelectImage uri}>
-            <Image source={
-              uri: uri
-            } style={
-              width: 160
-              height: 160
-              margin: 5
-            } />
-          </TouchableOpacity>
-        }
-        onEndReached={=> @getMorePhotos()}
-      />
-    </ScrollView>
+    <ListView
+      style={flex: 1}
+      contentContainerStyle={
+        flexDirection: 'row'
+        flexWrap: 'wrap'
+        alignItems: 'center'
+        justifyContent: 'center'
+      }
+      enableEmptySections={true}
+      renderScrollComponent={(props) => <InfiniteScrollView {...props} />}
+      dataSource={this.state.dataSource.cloneWithRows(this.state.photos)}
+      renderRow={(uri) =>
+        <TouchableOpacity onPress={=> this.props.onSelectImage uri}>
+          <Image source={
+            uri: uri
+          } style={
+            width: 160
+            height: 160
+            margin: 5
+          } />
+        </TouchableOpacity>
+      }
+      canLoadMore={@state.canLoadMore}
+      onLoadMoreAsync={=> @getMorePhotos()}
+    />
 # @endif
 
 # Step 1: Upload
