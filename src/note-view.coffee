@@ -90,16 +90,13 @@ SiftrCommentInput = React.createClass
     <View style={
       flexDirection: 'column'
       alignItems: 'stretch'
-      backgroundColor: '#e8ebf5'
-      borderWidth: 1
-      borderColor: '#89c'
-      margin: 10
+      padding: 5
     }>
       <View style={
         flexDirection: 'row'
         justifyContent: 'flex-start'
         alignItems: 'center'
-        margin: 10
+        margin: 5
       }>
         <Text style={
           fontSize: 13
@@ -124,26 +121,25 @@ SiftrCommentInput = React.createClass
           borderWidth: 1
           borderColor: 'black'
           fontSize: 15
-          marginLeft: 10
-          marginRight: 10
+          margin: 5
         }
       />
       <View style={
-        margin: 10
+        margin: 5
         flexDirection: 'row'
         justifyContent: 'flex-start'
         alignItems: 'stretch'
       }>
         <TouchableOpacity onPress={@doSave}>
           <Text style={styles.blueButton}>
-            SAVE
+            Save
           </Text>
         </TouchableOpacity>
         {
           if @props.canCancel
             <TouchableOpacity onPress={@props.onCancel}>
               <Text style={[styles.grayButton, {marginLeft: 5}]}>
-                CANCEL
+                Cancel
               </Text>
             </TouchableOpacity>
         }
@@ -321,29 +317,22 @@ SiftrComments = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    <View>
+    <View style={
+      borderTopWidth: 1
+      borderTopColor: '#F1F5F4'
+    }>
       {
         if @props.comments.length is 0
           <View style={
             flexDirection: 'column'
-            alignItems: 'stretch'
-            backgroundColor: '#e8ebf5'
-            borderWidth: 1
-            borderColor: '#89c'
+            alignItems: 'flex-start'
             margin: 10
           }>
-            <View style={
-              flexDirection: 'row'
-              justifyContent: 'flex-start'
-              alignItems: 'center'
-              margin: 10
+            <Text style={
+              fontSize: 13
             }>
-              <Text style={
-                fontSize: 13
-              }>
-                No comments.
-              </Text>
-            </View>
+              No comments.
+            </Text>
           </View>
         else
           @props.comments.map (comment) =>
@@ -357,15 +346,20 @@ SiftrComments = React.createClass
               isAdmin={@props.isAdmin}
             />
       }
-      {
-        if @props.auth.authToken?
-          <SiftrCommentInput
-            canCancel={false}
-            onSave={@props.onNewComment}
-          />
-        else
-          <Text style={margin: 10}>Log in to write a comment.</Text>
-      }
+      <View style={
+        borderTopWidth: 1
+        borderTopColor: '#F1F5F4'
+      }>
+        {
+          if @props.auth.authToken?
+            <SiftrCommentInput
+              canCancel={false}
+              onSave={@props.onNewComment}
+            />
+          else
+            <Text style={margin: 10}>Log in to write a comment.</Text>
+        }
+      </View>
     </View>
   # @endif
 
@@ -567,39 +561,27 @@ SiftrNoteView = React.createClass
         />
       </View>
       <View style={
-        backgroundColor: 'rgb(97,201,226)'
+        backgroundColor: 'white'
         padding: 5
         flexDirection: 'row'
         justifyContent: 'flex-start'
+        borderBottomColor: '#F1F5F4'
+        borderBottomWidth: 1
+        alignItems: 'center'
       }>
         {
           if @props.auth.authToken? and @props.note.player_liked
             <TouchableOpacity onPress={@unlikeNote}>
-              <Image style={margin: 5} source={require "../web/assets/img/freepik/heart-filled.png"} />
+              <Image style={margin: 5, width: 18, height: 16} source={require "../web/assets/img/icon-heart-full.png"} />
             </TouchableOpacity>
           else
             <TouchableOpacity onPress={@likeNote}>
-              <Image style={margin: 5} source={require "../web/assets/img/freepik/heart.png"} />
+              <Image style={margin: 5, width: 18, height: 16} source={require "../web/assets/img/icon-heart-empty.png"} />
             </TouchableOpacity>
         }
-        {
-          if @props.note.user.user_id is @props.auth.authToken?.user_id or @props.isAdmin
-            <TouchableOpacity onPress={@confirmDelete}>
-              <Image style={margin: 5} source={require "../web/assets/img/freepik/delete81.png"} />
-            </TouchableOpacity>
-        }
-        {
-          if @props.note.published is 'AUTO' and @props.auth.authToken?.user_id isnt @props.note.user.user_id
-            <TouchableOpacity onPress={@confirmFlag}>
-              <Image style={margin: 5} source={require "../web/assets/img/freepik/warning.png"} />
-            </TouchableOpacity>
-        }
-        {
-          if @props.note.user.user_id is @props.auth.authToken?.user_id
-            <TouchableOpacity onPress={=> @setState editingCaption: true}>
-              <Image style={margin: 5} source={require "../web/assets/img/freepik/edit45.png"} />
-            </TouchableOpacity>
-        }
+        <TouchableOpacity>
+          <Image style={margin: 5, width: 19, height: 17} source={require "../web/assets/img/icon-speech-bubble.png"} />
+        </TouchableOpacity>
       </View>
       {
         switch @props.note.published
