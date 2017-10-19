@@ -19,6 +19,7 @@ T = React.PropTypes
 , TouchableOpacity
 , Linking
 , BackHandler
+, Modal
 } = require 'react-native'
 {default: FitImage} = require 'react-native-fit-image'
 {default: Hyperlink} = require 'react-native-hyperlink'
@@ -171,6 +172,9 @@ SiftrComment = React.createClass
 
   getInitialState: ->
     editing: false
+    # @ifdef NATIVE
+    commentModal: false
+    # @endif
 
   # @ifdef NATIVE
   confirmDelete: ->
@@ -232,11 +236,22 @@ SiftrComment = React.createClass
             }>
               { @props.comment.user.display_name } at { @props.comment.created.toLocaleString() }
             </Text>
+            <TouchableOpacity onPress={=> @setState commentModal: true}>
+              <Image style={marginLeft: 10, width: 17, height: 17} source={require '../web/assets/img/icon-edit-pencil.png'} />
+            </TouchableOpacity>
             {
-              if @props.auth.authToken?.user_id is @props.comment.user.user_id
-                <TouchableOpacity onPress={=> @setState editing: true}>
-                  <Image style={marginLeft: 10, width: 17, height: 17} source={require '../web/assets/img/icon-edit-pencil.png'} />
-                </TouchableOpacity>
+              if @state.commentModal
+                <OptionsModal
+                  onClose={=> @setState commentModal: false}
+                  options={[
+                    if @props.auth.authToken?.user_id is @props.comment.user.user_id
+                      text: 'Edit comment'
+                      onPress: => @setState editing: true, commentModal: false
+                    if @props.auth.authToken?.user_id is @props.comment.user.user_id or @props.isAdmin
+                      text: 'Delete comment'
+                      onPress: @confirmDelete.bind(@)
+                  ]}
+                />
             }
           </View>
           <View>
@@ -377,6 +392,39 @@ SiftrComments = React.createClass
     </div>
   # @endif
 
+# @ifdef NATIVE
+OptionsModal = React.createClass
+  getDefaultProps: ->
+    onClose: (->)
+    options: []
+
+  render: ->
+    <Modal transparent={true}>
+      <View style={
+        height: 150
+        backgroundColor: 'rgba(0,0,0,0.5)'
+      } />
+      <View style={
+        backgroundColor: 'white'
+        flex: 1
+        padding: 10
+        flexDirection: 'column'
+        justifyContent: 'flex-start'
+        alignItems: 'flex-start'
+      }>
+        <TouchableOpacity onPress={@props.onClose}>
+          <Image style={margin: 10} source={require '../web/assets/img/x-blue.png'} />
+        </TouchableOpacity>
+        {
+          @props.options.map ({text, onPress}) =>
+            <TouchableOpacity key={text} onPress={onPress}>
+              <Text style={margin: 10}>{ text }</Text>
+            </TouchableOpacity>
+        }
+      </View>
+    </Modal>
+# @endif
+
 SiftrNoteView = React.createClass
   propTypes:
     note: T.instanceOf(Note).isRequired
@@ -400,6 +448,14 @@ SiftrNoteView = React.createClass
   getInitialState: ->
     comments: null
     editingCaption: false
+    # @ifdef NATIVE
+    noteModal: false
+    # @endif
+
+  # @ifdef NATIVE
+  openNoteOptions: ->
+    @setState noteModal: true
+  # @endif
 
   componentWillMount: ->
     @loadExtra()
@@ -534,6 +590,23 @@ SiftrNoteView = React.createClass
       right: 0
       flexDirection: 'column'
     }>
+      {
+        if @state.noteModal
+          <OptionsModal
+            onClose={=> @setState noteModal: false}
+            options={[
+              if @props.note.user.user_id is @props.auth.authToken?.user_id
+                text: 'Edit post'
+                onPress: => @setState editingCaption: true, noteModal: false
+              if @props.note.published is 'AUTO' and @props.auth.authToken?.user_id isnt @props.note.user.user_id
+                text: 'Flag for inappropriate content'
+                onPress: @confirmFlag.bind(@)
+              if @props.note.user.user_id is @props.auth.authToken?.user_id or @props.isAdmin
+                text: 'Delete post'
+                onPress: @confirmDelete.bind(@)
+            ].filter (x) => x?}
+          />
+      }
       <View>
         <FitImage
           source={uri: @props.note.photo_url}

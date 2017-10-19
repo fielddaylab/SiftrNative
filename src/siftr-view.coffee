@@ -469,6 +469,7 @@ SiftrView = React.createClass
   renderNoteView: ->
     if @state.viewingNote?
       <SiftrNoteView
+        ref={(noteView) => @noteView = noteView}
         note={@state.viewingNote}
         onClose={=> if @isMounted then @setState viewingNote: null}
         auth={@props.auth}
@@ -829,7 +830,7 @@ SiftrView = React.createClass
           }</Text>
           {
             if @state.viewingNote?
-              <TouchableOpacity style={padding: 10}>
+              <TouchableOpacity style={padding: 10} onPress={=> @noteView?.openNoteOptions()}>
                 <Image style={resizeMode: 'contain', height: 5} source={require('../web/assets/img/icon-3dots.png')} />
               </TouchableOpacity>
             else
