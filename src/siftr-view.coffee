@@ -827,9 +827,16 @@ SiftrView = React.createClass
             else
               @props.game.name
           }</Text>
-          <TouchableOpacity style={padding: 10} onPress={=> @setState infoOpen: not @state.infoOpen}>
-            <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-4dots.png')} />
-          </TouchableOpacity>
+          {
+            if @state.viewingNote?
+              <TouchableOpacity style={padding: 10}>
+                <Image style={resizeMode: 'contain', height: 5} source={require('../web/assets/img/icon-3dots.png')} />
+              </TouchableOpacity>
+            else
+              <TouchableOpacity style={padding: 10} onPress={=> @setState infoOpen: not @state.infoOpen}>
+                <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-4dots.png')} />
+              </TouchableOpacity>
+          }
         </View>
         <View style={
           flex: 1

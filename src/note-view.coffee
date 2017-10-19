@@ -88,62 +88,40 @@ SiftrCommentInput = React.createClass
   # @ifdef NATIVE
   render: ->
     <View style={
-      flexDirection: 'column'
+      flexDirection: 'row'
       alignItems: 'stretch'
-      padding: 5
+      marginTop: 5
+      marginBottom: 5
     }>
-      <View style={
-        flexDirection: 'row'
-        justifyContent: 'flex-start'
-        alignItems: 'center'
-        margin: 5
-      }>
-        <Text style={
-          fontSize: 13
-        }>
-          {
-            if @props.canCancel
-              'Editing...'
-            else
-              'New comment...'
-          }
-        </Text>
-      </View>
       <TextInput
-        placeholder="Enter a comment"
+        placeholder={
+          if @props.canCancel
+            'Save comment...'
+          else
+            'Add comment...'
+        }
         value={@state.text}
         onChangeText={(text) => @setState {text}}
-        multiline={true}
         style={
-          height: 100
           backgroundColor: 'white'
           padding: 5
-          borderWidth: 1
-          borderColor: 'black'
           fontSize: 15
-          margin: 5
+          flex: 1
         }
       />
-      <View style={
-        margin: 5
-        flexDirection: 'row'
-        justifyContent: 'flex-start'
-        alignItems: 'stretch'
-      }>
-        <TouchableOpacity onPress={@doSave}>
-          <Text style={styles.blueButton}>
-            Save
-          </Text>
-        </TouchableOpacity>
-        {
-          if @props.canCancel
-            <TouchableOpacity onPress={@props.onCancel}>
-              <Text style={[styles.grayButton, {marginLeft: 5}]}>
-                Cancel
-              </Text>
-            </TouchableOpacity>
-        }
-      </View>
+      <TouchableOpacity onPress={@doSave}>
+        <Text style={styles.blueButton}>
+          Save
+        </Text>
+      </TouchableOpacity>
+      {
+        if @props.canCancel
+          <TouchableOpacity onPress={@props.onCancel}>
+            <Text style={[styles.grayButton, {marginLeft: 5}]}>
+              Cancel
+            </Text>
+          </TouchableOpacity>
+      }
     </View>
   # @endif
 
@@ -227,39 +205,43 @@ SiftrComment = React.createClass
       />
     else
       <View style={
-        flexDirection: 'column'
-        alignItems: 'stretch'
-        backgroundColor: '#e8ebf5'
-        borderWidth: 1
-        borderColor: '#89c'
-        margin: 10
+        flexDirection: 'row'
+        alignItems: 'flex-start'
       }>
         <View style={
-          flexDirection: 'row'
-          justifyContent: 'flex-start'
-          alignItems: 'center'
+          width: 20
+          height: 20
+          borderRadius: 10
+          backgroundColor: '#888888'
           margin: 10
+          marginRight: 0
+        } />
+        <View style={
+          flex: 1
+          flexDirection: 'column'
+          alignItems: 'stretch'
         }>
-          <Text style={
-            fontSize: 13
+          <View style={
+            flexDirection: 'row'
+            justifyContent: 'flex-start'
+            alignItems: 'center'
+            margin: 10
           }>
-            { @props.comment.user.display_name } at { @props.comment.created.toLocaleString() }
-          </Text>
-          {
-            if @props.auth.authToken?.user_id is @props.comment.user.user_id
-              <TouchableOpacity onPress={=> @setState editing: true}>
-                <Image style={marginLeft: 10} source={require '../web/assets/img/freepik/edit45_blue.png'} />
-              </TouchableOpacity>
-          }
-          {
-            if @props.auth.authToken?.user_id is @props.comment.user.user_id or @props.isAdmin
-              <TouchableOpacity onPress={@confirmDelete}>
-                <Image style={marginLeft: 10} source={require '../web/assets/img/freepik/delete81_blue.png'} />
-              </TouchableOpacity>
-          }
-        </View>
-        <View>
-          { writeParagraphs @props.comment.description }
+            <Text style={
+              fontSize: 13
+            }>
+              { @props.comment.user.display_name } at { @props.comment.created.toLocaleString() }
+            </Text>
+            {
+              if @props.auth.authToken?.user_id is @props.comment.user.user_id
+                <TouchableOpacity onPress={=> @setState editing: true}>
+                  <Image style={marginLeft: 10, width: 17, height: 17} source={require '../web/assets/img/icon-edit-pencil.png'} />
+                </TouchableOpacity>
+            }
+          </View>
+          <View>
+            { writeParagraphs @props.comment.description }
+          </View>
         </View>
       </View>
   # @endif
@@ -543,7 +525,7 @@ SiftrNoteView = React.createClass
 
   # @ifdef NATIVE
   render: ->
-    <ScrollView style={
+    <ScrollView ref={(sv) => @scrollView = sv} style={
       backgroundColor: 'white'
       position: 'absolute'
       top: 0
@@ -579,7 +561,7 @@ SiftrNoteView = React.createClass
               <Image style={margin: 5, width: 18, height: 16} source={require "../web/assets/img/icon-heart-empty.png"} />
             </TouchableOpacity>
         }
-        <TouchableOpacity>
+        <TouchableOpacity onPress={=> @scrollView?.scrollToEnd animated: true}>
           <Image style={margin: 5, width: 19, height: 17} source={require "../web/assets/img/icon-speech-bubble.png"} />
         </TouchableOpacity>
       </View>
