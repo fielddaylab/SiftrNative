@@ -21,6 +21,8 @@ EXIF = require 'exif-js'
 , BackHandler
 , CameraRoll
 , ListView
+, TouchableWithoutFeedback
+, Keyboard
 } = require 'react-native'
 {styles} = require './styles'
 import Camera from 'react-native-camera'
@@ -879,24 +881,26 @@ CreateData = React.createClass
       </View>
     else
       <View style={flex: 1}>
-        <View style={styles.buttonRow}>
-          <TouchableOpacity onPress={@props.onBack}>
-            <Text style={styles.blackViolaButton}>Back</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={=>
-            unless @props.createNote.uploading
-              @props.onFinish @props.onCreateNote
-          }>
-            <Text style={styles.blackViolaButton}>
-              {
-                if @props.createNote.uploading
-                  "Uploading… (#{Math.floor((@props.progress ? 0) * 100)}%)"
-                else
-                  "Post"
-              }
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity onPress={@props.onBack}>
+              <Text style={styles.blackViolaButton}>Back</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={=>
+              unless @props.createNote.uploading
+                @props.onFinish @props.onCreateNote
+            }>
+              <Text style={styles.blackViolaButton}>
+                {
+                  if @props.createNote.uploading
+                    "Uploading… (#{Math.floor((@props.progress ? 0) * 100)}%)"
+                  else
+                    "Post"
+                }
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableWithoutFeedback>
         <ScrollView style={flex: 1, backgroundColor: 'white'} contentContainerStyle={
           flexDirection: 'column'
           alignItems: 'stretch'
@@ -911,6 +915,11 @@ CreateData = React.createClass
               onChangeText={(text) =>
                 @props.onUpdateNote update @props.createNote,
                   caption: $set: text
+              }
+              onFocus={=> @setState focusedBox: 'caption'}
+              onEndEditing={=>
+                if @state.focusedBox is 'caption'
+                  @setState focusedBox: null
               }
               multiline={true}
               style={
