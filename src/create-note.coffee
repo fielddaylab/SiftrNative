@@ -823,6 +823,29 @@ CreateStep5 = React.createClass
 
 # @ifdef NATIVE
 
+class Blackout extends React.Component
+  @defaultProps:
+    isFocused: false
+    keyboardUp: false
+
+  render: ->
+    <View style={@props.style}>
+      {@props.children}
+      {
+        if @props.keyboardUp and not @props.isFocused
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={
+              position: 'absolute'
+              top: 0
+              left: 0
+              bottom: 0
+              right: 0
+              backgroundColor: 'rgba(0,0,0,0.5)'
+            } />
+          </TouchableWithoutFeedback>
+      }
+    </View>
+
 # Steps 2-5 (native app), all non-photo data together
 CreateData = React.createClass
   propTypes:
@@ -881,7 +904,7 @@ CreateData = React.createClass
       </View>
     else
       <View style={flex: 1}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <Blackout keyboardUp={@state.focusedBox?} isFocused={false}>
           <View style={styles.buttonRow}>
             <TouchableOpacity onPress={@props.onBack}>
               <Text style={styles.blackViolaButton}>Back</Text>
@@ -900,7 +923,7 @@ CreateData = React.createClass
               </Text>
             </TouchableOpacity>
           </View>
-        </TouchableWithoutFeedback>
+        </Blackout>
         <ScrollView style={flex: 1, backgroundColor: 'white'} contentContainerStyle={
           flexDirection: 'column'
           alignItems: 'stretch'
@@ -909,58 +932,61 @@ CreateData = React.createClass
             flexDirection: 'column'
             alignItems: 'stretch'
           }>
-            <TextInput
-              placeholder="Add a description…"
-              value={@props.createNote.caption}
-              onChangeText={(text) =>
-                @props.onUpdateNote update @props.createNote,
-                  caption: $set: text
-              }
-              onFocus={=> @setState focusedBox: 'caption'}
-              onEndEditing={=>
-                if @state.focusedBox is 'caption'
-                  @setState focusedBox: null
-              }
-              multiline={true}
-              style={
-                height: 150
-                flex: 1
-                padding: 10
-                fontSize: 16
-              }
-            />
-            <View style={styles.buttonRow}>
+            <Blackout keyboardUp={@state.focusedBox?} isFocused={@state.focusedBox is 'caption'}>
+              <TextInput
+                placeholder="Add a description…"
+                value={@props.createNote.caption}
+                onChangeText={(text) =>
+                  @props.onUpdateNote update @props.createNote,
+                    caption: $set: text
+                }
+                onFocus={=> @setState focusedBox: 'caption'}
+                onEndEditing={=>
+                  if @state.focusedBox is 'caption'
+                    @setState focusedBox: null
+                }
+                multiline={true}
+                style={
+                  height: 120
+                  padding: 10
+                  fontSize: 16
+                }
+              />
+            </Blackout>
+            <Blackout keyboardUp={@state.focusedBox?} isFocused={false}>
+              <View style={styles.buttonRow}>
+                <TouchableOpacity onPress={=>
+                  @setState isPickingLocation: true
+                  @props.onStartLocation()
+                }>
+                  <Text style={styles.blueButton}>Pick Location</Text>
+                </TouchableOpacity>
+              </View>
               <TouchableOpacity onPress={=>
-                @setState isPickingLocation: true
-                @props.onStartLocation()
+                @setState tagListOpen: not @state.tagListOpen
+              } style={
+                borderTopColor: 'rgb(230,230,230)'
+                borderTopWidth: 1
+                padding: 13
+                flexDirection: 'row'
+                alignItems: 'center'
+                justifyContent: 'space-between'
               }>
-                <Text style={styles.blueButton}>Pick Location</Text>
+                <View style={
+                  backgroundColor: @props.getColor(@props.createNote.category)
+                  height: 16
+                  width: 16
+                  borderRadius: 8
+                  marginRight: 20
+                } />
+                <Text style={flex: 1}>{ @props.createNote.category?.tag }</Text>
+                <Image source={require('../web/assets/img/icon-expand.png')} style={
+                  width: 32 * 0.7
+                  height: 18 * 0.7
+                  resizeMode: 'contain'
+                } />
               </TouchableOpacity>
-            </View>
-            <TouchableOpacity onPress={=>
-              @setState tagListOpen: not @state.tagListOpen
-            } style={
-              borderTopColor: 'rgb(230,230,230)'
-              borderTopWidth: 1
-              padding: 13
-              flexDirection: 'row'
-              alignItems: 'center'
-              justifyContent: 'space-between'
-            }>
-              <View style={
-                backgroundColor: @props.getColor(@props.createNote.category)
-                height: 16
-                width: 16
-                borderRadius: 8
-                marginRight: 20
-              } />
-              <Text style={flex: 1}>{ @props.createNote.category?.tag }</Text>
-              <Image source={require('../web/assets/img/icon-expand.png')} style={
-                width: 32 * 0.7
-                height: 18 * 0.7
-                resizeMode: 'contain'
-              } />
-            </TouchableOpacity>
+            </Blackout>
             {
               if @state.tagListOpen
                 <View>
@@ -994,7 +1020,7 @@ CreateData = React.createClass
             {
               @props.fields.map (field) =>
                 return null if field.field_type is 'MEDIA'
-                <View key={field.field_id} style={alignSelf: 'stretch'}>
+                <Blackout keyboardUp={@state.focusedBox?} isFocused={@state.focusedBox is field.field_id} key={field.field_id} style={alignSelf: 'stretch'}>
                   <View style={styles.settingsHeader}>
                     <Text style={styles.settingsHeaderText}>{ if field.field_type is 'NOMEN' then "Nomen #{field.label}" else field.label }</Text>
                   </View>
@@ -1024,6 +1050,11 @@ CreateData = React.createClass
                           onChangeText={setText}
                           style={styles.input}
                           placeholder={field.label}
+                          onFocus={=> @setState focusedBox: field.field_id}
+                          onEndEditing={=>
+                            if @state.focusedBox is field.field_id
+                              @setState focusedBox: null
+                          }
                         />
                       when 'TEXTAREA'
                         <TextInput
@@ -1037,6 +1068,11 @@ CreateData = React.createClass
                             padding: 10
                             fontSize: 16
                             alignSelf: 'stretch'
+                          }
+                          onFocus={=> @setState focusedBox: field.field_id}
+                          onEndEditing={=>
+                            if @state.focusedBox is field.field_id
+                              @setState focusedBox: null
                           }
                         />
                       when 'SINGLESELECT'
@@ -1099,7 +1135,7 @@ CreateData = React.createClass
                       else
                         <Text>(not implemented yet)</Text>
                   }
-                </View>
+                </Blackout>
             }
           </View>
         </ScrollView>
