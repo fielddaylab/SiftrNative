@@ -66,21 +66,23 @@ writeParagraphs = (text) ->
     </Hyperlink>
 # @endif
 
-SiftrCommentInput = React.createClass
-  propTypes:
+class SiftrCommentInput extends React.Component
+  @propTypes:
     defaultText: T.string
     canCancel: T.bool
     onSave: T.func
     onCancel: T.func
 
-  getDefaultProps: ->
+  @defaultProps:
     defaultText: ''
     canCancel: false
     onSave: (->)
     onCancel: (->)
 
-  getInitialState: ->
-    text: @props.defaultText
+  constructor: (props) ->
+    super props
+    @state =
+      text: @props.defaultText
 
   doSave: ->
     @props.onSave @state.text
@@ -110,7 +112,7 @@ SiftrCommentInput = React.createClass
           flex: 1
         }
       />
-      <TouchableOpacity onPress={@doSave}>
+      <TouchableOpacity onPress={@doSave.bind(@)}>
         <Text style={styles.blueButton}>
           Save
         </Text>
@@ -142,7 +144,7 @@ SiftrCommentInput = React.createClass
         onChange={(e) => @setState text: e.target.value}
       />
       <p>
-        <a href="#" onClick={clicker @doSave} className="create-button-blue">
+        <a href="#" onClick={clicker @doSave.bind(@)} className="create-button-blue">
           SAVE
         </a>
         {' '}
@@ -156,8 +158,8 @@ SiftrCommentInput = React.createClass
     </div>
   # @endif
 
-SiftrComment = React.createClass
-  propTypes:
+class SiftrComment extends React.Component
+  @propTypes:
     note: T.instanceOf(Note).isRequired
     comment: T.instanceOf(Comment).isRequired
     auth: T.instanceOf(Auth).isRequired
@@ -165,16 +167,18 @@ SiftrComment = React.createClass
     onDelete: T.func
     isAdmin: T.bool
 
-  getDefaultProps: ->
+  @defaultProps:
     onEdit: (->)
     onDelete: (->)
     isAdmin: false
 
-  getInitialState: ->
-    editing: false
-    # @ifdef NATIVE
-    commentModal: false
-    # @endif
+  constructor: (props) ->
+    super props
+    @state =
+      editing: false
+      # @ifdef NATIVE
+      commentModal: false
+      # @endif
 
   # @ifdef NATIVE
   confirmDelete: ->
@@ -285,7 +289,7 @@ SiftrComment = React.createClass
           }
           {
             if @props.auth.authToken?.user_id is @props.comment.user.user_id or @props.isAdmin
-              <a className="note-comment-action" href="#" onClick={clicker @confirmDelete}>
+              <a className="note-comment-action" href="#" onClick={clicker @confirmDelete.bind(@)}>
                 <img src="assets/img/freepik/delete81_blue.png" />
               </a>
           }
@@ -296,8 +300,8 @@ SiftrComment = React.createClass
       </div>
   # @endif
 
-SiftrComments = React.createClass
-  propTypes:
+class SiftrComments extends React.Component
+  @propTypes:
     note: T.instanceOf(Note).isRequired
     comments: T.arrayOf(T.instanceOf Comment).isRequired
     auth: T.instanceOf(Auth).isRequired
@@ -306,7 +310,7 @@ SiftrComments = React.createClass
     onDeleteComment: T.func
     isAdmin: T.bool
 
-  getDefaultProps: ->
+  @defaultProps:
     onEditComment: (->)
     onNewComment: (->)
     onDeleteComment: (->)
@@ -393,8 +397,8 @@ SiftrComments = React.createClass
   # @endif
 
 # @ifdef NATIVE
-OptionsModal = React.createClass
-  getDefaultProps: ->
+class OptionsModal extends React.Component
+  @defaultProps:
     onClose: (->)
     options: []
 
@@ -425,8 +429,8 @@ OptionsModal = React.createClass
     </Modal>
 # @endif
 
-SiftrNoteView = React.createClass
-  propTypes:
+class SiftrNoteView extends React.Component
+  @propTypes:
     note: T.instanceOf(Note).isRequired
     onClose: T.func
     auth: T.instanceOf(Auth).isRequired
@@ -437,7 +441,7 @@ SiftrNoteView = React.createClass
     getColor: T.func
     fields: T.arrayOf(T.instanceOf Field)
 
-  getDefaultProps: ->
+  @defaultProps:
     onClose: (->)
     onDelete: (->)
     onReload: (->)
@@ -445,12 +449,14 @@ SiftrNoteView = React.createClass
     onPromptLogin: (->)
     getColor: -> 'black'
 
-  getInitialState: ->
-    comments: null
-    editingCaption: false
-    # @ifdef NATIVE
-    noteModal: false
-    # @endif
+  constructor: (props) ->
+    super props
+    @state =
+      comments: null
+      editingCaption: false
+      # @ifdef NATIVE
+      noteModal: false
+      # @endif
 
   # @ifdef NATIVE
   openNoteOptions: ->
@@ -626,11 +632,11 @@ SiftrNoteView = React.createClass
       }>
         {
           if @props.auth.authToken? and @props.note.player_liked
-            <TouchableOpacity onPress={@unlikeNote}>
+            <TouchableOpacity onPress={@unlikeNote.bind(@)}>
               <Image style={margin: 5, width: 18, height: 16} source={require "../web/assets/img/icon-heart-full.png"} />
             </TouchableOpacity>
           else
-            <TouchableOpacity onPress={@likeNote}>
+            <TouchableOpacity onPress={@likeNote.bind(@)}>
               <Image style={margin: 5, width: 18, height: 16} source={require "../web/assets/img/icon-heart-empty.png"} />
             </TouchableOpacity>
         }
@@ -642,7 +648,7 @@ SiftrNoteView = React.createClass
         switch @props.note.published
           when 'PENDING'
             if @props.isAdmin
-              <BUTTON onClick={@approveNote}><P>Approve this note</P></BUTTON>
+              <BUTTON onClick={@approveNote.bind(@)}><P>Approve this note</P></BUTTON>
             else
               <P>This note is visible only to you until a moderator approves it.</P>
           when 'AUTO', 'APPROVED'
@@ -706,9 +712,9 @@ SiftrNoteView = React.createClass
             note={@props.note}
             auth={@props.auth}
             comments={@state.comments ? []}
-            onEditComment={@doEditComment}
-            onNewComment={@doNewComment}
-            onDeleteComment={@doDeleteComment}
+            onEditComment={@doEditComment.bind(@)}
+            onNewComment={@doNewComment.bind(@)}
+            onDeleteComment={@doDeleteComment.bind(@)}
             isAdmin={@props.isAdmin}
           />
       }
@@ -735,23 +741,23 @@ SiftrNoteView = React.createClass
       <div className="note-actions">
         {
           if @props.auth.authToken? and @props.note.player_liked
-            <a href="#" className="note-action" onClick={clicker @unlikeNote}>
+            <a href="#" className="note-action" onClick={clicker @unlikeNote.bind(@)}>
               <img src="assets/img/freepik/heart-filled.png" />
             </a>
           else
-            <a href="#" className="note-action" onClick={clicker @likeNote}>
+            <a href="#" className="note-action" onClick={clicker @likeNote.bind(@)}>
               <img src="assets/img/freepik/heart.png" />
             </a>
         }
         {
           if @props.note.user.user_id is @props.auth.authToken?.user_id or @props.isAdmin
-            <a href="#" className="note-action" onClick={clicker @confirmDelete}>
+            <a href="#" className="note-action" onClick={clicker @confirmDelete.bind(@)}>
               <img src="assets/img/freepik/delete81.png" />
             </a>
         }
         {
           if @props.note.published is 'AUTO' and @props.auth.authToken?.user_id isnt @props.note.user.user_id
-            <a href="#" className="note-action" onClick={clicker @confirmFlag}>
+            <a href="#" className="note-action" onClick={clicker @confirmFlag.bind(@)}>
               <img src="assets/img/freepik/warning.png" />
             </a>
         }
@@ -766,7 +772,7 @@ SiftrNoteView = React.createClass
         switch @props.note.published
           when 'PENDING'
             if @props.isAdmin
-              <BUTTON onClick={@approveNote}><P>Approve this note</P></BUTTON>
+              <BUTTON onClick={@approveNote.bind(@)}><P>Approve this note</P></BUTTON>
             else
               <P>This note is visible only to you until a moderator approves it.</P>
           when 'AUTO', 'APPROVED'
@@ -801,9 +807,9 @@ SiftrNoteView = React.createClass
               note={@props.note}
               auth={@props.auth}
               comments={@state.comments ? []}
-              onEditComment={@doEditComment}
-              onNewComment={@doNewComment}
-              onDeleteComment={@doDeleteComment}
+              onEditComment={@doEditComment.bind(@)}
+              onNewComment={@doNewComment.bind(@)}
+              onDeleteComment={@doDeleteComment.bind(@)}
               isAdmin={@props.isAdmin}
             />
         }
