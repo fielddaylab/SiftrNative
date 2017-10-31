@@ -26,6 +26,41 @@ import
 import {TimeSlider} from './time-slider';
 import {clicker} from './utils';
 
+// @ifdef NATIVE
+
+class FilterHeader extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <View style={{
+        alignSelf: 'stretch',
+        paddingVertical: 10,
+        alignItems: 'center',
+        flexDirection: 'row',
+      }}>
+        <View style={{
+          height: 2,
+          width: 30,
+          backgroundColor: '#EEEEEE',
+        }} />
+        <Text style={{
+          fontSize: 17,
+          paddingHorizontal: 15,
+        }}>{ this.props.text }</Text>
+        <View style={{
+          height: 2,
+          flex: 1,
+          backgroundColor: '#EEEEEE',
+        }} />
+      </View>
+    );
+  }
+}
+// @endif
+
 export class SearchNotes extends React.Component {
 
   constructor(props) {
@@ -142,16 +177,7 @@ export class SearchNotes extends React.Component {
           borderRadius: 25,
         }}
       />
-      <View style={{
-        alignSelf: 'stretch',
-        borderTopColor: 'black',
-        borderTopWidth: 2,
-        paddingTop: 10,
-        paddingBottom: 5,
-        alignItems: 'center',
-      }}>
-        <Text style={{fontSize: 17}}>Date Range:</Text>
-      </View>
+      <FilterHeader text="Date Range:" />
       <TimeSlider
         minBound={this.props.game.created.getTime()}
         maxBound={Date.now()}
@@ -159,16 +185,7 @@ export class SearchNotes extends React.Component {
         p2={max_time}
         onChange={this.changeDates.bind(this)}
       />
-      <View style={{
-        alignSelf: 'stretch',
-        borderTopColor: 'black',
-        borderTopWidth: 2,
-        paddingTop: 10,
-        paddingBottom: 5,
-        alignItems: 'center',
-      }}>
-        <Text style={{fontSize: 17}}>Category:</Text>
-      </View>
+      <FilterHeader text="Category:" />
       <View style={{
         alignSelf: 'stretch',
         flexDirection: 'column',
@@ -203,17 +220,7 @@ export class SearchNotes extends React.Component {
           })
         }
       </View>
-      <View style={{
-        alignSelf: 'stretch',
-        borderTopColor: 'black',
-        borderTopWidth: 2,
-        paddingTop: 10,
-        paddingBottom: 5,
-        alignItems: 'center',
-        marginTop: 10,
-      }}>
-        <Text style={{fontSize: 17}}>Sort:</Text>
-      </View>
+      <FilterHeader text="Sort:" />
       <View style={{
         alignSelf: 'stretch',
         flexDirection: 'row',
