@@ -818,6 +818,8 @@ SiftrView = React.createClass
                 => @setState viewingNote: null
               else if @state.createNote?
                 => @setState createNote: null
+              else if @state.searchOpen
+                => @setState searchOpen: false
               else
                 @props.onExit
             }>

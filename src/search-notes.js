@@ -12,6 +12,7 @@ import
 , ScrollView
 , StyleSheet
 , TextInput
+, Switch
 } from 'react-native';
 import {styles} from './styles';
 // @endif
@@ -126,14 +127,14 @@ export class SearchNotes extends React.Component {
       alignItems: 'center',
     }}>
       <TextInput
-        placeholder="Search…"
+        placeholder="search"
         defaultValue={text}
         onChangeText={this.userTyped.bind(this)}
         autoCapitalize="none"
         autoCorrect={false}
         style={{
           alignSelf: 'stretch',
-          height: 50,
+          height: 40,
           borderColor: '#bbb',
           borderWidth: 1,
           margin: 10,
@@ -149,7 +150,7 @@ export class SearchNotes extends React.Component {
         paddingBottom: 5,
         alignItems: 'center',
       }}>
-        <Text style={{fontSize: 18, fontWeight: 'bold'}}>BY DATE:</Text>
+        <Text style={{fontSize: 17}}>Date Range:</Text>
       </View>
       <TimeSlider
         minBound={this.props.game.created.getTime()}
@@ -165,9 +166,53 @@ export class SearchNotes extends React.Component {
         paddingTop: 10,
         paddingBottom: 5,
         alignItems: 'center',
+      }}>
+        <Text style={{fontSize: 17}}>Category:</Text>
+      </View>
+      <View style={{
+        alignSelf: 'stretch',
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        padding: 10,
+      }}>
+        {
+          this.props.tags.map((tag) => {
+            const checked = tags.indexOf(tag.tag_id) !== -1;
+            const color = this.props.getColor(tag);
+            return <View key={tag.tag_id} style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginVertical: 4,
+            }}>
+              <View style={{alignItems: 'center', flexDirection: 'row'}}>
+                <View style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: 10,
+                  backgroundColor: color,
+                  marginRight: 7,
+                }} />
+                <Text>{ tag.tag }</Text>
+              </View>
+              <Switch
+                value={checked}
+                onValueChange={() => this.clickTag(tag)}
+              />
+            </View>;
+          })
+        }
+      </View>
+      <View style={{
+        alignSelf: 'stretch',
+        borderTopColor: 'black',
+        borderTopWidth: 2,
+        paddingTop: 10,
+        paddingBottom: 5,
+        alignItems: 'center',
         marginTop: 10,
       }}>
-        <Text style={{fontSize: 18, fontWeight: 'bold'}}>BY ACTIVITY:</Text>
+        <Text style={{fontSize: 17}}>Sort:</Text>
       </View>
       <View style={{
         alignSelf: 'stretch',
@@ -213,48 +258,6 @@ export class SearchNotes extends React.Component {
               </View>
             </TouchableOpacity>
           : undefined
-        }
-      </View>
-      <View style={{
-        alignSelf: 'stretch',
-        borderTopColor: 'black',
-        borderTopWidth: 2,
-        paddingTop: 10,
-        paddingBottom: 5,
-        alignItems: 'center',
-      }}>
-        <Text style={{fontSize: 18, fontWeight: 'bold'}}>BY CATEGORY:</Text>
-      </View>
-      <View style={{
-        alignSelf: 'stretch',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 10,
-      }}>
-        {
-          this.props.tags.map((tag) => {
-            const checked = tags.indexOf(tag.tag_id) !== -1;
-            const color = this.props.getColor(tag);
-            return <TouchableOpacity key={tag.tag_id} onPress={() => this.clickTag(tag)}>
-              <View style={{
-                backgroundColor: (checked ? color : 'white'),
-                borderColor: color,
-                borderWidth: 1,
-                padding: 3,
-                borderRadius: 3,
-                margin: 5,
-              }}>
-                <Text style={{
-                  color: (checked ? 'white' : color),
-                  fontSize: 18,
-                }}>
-                  { checked ? `✓ ${tag.tag}` : `● ${tag.tag}` }
-                </Text>
-              </View>
-            </TouchableOpacity>
-          })
         }
       </View>
     </ScrollView>
