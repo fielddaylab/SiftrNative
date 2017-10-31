@@ -185,7 +185,7 @@ CreateStep1 = React.createClass
     pictureSlots = []
     # main picture
     pictureSlots.push
-      field_id: undefined
+      field_id: null
       currentImage: => @state.file
     # other pictures
     for field in @props.fields.filter((field) => field.field_type is 'MEDIA')
@@ -200,7 +200,10 @@ CreateStep1 = React.createClass
         }>
           {
             pictureSlots.map ({field_id, currentImage}) =>
-              <TouchableOpacity key={field_id ? 0} onPress={=> @setState {field_id}}>
+              <TouchableOpacity key={field_id ? 0} onPress={=> @setState {field_id}} style={
+                flexDirection: 'column'
+                alignItems: 'center'
+              }>
                 {
                   <Image source={
                     if (file = currentImage())?
@@ -208,6 +211,16 @@ CreateStep1 = React.createClass
                     else
                       require '../web/assets/img/icon-needs-pic.png'
                   } style={styles.photoSlot} />
+                }
+                {
+                  if @state.field_id is field_id
+                    <Image
+                      source={require '../web/assets/img/white-indicator.png'}
+                      style={
+                        width: 250 * 0.08
+                        height: 110 * 0.08
+                      }
+                    />
                 }
               </TouchableOpacity>
           }
