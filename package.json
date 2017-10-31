@@ -7,6 +7,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@ptomasroos/react-native-multi-slider": "^0.0.11",
     "exif-js": "^2.2.1",
     "google-map-react": "^0.24.0",
     "immutability-helper": "^2.3.1",

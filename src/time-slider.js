@@ -9,7 +9,7 @@ import
 , View
 , Text
 } from 'react-native';
-import Slider from './multi-slider';
+import MultiSlider from '@ptomasroos/react-native-multi-slider';
 // @endif
 
 const nubType = T.oneOfType([T.number, T.oneOf(['min', 'max'])]);
@@ -140,11 +140,12 @@ export const TimeSlider = React.createClass({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignSelf: 'stretch',
+        marginBottom: 12,
       }}>
         <Text style={{fontSize: 18, margin: 10}}>{this.showDate(this.state.p1_temp)}</Text>
         <Text style={{fontSize: 18, margin: 10}}>{this.showDate(this.state.p2_temp)}</Text>
       </View>
-      <Slider
+      <MultiSlider
         sliderLength={Dimensions.get('window').width - 75}
         min={0}
         max={ticks}

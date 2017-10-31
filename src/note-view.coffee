@@ -20,6 +20,7 @@ T = React.PropTypes
 , Linking
 , BackHandler
 , Modal
+, TouchableWithoutFeedback
 } = require 'react-native'
 import FitImage from 'react-native-fit-image'
 import Hyperlink from 'react-native-hyperlink'
@@ -405,10 +406,12 @@ class OptionsModal extends React.Component
 
   render: ->
     <Modal transparent={true} onRequestClose={@props.onClose}>
-      <View style={
-        height: 150
-        backgroundColor: 'rgba(0,0,0,0.5)'
-      } />
+      <TouchableWithoutFeedback onPress={@props.onClose}>
+        <View style={
+          height: 150
+          backgroundColor: 'rgba(0,0,0,0.5)'
+        } />
+      </TouchableWithoutFeedback>
       <View style={
         backgroundColor: 'white'
         flex: 1
