@@ -21,8 +21,9 @@ T = React.PropTypes
 , BackHandler
 , Modal
 } = require 'react-native'
-{default: FitImage} = require 'react-native-fit-image'
-{default: Hyperlink} = require 'react-native-hyperlink'
+import FitImage from 'react-native-fit-image'
+import Hyperlink from 'react-native-hyperlink'
+import Gallery from 'react-native-image-gallery'
 {styles} = require './styles'
 # @endif
 
@@ -403,7 +404,7 @@ class OptionsModal extends React.Component
     options: []
 
   render: ->
-    <Modal transparent={true}>
+    <Modal transparent={true} onRequestClose={@props.onClose}>
       <View style={
         height: 150
         backgroundColor: 'rgba(0,0,0,0.5)'
@@ -426,6 +427,27 @@ class OptionsModal extends React.Component
             </TouchableOpacity>
         }
       </View>
+    </Modal>
+
+class GalleryModal extends React.Component
+  render: ->
+    <Modal onRequestClose={@props.onClose}>
+      <Gallery
+        style={flex: 1, backgroundColor: 'black'}
+        images={@props.images}
+      />
+      <TouchableOpacity onPress={@props.onClose} style={
+        position: 'absolute'
+        top: 25
+        left: 15
+        backgroundColor: 'rgba(255,255,255,0.2)'
+        padding: 2
+      }>
+        <Image source={require '../web/assets/img/icon-back.png'} style={
+          width: 36 * 0.75
+          height: 28 * 0.75
+        } />
+      </TouchableOpacity>
     </Modal>
 # @endif
 
@@ -456,6 +478,7 @@ class SiftrNoteView extends React.Component
       editingCaption: false
       # @ifdef NATIVE
       noteModal: false
+      gallery: null
       # @endif
 
   # @ifdef NATIVE
@@ -612,15 +635,22 @@ class SiftrNoteView extends React.Component
                 onPress: @confirmDelete.bind(@)
             ].filter (x) => x?}
           />
+        else if @state.gallery?
+          <GalleryModal
+            onClose={=> @setState gallery: null}
+            images={[
+              {source: {uri: @state.gallery}}
+            ]}
+          />
       }
-      <View>
+      <TouchableOpacity onPress={=> @setState gallery: @props.note.photo_url}>
         <FitImage
           source={uri: @props.note.photo_url}
           style={
             alignSelf: 'stretch'
           }
         />
-      </View>
+      </TouchableOpacity>
       <View style={
         backgroundColor: 'white'
         padding: 5
