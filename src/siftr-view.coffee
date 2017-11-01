@@ -33,6 +33,7 @@ RNFS = require 'react-native-fs'
 , FieldData
 , Colors
 , Field
+, deserializeNote
 } = require './aris'
 
 {timeToARIS} = require './time-slider'
@@ -74,7 +75,7 @@ SiftrInfo = React.createClass
   render: ->
     isFollowing =
       if @props.game?
-        @props.followed.some (game) => game.game_id is @props.game.game_id
+        @props.followed?.some (game) => game.game_id is @props.game.game_id
       else
         false
 
@@ -92,7 +93,7 @@ SiftrInfo = React.createClass
             </Text>
             <TouchableOpacity onPress={if isFollowing then @props.unfollowGame else @props.followGame}>
               <Text style={margin: 10}>
-                {if isFollowing then 'Following' else 'Not following'}
+                {if not isFollowing? then '...' else if isFollowing then 'Following' else 'Not following'}
               </Text>
             </TouchableOpacity>
           </View>

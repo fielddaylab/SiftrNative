@@ -79,9 +79,10 @@ class Colors
 
 class User
   constructor: (json) ->
-    @user_id      = parseInt json.user_id
-    @display_name = json.display_name or json.user_name
-    @media_id     = parseInt json.media_id
+    if json?
+      @user_id      = parseInt json.user_id
+      @display_name = json.display_name or json.user_name
+      @media_id     = parseInt json.media_id
 
 arisHTTPS = (x) ->
   if typeof x is 'string'
@@ -109,11 +110,12 @@ class Tag
 
 class Comment
   constructor: (json) ->
-    @description = json.description
-    @comment_id  = parseInt json.note_comment_id
-    @user        = new User json.user
-    @created     = new Date(json.created.replace(' ', 'T') + 'Z')
-    @note_id     = parseInt json.note_id
+    if json?
+      @description = json.description
+      @comment_id  = parseInt json.note_comment_id
+      @user        = new User json.user
+      @created     = new Date(json.created.replace(' ', 'T') + 'Z')
+      @note_id     = parseInt json.note_id
 
 class Note
   constructor: (json = null) ->
@@ -268,8 +270,11 @@ class Auth
           cb {error}
         else
           tries -= 1
-          req.send jsonString
-      req.send jsonString
+          if req.readyState is req.OPENED
+            req.send jsonString
+      # TODO call cb with an error if not OPENED which means we're offline
+      if req.readyState is req.OPENED
+        req.send jsonString
     req
 
   useLoginResult: (obj, logoutOnFail, cb = (->)) ->
@@ -421,5 +426,5 @@ class Auth
   getNearbyGamesForPlayer: (json, cb) ->
     @callWrapped 'client.getNearbyGamesForPlayer', json, cb, (data) -> new Game o for o in data
 
-for k, v of {Game, deserializeGame, User, Tag, Comment, Note, Auth, Colors, Field, FieldData, FieldOption, arisHTTPS}
+for k, v of {Game, deserializeGame, User, Tag, Comment, Note, Auth, Colors, Field, FieldData, FieldOption, arisHTTPS, deserializeNote}
   exports[k] = v
