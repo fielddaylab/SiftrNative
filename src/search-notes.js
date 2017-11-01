@@ -125,32 +125,6 @@ export class SearchNotes extends React.Component {
     if (text == null) text = '';
     if (min_time == null) min_time = 'min';
     if (max_time == null) max_time = 'max';
-    const activityOn = {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      flexDirection: 'row',
-      padding: 10,
-      backgroundColor: 'rgb(32,37,49)',
-      borderColor: 'rgb(32,37,49)',
-      borderWidth: 1,
-    };
-    const activityOff = {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      flexDirection: 'row',
-      padding: 10,
-      backgroundColor: 'white',
-      borderColor: 'rgb(32,37,49)',
-      borderWidth: 1,
-    };
-    const activityTextOn = {
-      color: 'white',
-    };
-    const activityTextOff = {
-      color: 'rgb(32,37,49)',
-    };
     return <ScrollView style={{
       backgroundColor: 'white',
       position: 'absolute',
@@ -220,52 +194,42 @@ export class SearchNotes extends React.Component {
           })
         }
       </View>
-      <FilterHeader text="Sort:" />
       <View style={{
-        alignSelf: 'stretch',
+        padding: 20,
         flexDirection: 'row',
-        margin: 10,
+        alignItems: 'stretch',
+        justifyContent: 'flex-start',
+        alignSelf: 'stretch',
       }}>
-        <TouchableOpacity onPress={this.clickRecent.bind(this)} style={{flex: 1}}>
-          <View style={
-            [
-              (sort === 'recent' ? activityOn : activityOff),
-              {borderTopLeftRadius: 12, borderBottomLeftRadius: 12}
-            ]
-          }>
-            <Text style={
-              sort === 'recent' ? activityTextOn : activityTextOff
-            }>newest</Text>
-          </View>
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginHorizontal: 5,
+        }}>
+          <Text>Sort gallery by:</Text>
+        </View>
+        <TouchableOpacity style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingVertical: 5,
+          marginHorizontal: 5,
+          borderColor: 'rgba(0,0,0,0)',
+          borderBottomColor: sort === 'recent' ? 'black' : undefined,
+          borderWidth: 2,
+        }} onPress={this.clickRecent.bind(this)}>
+          <Text style={{color: sort === 'recent' ? 'black' : '#D3D3D3'}}>newest</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={this.clickPopular.bind(this)} style={{flex: 1}}>
-          <View style={
-            [
-              (sort === 'popular' ? activityOn : activityOff),
-              (this.props.auth.authToken == null ? {borderTopRightRadius: 12, borderBottomRightRadius: 12} : undefined)
-            ]
-          }>
-            <Text style={
-              sort === 'popular' ? activityTextOn : activityTextOff
-            }>popular</Text>
-          </View>
+        <TouchableOpacity style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingVertical: 5,
+          marginHorizontal: 5,
+          borderColor: 'rgba(0,0,0,0)',
+          borderBottomColor: sort === 'popular' ? 'black' : undefined,
+          borderWidth: 2,
+        }} onPress={this.clickPopular.bind(this)}>
+          <Text style={{color: sort === 'popular' ? 'black' : '#D3D3D3'}}>popularity</Text>
         </TouchableOpacity>
-        {
-          this.props.auth.authToken != null ?
-            <TouchableOpacity onPress={this.clickMine.bind(this)} style={{flex: 1}}>
-              <View style={
-                [
-                  (mine ? activityOn : activityOff),
-                  {borderTopRightRadius: 12, borderBottomRightRadius: 12}
-                ]
-              }>
-                <Text style={
-                  mine ? activityTextOn : activityTextOff
-                }>mine</Text>
-              </View>
-            </TouchableOpacity>
-          : undefined
-        }
       </View>
     </ScrollView>
   }
