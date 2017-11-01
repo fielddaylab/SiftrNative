@@ -180,7 +180,23 @@ class SiftrComment extends React.Component
       editing: false
       # @ifdef NATIVE
       commentModal: false
+      userPicture: null
       # @endif
+
+  # @ifdef NATIVE
+  getUserMedia: ->
+    @props.auth.call 'media.getMedia',
+      media_id: @props.comment.user.media_id
+    , withSuccess (userPicture) =>
+      @setState {userPicture}
+
+  componentWillMount: ->
+    @getUserMedia()
+
+  componentWillReceiveProps: (nextProps) ->
+    if nextProps.comment.user.user_id isnt @props.comment.user.user_id
+      @getUserMedia()
+  # @endif
 
   # @ifdef NATIVE
   confirmDelete: ->
@@ -218,14 +234,26 @@ class SiftrComment extends React.Component
         flexDirection: 'row'
         alignItems: 'flex-start'
       }>
-        <View style={
-          width: 20
-          height: 20
-          borderRadius: 10
-          backgroundColor: '#888888'
-          margin: 10
-          marginRight: 0
-        } />
+        {
+          if @state.userPicture?
+            <Image source={uri: @state.userPicture.thumb_url.replace('http://', 'https://')} style={
+              width: 26
+              height: 26
+              borderRadius: 13
+              margin: 10
+              marginRight: 0
+              resizeMode: 'cover'
+            } />
+          else
+            <View style={
+              width: 26
+              height: 26
+              borderRadius: 13
+              backgroundColor: '#888888'
+              margin: 10
+              marginRight: 0
+            } />
+        }
         <View style={
           flex: 1
           flexDirection: 'column'
