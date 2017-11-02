@@ -68,6 +68,30 @@ writeParagraphs = (text) ->
     </Hyperlink>
 # @endif
 
+# @ifdef NATIVE
+class SquareImage extends React.Component
+  # simple image box that sets the height equal to the width
+
+  constructor: (props) ->
+    super props
+    @state = {}
+
+  render: ->
+    <Image
+      {...@props}
+      style={[
+        @props.style
+        resizeMode: 'cover'
+        height: @state.width ? undefined
+      ]}
+      onLayout={@resize.bind(@)}
+    />
+
+  resize: (evt) ->
+    dims = evt.nativeEvent.layout
+    @setState width: dims.width
+# @endif
+
 class SiftrCommentInput extends React.Component
   @propTypes:
     defaultText: T.string
@@ -675,11 +699,9 @@ class SiftrNoteView extends React.Component
           />
       }
       <TouchableOpacity onPress={=> @setState gallery: @props.note.photo_url}>
-        <FitImage
+        <SquareImage
           source={uri: @props.note.photo_url}
-          style={
-            alignSelf: 'stretch'
-          }
+          style={alignSelf: 'stretch'}
         />
       </TouchableOpacity>
       <View style={
