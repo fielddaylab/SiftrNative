@@ -73,45 +73,56 @@ MapCluster = React.createClass
       pinColor="black"
       onPress={=> @props.onSelect @props.cluster}
     >
-      <Svg width={w + 1} height={w + 1}>
-        {
-          for [startRads, endRads, color], i in stops
-            if startRads is 'circle'
-              <Circle
-                key={i}
-                cx={r}
-                cy={r}
-                r={r}
-                fill={color}
-              />
-            else
-              x1 = Math.cos(startRads) * r + r
-              y1 = Math.sin(startRads) * r + r
-              x2 = Math.cos(endRads) * r + r
-              y2 = Math.sin(endRads) * r + r
-              large = if endRads - startRads >= Math.PI then 1 else 0
-              <Path
-                key={i}
-                d={"M#{r},#{r} L#{x1},#{y1} A#{r},#{r} 0 #{large},1 #{x2},#{y2} z"}
-                fill={color}
-              />
-        }
-        <Circle
-          cx={r}
-          cy={r}
-          r={r * (2/3)}
-          fill="black"
-        />
-        <SvgText
-          textAnchor="middle"
-          stroke="black"
-          fill="white"
-          x={r}
-          y="2"
-          fontSize={w * (2/3)}
-          fontWeight="bold"
-        >{@props.cluster.note_count}</SvgText>
-      </Svg>
+      <View style={width: w + 3, height: w + 3}>
+        <View style={
+          position: 'absolute'
+          top: 2
+          left: 1
+          width: w
+          height: w
+          borderRadius: r
+          backgroundColor: 'rgba(0,0,0,0.5)'
+        } />
+        <Svg width={w + 1} height={w + 1}>
+          {
+            for [startRads, endRads, color], i in stops
+              if startRads is 'circle'
+                <Circle
+                  key={i}
+                  cx={r}
+                  cy={r}
+                  r={r}
+                  fill={color}
+                />
+              else
+                x1 = Math.cos(startRads) * r + r
+                y1 = Math.sin(startRads) * r + r
+                x2 = Math.cos(endRads) * r + r
+                y2 = Math.sin(endRads) * r + r
+                large = if endRads - startRads >= Math.PI then 1 else 0
+                <Path
+                  key={i}
+                  d={"M#{r},#{r} L#{x1},#{y1} A#{r},#{r} 0 #{large},1 #{x2},#{y2} z"}
+                  fill={color}
+                />
+          }
+          <Circle
+            cx={r}
+            cy={r}
+            r={r * (2/3)}
+            fill="black"
+          />
+          <SvgText
+            textAnchor="middle"
+            stroke="black"
+            fill="white"
+            x={r}
+            y="2"
+            fontSize={w * (2/3)}
+            fontWeight="bold"
+          >{@props.cluster.note_count}</SvgText>
+        </Svg>
+      </View>
       <MapView.Callout tooltip={true} />
     </MapView.Marker>
   # @endif
@@ -151,6 +162,8 @@ MapNote = React.createClass
 
   # @ifdef NATIVE
   render: ->
+    w = 16
+    r = w / 2
     <MapView.Marker
       coordinate={
         latitude: @props.lat
@@ -163,6 +176,23 @@ MapNote = React.createClass
         @props.onSelect @props.note
       }
     >
+      <View style={width: w + 3, height: w + 3}>
+        <View style={
+          position: 'absolute'
+          top: 2
+          left: 1
+          width: w
+          height: w
+          borderRadius: r
+          backgroundColor: 'rgba(0,0,0,0.5)'
+        } />
+        <View style={
+          width: w
+          height: w
+          borderRadius: r
+          backgroundColor: @props.getColor @props.note.tag_id
+        } />
+      </View>
       <MapView.Callout tooltip={true} />
     </MapView.Marker>
   # @endif
