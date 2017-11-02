@@ -159,10 +159,12 @@ MapNote = React.createClass
       title="Note"
       description={@props.note.description}
       pinColor={@props.getColor @props.note.tag_id}
-      onCalloutPress={=>
+      onPress={=>
         @props.onSelect @props.note
       }
-    />
+    >
+      <MapView.Callout tooltip={true} />
+    </MapView.Marker>
   # @endif
 
   # @ifdef WEB
