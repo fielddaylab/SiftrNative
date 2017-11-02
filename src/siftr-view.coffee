@@ -593,6 +593,7 @@ SiftrView = React.createClass
         createNote: {}
         searchOpen: false
         viewingNote: null
+        primaryMenuOpen: false
         nomenData: nomenData
     else
       @props.onPromptLogin()
