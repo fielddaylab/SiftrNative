@@ -169,8 +169,8 @@ MapNote = React.createClass
         latitude: @props.lat
         longitude: @props.lng
       }
-      title="Note"
-      description={@props.note.description}
+      title=""
+      description=""
       pinColor={@props.getColor @props.note.tag_id}
       onPress={=>
         @props.onSelect @props.note
