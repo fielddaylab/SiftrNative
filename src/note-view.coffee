@@ -308,7 +308,7 @@ class SiftrComment extends React.Component
                     if @props.auth.authToken?.user_id is @props.comment.user.user_id or @props.isAdmin
                       text: 'Delete comment'
                       onPress: @confirmDelete.bind(@)
-                  ]}
+                  ].filter (x) => x?}
                 />
             }
           </View>
