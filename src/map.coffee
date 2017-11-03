@@ -37,6 +37,29 @@ getConicGradient = (opts) ->
   allConicGradients["#{opts.stops}_#{opts.size}"] ?= new ConicGradient(opts).png
 # @endif
 
+toWord8 = (n) ->
+  s = n.toString(16)
+  if s.length is 1
+    s = '0' + s
+  s
+colorAverage = (c1, c2, numSteps) ->
+  [_str, r1, g1, b1] = c1.match(/^#(..)(..)(..)$/)
+  [_str, r2, g2, b2] = c2.match(/^#(..)(..)(..)$/)
+  r1 = parseInt(r1, 16)
+  b1 = parseInt(b1, 16)
+  g1 = parseInt(g1, 16)
+  r2 = parseInt(r2, 16)
+  b2 = parseInt(b2, 16)
+  g2 = parseInt(g2, 16)
+  rd = (r2 - r1) / numSteps
+  bd = (b2 - b1) / numSteps
+  gd = (g2 - g1) / numSteps
+  for i in [0 .. numSteps - 1]
+    r = toWord8 Math.round(r1 + rd * i)
+    g = toWord8 Math.round(g1 + gd * i)
+    b = toWord8 Math.round(b1 + bd * i)
+    '#' + r + g + b
+
 MapCluster = React.createClass
   propTypes:
     cluster: T.any.isRequired
@@ -63,6 +86,22 @@ MapCluster = React.createClass
         endRads = startRads + (tag_count / @props.cluster.note_count) * 2 * Math.PI
         stops.push [startRads, endRads, color]
         startRads = endRads
+    blurStops = =>
+      return false if stops.length is 0 or stops[0][0] is 'circle'
+      newStops = []
+      for stop, i in stops
+        [startRads, endRads, color] = stop
+        nextColor = stops[(i + 1) % stops.length][2]
+        midpoint = startRads + (endRads - startRads) * 0.6
+        newStops.push [startRads, midpoint, color]
+        numSteps = Math.ceil((endRads - midpoint) * 10)
+        numSteps = 4 if numSteps < 4
+        stepLength = (endRads - midpoint) / numSteps
+        colorSteps = colorAverage(color, nextColor, numSteps)
+        for i in [0 .. numSteps - 1]
+          newStops.push [midpoint + stepLength * i, midpoint + stepLength * (i + 1), colorSteps[i]]
+      stops = newStops
+    blurStops()
     <MapView.Marker
       coordinate={
         latitude: @props.lat
@@ -106,18 +145,17 @@ MapCluster = React.createClass
                   fill={color}
                 />
           }
-          <Circle
-            cx={r}
-            cy={r}
-            r={r * (2/3)}
-            fill="black"
-          />
           <SvgText
             textAnchor="middle"
             stroke="black"
             fill="white"
             x={r}
-            y="2"
+            y={
+              if Platform.OS is 'ios'
+                1
+              else
+                4
+            }
             fontSize={w * (2/3)}
             fontWeight="bold"
           >{@props.cluster.note_count}</SvgText>
