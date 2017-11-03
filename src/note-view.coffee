@@ -26,6 +26,7 @@ import FitImage from 'react-native-fit-image'
 import Hyperlink from 'react-native-hyperlink'
 import Gallery from 'react-native-image-gallery'
 {styles} = require './styles'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 # @endif
 
 {clicker, withSuccess, P, UL, LI, DIV, BUTTON} = require './utils'
@@ -665,15 +666,19 @@ class SiftrNoteView extends React.Component
 
   # @ifdef NATIVE
   render: ->
-    <ScrollView ref={(sv) => @scrollView = sv} style={
-      backgroundColor: 'white'
-      position: 'absolute'
-      top: 0
-      bottom: 0
-      left: 0
-      right: 0
-      flexDirection: 'column'
-    }>
+    <KeyboardAwareScrollView
+      ref={(sv) => @scrollView = sv}
+      style={
+        backgroundColor: 'white'
+        position: 'absolute'
+        top: 0
+        bottom: 0
+        left: 0
+        right: 0
+        flexDirection: 'column'
+      }
+      extraScrollHeight={30}
+    >
       {
         if @state.noteModal
           <OptionsModal
@@ -801,7 +806,7 @@ class SiftrNoteView extends React.Component
             isAdmin={@props.isAdmin}
           />
       }
-    </ScrollView>
+    </KeyboardAwareScrollView>
   # @endif
 
   # @ifdef WEB
