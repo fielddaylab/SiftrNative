@@ -42,7 +42,7 @@ RNFS = require 'react-native-fs'
 {SiftrMap} = require './map'
 {SiftrThumbnails} = require './thumbnails'
 {SiftrNoteView} = require './note-view'
-{CreateStep1, CreateStep2, CreateStep3, CreateStep4, CreateStep5, CreateData} = require './create-note'
+{CreateStep1, CreateStep2, CreateStep3, CreateStep4, CreateStep5, CreateData, Blackout} = require './create-note'
 
 {clicker, withSuccess, DIV, P, BUTTON} = require './utils'
 
@@ -275,6 +275,12 @@ SiftrView = React.createClass
         @props.onExit()
       true
     BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
+    @keyboardShow = =>
+      @setState keyboardUp: true
+    @keyboardHide = =>
+      @setState keyboardUp: false
+    Keyboard.addListener 'keyboardWillShow', @keyboardShow
+    Keyboard.addListener 'keyboardWillHide', @keyboardHide
     # @endif
     # @ifdef WEB
     @props.auth.getTagsForGame
@@ -300,6 +306,8 @@ SiftrView = React.createClass
     clearInterval @nomenTimer
     # @ifdef NATIVE
     BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
+    Keyboard.removeListener 'keyboardWillShow', @keyboardShow
+    Keyboard.removeListener 'keyboardWillHide', @keyboardHide
     # @endif
 
   componentWillReceiveProps: (nextProps) ->
@@ -808,7 +816,7 @@ SiftrView = React.createClass
         unfollowGame={=> @props.unfollowGame @props.game}
       >
         <StatusSpace />
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <Blackout isFocused={false} keyboardUp={@state.keyboardUp}>
           <View style={
             flexDirection: 'row'
             justifyContent: 'space-between'
@@ -846,7 +854,7 @@ SiftrView = React.createClass
                 </TouchableOpacity>
             }
           </View>
-        </TouchableWithoutFeedback>
+        </Blackout>
         <View style={
           flex: 1
         }>

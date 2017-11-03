@@ -91,7 +91,7 @@ SiftrRoll = React.createClass
 # @endif
 
 # Step 1: Upload
-CreateStep1 = React.createClass
+export CreateStep1 = React.createClass
   propTypes:
     onCreateMedia: T.func
     onCancel: T.func
@@ -391,7 +391,7 @@ CreateStep1 = React.createClass
   # @endif
 
 # Step 2: Caption
-CreateStep2 = React.createClass
+export CreateStep2 = React.createClass
   propTypes:
     onEnterCaption: T.func
     onBack: T.func
@@ -484,7 +484,7 @@ CreateStep2 = React.createClass
   # @endif
 
 # Step 3: Location
-CreateStep3 = React.createClass
+export CreateStep3 = React.createClass
   propTypes:
     onPickLocation: T.func
     onBack: T.func
@@ -551,7 +551,7 @@ CreateStep3 = React.createClass
   # @endif
 
 # Step 4: Category
-CreateStep4 = React.createClass
+export CreateStep4 = React.createClass
   propTypes:
     categories: T.arrayOf(T.instanceOf Tag).isRequired
     category: T.instanceOf(Tag).isRequired
@@ -652,7 +652,7 @@ CreateStep4 = React.createClass
   # @endif
 
 # Step 5: Form
-CreateStep5 = React.createClass
+export CreateStep5 = React.createClass
   propTypes:
     onChangeData: T.func
     onFinish: T.func
@@ -836,7 +836,7 @@ CreateStep5 = React.createClass
 
 # @ifdef NATIVE
 
-class Blackout extends React.Component
+export class Blackout extends React.Component
   @defaultProps:
     isFocused: false
     keyboardUp: false
@@ -860,7 +860,7 @@ class Blackout extends React.Component
     </View>
 
 # Steps 2-5 (native app), all non-photo data together
-CreateData = React.createClass
+export CreateData = React.createClass
   propTypes:
     createNote: T.any.isRequired
     onUpdateNote: T.func
@@ -1154,13 +1154,4 @@ CreateData = React.createClass
         </ScrollView>
       </View>
 
-# @endif
-
-exports.CreateStep1 = CreateStep1
-exports.CreateStep2 = CreateStep2
-exports.CreateStep3 = CreateStep3
-exports.CreateStep4 = CreateStep4
-exports.CreateStep5 = CreateStep5
-# @ifdef NATIVE
-exports.CreateData = CreateData
 # @endif
