@@ -1053,7 +1053,7 @@ SiftrNative = React.createClass
   # @ifdef NATIVE
   componentDidMount: ->
     Linking.getInitialURL().then (url) =>
-      @parseURL(url) if url
+      @parseURL url
       @urlHandler = ({url}) => @parseURL(url)
       Linking.addEventListener 'url', @urlHandler
     @withReach = (reach) =>
@@ -1072,24 +1072,33 @@ SiftrNative = React.createClass
     Linking.removeEventListener 'url', @urlHandler
 
   parseURL: (url) ->
+    unless url
+      @setState
+        aris: false
+      return
     mapping = {}
     for kv in parseUri(url).query.split('&')
       [k, v] = kv.split('=')
       mapping[k] = v
     siftr_id = parseInt(mapping.siftr_id)
-    nomen_id = parseInt(mapping.nomen_id)
-    species_id = decodeURIComponent((mapping.species_id+'').replace(/\+/g, '%20'))
     if siftr_id
-      @launchByID {siftr_id, nomen_id, species_id}
+      @launchByID
+        aris: parseInt(mapping.aris)
+        siftr_id: siftr_id
+        nomen_id: parseInt(mapping.nomen_id)
+        species_id: decodeURIComponent((mapping.species_id+'').replace(/\+/g, '%20'))
 
-  launchByID: ({siftr_id, nomen_id, species_id}) ->
+  launchByID: ({aris, siftr_id, nomen_id, species_id}) ->
     return if @state.game?.game_id is siftr_id
     (@state.auth ? new Auth).getGame
       game_id: siftr_id
     , withSuccess (game) =>
       @setState
         game: game
-        nomenData: {nomen_id, species_id}
+        aris: aris
+        nomenData:
+          if nomen_id
+            {nomen_id, species_id}
 
   clearNomenData: ->
     @setState nomenData: null
@@ -1171,7 +1180,13 @@ SiftrNative = React.createClass
                 game={@state.game}
                 auth={@state.auth}
                 isAdmin={@gameBelongsToUser @state.game}
-                onExit={=> @setState game: null}
+                onExit={=>
+                  if @state.aris
+                    Linking.openURL "ARIS://"
+                  @setState
+                    game: null
+                    aris: false
+                }
                 onPromptLogin={=> @setState menuOpen: true}
                 nomenData={@state.nomenData}
                 clearNomenData={@clearNomenData}
