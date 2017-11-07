@@ -14,6 +14,8 @@ T = React.PropTypes
 , NetInfo
 , ActivityIndicator
 , StatusBar
+, BackHandler
+, Platform
 } = require 'react-native'
 {UploadQueue} = require './upload-queue'
 {styles} = require './styles'
@@ -1182,7 +1184,10 @@ SiftrNative = React.createClass
                 isAdmin={@gameBelongsToUser @state.game}
                 onExit={=>
                   if @state.aris
-                    Linking.openURL "ARIS://"
+                    if Platform.OS is 'android'
+                      BackHandler.exitApp()
+                    else
+                      Linking.openURL "ARIS://"
                   @setState
                     game: null
                     aris: false
