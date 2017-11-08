@@ -19,20 +19,22 @@ export class StatusSpace extends React.Component {
   }
 
   componentDidMount() {
+    this.mounted = true;
     // TODO something's not linked right with orientation on android.
     // we don't need it anyway, but for now just don't set it up
     if (Platform.OS === 'ios') {
       Orientation.getSpecificOrientation((err, orientation) => {
-        this.setState({orientation: orientation});
+        if (this.mounted) this.setState({orientation: orientation});
       });
       this.orientationListener = (orientation) => {
-        this.setState({orientation: orientation});
+        if (this.mounted) this.setState({orientation: orientation});
       };
       Orientation.addSpecificOrientationListener(this.orientationListener);
     }
   }
 
   componentWillUnmount() {
+    this.mounted = false;
     if (Platform.OS === 'ios') {
       Orientation.removeSpecificOrientationListener(this.orientationListener);
     }

@@ -15,6 +15,7 @@ update = require 'immutability-helper'
 , ScrollView
 , TouchableWithoutFeedback
 , Keyboard
+, Platform
 } = require 'react-native'
 RNFS = require 'react-native-fs'
 {styles} = require './styles'
@@ -176,6 +177,9 @@ SiftrView = React.createClass
     # nomenData
     clearNomenData: T.func
     online: T.bool
+    # @ifdef NATIVE
+    aris: T.bool
+    # @endif
 
   getDefaultProps: ->
     isAdmin: false
@@ -844,7 +848,20 @@ SiftrView = React.createClass
               else
                 @props.onExit
             }>
-              <Image style={resizeMode: 'contain', height: 18} source={require('../web/assets/img/icon-back.png')} />
+              {
+                <Image
+                  style={
+                    resizeMode: 'contain'
+                    height: 18
+                    opacity:
+                      if Platform.OS is 'ios' and @props.aris and not @state.viewingNote? and not @state.createNote? and not @state.searchOpen
+                        0
+                      else
+                        1
+                  }
+                  source={require('../web/assets/img/icon-back.png')}
+                />
+              }
             </TouchableOpacity>
             <Text>{
               if @state.viewingNote?

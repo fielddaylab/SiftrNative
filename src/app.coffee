@@ -1091,7 +1091,7 @@ SiftrNative = React.createClass
     siftr_id = parseInt(mapping.siftr_id)
     if siftr_id
       @launchByID
-        aris: parseInt(mapping.aris)
+        aris: if parseInt(mapping.aris) then true else false
         siftr_id: siftr_id
         nomen_id: parseInt(mapping.nomen_id)
         species_id: decodeURIComponent((mapping.species_id+'').replace(/\+/g, '%20'))
@@ -1188,12 +1188,13 @@ SiftrNative = React.createClass
                 game={@state.game}
                 auth={@state.auth}
                 isAdmin={@gameBelongsToUser @state.game}
+                aris={@state.aris}
                 onExit={=>
                   if @state.aris
                     if Platform.OS is 'android'
                       BackHandler.exitApp()
                     else
-                      Linking.openURL "ARIS://"
+                      return # Linking.openURL "ARIS://"
                   @setState
                     game: null
                     aris: false
