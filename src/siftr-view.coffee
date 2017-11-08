@@ -311,9 +311,11 @@ SiftrView = React.createClass
     # @endif
 
   componentWillReceiveProps: (nextProps) ->
+    newAuth = null
+    newGame = null
     if @props.auth.authToken?.user_id isnt nextProps.auth.authToken?.user_id
       # if we log in or out, reload the note search
-      @loadResults nextProps.auth
+      newAuth = nextProps.auth
       if @state.viewingNote? and @props.auth.authToken?
         # if we were logged in, close the open note
         if @isMounted then @setState viewingNote: null
@@ -322,6 +324,15 @@ SiftrView = React.createClass
         if @isMounted then @setState createNote: null
     if not @props.nomenData? and nextProps.nomenData?
       @applyNomenData nextProps.nomenData
+    if @props.game.game_id isnt nextProps.game.game_id
+      newGame = nextProps.game
+      # TODO: should also reset map position, tags, basically everything
+      @setState
+        map_notes: []
+        map_clusters: []
+        notes: []
+    if newAuth? or newGame?
+      @loadResults({auth: newAuth ? undefined, game: newGame ? undefined})
 
   applyNomenData: (nomenData) ->
     if @state.createNote?
@@ -373,8 +384,8 @@ SiftrView = React.createClass
       return 'white'
     @state.colors["tag_#{@state.tags.indexOf(tag) % 8 + 1}"] ? 'white'
 
-  commonSearchParams: (auth = @props.auth) ->
-    game_id: @props.game.game_id
+  commonSearchParams: ({auth = @props.auth, game = @props.game} = {}) ->
+    game_id: game.game_id
     min_latitude: @state.bounds?.se?.lat
     max_latitude: @state.bounds?.nw?.lat
     min_longitude: @state.bounds?.nw?.lng
@@ -397,11 +408,11 @@ SiftrView = React.createClass
       @state.zoom
       # @endif
 
-  loadResults: (auth = @props.auth) ->
+  loadResults: ({auth = @props.auth, game = @props.game} = {}) ->
     return unless @props.online
     @loading = true
     @lastResultsXHR?.abort()
-    params = update @commonSearchParams(auth),
+    params = update @commonSearchParams({auth, game}),
       limit: $set: 50
     @lastResultsXHR = auth.siftrSearch params
     , withSuccess ({map_notes, map_clusters, notes}) =>

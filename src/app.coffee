@@ -16,6 +16,7 @@ T = React.PropTypes
 , StatusBar
 , BackHandler
 , Platform
+, AppState
 } = require 'react-native'
 {UploadQueue} = require './upload-queue'
 {styles} = require './styles'
@@ -1068,10 +1069,15 @@ SiftrNative = React.createClass
             @setState auth: Object.assign new Auth, {authToken}
     NetInfo.fetch().done @withReach
     NetInfo.addEventListener 'change', @withReach
+    @withAppState = (appState) =>
+      if appState isnt 'active'
+        @setState aris: false
+    AppState.addEventListener 'change', @withAppState
 
   componentWillUnmount: ->
     NetInfo.removeEventListener 'change', @withReach
     Linking.removeEventListener 'url', @urlHandler
+    AppState.removeEventListener 'change', @withAppState
 
   parseURL: (url) ->
     unless url
