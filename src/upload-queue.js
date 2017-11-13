@@ -17,7 +17,8 @@ export const UploadQueue = React.createClass({
   },
   getDefaultProps: function() {
     return {
-      online: true
+      online: true,
+      onMessage: function(){},
     };
   },
   componentDidMount: function() {
@@ -32,6 +33,17 @@ export const UploadQueue = React.createClass({
       return;
     }
     return this.loadQueue().then((notes) => {
+      if (notes.length === 0) {
+        this.props.onMessage(null);
+      } else {
+        const count = notes.length + ' note' + (notes.length === 1 ? '' : 's');
+        if (this.props.online) {
+          this.props.onMessage('Uploading ' + count + '...');
+        } else {
+          this.props.onMessage(count + ' in upload queue');
+        }
+      }
+
       if (notes.length === 0 || !this.props.online) {
         return null;
       } else {
@@ -90,20 +102,39 @@ export const UploadQueue = React.createClass({
   },
   uploadNote: function({dir, json}) {
     json = JSON.parse(json);
-    const file = {
-      uri: Platform.OS === 'ios' ? `${dir.path}/${json.filename}` : `file://${dir.path}/${json.filename}`,
-      type: json.mimetype,
-      name: json.filename
-    };
-    return this.props.auth.promise('rawUpload', file, (function() {})).then((raw_upload_id) => {
-      return this.props.auth.promise('call', 'media.createMediaFromRawUpload', {
-        file_name: json.filename,
-        raw_upload_id: raw_upload_id,
-        game_id: json.game_id,
-        resize: 800
+    return Promise.all(
+      json.files.map((f) => {
+        const file = {
+          uri: Platform.OS === 'ios' ? `${dir.path}/${f.filename}` : `file://${dir.path}/${f.filename}`,
+          type: f.mimetype,
+          name: f.filename
+        };
+        return this.props.auth.promise('rawUpload', file, (function() {})).then((raw_upload_id) => {
+          return this.props.auth.promise('call', 'media.createMediaFromRawUpload', {
+            file_name: f.filename,
+            raw_upload_id: raw_upload_id,
+            game_id: f.game_id,
+            resize: 800,
+          }).then((media) => {
+            return {
+              media_id: media.media_id,
+              field_id: f.field_id,
+            };
+          });
+        });
+      })
+    ).then((medias) => {
+      medias.forEach((m) => {
+        if (m.field_id === null) {
+          json.media_id = m.media_id;
+        } else {
+          if (json.field_data === undefined) json.field_data = [];
+          json.field_data.push({
+            field_id: m.field_id,
+            media_id: m.media_id,
+          });
+        }
       });
-    }).then((media) => {
-      json.media_id = media.media_id;
       return this.props.auth.promise('call', 'notes.createNote', json);
     }).then((note) => {
       return RNFS.unlink(dir.path);

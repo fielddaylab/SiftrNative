@@ -142,9 +142,7 @@ export CreateStep1 = React.createClass
     files = @filesReady()
     return unless files.every ({file}) => file? # TODO should field files be optional
     if not @props.online
-      # TODO handle field media
-      @props.onStoreMedia
-        file: @state.file
+      @props.onStoreMedia {files}
       return
     updateProgress = @props.onProgress
     Photos.uploadImages files.map(({file}) => file), @props.auth, @props.game, updateProgress, (results) =>

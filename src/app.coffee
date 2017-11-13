@@ -1015,6 +1015,20 @@ NativeHome = React.createClass
               mine={@props.mine}
               followed={@props.followed}
             />
+            {
+              if @props.queueMessage?
+                <View style={
+                  backgroundColor: '#edc98b'
+                  padding: 4
+                  alignSelf: 'stretch'
+                }>
+                  <Text style={
+                    color: 'black'
+                  }>
+                    {@props.queueMessage}
+                  </Text>
+                </View>
+            }
             <View style={
               flexDirection: 'row'
               justifyContent: 'space-between'
@@ -1180,7 +1194,11 @@ SiftrNative = React.createClass
   # @ifdef NATIVE
   render: ->
     if @state.auth?
-      <UploadQueue auth={@state.auth} online={@state.online}>
+      <UploadQueue
+        auth={@state.auth}
+        online={@state.online}
+        onMessage={(queueMessage) => @setState {queueMessage}}
+      >
         {
           if @state.auth.authToken?
             if @state.game?
@@ -1219,6 +1237,7 @@ SiftrNative = React.createClass
                 unfollowGame={@unfollowGame}
                 onChangePassword={@changePassword}
                 onEditProfile={@editProfile}
+                queueMessage={@state.queueMessage}
               />
           else
             <NativeLogin onLogin={@login} />
