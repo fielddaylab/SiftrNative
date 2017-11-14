@@ -905,7 +905,7 @@ SiftrView = React.createClass
           {@renderSearch() if @state.searchOpen}
         </View>
         {
-          unless @state.createNote?
+          unless @state.createNote? or @state.viewingNote?
             <View style={
               flexDirection: 'row'
               justifyContent: 'space-between'
