@@ -678,6 +678,7 @@ class SiftrNoteView extends React.Component
         flexDirection: 'column'
       }
       extraScrollHeight={30}
+      keyboardShouldPersistTaps="handled"
     >
       {
         if @state.noteModal
