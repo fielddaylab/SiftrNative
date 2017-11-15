@@ -34,14 +34,13 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 Photos = require './photos'
 
 # @ifdef NATIVE
-SiftrRoll = React.createClass
-  getDefaultProps: ->
-    onSelectImage: (->)
-
-  getInitialState: ->
-    photos: []
-    canLoadMore: true
-    dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 != r2})
+class SiftrRoll extends React.Component
+  constructor: (props) ->
+    super(props)
+    this.state =
+      photos: []
+      canLoadMore: true
+      dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 != r2})
 
   componentWillMount: ->
     @getMorePhotos()
@@ -88,6 +87,9 @@ SiftrRoll = React.createClass
       canLoadMore={@state.canLoadMore}
       onLoadMoreAsync={=> @getMorePhotos()}
     />
+
+SiftrRoll.defaultProps =
+  onSelectImage: (->)
 # @endif
 
 # Step 1: Upload
@@ -388,6 +390,8 @@ export CreateStep1 = React.createClass
       </div>
   # @endif
 
+# @ifdef WEB
+
 # Step 2: Caption
 export CreateStep2 = React.createClass
   propTypes:
@@ -405,57 +409,12 @@ export CreateStep2 = React.createClass
   componentWillMount: ->
     @setState
       text: @props.defaultCaption
-    # @ifdef NATIVE
-    @hardwareBack = =>
-      @props.onBack()
-      true
-    BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
-    # @endif
 
   doEnterCaption: ->
     text = @state.text
     return unless text.match(/\S/)
     @props.onEnterCaption text
 
-  # @ifdef NATIVE
-  componentWillUnmount: ->
-    BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
-
-  render: ->
-    <View style={styles.overlayBottom}>
-      <View style={
-        margin: 10
-        flexDirection: 'row'
-        alignItems: 'flex-start'
-      }>
-        <TextInput
-          placeholder="Add a description…"
-          value={@state.text}
-          onChangeText={(text) => @setState {text}}
-          multiline={true}
-          style={
-            height: 150
-            flex: 1
-            padding: 10
-            fontSize: 16
-          }
-        />
-        <TouchableOpacity onPress={@props.onCancel} style={margin: 10}>
-          <Image source={require '../web/assets/img/x-blue.png'} />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.buttonRow}>
-        <TouchableOpacity onPress={@props.onBack}>
-          <Text style={styles.blueButton}>{'<'} IMAGE</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={@doEnterCaption}>
-          <Text style={styles.blueButton}>LOCATION {'>'}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  # @endif
-
-  # @ifdef WEB
   render: ->
     <div className="create-step-2">
       <div className="create-content">
@@ -479,7 +438,6 @@ export CreateStep2 = React.createClass
         </a>
       </div>
     </div>
-  # @endif
 
 # Step 3: Location
 export CreateStep3 = React.createClass
@@ -493,42 +451,6 @@ export CreateStep3 = React.createClass
     onBack: (->)
     onCancel: (->)
 
-  # @ifdef NATIVE
-  componentWillMount: ->
-    @hardwareBack = =>
-      @props.onBack()
-      true
-    BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
-
-  componentWillUnmount: ->
-    BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
-
-  render: ->
-    <View style={styles.overlayBottom}>
-      <View style={
-        margin: 10
-        flexDirection: 'row'
-        alignItems: 'flex-start'
-      }>
-        <View style={flex: 1, alignItems: 'center', justifyContent: 'center'}>
-          <Text style={fontSize: 18}>Pick Location</Text>
-        </View>
-        <TouchableOpacity onPress={@props.onCancel}>
-          <Image source={require '../web/assets/img/x-blue.png'} />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.buttonRow}>
-        <TouchableOpacity onPress={@props.onBack}>
-          <Text style={styles.blueButton}>{'<'} CAPTION</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={@props.onPickLocation}>
-          <Text style={styles.blueButton}>CATEGORY {'>'}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  # @endif
-
-  # @ifdef WEB
   render: ->
     <div className="create-step-3">
       <div className="create-content-center">
@@ -546,7 +468,6 @@ export CreateStep3 = React.createClass
         </a>
       </div>
     </div>
-  # @endif
 
 # Step 4: Category
 export CreateStep4 = React.createClass
@@ -566,53 +487,6 @@ export CreateStep4 = React.createClass
     onCancel: (->)
     getColor: -> 'black'
 
-  # @ifdef NATIVE
-  componentWillMount: ->
-    @hardwareBack = =>
-      @props.onBack()
-      true
-    BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
-
-  componentWillUnmount: ->
-    BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
-
-  render: ->
-    <View style={styles.overlayBottom}>
-      <View style={
-        margin: 10
-        flexDirection: 'row'
-        alignItems: 'flex-start'
-      }>
-        <Picker
-          style={flex: 1}
-          selectedValue={@props.category.tag_id}
-          onValueChange={(tag_id) =>
-            for category in @props.categories
-              if category.tag_id is tag_id
-                @props.onPickCategory category
-          }
-        >
-          {
-            @props.categories.map (category) =>
-              <Picker.Item label={category.tag} value={category.tag_id} key={category.tag_id} />
-          }
-        </Picker>
-        <TouchableOpacity onPress={@props.onCancel}>
-          <Image source={require '../web/assets/img/x-blue.png'} />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.buttonRow}>
-        <TouchableOpacity onPress={@props.onBack}>
-          <Text style={styles.blueButton}>{'<'} LOCATION</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={=> @props.onFinish @props.category}>
-          <Text style={styles.blueButton}>FORM {'>'}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  # @endif
-
-  # @ifdef WEB
   render: ->
     <div className="create-step-4">
       <div className="create-content-center">
@@ -647,7 +521,6 @@ export CreateStep4 = React.createClass
         </a>
       </div>
     </div>
-  # @endif
 
 # Step 5: Form
 export CreateStep5 = React.createClass
@@ -667,152 +540,6 @@ export CreateStep5 = React.createClass
     fields: []
     field_data: []
 
-  # @ifdef NATIVE
-  componentWillMount: ->
-    @hardwareBack = =>
-      @props.onBack()
-      true
-    BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
-
-  componentWillUnmount: ->
-    BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
-
-  render: ->
-    <ScrollView contentContainerStyle={
-      backgroundColor: 'white'
-      flexDirection: 'column'
-      alignItems: 'stretch'
-    }>
-      <View style={
-        margin: 10
-        flexDirection: 'column'
-        alignItems: 'flex-start'
-      }>
-        <TouchableOpacity onPress={@props.onCancel} style={alignSelf: 'flex-end'}>
-          <Image source={require '../web/assets/img/x-blue.png'} />
-        </TouchableOpacity>
-        {
-          @props.fields.map (field) =>
-            return null if field.field_type is 'MEDIA'
-            <View key={field.field_id} style={alignSelf: 'stretch'}>
-              <Text>{ if field.field_type is 'NOMEN' then "Nomen #{field.label}" else field.label }</Text>
-              {
-                getText = =>
-                  for data in @props.field_data
-                    if data.field_id is field.field_id
-                      return data.field_data
-                setText = (text) =>
-                  newData =
-                    data for data in @props.field_data when data.field_id isnt field.field_id
-                  newData.push new FieldData {
-                    field_id: field.field_id
-                    field_data: text
-                  }
-                  @props.onChangeData newData
-                switch field.field_type
-                  when 'TEXT'
-                    <TextInput
-                      multiline={false}
-                      value={getText()}
-                      onChangeText={setText}
-                      style={
-                        height: 50
-                        borderColor: '#222'
-                        borderWidth: 1
-                        padding: 10
-                        fontSize: 16
-                        alignSelf: 'stretch'
-                      }
-                    />
-                  when 'TEXTAREA'
-                    <TextInput
-                      multiline={true}
-                      value={getText()}
-                      onChangeText={setText}
-                      style={
-                        height: 120
-                        borderColor: '#222'
-                        borderWidth: 1
-                        padding: 10
-                        fontSize: 16
-                        alignSelf: 'stretch'
-                      }
-                    />
-                  when 'SINGLESELECT'
-                    <Picker
-                      selectedValue={do =>
-                        for data in @props.field_data
-                          if data.field_id is field.field_id
-                            return data.field_option_id
-                        field.options[0].field_option_id
-                      }
-                      onValueChange={(field_option_id) =>
-                        newData =
-                          data for data in @props.field_data when data.field_id isnt field.field_id
-                        newData.push new FieldData {
-                          field_id: field.field_id
-                          field_option_id: field_option_id
-                        }
-                        @props.onChangeData newData
-                      }
-                    >
-                      {
-                        field.options.map (option) =>
-                          <Picker.Item label={option.option} value={option.field_option_id} key={option.field_option_id} />
-                      }
-                    </Picker>
-                  when 'MULTISELECT'
-                    field.options.map (option) =>
-                      <View style={flexDirection: 'row'} key={option.field_option_id}>
-                        <Switch
-                          value={@props.field_data.some (data) =>
-                            data.field_id is field.field_id and data.field_option_id is option.field_option_id
-                          }
-                          onValueChange={(checked) =>
-                            newData =
-                              data for data in @props.field_data when not (data.field_id is field.field_id and data.field_option_id is option.field_option_id)
-                            if checked
-                              newData.push new FieldData {
-                                field_id: field.field_id
-                                field_option_id: option.field_option_id
-                              }
-                            @props.onChangeData newData
-                          }
-                        />
-                        <Text>{ option.option }</Text>
-                      </View>
-                  when 'NOMEN'
-                    <TouchableOpacity onPress={=>
-                      Linking.openURL "nomen://?nomen_id=#{field.label}&siftr_id=6234" # TODO actual siftr_id
-                    }>
-                      <Text>
-                        {
-                          do =>
-                            for data in @props.field_data
-                              if data.field_id is field.field_id
-                                return data.field_data
-                        }
-                      </Text>
-                      <Text>Launch Nomen</Text>
-                    </TouchableOpacity>
-                  else
-                    <Text>(not implemented yet)</Text>
-              }
-            </View>
-        }
-      </View>
-      <View style={styles.buttonRow}>
-        <TouchableOpacity onPress={@props.onBack}>
-          <Text style={styles.blueButton}>{'<'} CATEGORY</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={=> @props.onFinish @props.field_data}>
-          <Text style={styles.blueButton}>FINISH</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
-  # @endif
-
-  # @ifdef WEB
   render: ->
     <div className="create-step-5">
       <div className="create-content-center">
@@ -830,7 +557,8 @@ export CreateStep5 = React.createClass
         </a>
       </div>
     </div>
-  # @endif
+
+# @endif
 
 # @ifdef NATIVE
 
