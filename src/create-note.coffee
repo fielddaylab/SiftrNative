@@ -916,26 +916,6 @@ export CreateData = React.createClass
       </View>
     else
       <View style={flex: 1}>
-        <Blackout keyboardUp={@state.focusedBox?} isFocused={false}>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity onPress={@props.onBack}>
-              <Text style={styles.blackViolaButton}>Back</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={=>
-              unless @props.createNote.uploading
-                @props.onFinish @props.onCreateNote
-            }>
-              <Text style={styles.blackViolaButton}>
-                {
-                  if @props.createNote.uploading
-                    "Uploading… (#{Math.floor((@props.progress ? 0) * 100)}%)"
-                  else
-                    "Post"
-                }
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </Blackout>
         <KeyboardAwareScrollView
           extraScrollHeight={40}
           style={
@@ -1138,7 +1118,7 @@ export CreateData = React.createClass
                             <Text>{ option.option }</Text>
                           </View>
                       when 'NOMEN'
-                        <TouchableOpacity onPress={=>
+                        <TouchableOpacity style={padding: 10} onPress={=>
                           Linking.openURL "nomen://?nomen_id=#{field.label}&siftr_id=6234" # TODO actual siftr_id
                         }>
                           <Text>
@@ -1158,6 +1138,26 @@ export CreateData = React.createClass
             }
           </View>
         </KeyboardAwareScrollView>
+        <Blackout keyboardUp={@state.focusedBox?} isFocused={false}>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity onPress={@props.onCancel}>
+              <Text style={styles.blackViolaButton}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={=>
+              unless @props.createNote.uploading
+                @props.onFinish @props.onCreateNote
+            }>
+              <Text style={styles.blackViolaButton}>
+                {
+                  if @props.createNote.uploading
+                    "Uploading… (#{Math.floor((@props.progress ? 0) * 100)}%)"
+                  else
+                    "Post"
+                }
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </Blackout>
       </View>
 
 # @endif

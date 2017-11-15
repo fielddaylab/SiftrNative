@@ -870,7 +870,7 @@ SiftrView = React.createClass
                 />
               }
             </TouchableOpacity>
-            <View style={flex: 1, alignItems: 'center'}>
+            <View style={flex: 4, alignItems: 'center'}>
               <Text>{
                 if @state.viewingNote?
                   @state.viewingNote.user.display_name
