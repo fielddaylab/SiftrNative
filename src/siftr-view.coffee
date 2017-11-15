@@ -844,7 +844,7 @@ SiftrView = React.createClass
             alignItems: 'center'
             backgroundColor: 'white'
           }>
-            <TouchableOpacity style={padding: 10} onPress={
+            <TouchableOpacity style={flex: 1, alignItems: 'flex-start'} onPress={
               if @state.viewingNote?
                 => @setState viewingNote: null
               else if @state.createNote?
@@ -857,6 +857,7 @@ SiftrView = React.createClass
               {
                 <Image
                   style={
+                    margin: 10
                     resizeMode: 'contain'
                     height: 18
                     opacity:
@@ -869,22 +870,24 @@ SiftrView = React.createClass
                 />
               }
             </TouchableOpacity>
-            <Text>{
-              if @state.viewingNote?
-                @state.viewingNote.user.display_name
-              else if @state.createNote?
-                "Posting to: #{@props.game.name}"
-              else
-                @props.game.name
-            }</Text>
+            <View style={flex: 1, alignItems: 'center'}>
+              <Text>{
+                if @state.viewingNote?
+                  @state.viewingNote.user.display_name
+                else if @state.createNote?
+                  "Posting to: #{@props.game.name}"
+                else
+                  @props.game.name
+              }</Text>
+            </View>
             {
               if @state.viewingNote?
-                <TouchableOpacity style={padding: 10} onPress={=> @noteView?.openNoteOptions()}>
-                  <Image style={resizeMode: 'contain', height: 5} source={require('../web/assets/img/icon-3dots.png')} />
+                <TouchableOpacity style={flex: 1, alignItems: 'flex-end'} onPress={=> @noteView?.openNoteOptions()}>
+                  <Image style={resizeMode: 'contain', height: 5, margin: 10} source={require('../web/assets/img/icon-3dots.png')} />
                 </TouchableOpacity>
               else
-                <TouchableOpacity style={padding: 10} onPress={=> @setState infoOpen: not @state.infoOpen}>
-                  <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-4dots.png')} />
+                <TouchableOpacity style={flex: 1, alignItems: 'flex-end'} onPress={=> @setState infoOpen: not @state.infoOpen}>
+                  <Image style={resizeMode: 'contain', height: 20, margin: 10} source={require('../web/assets/img/icon-4dots.png')} />
                 </TouchableOpacity>
             }
           </View>

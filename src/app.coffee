@@ -616,11 +616,13 @@ NativePassword = React.createClass
         justifyContent: 'space-between'
         alignItems: 'center'
       }>
-        <TouchableOpacity style={padding: 10} onPress={@props.onClose}>
-          <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-back.png')} />
+        <TouchableOpacity style={flex: 1, alignItems: 'flex-start'} onPress={@props.onClose}>
+          <Image style={resizeMode: 'contain', height: 20, margin: 10} source={require('../web/assets/img/icon-back.png')} />
         </TouchableOpacity>
-        <Text>Change Password</Text>
-        <View style={width: 50} />
+        <View style={flex: 1, alignItems: 'center'}>
+          <Text>Change Password</Text>
+        </View>
+        <View style={flex: 1} />
       </View>
       <ScrollView style={flex: 1}>
         <View style={styles.settingsHeader}>
@@ -712,11 +714,13 @@ NativeProfile = React.createClass
         justifyContent: 'space-between'
         alignItems: 'center'
       }>
-        <TouchableOpacity style={padding: 10} onPress={@props.onClose}>
-          <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-back.png')} />
+        <TouchableOpacity style={flex: 1, alignItems: 'flex-start'} onPress={@props.onClose}>
+          <Image style={resizeMode: 'contain', height: 20, margin: 10} source={require('../web/assets/img/icon-back.png')} />
         </TouchableOpacity>
-        <Text>Edit Profile</Text>
-        <View style={width: 50} />
+        <View style={flex: 1, alignItems: 'center'}>
+          <Text>Edit Profile</Text>
+        </View>
+        <View style={flex: 1} />
       </View>
       <ScrollView style={flex: 1} contentContainerStyle={alignItems: 'stretch'}>
         <View style={
@@ -846,11 +850,13 @@ NativeSettings = React.createClass
             justifyContent: 'space-between'
             alignItems: 'center'
           }>
-            <TouchableOpacity style={padding: 10} onPress={@props.onClose}>
-              <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-back.png')} />
+            <TouchableOpacity style={flex: 1, alignItems: 'flex-start'} onPress={@props.onClose}>
+              <Image style={resizeMode: 'contain', height: 20, margin: 10} source={require('../web/assets/img/icon-back.png')} />
             </TouchableOpacity>
-            <Text>Settings</Text>
-            <View style={width: 50} />
+            <View style={flex: 1, alignItems: 'center'}>
+              <Text>Settings</Text>
+            </View>
+            <View style={flex: 1} />
           </View>
           <ScrollView style={flex: 1}>
             <View style={styles.settingsHeader}>
@@ -934,15 +940,17 @@ NativeHome = React.createClass
               justifyContent: 'space-between'
               alignItems: 'center'
             }>
-              <TouchableOpacity style={padding: 10} onPress={=> @setState discoverPage: 'search'}>
-                <Image style={resizeMode: 'contain', height: 20} source={require('../web/assets/img/icon-search.png')} />
+              <TouchableOpacity style={flex: 1, alignItems: 'flex-start'} onPress={=> @setState discoverPage: 'search'}>
+                <Image style={resizeMode: 'contain', height: 20, margin: 10} source={require('../web/assets/img/icon-search.png')} />
               </TouchableOpacity>
-              <Text>
-                {
-                  if isHome then 'Home' else 'Explore'
-                }
-              </Text>
-              <TouchableOpacity style={padding: 0} onPress={=>
+              <View style={flex: 1, alignItems: 'center'}>
+                <Text>
+                  {
+                    if isHome then 'Home' else 'Explore'
+                  }
+                </Text>
+              </View>
+              <TouchableOpacity style={flex: 1, alignItems: 'flex-end'} onPress={=>
                 @setState cardMode:
                   if @state.cardMode is 'full'
                     'compact'
