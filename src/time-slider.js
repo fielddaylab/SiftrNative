@@ -7,8 +7,8 @@ const T = React.PropTypes;
 import
 { Dimensions
 , View
-, Text
 } from 'react-native';
+import {Text} from './styles';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 // @endif
 

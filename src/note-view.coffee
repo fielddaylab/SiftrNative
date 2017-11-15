@@ -15,7 +15,6 @@ T = React.PropTypes
 , TextInput
 , Image
 , ScrollView
-, Text
 , TouchableOpacity
 , Linking
 , BackHandler
@@ -25,7 +24,7 @@ T = React.PropTypes
 import FitImage from 'react-native-fit-image'
 import Hyperlink from 'react-native-hyperlink'
 import Gallery from 'react-native-image-gallery'
-{styles} = require './styles'
+{styles, Text} = require './styles'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 # @endif
 

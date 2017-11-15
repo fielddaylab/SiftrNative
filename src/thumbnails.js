@@ -10,7 +10,6 @@ import {clicker} from './utils';
 // @ifdef NATIVE
 import
 { View
-, Text
 , TouchableOpacity
 , Image
 } from 'react-native';

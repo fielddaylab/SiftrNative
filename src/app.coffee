@@ -4,8 +4,7 @@ React = require 'react'
 T = React.PropTypes
 
 # @ifdef NATIVE
-{ Text
-, View
+{ View
 , TextInput
 , TouchableOpacity
 , ScrollView
@@ -19,7 +18,7 @@ T = React.PropTypes
 , AppState
 } = require 'react-native'
 {UploadQueue} = require './upload-queue'
-{styles} = require './styles'
+{styles, Text} = require './styles'
 {StatusSpace} = require './status-space'
 {KeyboardAwareView} = require 'react-native-keyboard-aware-view'
 RNFS = require 'react-native-fs'
@@ -1030,9 +1029,7 @@ NativeHome = React.createClass
                   padding: 4
                   alignSelf: 'stretch'
                 }>
-                  <Text style={
-                    color: 'black'
-                  }>
+                  <Text>
                     {@props.queueMessage}
                   </Text>
                 </View>

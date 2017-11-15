@@ -8,13 +8,12 @@ import update from 'immutability-helper';
 import
 { TouchableOpacity
 , View
-, Text
 , ScrollView
 , StyleSheet
 , TextInput
 , Switch
 } from 'react-native';
-import {styles} from './styles';
+import {styles, Text} from './styles';
 // @endif
 
 import

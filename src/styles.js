@@ -2,7 +2,16 @@
 
 // @ifdef NATIVE
 
-import {StyleSheet} from 'react-native';
+import React from 'react';
+import RN, {StyleSheet} from 'react-native';
+
+export const Text = React.createClass({
+  render: function(){
+    return <RN.Text style={[{letterSpacing: 0.3}, this.props.style]}>
+      {this.props.children}
+    </RN.Text>;
+  },
+});
 
 export const styles = StyleSheet.create({
 

@@ -12,7 +12,6 @@ EXIF = require 'exif-js'
 , View
 , TextInput
 , Picker
-, Text
 , TouchableOpacity
 , ActivityIndicator
 , ScrollView
@@ -24,7 +23,7 @@ EXIF = require 'exif-js'
 , TouchableWithoutFeedback
 , Keyboard
 } = require 'react-native'
-{styles} = require './styles'
+{styles, Text} = require './styles'
 import Camera from 'react-native-camera'
 import InfiniteScrollView from 'react-native-infinite-scroll-view'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'

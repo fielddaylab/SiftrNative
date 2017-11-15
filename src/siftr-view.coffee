@@ -5,8 +5,7 @@ T = React.PropTypes
 update = require 'immutability-helper'
 
 # @ifdef NATIVE
-{ Text
-, View
+{ View
 , TextInput
 , TouchableOpacity
 , Image
@@ -18,7 +17,7 @@ update = require 'immutability-helper'
 , Platform
 } = require 'react-native'
 RNFS = require 'react-native-fs'
-{styles} = require './styles'
+{styles, Text} = require './styles'
 {StatusSpace} = require './status-space'
 {KeyboardAwareView} = require 'react-native-keyboard-aware-view'
 {default: SideMenu} = require 'react-native-side-menu'
