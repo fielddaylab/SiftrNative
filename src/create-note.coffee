@@ -651,7 +651,7 @@ export CreateData = React.createClass
               if @state.focusedBox?
                 'rgb(127,127,127)'
               else
-                'white'
+                'rgb(249,249,249)'
           }
           contentContainerStyle={
             flexDirection: 'column'
@@ -877,13 +877,18 @@ export CreateData = React.createClass
         </KeyboardAwareScrollView>
         <Blackout keyboardUp={@state.focusedBox?} isFocused={false}>
           <View style={styles.buttonRow}>
-            <TouchableOpacity onPress={@props.onCancel}>
-              <Text style={styles.blackViolaButton}>Cancel</Text>
+            <TouchableOpacity onPress={@props.onCancel} style={flex: 1, alignItems: 'center'}>
+              <Text style={[styles.blackViolaButton, color: 'rgb(165,159,164)']}>Cancel</Text>
             </TouchableOpacity>
+            <View style={
+              width: 2
+              height: 20
+              backgroundColor: 'rgb(237,237,237)'
+            } />
             <TouchableOpacity onPress={=>
               unless @props.createNote.uploading
                 @props.onFinish @props.onCreateNote
-            }>
+            } style={flex: 1, alignItems: 'center'}>
               <Text style={styles.blackViolaButton}>
                 {
                   if @props.createNote.uploading
