@@ -432,7 +432,7 @@ NativeCard = React.createClass
           borderRadius: 12
         }>
           <View style={flexDirection: 'row', justifyContent: 'space-between', padding: 10, alignItems: 'center'}>
-            <View>
+            <View style={flex: 1}>
               <Text>{@props.game.name}</Text>
               <Text>{@state.authors?.join(', ') ? '…'}</Text>
             </View>
