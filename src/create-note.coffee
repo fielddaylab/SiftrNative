@@ -647,7 +647,11 @@ export CreateData = React.createClass
           extraScrollHeight={40}
           style={
             flex: 1
-            backgroundColor: 'white'
+            backgroundColor:
+              if @state.focusedBox?
+                'rgb(127,127,127)'
+              else
+                'white'
           }
           contentContainerStyle={
             flexDirection: 'column'
@@ -676,11 +680,12 @@ export CreateData = React.createClass
                   height: 120
                   padding: 10
                   fontSize: 16
+                  backgroundColor: 'white'
                 }
               />
             </Blackout>
             <Blackout keyboardUp={@state.focusedBox?} isFocused={false}>
-              <View style={styles.buttonRow}>
+              <View style={[styles.buttonRow, backgroundColor: 'white']}>
                 <TouchableOpacity onPress={=>
                   @setState isPickingLocation: true
                   @props.onStartLocation()
@@ -697,6 +702,7 @@ export CreateData = React.createClass
                 flexDirection: 'row'
                 alignItems: 'center'
                 justifyContent: 'space-between'
+                backgroundColor: 'white'
               }>
                 <View style={
                   backgroundColor: @props.getColor(@props.createNote.category)
@@ -712,37 +718,37 @@ export CreateData = React.createClass
                   resizeMode: 'contain'
                 } />
               </TouchableOpacity>
+              {
+                if @state.tagListOpen
+                  <View>
+                    {
+                      @props.categories.map (category) =>
+                        <TouchableOpacity key={category.tag_id} onPress={=>
+                          @setState tagListOpen: false
+                          @props.onUpdateNote update @props.createNote,
+                            category: $set: category
+                        } style={
+                          borderTopColor: 'rgb(230,230,230)'
+                          borderTopWidth: 1
+                          padding: 13
+                          flexDirection: 'row'
+                          alignItems: 'center'
+                          justifyContent: 'space-between'
+                          backgroundColor: 'rgb(240,240,240)'
+                        }>
+                          <View style={
+                            backgroundColor: @props.getColor(category)
+                            height: 16
+                            width: 16
+                            borderRadius: 8
+                            marginRight: 20
+                          } />
+                          <Text style={flex: 1}>{ category.tag }</Text>
+                        </TouchableOpacity>
+                    }
+                  </View>
+              }
             </Blackout>
-            {
-              if @state.tagListOpen
-                <View>
-                  {
-                    @props.categories.map (category) =>
-                      <TouchableOpacity key={category.tag_id} onPress={=>
-                        @setState tagListOpen: false
-                        @props.onUpdateNote update @props.createNote,
-                          category: $set: category
-                      } style={
-                        borderTopColor: 'rgb(230,230,230)'
-                        borderTopWidth: 1
-                        padding: 13
-                        flexDirection: 'row'
-                        alignItems: 'center'
-                        justifyContent: 'space-between'
-                        backgroundColor: 'rgb(240,240,240)'
-                      }>
-                        <View style={
-                          backgroundColor: @props.getColor(category)
-                          height: 16
-                          width: 16
-                          borderRadius: 8
-                          marginRight: 20
-                        } />
-                        <Text style={flex: 1}>{ category.tag }</Text>
-                      </TouchableOpacity>
-                  }
-                </View>
-            }
             {
               @props.fields.map (field) =>
                 return null if field.field_type is 'MEDIA'
@@ -770,18 +776,20 @@ export CreateData = React.createClass
                       onChangeData newData
                     switch field.field_type
                       when 'TEXT'
-                        <TextInput
-                          multiline={false}
-                          value={getText()}
-                          onChangeText={setText}
-                          style={styles.input}
-                          placeholder={field.label}
-                          onFocus={=> @setState focusedBox: field.field_id}
-                          onEndEditing={=>
-                            if @state.focusedBox is field.field_id
-                              @setState focusedBox: null
-                          }
-                        />
+                        <View style={backgroundColor: 'white'}>
+                          <TextInput
+                            multiline={false}
+                            value={getText()}
+                            onChangeText={setText}
+                            style={styles.input}
+                            placeholder={field.label}
+                            onFocus={=> @setState focusedBox: field.field_id}
+                            onEndEditing={=>
+                              if @state.focusedBox is field.field_id
+                                @setState focusedBox: null
+                            }
+                          />
+                        </View>
                       when 'TEXTAREA'
                         <TextInput
                           multiline={true}
@@ -794,6 +802,7 @@ export CreateData = React.createClass
                             padding: 10
                             fontSize: 16
                             alignSelf: 'stretch'
+                            backgroundColor: 'white'
                           }
                           onFocus={=> @setState focusedBox: field.field_id}
                           onEndEditing={=>
@@ -803,6 +812,7 @@ export CreateData = React.createClass
                         />
                       when 'SINGLESELECT'
                         <Picker
+                          style={backgroundColor: 'white'}
                           selectedValue={do =>
                             for data in field_data
                               if data.field_id is field.field_id
@@ -826,7 +836,7 @@ export CreateData = React.createClass
                         </Picker>
                       when 'MULTISELECT'
                         field.options.map (option) =>
-                          <View style={flexDirection: 'row'} key={option.field_option_id}>
+                          <View style={flexDirection: 'row', backgroundColor: 'white'} key={option.field_option_id}>
                             <Switch
                               value={field_data.some (data) =>
                                 data.field_id is field.field_id and data.field_option_id is option.field_option_id
@@ -845,7 +855,7 @@ export CreateData = React.createClass
                             <Text>{ option.option }</Text>
                           </View>
                       when 'NOMEN'
-                        <TouchableOpacity style={padding: 10} onPress={=>
+                        <TouchableOpacity style={padding: 10, backgroundColor: 'white'} onPress={=>
                           Linking.openURL "nomen://?nomen_id=#{field.label}&siftr_id=6234" # TODO actual siftr_id
                         }>
                           <Text>
