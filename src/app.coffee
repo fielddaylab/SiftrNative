@@ -533,7 +533,8 @@ BrowserSearchPane = React.createClass
 
   shouldComponentUpdate: (nextProps, nextState) ->
     @props.auth isnt nextProps.auth or
-    @state.search isnt nextState.search
+    @state.search isnt nextState.search or
+    @props.cardMode isnt nextProps.cardMode
     # onSelect and onInfo are function-wrapped
 
   render: ->
@@ -556,6 +557,7 @@ BrowserSearchPane = React.createClass
         onSelect={(args...) => @props.onSelect(args...)}
         onInfo={(args...) => @props.onInfo(args...)}
         search={@state.search}
+        cardMode={@props.cardMode}
       />
     </View>
 
