@@ -16,6 +16,9 @@ T = React.PropTypes
 , BackHandler
 , Platform
 , AppState
+, Keyboard
+, TouchableWithoutFeedback
+, Alert
 } = require 'react-native'
 {UploadQueue} = require './upload-queue'
 {styles, Text} = require './styles'
@@ -230,6 +233,7 @@ NativeLogin = React.createClass
 
   getInitialState: ->
     page: 'sign-in'
+    keyboard: false
 
   doLogin: ->
     @props.onLogin @username, @password
@@ -237,9 +241,19 @@ NativeLogin = React.createClass
   componentWillMount: ->
     @username = ''
     @password = ''
+    @onKeyboardShow = =>
+      @setState keyboard: true
+    @onKeyboardHide = =>
+      @setState keyboard: false
+    Keyboard.addListener 'keyboardWillShow', @onKeyboardShow
+    Keyboard.addListener 'keyboardWillHide', @onKeyboardHide
+
+  componentWillUnmount: ->
+    Keyboard.removeListener 'keyboardWillShow', @onKeyboardShow
+    Keyboard.removeListener 'keyboardWillHide', @onKeyboardHide
 
   render: ->
-    <KeyboardAwareView style={
+    <KeyboardAwareView animated={true} style={
       flex: 1
       flexDirection: 'column'
     }>
@@ -250,7 +264,7 @@ NativeLogin = React.createClass
         else
           require('../web/assets/img/bg2.jpg')
       } style={
-        flex: 1
+        flex: if @state.keyboard then 0 else 1
         flexDirection: 'column'
         backgroundColor: 'rgba(0,0,0,0)'
         alignItems: 'center'
@@ -258,39 +272,46 @@ NativeLogin = React.createClass
         width: null
         height: null
       }>
-        <View style={height: 40} />
-        <View style={
-          flexDirection: 'column'
-          alignItems: 'center'
-        }>
-          <Image source={require('../web/assets/img/siftr-logo.png')} style={
-            width: 190 * 0.5
-            height: 196 * 0.5
-            marginBottom: 20
-          } />
-          <Text style={color: 'white'}>Exploring our world together</Text>
-        </View>
-        <View style={
-          flexDirection: 'row'
-          alignItems: 'flex-end'
-          justifyContent: 'space-around'
-          alignSelf: 'stretch'
-        }>
-          <TouchableOpacity style={
-            padding: 16
-            borderBottomWidth: 7
-            borderBottomColor: if @state.page is 'sign-in' then 'white' else 'rgba(0,0,0,0)'
-          } onPress={=> @setState page: 'sign-in'}>
-            <Text style={color: 'white'}>Sign In</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={
-            padding: 16
-            borderBottomWidth: 7
-            borderBottomColor: if @state.page is 'sign-up' then 'white' else 'rgba(0,0,0,0)'
-          } onPress={=> @setState page: 'sign-up'}>
-            <Text style={color: 'white'}>Sign Up</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={height: 40} />
+        </TouchableWithoutFeedback>
+        {
+          unless @state.keyboard
+            <View style={
+              flexDirection: 'column'
+              alignItems: 'center'
+            }>
+              <Image source={require('../web/assets/img/siftr-logo.png')} style={
+                width: 190 * 0.5
+                height: 196 * 0.5
+                marginBottom: 20
+              } />
+              <Text style={color: 'white'}>Exploring our world together</Text>
+            </View>
+        }
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={
+            flexDirection: 'row'
+            alignItems: 'flex-end'
+            justifyContent: 'space-around'
+            alignSelf: 'stretch'
+          }>
+            <TouchableOpacity style={
+              padding: 16
+              borderBottomWidth: 7
+              borderBottomColor: if @state.page is 'sign-in' then 'white' else 'rgba(0,0,0,0)'
+            } onPress={=> @setState page: 'sign-in'}>
+              <Text style={color: 'white'}>Sign In</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={
+              padding: 16
+              borderBottomWidth: 7
+              borderBottomColor: if @state.page is 'sign-up' then 'white' else 'rgba(0,0,0,0)'
+            } onPress={=> @setState page: 'sign-up'}>
+              <Text style={color: 'white'}>Sign Up</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableWithoutFeedback>
       </Image>
       {
         switch @state.page
@@ -299,30 +320,39 @@ NativeLogin = React.createClass
               flex: 1
               flexDirection: 'column'
             }>
-              <View style={
-                flex: 1
-                justifyContent: 'center'
-                alignItems: 'stretch'
-              }>
-                <TextInput
-                  placeholder="Username"
-                  style={styles.input}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  autoFocus={true}
-                  onChangeText={(username) => @username = username}
-                  defaultValue={@username}
-                />
-                <TextInput
-                  placeholder="Password"
-                  secureTextEntry={true}
-                  style={styles.input}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  onChangeText={(password) => @password = password}
-                  defaultValue={@password}
-                />
-              </View>
+              <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={
+                  flex: 1
+                  justifyContent: 'center'
+                  alignItems: 'stretch'
+                }>
+                  <TextInput
+                    placeholder="Username"
+                    style={styles.input}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    autoFocus={true}
+                    onChangeText={(username) => @username = username}
+                    defaultValue={@username}
+                    onSubmitEditing={=>
+                      @passwordBox.focus()
+                    }
+                    returnKeyType="next"
+                  />
+                  <TextInput
+                    ref={(pw) => @passwordBox = pw}
+                    placeholder="Password"
+                    secureTextEntry={true}
+                    style={styles.input}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    onChangeText={(password) => @password = password}
+                    defaultValue={@password}
+                    onSubmitEditing={@doLogin}
+                    returnKeyType="go"
+                  />
+                </View>
+              </TouchableWithoutFeedback>
               <TouchableOpacity onPress={@doLogin} style={
                 backgroundColor: 'rgb(255,124,107)'
                 alignItems: 'center'
@@ -1157,7 +1187,7 @@ SiftrNative = React.createClass
     return unless @state.online
     (@state.auth ? new Auth).login username, password, (newAuth, err) =>
       if username? and password? and not newAuth.authToken?
-        console.warn err
+        Alert.alert err.returnCodeDescription
       @setState
         auth: newAuth
         games: null
