@@ -112,31 +112,31 @@ MapCluster = React.createClass
       pinColor="black"
       onPress={=> @props.onSelect @props.cluster}
     >
-      <View style={width: w + 3, height: w + 3}>
+      <View style={width: w + 13, height: w + 3}>
         <View style={
           position: 'absolute'
           top: 2
-          left: 1
+          left: 6
           width: w
           height: w
           borderRadius: r
           backgroundColor: 'rgba(0,0,0,0.5)'
         } />
-        <Svg width={w + 1} height={w + 1}>
+        <Svg width={w + 11} height={w + 1}>
           {
             for [startRads, endRads, color], i in stops
               if startRads is 'circle'
                 <Circle
                   key={i}
-                  cx={r}
+                  cx={r + 5}
                   cy={r}
                   r={r}
                   fill={color}
                 />
               else
-                x1 = Math.cos(startRads) * r + r
+                x1 = Math.cos(startRads) * r + r + 5
                 y1 = Math.sin(startRads) * r + r
-                x2 = Math.cos(endRads) * r + r
+                x2 = Math.cos(endRads) * r + r + 5
                 y2 = Math.sin(endRads) * r + r
                 large = if endRads - startRads >= Math.PI then 1 else 0
                 <Path
@@ -149,7 +149,7 @@ MapCluster = React.createClass
             textAnchor="middle"
             stroke="black"
             fill="white"
-            x={r}
+            x={r + 5}
             y={
               if Platform.OS is 'ios'
                 1
@@ -157,7 +157,7 @@ MapCluster = React.createClass
                 4
             }
             fontSize={w * (2/3)}
-            fontWeight="bold"
+            fontWeight="900"
           >{@props.cluster.note_count}</SvgText>
         </Svg>
       </View>
