@@ -1074,15 +1074,30 @@ NativeHome = React.createClass
               <TouchableOpacity style={padding: 10} onPress={=>
                 if not isHome then @setState discoverPage: 'mine', settings: false
               }>
-                <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-home.png')} />
+                <Image style={resizeMode: 'contain', height: 30} source={
+                  if isHome
+                    require('../web/assets/img/icon-home-selected.png')
+                  else
+                    require('../web/assets/img/icon-home.png')
+                } />
               </TouchableOpacity>
               <TouchableOpacity style={padding: 10} onPress={=>
                 if not isDiscover then @setState discoverPage: 'featured', settings: false
               }>
-                <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-eye.png')} />
+                <Image style={resizeMode: 'contain', height: 24} source={
+                  if isDiscover
+                    require('../web/assets/img/icon-eye-selected.png')
+                  else
+                    require('../web/assets/img/icon-eye.png')
+                } />
               </TouchableOpacity>
               <TouchableOpacity style={padding: 10} onPress={=> @setState settings: true}>
-                <Image style={resizeMode: 'contain', height: 30} source={require('../web/assets/img/icon-user.png')} />
+                <Image style={resizeMode: 'contain', height: 28} source={
+                  if @state.settings
+                    require('../web/assets/img/icon-user-selected.png')
+                  else
+                    require('../web/assets/img/icon-user.png')
+                } />
               </TouchableOpacity>
             </View>
           </View>
