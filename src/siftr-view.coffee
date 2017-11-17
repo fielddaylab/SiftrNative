@@ -88,14 +88,25 @@ SiftrInfo = React.createClass
             backgroundColor: 'rgb(249,249,249)'
           }>
             <StatusSpace leaveBar={true} backgroundColor="rgba(0,0,0,0)" />
-            <Text style={margin: 10}>
+            <Text style={margin: 10, textAlign: 'center'}>
               {@props.game?.name}
             </Text>
-            <TouchableOpacity onPress={if isFollowing then @props.unfollowGame else @props.followGame}>
-              <Text style={margin: 10}>
-                {if not isFollowing? then '...' else if isFollowing then 'Following' else 'Not following'}
-              </Text>
-            </TouchableOpacity>
+            <View style={alignItems: 'center'}>
+              <TouchableOpacity onPress={
+                if isFollowing then @props.unfollowGame else @props.followGame
+              } style={
+                paddingHorizontal: 14
+                paddingVertical: 4
+                borderColor: 'black'
+                borderRadius: 20
+                borderWidth: 2
+                marginBottom: 10
+              }>
+                <Text>
+                  {if not isFollowing? then '...' else if isFollowing then 'Followed' else 'Follow this Siftr'}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
           <ScrollView style={flex: 1} contentContainerStyle={
             backgroundColor: 'white'
