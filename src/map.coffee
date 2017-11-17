@@ -141,7 +141,7 @@ MapCluster = React.createClass
                 large = if endRads - startRads >= Math.PI then 1 else 0
                 <Path
                   key={i}
-                  d={"M#{r},#{r} L#{x1},#{y1} A#{r},#{r} 0 #{large},1 #{x2},#{y2} z"}
+                  d={"M#{r+5},#{r} L#{x1},#{y1} A#{r},#{r} 0 #{large},1 #{x2},#{y2} z"}
                   fill={color}
                 />
           }
