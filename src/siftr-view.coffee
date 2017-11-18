@@ -809,24 +809,34 @@ SiftrView = React.createClass
         console.warn "TODO: handle content:// (picked from image roll on Android)"
         @setState createNote: null
         return
+      filesToCopy = []
       for f in files
+        name = f.file.name
         if f.field_id?
-          f.file.name = "#{f.field_id}.#{f.file.name.split('.').pop()}"
+          name = "#{f.field_id}.#{name.split('.').pop()}"
         unless createArgs.files?
           createArgs.files = []
         createArgs.files.push
           field_id: f.field_id
-          filename: f.file.name
+          filename: name
           mimetype: f.file.type
+        filesToCopy.push
+          copyFrom: f.file.uri
+          copyTo: "#{queueDir}/#{name}"
       RNFS.mkdir(queueDir)
       .then => RNFS.writeFile("#{queueDir}/createNote.json", JSON.stringify(createArgs))
       .then =>
         Promise.all(
-          for f in files
-            RNFS.copyFile(f.file.uri, "#{queueDir}/#{f.file.name}")
+          for fileToCopy in filesToCopy
+            if fileToCopy.copyFrom.match(/^assets-library/)
+              RNFS.copyAssetsFileIOS(fileToCopy.copyFrom, fileToCopy.copyTo, 0, 0)
+            else
+              RNFS.copyFile(fileToCopy.copyFrom, fileToCopy.copyTo)
         )
       .then =>
         @setState createNote: null
+      .catch (err) =>
+        console.warn JSON.stringify err
 
   # @ifdef NATIVE
   render: ->
