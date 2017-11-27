@@ -183,6 +183,7 @@ class FieldData
       @field_id        = parseInt json.field_id
       @field_data      = json.field_data
       @media_id        = parseInt json.media_id
+      @media           = json.media
       @field_option_id = parseInt json.field_option_id
 
 # Handles Aris v2 authentication and API calls.

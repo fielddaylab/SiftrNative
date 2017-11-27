@@ -70,22 +70,35 @@ writeParagraphs = (text) ->
 
 # @ifdef NATIVE
 class SquareImage extends React.Component
-  # simple image box that sets the height equal to the width
+  # image box that sets the height equal to the width
 
   constructor: (props) ->
     super props
     @state = {}
 
   render: ->
-    <Image
-      {...@props}
-      style={[
-        @props.style
-        resizeMode: 'cover'
+    <View
+      style={
+        alignSelf: 'stretch'
+        flexDirection: 'row'
         height: @state.width ? undefined
-      ]}
+        alignItems: 'stretch'
+      }
       onLayout={@resize.bind(@)}
-    />
+    >
+      {
+        @props.sources.map (source, i) =>
+          <TouchableOpacity key={i} onPress={=> @props.onGallery source} style={flex: 1, alignItems: 'stretch'}>
+            <Image
+              source={source}
+              style={
+                resizeMode: 'cover'
+                flex: 1
+              }
+            />
+          </TouchableOpacity>
+      }
+    </View>
 
   resize: (evt) ->
     dims = evt.nativeEvent.layout
@@ -490,6 +503,7 @@ class GalleryModal extends React.Component
       <Gallery
         style={flex: 1, backgroundColor: 'black'}
         images={@props.images}
+        initialPage={@props.initialPage}
       />
       <TouchableOpacity onPress={@props.onClose} style={
         position: 'absolute'
@@ -665,6 +679,15 @@ class SiftrNoteView extends React.Component
 
   # @ifdef NATIVE
   render: ->
+    photos = [@props.note.photo_url]
+    if (@state.field_data? and @props.fields?)
+      for field in @props.fields
+        if field.field_type is 'MEDIA'
+          data =
+            d for d in @state.field_data when d.field_id is field.field_id
+          if data.length > 0
+            photos.push data[0].media.url.replace('http://', 'https://')
+
     <KeyboardAwareScrollView
       ref={(sv) => @scrollView = sv}
       style={
@@ -698,17 +721,14 @@ class SiftrNoteView extends React.Component
         else if @state.gallery?
           <GalleryModal
             onClose={=> @setState gallery: null}
-            images={[
-              {source: {uri: @state.gallery}}
-            ]}
+            initialPage={photos.indexOf @state.gallery}
+            images={{source: {uri}} for uri in photos}
           />
       }
-      <TouchableOpacity onPress={=> @setState gallery: @props.note.photo_url}>
-        <SquareImage
-          source={uri: @props.note.photo_url}
-          style={alignSelf: 'stretch'}
-        />
-      </TouchableOpacity>
+      <SquareImage
+        sources={{uri} for uri in photos}
+        onGallery={({uri}) => @setState gallery: uri}
+      />
       <View style={
         backgroundColor: 'white'
         padding: 5
