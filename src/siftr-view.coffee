@@ -280,8 +280,10 @@ SiftrView = React.createClass
             Object.assign(new Field, field)
       RNFS.readFile("#{siftrDir}/notes.txt").then (notes) =>
         return unless @isMounted
-        @setState allNotes:
-          deserializeNote(note) for note in JSON.parse notes
+        @setState({
+          allNotes:
+            deserializeNote(note) for note in JSON.parse notes
+        }, => @loadResults())
     @hardwareBack = =>
       if @state.searchOpen
         if @isMounted then @setState searchOpen: false
@@ -387,7 +389,7 @@ SiftrView = React.createClass
   # @endif
 
   getColor: (x) ->
-    return 'white' unless @state.tags? and @state.colors?
+    return 'white' unless @state.tags? and @state.colors? and x?
     if x instanceof Tag
       tag = x
     else if x.tag_id?
@@ -423,7 +425,12 @@ SiftrView = React.createClass
       # @endif
 
   loadResults: ({auth = @props.auth, game = @props.game} = {}) ->
-    return unless @props.online
+    unless @props.online
+      if @state.allNotes?
+        # TODO actual filter, cluster, etc.
+        @setState map_notes: @state.allNotes
+      # otherwise, need to wait for notes to be deserialized
+      return
     @loading = true
     @lastResultsXHR?.abort()
     params = update @commonSearchParams({auth, game}),
