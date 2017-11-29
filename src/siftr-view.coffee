@@ -430,7 +430,36 @@ SiftrView = React.createClass
   loadResults: ({auth = @props.auth, game = @props.game} = {}) ->
     unless @props.online
       if @state.allNotes?
-        filteredNotes = @state.allNotes # TODO filter by map, tag, search
+        words = (@state.searchParams.text ? '').split(/\s+/).filter((w) => w.length).map((w) => w.toLowerCase())
+        filteredNotes =
+          for note in @state.allNotes
+            # filter by map
+            if (min_latitude = @state.bounds?.se?.lat)? and (max_latitude = @state.bounds?.nw?.lat)?
+              continue unless min_latitude <= note.latitude <= max_latitude
+            if (min_longitude = @state.bounds?.nw?.lng)? and (max_longitude = @state.bounds?.se?.lng)?
+              if min_longitude <= max_longitude
+                continue unless min_longitude <= note.longitude <= max_longitude
+              else
+                # the international date line is inside the 2 longitudes
+                continue unless min_longitude <= note.longitude or note.longitude <= max_longitude
+            # filter by text
+            searchMatched = true
+            for word in words
+              unless note.description.toLowerCase().indexOf(word) isnt -1 or note.user.display_name.toLowerCase().indexOf(word) isnt -1
+                searchMatched = false
+                break
+            continue unless searchMatched
+            # filter by mine
+            if @state.searchParams.mine
+              continue unless note.user.user_id is auth.authToken.user_id
+            # filter by tag
+            continue unless note.tag_id
+            if (tags = @state.searchParams.tags)?
+              continue unless tags.length is 0 or note.tag_id in tags
+            # filter by time
+            continue if @state.searchParams.min_time? and @state.searchParams.min_time > note.created.getTime()
+            continue if @state.searchParams.max_time? and @state.searchParams.max_time < note.created.getTime()
+            note
         {map_notes, map_clusters} = makeClusters(filteredNotes, 35, @getGoogleZoom())
         @setState
           map_notes: map_notes
@@ -449,7 +478,7 @@ SiftrView = React.createClass
               note_count: cluster.length
               tags: tags
               note_ids: (note.note_id for note in cluster)
-          notes: @state.allNotes
+          notes: filteredNotes
       # otherwise, need to wait for notes to be deserialized
       return
     @loading = true
