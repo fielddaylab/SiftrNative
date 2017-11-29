@@ -39,7 +39,7 @@ RNFS = require 'react-native-fs'
 {timeToARIS} = require './time-slider'
 
 {SearchNotes} = require './search-notes'
-{SiftrMap} = require './map'
+{SiftrMap, makeClusters} = require './map'
 {SiftrThumbnails} = require './thumbnails'
 {SiftrNoteView} = require './note-view'
 {CreateStep1, CreateStep2, CreateStep3, CreateStep4, CreateStep5, CreateData, Blackout} = require './create-note'
@@ -400,6 +400,19 @@ SiftrView = React.createClass
       return 'white'
     @state.colors["tag_#{@state.tags.indexOf(tag) % 8 + 1}"] ? 'white'
 
+  # @ifdef NATIVE
+  getGoogleZoom: ->
+    return 1 unless @state.bounds?
+    w = (@layout?.width  ? 400) * 2
+    h = (@layout?.height ? 400) * 2
+    fitBounds(@state.bounds, {width: w, height: h}).zoom
+  # @endif
+
+  # @ifdef WEB
+  getGoogleZoom: ->
+    @state.zoom
+  # @endif
+
   commonSearchParams: ({auth = @props.auth, game = @props.game} = {}) ->
     game_id: game.game_id
     min_latitude: @state.bounds?.se?.lat
@@ -412,23 +425,31 @@ SiftrView = React.createClass
     tag_ids: @state.searchParams.tags ? undefined
     min_time: timeToARIS @state.searchParams.min_time
     max_time: timeToARIS @state.searchParams.max_time
-    zoom:
-      # @ifdef NATIVE
-      do =>
-        return 1 unless @state.bounds?
-        w = (@layout?.width  ? 400) * 2
-        h = (@layout?.height ? 400) * 2
-        fitBounds(@state.bounds, {width: w, height: h}).zoom
-      # @endif
-      # @ifdef WEB
-      @state.zoom
-      # @endif
+    zoom: @getGoogleZoom()
 
   loadResults: ({auth = @props.auth, game = @props.game} = {}) ->
     unless @props.online
       if @state.allNotes?
-        # TODO actual filter, cluster, etc.
-        @setState map_notes: @state.allNotes
+        filteredNotes = @state.allNotes # TODO filter by map, tag, search
+        {map_notes, map_clusters} = makeClusters(filteredNotes, 35, @getGoogleZoom())
+        @setState
+          map_notes: map_notes
+          map_clusters:
+            for cluster in map_clusters
+              lats = (note.latitude for note in cluster)
+              lons = (note.longitude for note in cluster)
+              tags = {}
+              for note in cluster
+                tags[note.tag_id] ?= 0
+                tags[note.tag_id] += 1
+              min_latitude: Math.min.apply(Math, lats)
+              max_latitude: Math.max.apply(Math, lats)
+              min_longitude: Math.min.apply(Math, lons)
+              max_longitude: Math.max.apply(Math, lons)
+              note_count: cluster.length
+              tags: tags
+              note_ids: (note.note_id for note in cluster)
+          notes: @state.allNotes
       # otherwise, need to wait for notes to be deserialized
       return
     @loading = true

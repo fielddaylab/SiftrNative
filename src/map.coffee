@@ -43,6 +43,8 @@ toWord8 = (n) ->
     s = '0' + s
   s
 colorAverage = (c1, c2, numSteps) ->
+  c1 = '#ffffff' if c1 is 'white'
+  c2 = '#ffffff' if c2 is 'white'
   [_str, r1, g1, b1] = c1.match(/^#(..)(..)(..)$/)
   [_str, r2, g2, b2] = c2.match(/^#(..)(..)(..)$/)
   r1 = parseInt(r1, 16)
@@ -157,7 +159,12 @@ MapCluster = React.createClass
                 4
             }
             fontSize={w * (2/3)}
-            fontWeight="900"
+            fontWeight={
+              if Platform.OS is 'ios'
+                '900'
+              else
+                'bold'
+            }
           >{@props.cluster.note_count}</SvgText>
         </Svg>
       </View>
@@ -480,3 +487,54 @@ SiftrMap = React.createClass
   # @endif
 
 exports.SiftrMap = SiftrMap
+
+# Map clustering algorithms from
+# http://www.appelsiini.net/2008/introduction-to-marker-clustering-with-google-maps
+
+lonToX = (lon) ->
+  Math.round(268435456 + 85445659.4471 * lon * Math.PI / 180)
+
+latToY = (lat) ->
+  Math.round(268435456 - 85445659.4471 *
+    Math.log((1 + Math.sin(lat * Math.PI / 180)) /
+    (1 - Math.sin(lat * Math.PI / 180))) / 2)
+
+pixelDistance = (lat1, lon1, lat2, lon2, zoom) ->
+  # TODO: handle international date line properly
+  x1 = lonToX(lon1)
+  y1 = latToY(lat1)
+  x2 = lonToX(lon2)
+  y2 = latToY(lat2)
+  Math.sqrt(Math.pow((x1-x2),2) + Math.pow((y1-y2),2)) >> (21 - zoom)
+
+makeClusters = (markers, distance, zoom) ->
+  markers = markers[..] # copy array
+  map_notes = []
+  map_clusters = []
+  # Loop until all markers have been compared.
+  while markers.length > 0
+    marker = markers.pop()
+    cluster = []
+    # Compare against all markers which are left
+    removing = []
+    for target, key in markers
+      pixels = pixelDistance marker.latitude, marker.longitude, target.latitude, target.longitude, zoom
+      # If two markers are closer than given distance remove target marker from array and add it to cluster.
+      if distance > pixels
+        removing.push key
+        cluster.push target
+    markers =
+      for target, key in markers
+        continue if key in removing
+        target
+
+    # If a marker has been added to cluster, add also the one we were comparing to and remove the original from array.
+    if cluster.length > 0
+      cluster.push marker
+      map_clusters.push cluster
+    else
+      map_notes.push marker
+
+  {map_notes, map_clusters}
+
+exports.makeClusters = makeClusters
