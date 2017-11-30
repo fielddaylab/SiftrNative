@@ -305,6 +305,13 @@ class Auth
       permission: 'read_write'
     , (obj) => @useLoginResult obj, true, cb
 
+  register: (username, password, email, cb = (->)) ->
+    @call 'users.createUser',
+      user_name: username
+      password: password
+      email: email
+    , (obj) => @useLoginResult obj, true, cb
+
   changePassword: ({username, oldPassword, newPassword}, cb = (->)) ->
     @call 'users.changePassword',
       user_name: username

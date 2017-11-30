@@ -230,17 +230,28 @@ Loading = React.createClass
 NativeLogin = React.createClass
   getDefaultProps: ->
     onLogin: (->)
+    onRegister: (->)
 
   getInitialState: ->
     page: 'sign-in'
     keyboard: false
+    username: ''
+    password: ''
+    password2: ''
+    email: ''
 
   doLogin: ->
-    @props.onLogin @username, @password
+    @props.onLogin @state.username, @state.password
+
+  doRegister: ->
+    if @state.password is ''
+      Alert.alert "You must enter a password."
+    else if @state.password isnt @state.password2
+      Alert.alert "Passwords don't match."
+    else
+      @props.onRegister @state.username, @state.password, @state.email
 
   componentWillMount: ->
-    @username = ''
-    @password = ''
     @onKeyboardShow = =>
       @setState keyboard: true
     @onKeyboardHide = =>
@@ -300,14 +311,24 @@ NativeLogin = React.createClass
               padding: 16
               borderBottomWidth: 7
               borderBottomColor: if @state.page is 'sign-in' then 'white' else 'rgba(0,0,0,0)'
-            } onPress={=> @setState page: 'sign-in'}>
+            } onPress={=> @setState
+              page: 'sign-in'
+              password: ''
+              password2: ''
+              email: ''
+            }>
               <Text style={color: 'white'}>Sign In</Text>
             </TouchableOpacity>
             <TouchableOpacity style={
               padding: 16
               borderBottomWidth: 7
               borderBottomColor: if @state.page is 'sign-up' then 'white' else 'rgba(0,0,0,0)'
-            } onPress={=> @setState page: 'sign-up'}>
+            } onPress={=> @setState
+              page: 'sign-up'
+              password: ''
+              password2: ''
+              email: ''
+            }>
               <Text style={color: 'white'}>Sign Up</Text>
             </TouchableOpacity>
           </View>
@@ -332,22 +353,20 @@ NativeLogin = React.createClass
                     autoCapitalize="none"
                     autoCorrect={false}
                     autoFocus={true}
-                    onChangeText={(username) => @username = username}
-                    defaultValue={@username}
-                    onSubmitEditing={=>
-                      @passwordBox.focus()
-                    }
+                    onChangeText={(username) => @setState {username}}
+                    value={@state.username}
+                    onSubmitEditing={=> @passwordBox.focus()}
                     returnKeyType="next"
                   />
                   <TextInput
-                    ref={(pw) => @passwordBox = pw}
+                    ref={(box) => @passwordBox = box}
                     placeholder="Password"
                     secureTextEntry={true}
                     style={styles.input}
                     autoCapitalize="none"
                     autoCorrect={false}
-                    onChangeText={(password) => @password = password}
-                    defaultValue={@password}
+                    onChangeText={(password) => @setState {password}}
+                    value={@state.password}
                     onSubmitEditing={@doLogin}
                     returnKeyType="go"
                   />
@@ -364,7 +383,75 @@ NativeLogin = React.createClass
               </TouchableOpacity>
             </View>
           when 'sign-up'
-            <View style={flex: 1} />
+            <View style={
+              flex: 1
+              flexDirection: 'column'
+            }>
+              <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={
+                  flex: 1
+                  justifyContent: 'center'
+                  alignItems: 'stretch'
+                }>
+                  <TextInput
+                    placeholder="Username"
+                    style={styles.input}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    autoFocus={true}
+                    onChangeText={(username) => @setState {username}}
+                    value={@state.username}
+                    onSubmitEditing={=> @passwordBox.focus()}
+                    returnKeyType="next"
+                  />
+                  <TextInput
+                    ref={(box) => @passwordBox = box}
+                    placeholder="Password"
+                    secureTextEntry={true}
+                    style={styles.input}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    onChangeText={(password) => @setState {password}}
+                    value={@state.password}
+                    onSubmitEditing={=> @password2Box.focus()}
+                    returnKeyType="next"
+                  />
+                  <TextInput
+                    ref={(box) => @password2Box = box}
+                    placeholder="Password (confirm)"
+                    secureTextEntry={true}
+                    style={styles.input}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    onChangeText={(password2) => @setState {password2}}
+                    value={@state.password2}
+                    onSubmitEditing={=> @emailBox.focus()}
+                    returnKeyType="next"
+                  />
+                  <TextInput
+                    ref={(box) => @emailBox = box}
+                    placeholder="Email (optional)"
+                    secureTextEntry={true}
+                    style={styles.input}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    onChangeText={(email) => @setState {email}}
+                    value={@state.email}
+                    onSubmitEditing={@doRegister}
+                    returnKeyType="go"
+                  />
+                </View>
+              </TouchableWithoutFeedback>
+              <TouchableOpacity onPress={@doRegister} style={
+                backgroundColor: 'rgb(255,124,107)'
+                alignItems: 'center'
+                justifyContent: 'center'
+                paddingTop: 20
+                paddingBottom: 20
+              }>
+                <Text style={color: 'white'}>Create account</Text>
+              </TouchableOpacity>
+            </View>
       }
     </KeyboardAwareView>
 
@@ -1212,6 +1299,20 @@ SiftrNative = React.createClass
           @updateFollowed()
         @setState menuOpen: false
 
+  register: (username, password, email) ->
+    return unless @state.online
+    (@state.auth ? new Auth).register username, password, email, (newAuth, err) =>
+      unless newAuth.authToken?
+        Alert.alert err.returnCodeDescription
+      @setState
+        auth: newAuth
+        games: null
+      if newAuth.authToken?
+        if @state.online
+          @updateGames()
+          @updateFollowed()
+        @setState menuOpen: false
+
   logout: ->
     (@state.auth ? new Auth).logout (newAuth) =>
       @setState
@@ -1292,7 +1393,7 @@ SiftrNative = React.createClass
                 queueMessage={@state.queueMessage}
               />
           else
-            <NativeLogin onLogin={@login} />
+            <NativeLogin onLogin={@login} onRegister={@register} />
         }
       </UploadQueue>
     else
