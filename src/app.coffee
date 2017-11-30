@@ -1134,18 +1134,10 @@ NativeHome = React.createClass
                   </TouchableOpacity>
                 </View>
             }
-            <CurrentBrowser
-              auth={@props.auth}
-              onSelect={@props.onSelect}
-              cardMode={@state.cardMode}
-              onInfo={(game) => @setState viewingGameInfo: game}
-              mine={@props.mine}
-              followed={@props.followed}
-            />
             {
               if @props.queueMessage?
                 <View style={
-                  backgroundColor: '#edc98b'
+                  backgroundColor: 'rgb(233,240,240)'
                   padding: 4
                   alignSelf: 'stretch'
                 }>
@@ -1154,6 +1146,14 @@ NativeHome = React.createClass
                   </Text>
                 </View>
             }
+            <CurrentBrowser
+              auth={@props.auth}
+              onSelect={@props.onSelect}
+              cardMode={@state.cardMode}
+              onInfo={(game) => @setState viewingGameInfo: game}
+              mine={@props.mine}
+              followed={@props.followed}
+            />
             <View style={
               flexDirection: 'row'
               justifyContent: 'space-between'
@@ -1378,6 +1378,7 @@ SiftrNative = React.createClass
                 followed={@state.followed}
                 followGame={@followGame}
                 unfollowGame={@unfollowGame}
+                queueMessage={@state.queueMessage}
               />
             else
               <NativeHome

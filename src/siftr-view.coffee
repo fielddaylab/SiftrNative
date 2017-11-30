@@ -975,6 +975,18 @@ SiftrView = React.createClass
             }
           </View>
         </Blackout>
+        {
+          if @props.queueMessage?
+            <View style={
+              backgroundColor: 'rgb(233,240,240)'
+              padding: 4
+              alignSelf: 'stretch'
+            }>
+              <Text>
+                {@props.queueMessage}
+              </Text>
+            </View>
+        }
         <View style={
           flex: 1
         }>
