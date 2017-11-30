@@ -129,6 +129,7 @@ class Note
           user_id:      json.user_id
           display_name: json.display_name
       @description  = json.description
+      @media_id     = parseInt json.media?.data?.media_id
       @photo_url    =
         if 0 in [parseInt(json.media?.data?.media_id), parseInt(json.media_id)]
           null

@@ -25,6 +25,7 @@ import FitImage from 'react-native-fit-image'
 import Hyperlink from 'react-native-hyperlink'
 import Gallery from 'react-native-image-gallery'
 {styles, Text} = require './styles'
+import {Media} from './media'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 # @endif
 
@@ -88,6 +89,8 @@ class SquareImage extends React.Component
     >
       {
         @props.sources.map (source, i) =>
+          if source.uri in [null, '']
+            source = null
           <TouchableOpacity key={i} onPress={=> @props.onGallery source} style={flex: 1, alignItems: 'stretch'}>
             <Image
               source={source}
@@ -679,14 +682,17 @@ class SiftrNoteView extends React.Component
 
   # @ifdef NATIVE
   render: ->
-    photos = [@props.note.photo_url]
+    photoIDs = [@props.note.media_id]
     if (@state.field_data? and @props.fields?)
       for field in @props.fields
         if field.field_type is 'MEDIA'
           data =
             d for d in @state.field_data when d.field_id is field.field_id
           if data.length > 0
-            photos.push data[0].media.url.replace('http://', 'https://')
+            photoIDs.push data[0].media.media_id
+
+    photoURLs =
+      (@state["media#{media_id}"] or '') for media_id in photoIDs
 
     <KeyboardAwareScrollView
       ref={(sv) => @scrollView = sv}
@@ -702,6 +708,15 @@ class SiftrNoteView extends React.Component
       extraScrollHeight={30}
       keyboardShouldPersistTaps="handled"
     >
+      {
+        photoIDs.map (media_id) =>
+          <Media
+            key={media_id}
+            auth={@props.auth}
+            media_id={media_id}
+            onLoad={(url) => @setState {"media#{media_id}": url}}
+          />
+      }
       {
         if @state.noteModal
           <OptionsModal
@@ -721,12 +736,12 @@ class SiftrNoteView extends React.Component
         else if @state.gallery?
           <GalleryModal
             onClose={=> @setState gallery: null}
-            initialPage={photos.indexOf @state.gallery}
-            images={{source: {uri}} for uri in photos}
+            initialPage={photoURLs.indexOf @state.gallery}
+            images={{source: {uri}} for uri in photoURLs}
           />
       }
       <SquareImage
-        sources={{uri} for uri in photos}
+        sources={{uri} for uri in photoURLs}
         onGallery={({uri}) => @setState gallery: uri}
       />
       <View style={

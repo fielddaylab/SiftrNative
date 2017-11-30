@@ -525,10 +525,16 @@ SiftrView = React.createClass
 
   selectNote: (note) ->
     return if note.note_id is 0
-    @loadNoteByID note.note_id
-    @setState
-      searchOpen: false
-      createNote: null
+    if @props.online
+      @loadNoteByID note.note_id
+      @setState
+        searchOpen: false
+        createNote: null
+    else if @isMounted
+      @setState
+        viewingNote: note
+        searchOpen: false
+        createNote: null
 
   deleteNote: (note) ->
     @props.auth.call 'notes.deleteNote',
