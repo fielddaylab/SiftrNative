@@ -19,6 +19,7 @@ T = React.PropTypes
 , Keyboard
 , TouchableWithoutFeedback
 , Alert
+, Dimensions
 } = require 'react-native'
 {UploadQueue} = require './upload-queue'
 {styles, Text} = require './styles'
@@ -265,6 +266,8 @@ NativeLogin = React.createClass
     Keyboard.removeListener 'keyboardWillHide', @onKeyboardHide
 
   render: ->
+    {height} = Dimensions.get 'window'
+    tablet = height > 800
     <KeyboardAwareView animated={true} style={
       flex: 1
       flexDirection: 'column'
@@ -276,7 +279,7 @@ NativeLogin = React.createClass
         else
           require('../web/assets/img/bg2.jpg')
       } style={
-        flex: if @state.keyboard then 0 else 1
+        flex: if @state.keyboard and not tablet then 0 else 1
         flexDirection: 'column'
         backgroundColor: 'rgba(0,0,0,0)'
         alignItems: 'center'
@@ -288,18 +291,20 @@ NativeLogin = React.createClass
           <View style={height: 40} />
         </TouchableWithoutFeedback>
         {
-          unless @state.keyboard
-            <View style={
-              flexDirection: 'column'
-              alignItems: 'center'
-            }>
-              <Image source={require('../web/assets/img/siftr-logo.png')} style={
-                width: 190 * 0.5
-                height: 196 * 0.5
-                marginBottom: 20
-              } />
-              <Text style={color: 'white'}>Exploring our world together</Text>
-            </View>
+          unless @state.keyboard and not tablet
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+              <View style={
+                flexDirection: 'column'
+                alignItems: 'center'
+              }>
+                <Image source={require('../web/assets/img/siftr-logo.png')} style={
+                  width: 190 * 0.5
+                  height: 196 * 0.5
+                  marginBottom: 20
+                } />
+                <Text style={color: 'white'}>Exploring our world together</Text>
+              </View>
+            </TouchableWithoutFeedback>
         }
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={
