@@ -216,7 +216,7 @@ LoginBox = React.createClass
 Loading = React.createClass
   # @ifdef NATIVE
   render: ->
-    <View style={flex: 1}>
+    <View style={flex: 1, backgroundColor: 'rgb(233,240,240)'}>
       <StatusSpace />
       <View style={flex: 1, alignItems: 'center', justifyContent: 'center'}>
         <ActivityIndicator size="large" />
@@ -1008,7 +1008,7 @@ NativeSettings = React.createClass
 
 NativeHome = React.createClass
   getInitialState: ->
-    discoverPage: 'mine'
+    discoverPage: if @props.online then null else 'downloaded'
     viewingGameInfo: null
     cardMode: 'full'
     settings: false
@@ -1022,6 +1022,21 @@ NativeHome = React.createClass
     unfollowGame: (->)
     onChangePassword: (->)
     onEditProfile: (->)
+
+  componentWillMount: ->
+    @choosePage @props
+
+  componentWillReceiveProps: (nextProps) ->
+    @choosePage nextProps
+
+  choosePage: (props) ->
+    if not @state.discoverPage?
+      if props.followed? and props.followed.length
+        @setState discoverPage: 'followed'
+      else if props.followed? and props.mine? and props.mine.length
+        @setState discoverPage: 'mine'
+      else if props.followed? and props.mine?
+        @setState discoverPage: 'featured'
 
   render: ->
     isHome     = @state.discoverPage in ['mine', 'followed', 'downloaded'         ] and not @state.settings
@@ -1052,6 +1067,8 @@ NativeHome = React.createClass
             onChangePassword={@props.onChangePassword}
             onEditProfile={@props.onEditProfile}
           />
+        else if not @state.discoverPage?
+          <Loading />
         else
           <View style={
             flexDirection: 'column'
@@ -1114,7 +1131,7 @@ NativeHome = React.createClass
                     }>Downloaded</Text>
                   </TouchableOpacity>
                 </View>
-              else
+              else if isDiscover
                 <View style={flexDirection: 'row'}>
                   <TouchableOpacity onPress={=> @setState discoverPage: 'featured'} style={
                     if @state.discoverPage is 'featured' then styles.exploreTabOn else styles.exploreTabOff
@@ -1299,6 +1316,7 @@ SiftrNative = React.createClass
       @setState
         auth: newAuth
         games: null
+        followed: null
       if newAuth.authToken?
         if @state.online
           @updateGames()
@@ -1313,6 +1331,7 @@ SiftrNative = React.createClass
       @setState
         auth: newAuth
         games: null
+        followed: null
       if newAuth.authToken?
         if @state.online
           @updateGames()
