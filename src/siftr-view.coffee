@@ -739,7 +739,10 @@ SiftrView = React.createClass
           field_data: []
           online: false
         }}
-        online={@props.online}
+        online={
+          false # always using queue now
+          # @props.online
+        }
         fields={@state.fields ? []}
       />
     else
@@ -858,7 +861,7 @@ SiftrView = React.createClass
         longitude: fixLongitude location.lng
       tag_id: category.tag_id
       field_data: field_data
-    if online
+    if media?
       # we've already uploaded media, now create note
       createArgs.media_id = media.media_id
       @props.auth.call 'notes.createNote', createArgs, withSuccess (note) =>
