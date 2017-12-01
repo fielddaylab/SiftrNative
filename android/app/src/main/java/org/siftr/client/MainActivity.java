@@ -1,4 +1,4 @@
-package com.siftrnative;
+package org.siftr.client;
 
 import com.facebook.react.ReactActivity;
 

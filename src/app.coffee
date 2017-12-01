@@ -258,16 +258,18 @@ NativeLogin = React.createClass
       @setState keyboard: true
     @onKeyboardHide = =>
       @setState keyboard: false
-    Keyboard.addListener 'keyboardWillShow', @onKeyboardShow
-    Keyboard.addListener 'keyboardWillHide', @onKeyboardHide
+    verb = if Platform.OS is 'ios' then 'Will' else 'Did'
+    Keyboard.addListener "keyboard#{verb}Show", @onKeyboardShow
+    Keyboard.addListener "keyboard#{verb}Hide", @onKeyboardHide
 
   componentWillUnmount: ->
-    Keyboard.removeListener 'keyboardWillShow', @onKeyboardShow
-    Keyboard.removeListener 'keyboardWillHide', @onKeyboardHide
+    verb = if Platform.OS is 'ios' then 'Will' else 'Did'
+    Keyboard.removeListener "keyboard#{verb}Show", @onKeyboardShow
+    Keyboard.removeListener "keyboard#{verb}Hide", @onKeyboardHide
 
   render: ->
     {height} = Dimensions.get 'window'
-    tablet = height > 800
+    tablet = height > 900
     <KeyboardAwareView animated={true} style={
       flex: 1
       flexDirection: 'column'
