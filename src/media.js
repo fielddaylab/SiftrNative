@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import {Platform} from 'react-native';
 import RNFS from 'react-native-fs';
 
 import {Auth} from './aris';
@@ -16,13 +17,21 @@ export class Media extends React.Component {
     };
   }
 
+  loadFile(file) {
+    if (Platform.OS === 'android') {
+      this.props.onLoad('file://' + file);
+    } else {
+      this.props.onLoad(file);
+    }
+  }
+
   componentWillMount() {
     const media_id = this.props.media_id;
     const info = mediaDir + '/' + media_id + '.txt';
     RNFS.exists(info).then((exists) => {
       if (exists) {
         RNFS.readFile(info, 'utf8').then((filename) => {
-          this.props.onLoad(mediaDir + '/' + filename);
+          this.loadFile(mediaDir + '/' + filename);
         });
       } else {
         this.props.auth.call('media.getMedia', {
@@ -39,7 +48,7 @@ export class Media extends React.Component {
           }).then((result) => {
             return RNFS.writeFile(info, media_id + '.' + ext, 'utf8');
           }).then(() => {
-            this.props.onLoad(localURL);
+            this.loadFile(localURL);
           });
         }));
       }
