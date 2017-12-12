@@ -27,12 +27,14 @@ T = React.PropTypes
 {KeyboardAwareView} = require 'react-native-keyboard-aware-view'
 {KeyboardAwareScrollView} = require 'react-native-keyboard-aware-scroll-view'
 RNFS = require 'react-native-fs'
+{CacheMedia} = require './media'
 # @endif
 
 { Auth
 , Game
 , arisHTTPS
 , deserializeGame
+, deserializeNote
 } = require './aris'
 
 {SiftrView, SiftrInfo} = require './siftr-view'
@@ -484,10 +486,7 @@ NativeCard = React.createClass
       @setState
         authors:
           author.display_name for author in authors
-    @props.auth.searchNotes
-      game_id: @props.game.game_id
-      order_by: 'recent'
-    , withSuccess (notes) =>
+    useNotes = (notes) =>
       return unless @isMounted
       @setState
         photos:
@@ -503,6 +502,17 @@ NativeCard = React.createClass
             for comment in note.comments
               user_ids[comment.user.user_id] = true
           Object.keys(user_ids).length
+    if @props.online
+      @props.auth.searchNotes
+        game_id: @props.game.game_id
+        order_by: 'recent'
+      , withSuccess useNotes
+    else
+      siftrDir = "#{RNFS.DocumentDirectoryPath}/siftrs/#{@props.game.game_id}"
+      RNFS.readFile("#{siftrDir}/notes.txt").then (json) =>
+        notes =
+          deserializeNote(note) for note in JSON.parse json
+        useNotes notes
 
   componentWillUnmount: ->
     @isMounted = false
@@ -534,7 +544,16 @@ NativeCard = React.createClass
             {
               if @state.photos?
                 for {url, note_id} in @state.photos
-                  <Image key={note_id} source={uri: url} style={height: 100, width: 100} />
+                  <CacheMedia
+                    key={note_id}
+                    url={url}
+                    withURL={(url) =>
+                      <Image
+                        source={if url? then uri: url else undefined}
+                        style={height: 100, width: 100}
+                      />
+                    }
+                  />
               else
                 <View style={height: 100, width: 100} />
             }
@@ -591,6 +610,7 @@ BrowserList = React.createClass
               onSelect={=> @props.onSelect game}
               auth={@props.auth}
               onInfo={=> @props.onInfo game}
+              online={@props.online}
             />
         }
       </ScrollView>
@@ -610,16 +630,16 @@ makeBrowser = (getGames) ->
       games: null
 
     componentWillMount: ->
-      @isMounted = true
+      @_isMounted = true
       @updateGames()
 
     componentWillUnmount: ->
-      @isMounted = false
+      @_isMounted = false
 
     updateGames: (props = @props) ->
       thisSearch = @lastSearch = Date.now()
       getGames props, (games) =>
-        return unless @isMounted
+        return unless @_isMounted
         return unless thisSearch is @lastSearch
         @setState {games}
 
@@ -640,6 +660,7 @@ makeBrowser = (getGames) ->
         onSelect={(args...) => @props.onSelect(args...)}
         onInfo={(args...) => @props.onInfo(args...)}
         cardMode={@props.cardMode}
+        online={@props.online}
       />
 
 BrowserSearch = makeBrowser (props, cb) ->
@@ -860,15 +881,27 @@ NativeProfile = React.createClass
               if img?
                 @setState newPicture: img
           }>
-            <Image
-              source={@state.newPicture ? @state.currentPicture}
-              style={
-                height: 120
-                width: 120
-                borderRadius: 60
-                backgroundColor: 'rgba(0,0,0,0)'
-              }
-            />
+            {
+              if @state.newPicture?
+                <Image
+                  source={@state.newPicture}
+                  style={styles.editProfilePic}
+                />
+              else if @state.currentPicture?
+                <CacheMedia
+                  url={@state.currentPicture.uri}
+                  withURL={(pic) =>
+                    <Image
+                      source={if pic? then uri: pic else undefined}
+                      style={styles.editProfilePic}
+                    />
+                  }
+                />
+              else
+                <View
+                  style={styles.editProfilePic}
+                />
+            }
           </TouchableOpacity>
         </View>
         <TextInput
@@ -1177,6 +1210,7 @@ NativeHome = React.createClass
               onInfo={(game) => @setState viewingGameInfo: game}
               mine={@props.mine}
               followed={@props.followed}
+              online={@props.online}
             />
             <View style={
               flexDirection: 'row'

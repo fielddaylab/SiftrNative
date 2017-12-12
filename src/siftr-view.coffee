@@ -260,6 +260,7 @@ SiftrView = React.createClass
         RNFS.writeFile "#{siftrDir}/fields.txt", JSON.stringify fields
       @props.auth.searchNotes
         game_id: @props.game.game_id
+        order_by: 'recent'
       , withSuccess (notes) =>
         return unless @isMounted
         @setState allNotes: notes

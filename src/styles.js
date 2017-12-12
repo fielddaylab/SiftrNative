@@ -166,6 +166,13 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
   },
 
+  editProfilePic: {
+    height: 120,
+    width: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(0,0,0,0)',
+  },
+
 });
 
 // @endif

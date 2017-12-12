@@ -25,7 +25,7 @@ import FitImage from 'react-native-fit-image'
 import Hyperlink from 'react-native-hyperlink'
 import Gallery from 'react-native-image-gallery'
 {styles, Text} = require './styles'
-import {Media} from './media'
+import {Media, CacheMedia} from './media'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 # @endif
 
@@ -276,14 +276,19 @@ class SiftrComment extends React.Component
       }>
         {
           if @state.userPicture?
-            <Image source={uri: @state.userPicture.thumb_url.replace('http://', 'https://')} style={
-              width: 26
-              height: 26
-              borderRadius: 13
-              margin: 10
-              marginRight: 0
-              resizeMode: 'cover'
-            } />
+            <CacheMedia
+              url={@state.userPicture.thumb_url}
+              withURL={(url) =>
+                <Image source={if url? then uri: url else undefined} style={
+                  width: 26
+                  height: 26
+                  borderRadius: 13
+                  margin: 10
+                  marginRight: 0
+                  resizeMode: 'cover'
+                } />
+              }
+            />
           else
             <View style={
               width: 26
@@ -682,6 +687,8 @@ class SiftrNoteView extends React.Component
 
   # @ifdef NATIVE
   render: ->
+    # TODO move to CacheMedia
+
     photoIDs = [@props.note.media_id]
     if (@state.field_data? and @props.fields?)
       for field in @props.fields
