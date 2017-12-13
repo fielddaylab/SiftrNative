@@ -1,9 +1,10 @@
 'use strict'
 
 React = require 'react'
-T = React.PropTypes
+T = require 'prop-types'
 update = require 'immutability-helper'
-{ Map, Set } = require 'immutable';
+{ Map, Set } = require 'immutable'
+createClass = require 'create-react-class'
 
 EXIF = require 'exif-js'
 
@@ -93,7 +94,7 @@ SiftrRoll.defaultProps =
 # @endif
 
 # Step 1: Upload
-export CreateStep1 = React.createClass
+export CreateStep1 = createClass
   propTypes:
     onCreateMedia: T.func
     onCancel: T.func
@@ -393,7 +394,7 @@ export CreateStep1 = React.createClass
 # @ifdef WEB
 
 # Step 2: Caption
-export CreateStep2 = React.createClass
+export CreateStep2 = createClass
   propTypes:
     onEnterCaption: T.func
     onBack: T.func
@@ -440,7 +441,7 @@ export CreateStep2 = React.createClass
     </div>
 
 # Step 3: Location
-export CreateStep3 = React.createClass
+export CreateStep3 = createClass
   propTypes:
     onPickLocation: T.func
     onBack: T.func
@@ -470,7 +471,7 @@ export CreateStep3 = React.createClass
     </div>
 
 # Step 4: Category
-export CreateStep4 = React.createClass
+export CreateStep4 = createClass
   propTypes:
     categories: T.arrayOf(T.instanceOf Tag).isRequired
     category: T.instanceOf(Tag).isRequired
@@ -523,7 +524,7 @@ export CreateStep4 = React.createClass
     </div>
 
 # Step 5: Form
-export CreateStep5 = React.createClass
+export CreateStep5 = createClass
   propTypes:
     onChangeData: T.func
     onFinish: T.func
@@ -586,7 +587,7 @@ export class Blackout extends React.Component
     </View>
 
 # Steps 2-5 (native app), all non-photo data together
-export CreateData = React.createClass
+export CreateData = createClass
   propTypes:
     createNote: T.any.isRequired
     onUpdateNote: T.func

@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import createClass from 'create-react-class';
 
 // @ifdef NATIVE
 import {Text, View, TouchableOpacity} from 'react-native';
@@ -30,7 +31,7 @@ export const P = Text;
 export const DIV = View;
 export const UL = View;
 export const LI = View;
-export const BUTTON = React.createClass({
+export const BUTTON = createClass({
   render() {
     return <TouchableOpacity onPress={this.props.onClick}>
       {this.props.children}
@@ -43,7 +44,7 @@ export const P = 'p';
 export const DIV = 'div';
 export const UL = 'ul';
 export const LI = 'li';
-export const BUTTON = React.createClass({
+export const BUTTON = createClass({
   render() {
     return <a href="#" onClick={clicker(this.props.onClick)}>
       {this.props.children}

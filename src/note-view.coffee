@@ -1,7 +1,7 @@
 'use strict'
 
 React = require 'react'
-T = React.PropTypes
+T = require 'prop-types'
 
 { Note
 , Auth

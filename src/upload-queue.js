@@ -1,8 +1,8 @@
 'use strict';
 
 import React from 'react';
-
-const T = React.PropTypes;
+import T from 'prop-types';
+import createClass from 'create-react-class';
 
 import RNFS from 'react-native-fs';
 
@@ -10,7 +10,7 @@ import {Auth} from './aris';
 
 import {Platform} from 'react-native';
 
-export const UploadQueue = React.createClass({
+export const UploadQueue = createClass({
   propTypes: {
     auth: T.instanceOf(Auth).isRequired,
     online: T.bool

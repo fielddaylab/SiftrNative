@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-const T = React.PropTypes;
+import T from 'prop-types';
 
 import {Note} from './aris';
 
@@ -11,7 +11,7 @@ import {clicker} from './utils';
 import
 { View
 , TouchableOpacity
-, Image
+, ImageBackground
 } from 'react-native';
 import InfiniteScrollView from 'react-native-infinite-scroll-view'; // TODO test
 // @endif
@@ -56,7 +56,7 @@ export class SiftrThumbnails extends React.Component {
         {
           this.props.notes.map((note) =>
             <TouchableOpacity onPress={() => this.props.onSelectNote(note)} key={note.note_id}>
-              <Image source={
+              <ImageBackground source={
                 note.thumb_url != null ? {uri: note.thumb_url} : null
               } style={{
                 width: 160,
@@ -72,7 +72,7 @@ export class SiftrThumbnails extends React.Component {
                   borderRadius: 999,
                   backgroundColor: this.props.getColor(note.tag_id),
                 }} />
-              </Image>
+              </ImageBackground>
             </TouchableOpacity>
           )
         }

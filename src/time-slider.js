@@ -1,7 +1,8 @@
 'use strict';
 
 import React from 'react';
-const T = React.PropTypes;
+import T from 'prop-types';
+import createClass from 'create-react-class';
 
 // @ifdef NATIVE
 import
@@ -15,7 +16,7 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider';
 const nubType = T.oneOfType([T.number, T.oneOf(['min', 'max'])]);
 
 // @ifdef WEB
-const TimeSliderNub = React.createClass({
+const TimeSliderNub = createClass({
   propTypes: {
     fraction: T.number.isRequired,
     getSlider: T.func.isRequired,
@@ -70,7 +71,7 @@ const TimeSliderNub = React.createClass({
 });
 // @endif
 
-export const TimeSlider = React.createClass({
+export const TimeSlider = createClass({
   propTypes: {
     minBound: T.number.isRequired,
     maxBound: T.number.isRequired,

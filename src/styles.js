@@ -4,8 +4,9 @@
 
 import React from 'react';
 import RN, {StyleSheet} from 'react-native';
+import createClass from 'create-react-class';
 
-export const Text = React.createClass({
+export const Text = createClass({
   render: function(){
     return <RN.Text style={[{letterSpacing: 0.3}, this.props.style]}>
       {this.props.children}

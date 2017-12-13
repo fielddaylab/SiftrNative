@@ -1,7 +1,7 @@
 'use strict'
 
 import React from 'react';
-const T = React.PropTypes;
+import T from 'prop-types';
 import update from 'immutability-helper';
 
 // @ifdef NATIVE

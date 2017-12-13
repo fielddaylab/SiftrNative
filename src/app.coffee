@@ -1,7 +1,8 @@
 'use strict'
 
 React = require 'react'
-T = React.PropTypes
+T = require 'prop-types'
+createClass = require 'create-react-class'
 
 # @ifdef NATIVE
 { View
@@ -9,6 +10,7 @@ T = React.PropTypes
 , TouchableOpacity
 , ScrollView
 , Image
+, ImageBackground
 , Linking
 , NetInfo
 , ActivityIndicator
@@ -47,7 +49,7 @@ Photos = require './photos'
 
 {parseUri} = require './parse-uri'
 
-AuthContainer = React.createClass
+AuthContainer = createClass
   propTypes:
     auth: T.instanceOf(Auth).isRequired
     onLogin: T.func
@@ -147,7 +149,7 @@ AuthContainer = React.createClass
     </div>
   # @endif
 
-LoginBox = React.createClass
+LoginBox = createClass
   propTypes:
     onLogin: T.func
 
@@ -215,7 +217,7 @@ LoginBox = React.createClass
     </form>
   # @endif
 
-Loading = React.createClass
+Loading = createClass
   # @ifdef NATIVE
   render: ->
     <View style={flex: 1, backgroundColor: 'rgb(233,240,240)'}>
@@ -231,7 +233,7 @@ Loading = React.createClass
   # @endif
 
 # @ifdef NATIVE
-NativeLogin = React.createClass
+NativeLogin = createClass
   getDefaultProps: ->
     onLogin: (->)
     onRegister: (->)
@@ -277,7 +279,7 @@ NativeLogin = React.createClass
       flexDirection: 'column'
     }>
       <StatusBar barStyle="light-content" />
-      <Image source={
+      <ImageBackground source={
         if @state.page is 'sign-in'
           require('../web/assets/img/bg1.jpg')
         else
@@ -343,7 +345,7 @@ NativeLogin = React.createClass
             </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
-      </Image>
+      </ImageBackground>
       {
         switch @state.page
           when 'sign-in'
@@ -465,7 +467,7 @@ NativeLogin = React.createClass
       }
     </KeyboardAwareView>
 
-NativeCard = React.createClass
+NativeCard = createClass
   getInitialState: ->
     contributors: null
     posts: null
@@ -586,7 +588,7 @@ NativeCard = React.createClass
           </View>
         </TouchableOpacity>
 
-BrowserList = React.createClass
+BrowserList = createClass
   getDefaultProps: ->
     onSelect: (->)
     onInfo: (->)
@@ -620,7 +622,7 @@ BrowserList = React.createClass
       </View>
 
 makeBrowser = (getGames) ->
-  React.createClass
+  createClass
     getDefaultProps: ->
       onSelect: (->)
       onInfo: (->)
@@ -673,7 +675,7 @@ BrowserSearch = makeBrowser (props, cb) ->
     , withSuccess (games) ->
       cb games
 
-BrowserSearchPane = React.createClass
+BrowserSearchPane = createClass
   getInitialState: ->
     search: ''
 
@@ -746,7 +748,7 @@ BrowserNearMe = makeBrowser (props, cb) ->
       filter: 'siftr'
     , withSuccess cb
 
-NativePassword = React.createClass
+NativePassword = createClass
   getDefaultProps: ->
     onClose: (->)
     onChangePassword: (->)
@@ -822,7 +824,7 @@ NativePassword = React.createClass
       </ScrollView>
     </View>
 
-NativeProfile = React.createClass
+NativeProfile = createClass
   getDefaultProps: ->
     onClose: (->)
     onEditProfile: (->)
@@ -973,7 +975,7 @@ NativeProfile = React.createClass
       </KeyboardAwareScrollView>
     </View>
 
-NativeSettings = React.createClass
+NativeSettings = createClass
   getInitialState: ->
     setting: null
 
@@ -1041,7 +1043,7 @@ NativeSettings = React.createClass
           </ScrollView>
         </View>
 
-NativeHome = React.createClass
+NativeHome = createClass
   getInitialState: ->
     discoverPage: if @props.online then null else 'downloaded'
     viewingGameInfo: null
@@ -1251,7 +1253,7 @@ NativeHome = React.createClass
     </SiftrInfo>
 # @endif
 
-SiftrNative = React.createClass
+SiftrNative = createClass
   getInitialState: ->
     auth: null
     games: null
@@ -1271,23 +1273,23 @@ SiftrNative = React.createClass
       @parseURL url
       @urlHandler = ({url}) => @parseURL(url)
       Linking.addEventListener 'url', @urlHandler
-    @withReach = (reach) =>
-      online = reach not in ['none', 'NONE']
+    @withInfo = (connectionInfo) =>
+      online = connectionInfo.type not in ['none', 'NONE']
       @setState {online}, =>
         if online
           @login()
         else if not @state.auth?
           new Auth().loadSavedAuth (authToken) =>
             @setState auth: Object.assign new Auth, {authToken}
-    NetInfo.fetch().done @withReach
-    NetInfo.addEventListener 'change', @withReach
+    NetInfo.getConnectionInfo().then @withInfo
+    NetInfo.addEventListener 'connectionChange', @withInfo
     @withAppState = (appState) =>
       if appState isnt 'active'
         @setState aris: false
     AppState.addEventListener 'change', @withAppState
 
   componentWillUnmount: ->
-    NetInfo.removeEventListener 'change', @withReach
+    NetInfo.removeEventListener 'connectionChange', @withInfo
     Linking.removeEventListener 'url', @urlHandler
     AppState.removeEventListener 'change', @withAppState
 

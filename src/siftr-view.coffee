@@ -1,8 +1,9 @@
 'use strict'
 
 React = require 'react'
-T = React.PropTypes
+T = require 'prop-types'
 update = require 'immutability-helper'
+createClass = require 'create-react-class'
 
 # @ifdef NATIVE
 { View
@@ -52,7 +53,7 @@ fixLongitude = (longitude) ->
   longitude
 
 # @ifdef NATIVE
-SiftrInfo = React.createClass
+SiftrInfo = createClass
   propTypes: ->
     game: T.instanceOf Game
     tags: T.arrayOf T.instanceOf Tag
@@ -169,12 +170,12 @@ SiftrInfo = React.createClass
     </SideMenu>
 # @endif
 # @ifdef WEB
-SiftrInfo = React.createClass
+SiftrInfo = createClass
   render: ->
     @props.children
 # @endif
 
-SiftrView = React.createClass
+SiftrView = createClass
   propTypes:
     game: T.instanceOf(Game).isRequired
     auth: T.instanceOf(Auth).isRequired
