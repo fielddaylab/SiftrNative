@@ -13,7 +13,8 @@ import
 , TouchableOpacity
 , ImageBackground
 } from 'react-native';
-import InfiniteScrollView from 'react-native-infinite-scroll-view'; // TODO test
+import InfiniteScrollView from 'react-native-infinite-scroll-view';
+import {CacheMedia} from './media';
 // @endif
 
 // @ifdef WEB
@@ -56,23 +57,28 @@ export class SiftrThumbnails extends React.Component {
         {
           this.props.notes.map((note) =>
             <TouchableOpacity onPress={() => this.props.onSelectNote(note)} key={note.note_id}>
-              <ImageBackground source={
-                note.thumb_url != null ? {uri: note.thumb_url} : null
-              } style={{
-                width: 160,
-                height: 160,
-                margin: 5,
-              }}>
-                <View style={{
-                  position: 'absolute',
-                  top: 5,
-                  right: 5,
-                  width: 15,
-                  height: 15,
-                  borderRadius: 999,
-                  backgroundColor: this.props.getColor(note.tag_id),
-                }} />
-              </ImageBackground>
+              <CacheMedia
+                url={note.thumb_url}
+                withURL={(url) =>
+                  <ImageBackground source={
+                    url != null ? {uri: url} : null
+                  } style={{
+                    width: 160,
+                    height: 160,
+                    margin: 5,
+                  }}>
+                    <View style={{
+                      position: 'absolute',
+                      top: 5,
+                      right: 5,
+                      width: 15,
+                      height: 15,
+                      borderRadius: 999,
+                      backgroundColor: this.props.getColor(note.tag_id),
+                    }} />
+                  </ImageBackground>
+                }
+              />
             </TouchableOpacity>
           )
         }
