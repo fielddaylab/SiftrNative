@@ -970,9 +970,18 @@ SiftrView = createClass
             </View>
             {
               if @state.viewingNote?
-                <TouchableOpacity style={flex: 1, alignItems: 'flex-end'} onPress={=> @noteView?.openNoteOptions()}>
-                  <Image style={resizeMode: 'contain', height: 5, margin: 10} source={require('../web/assets/img/icon-3dots.png')} />
-                </TouchableOpacity>
+                hasOptions = false
+                hasOptions or= @state.viewingNote.user.user_id is @props.auth.authToken?.user_id
+                hasOptions or= @state.viewingNote.published is 'AUTO' and @props.auth.authToken?.user_id isnt @state.viewingNote.user.user_id
+                hasOptions or= @state.viewingNote.user.user_id is @props.auth.authToken?.user_id or @props.isAdmin
+                if hasOptions
+                  <TouchableOpacity style={flex: 1, alignItems: 'flex-end'} onPress={=> @noteView?.openNoteOptions()}>
+                    <Image style={resizeMode: 'contain', height: 5, margin: 10} source={require('../web/assets/img/icon-3dots.png')} />
+                  </TouchableOpacity>
+                else
+                  <View style={flex: 1, opacity: 0}>
+                    <Image style={resizeMode: 'contain', height: 5, margin: 10} source={require('../web/assets/img/icon-3dots.png')} />
+                  </View>
               else
                 <TouchableOpacity style={flex: 1, alignItems: 'flex-end'} onPress={=> @setState infoOpen: not @state.infoOpen}>
                   <Image style={resizeMode: 'contain', height: 20, margin: 10} source={require('../web/assets/img/icon-4dots.png')} />
