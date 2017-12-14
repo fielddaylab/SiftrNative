@@ -27,7 +27,6 @@ createClass = require 'create-react-class'
 {styles, Text} = require './styles'
 {StatusSpace} = require './status-space'
 {KeyboardAwareView} = require 'react-native-keyboard-aware-view'
-{KeyboardAwareScrollView} = require 'react-native-keyboard-aware-scroll-view'
 RNFS = require 'react-native-fs'
 {CacheMedia} = require './media'
 # @endif
@@ -871,7 +870,7 @@ NativeProfile = createClass
         </View>
         <View style={flex: 1} />
       </View>
-      <KeyboardAwareScrollView style={flex: 1} contentContainerStyle={alignItems: 'stretch'}>
+      <ScrollView style={flex: 1} contentContainerStyle={alignItems: 'stretch'}>
         <View style={
           flexDirection: 'row'
           justifyContent: 'center'
@@ -972,7 +971,7 @@ NativeProfile = createClass
             }
           </Text>
         </TouchableOpacity>
-      </KeyboardAwareScrollView>
+      </ScrollView>
     </View>
 
 NativeSettings = createClass

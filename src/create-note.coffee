@@ -27,7 +27,6 @@ EXIF = require 'exif-js'
 {styles, Text} = require './styles'
 import Camera from 'react-native-camera'
 import InfiniteScrollView from 'react-native-infinite-scroll-view'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 # @endif
 
 {Auth, Game, Tag, Field, FieldData} = require './aris'
@@ -644,8 +643,7 @@ export CreateData = createClass
       </View>
     else
       <View style={flex: 1}>
-        <KeyboardAwareScrollView
-          extraScrollHeight={40}
+        <ScrollView
           style={
             flex: 1
             backgroundColor:
@@ -875,7 +873,7 @@ export CreateData = createClass
                 </Blackout>
             }
           </View>
-        </KeyboardAwareScrollView>
+        </ScrollView>
         <Blackout keyboardUp={@state.focusedBox?} isFocused={false}>
           <View style={styles.buttonRow}>
             <TouchableOpacity onPress={@props.onCancel} style={flex: 1, alignItems: 'center'}>

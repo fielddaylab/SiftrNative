@@ -26,7 +26,6 @@ import Hyperlink from 'react-native-hyperlink'
 import Gallery from 'react-native-image-gallery'
 {styles, Text} = require './styles'
 import {Media, CacheMedia} from './media'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 # @endif
 
 {clicker, withSuccess, P, UL, LI, DIV, BUTTON} = require './utils'
@@ -701,7 +700,7 @@ class SiftrNoteView extends React.Component
     photoURLs =
       (@state["media#{media_id}"] or '') for media_id in photoIDs
 
-    <KeyboardAwareScrollView
+    <ScrollView
       ref={(sv) => @scrollView = sv}
       style={
         backgroundColor: 'white'
@@ -712,7 +711,6 @@ class SiftrNoteView extends React.Component
         right: 0
         flexDirection: 'column'
       }
-      extraScrollHeight={30}
       keyboardShouldPersistTaps="handled"
     >
       {
@@ -848,7 +846,7 @@ class SiftrNoteView extends React.Component
             isAdmin={@props.isAdmin}
           />
       }
-    </KeyboardAwareScrollView>
+    </ScrollView>
   # @endif
 
   # @ifdef WEB

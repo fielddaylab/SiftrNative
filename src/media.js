@@ -86,6 +86,7 @@ export class CacheMedia extends React.Component {
 
   componentWillMount() {
     this._isMounted = true;
+    if (this.props.url == null) return;
     const url = this.props.url.replace('http://', 'https://');
     const hash = 'img' + djb_hash(url);
     const ext = url.split('.').pop();
