@@ -705,6 +705,7 @@ BrowserSearchPane = createClass
         onInfo={(args...) => @props.onInfo(args...)}
         search={@state.search}
         cardMode={@props.cardMode}
+        online={@props.online}
       />
     </View>
 

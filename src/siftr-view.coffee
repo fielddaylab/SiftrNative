@@ -888,6 +888,7 @@ SiftrView = createClass
           field_id: f.field_id
           filename: name
           mimetype: f.file.type
+          game_id: @props.game.game_id
         filesToCopy.push
           copyFrom: f.file.uri
           copyTo: "#{queueDir}/#{name}"
