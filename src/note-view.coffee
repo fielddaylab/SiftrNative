@@ -314,9 +314,12 @@ class SiftrComment extends React.Component
             }>
               { @props.comment.user.display_name } at { @props.comment.created.toLocaleString() }
             </Text>
-            <TouchableOpacity onPress={=> @setState commentModal: true}>
-              <Image style={marginLeft: 10, width: 17, height: 17} source={require '../web/assets/img/icon-edit-pencil.png'} />
-            </TouchableOpacity>
+            {
+              if (@props.auth.authToken?.user_id is @props.comment.user.user_id) or (@props.auth.authToken?.user_id is @props.comment.user.user_id or @props.isAdmin)
+                <TouchableOpacity onPress={=> @setState commentModal: true}>
+                  <Image style={marginLeft: 10, width: 17, height: 17} source={require '../web/assets/img/icon-edit-pencil.png'} />
+                </TouchableOpacity>
+            }
             {
               if @state.commentModal
                 <OptionsModal
