@@ -29,6 +29,7 @@ createClass = require 'create-react-class'
 {KeyboardAwareView} = require 'react-native-keyboard-aware-view'
 RNFS = require 'react-native-fs'
 {CacheMedia} = require './media'
+{Terms} = require './terms'
 # @endif
 
 { Auth
@@ -1040,6 +1041,16 @@ NativeSettings = createClass
             }>
               <Text>Open Source</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.settingsButton} onPress={=>
+              Linking.openURL "https://docs.google.com/document/d/16P8kIfHka-zHXoQcd9mWlUWiOkaTp6I7UcpD_GoB8LY/edit"
+            }>
+              <Text>Terms of Use</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.settingsButton} onPress={=>
+              Linking.openURL "https://docs.google.com/document/d/1yLXB67G0NfIgp0AAsRUQYB7-LoyFsrihUydxsL_qrms/edit"
+            }>
+              <Text>Privacy Policy</Text>
+            </TouchableOpacity>
           </ScrollView>
         </View>
 
@@ -1361,12 +1372,18 @@ SiftrNative = createClass
           @updateFollowed()
         @setState menuOpen: false
 
-  register: (username, password, email) ->
+  showTerms: (username, password, email) ->
+    @registerInfo = {username, password, email}
+    @setState showingTerms: true
+
+  register: ->
     return unless @state.online
+    {username, password, email} = @registerInfo
     (@state.auth ? new Auth).register username, password, email, (newAuth, err) =>
       unless newAuth.authToken?
         Alert.alert err.returnCodeDescription
       @setState
+        showingTerms: false
         auth: newAuth
         games: null
         followed: null
@@ -1456,8 +1473,13 @@ SiftrNative = createClass
                 onEditProfile={@editProfile}
                 queueMessage={@state.queueMessage}
               />
+          else if @state.showingTerms
+            <Terms
+              onAccept={=> @register()}
+              onCancel={=> @setState showingTerms: false}
+            />
           else
-            <NativeLogin onLogin={@login} onRegister={@register} />
+            <NativeLogin onLogin={@login} onRegister={@showTerms} />
         }
       </UploadQueue>
     else

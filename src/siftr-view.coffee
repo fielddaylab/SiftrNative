@@ -697,9 +697,9 @@ SiftrView = createClass
       @props.onPromptLogin()
 
   renderCreateNote: ->
+    # @ifdef NATIVE
     unless @state.createNote?
       null
-    # @ifdef NATIVE
     else unless @state.createNote.media? or @state.createNote.files? or @state.createNote.uploading
       <CreateStep1
         auth={@props.auth}
@@ -763,6 +763,8 @@ SiftrView = createClass
       />
     # @endif
     # @ifdef WEB
+    unless @state.createNote?
+      null
     else unless @state.createNote.media?
       <CreateStep1
         auth={@props.auth}
