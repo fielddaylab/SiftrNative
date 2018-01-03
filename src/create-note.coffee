@@ -270,8 +270,9 @@ export CreateStep1 = createClass
                 </TouchableOpacity>
                 <TouchableOpacity onPress={=>
                   return unless this.camera?
+                  field_id = @state.field_id
                   this.camera.capture({}).then ({path}) =>
-                    @chooseImage @state.field_id,
+                    @chooseImage field_id,
                       uri: path
                       isStatic: true
                       type: 'image/jpeg'
