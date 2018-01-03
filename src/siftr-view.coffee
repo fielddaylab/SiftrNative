@@ -876,10 +876,6 @@ SiftrView = createClass
     else
       # save note for later upload queue
       queueDir = "#{RNFS.DocumentDirectoryPath}/siftrqueue/#{Date.now()}"
-      if files.some((f) => f.file.uri.indexOf('content://') > -1)
-        console.warn "TODO: handle content:// (picked from image roll on Android)"
-        @setState createNote: null
-        return
       filesToCopy = []
       for f in files
         name = f.file.name
