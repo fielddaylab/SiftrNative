@@ -856,7 +856,8 @@ SiftrView = createClass
     # @endif
 
   finishNoteCreation: (field_data = @state.createNote?.field_data ? []) ->
-    {media, files, online, caption, location, category} = @state.createNote
+    {media, files, online, caption, category} = @state.createNote
+    location = @state.center
     createArgs =
       game_id: @props.game.game_id
       description: caption

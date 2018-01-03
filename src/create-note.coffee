@@ -615,6 +615,7 @@ export CreateData = createClass
     tagListOpen: false
 
   componentWillMount: ->
+    @props.onStartLocation()
     @hardwareBack = =>
       if @state.isPickingLocation
         @setState isPickingLocation: false
@@ -631,10 +632,6 @@ export CreateData = createClass
       <View style={styles.overlayBottom}>
         <View style={styles.buttonRow}>
           <TouchableOpacity onPress={=>
-            location = @props.getLocation()
-            @props.onUpdateNote update @props.createNote,
-              location:
-                $set: location
             @setState isPickingLocation: false
           }>
             <Text style={styles.blueButton}>Pick Location</Text>
@@ -687,7 +684,6 @@ export CreateData = createClass
               <View style={[styles.buttonRow, backgroundColor: 'white']}>
                 <TouchableOpacity onPress={=>
                   @setState isPickingLocation: true
-                  @props.onStartLocation()
                 }>
                   <Text style={styles.blueButton}>Pick Location</Text>
                 </TouchableOpacity>
