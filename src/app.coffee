@@ -1273,6 +1273,9 @@ SiftrNative = createClass
     menuOpen: false
     online: true
 
+  getDefaultProps: ->
+    viola: false
+
   # @ifdef WEB
   componentWillMount: ->
     @login()
@@ -1370,6 +1373,8 @@ SiftrNative = createClass
         if @state.online
           @updateGames()
           @updateFollowed()
+          if @props.viola
+            @launchByID siftr_id: 6234
         @setState menuOpen: false
 
   showTerms: (username, password, email) ->
@@ -1446,9 +1451,12 @@ SiftrNative = createClass
                       BackHandler.exitApp()
                     else
                       return # Linking.openURL "ARIS://"
-                  @setState
-                    game: null
-                    aris: false
+                  else if @props.viola
+                    @props.backToViola()
+                  else
+                    @setState
+                      game: null
+                      aris: false
                 }
                 onPromptLogin={=> @setState menuOpen: true}
                 nomenData={@state.nomenData}
