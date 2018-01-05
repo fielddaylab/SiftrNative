@@ -701,8 +701,13 @@ SiftrView = createClass
       if (note = saved_note?.note)?
         obj.createNote = note
       if (loc = saved_note?.location)?
+        obj.resumedNote = true
         obj.center = loc
-        @refs.theSiftrMap?.moveToPoint loc
+        setTimeout =>
+          @refs.theSiftrMap?.moveToPoint loc
+        , 1000
+      else
+        obj.resumedNote = false
       @setState obj
     else
       @props.onPromptLogin()
@@ -772,6 +777,7 @@ SiftrView = createClass
         getColor={@getColor}
         progress={@state.progress}
         onViolaIdentify={@props.onViolaIdentify}
+        resumedNote={@state.resumedNote}
       />
     # @endif
     # @ifdef WEB

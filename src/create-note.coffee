@@ -616,7 +616,8 @@ export CreateData = createClass
     tagListOpen: false
 
   componentWillMount: ->
-    @props.onStartLocation()
+    unless @props.resumedNote
+      @props.onStartLocation()
     @hardwareBack = =>
       if @state.isPickingLocation
         @setState isPickingLocation: false
