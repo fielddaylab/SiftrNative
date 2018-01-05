@@ -852,7 +852,10 @@ export CreateData = createClass
                           </View>
                       when 'NOMEN'
                         <TouchableOpacity style={padding: 10, backgroundColor: 'white'} onPress={=>
-                          Linking.openURL "nomen://?nomen_id=#{field.label}&siftr_id=6234" # TODO actual siftr_id
+                          # Linking.openURL "nomen://?nomen_id=#{field.label}&siftr_id=6234" # TODO actual siftr_id
+                          @props.onViolaIdentify
+                            note: @props.createNote
+                            location: @props.getLocation()
                         }>
                           <Text>
                             {

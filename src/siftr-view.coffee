@@ -201,6 +201,7 @@ SiftrView = createClass
     following: null
     followGame: (->)
     unfollowGame: (->)
+    onViolaIdentify: (->)
 
   getInitialState: ->
     center:
@@ -312,7 +313,9 @@ SiftrView = createClass
     , withSuccess (fields) => if @isMounted then @setState {fields}
     # @endif
     if @props.nomenData?
-      @applyNomenData @props.nomenData
+      @applyNomenData
+        nomenData: @props.nomenData
+        saved_note: @props.saved_note
 
   componentDidMount: ->
     @nomenTimer = setInterval =>
@@ -341,7 +344,9 @@ SiftrView = createClass
         # cancel note creation on logout
         if @isMounted then @setState createNote: null
     if not @props.nomenData? and nextProps.nomenData?
-      @applyNomenData nextProps.nomenData
+      @applyNomenData
+        nomenData: nextProps.nomenData
+        saved_note: nextProps.saved_note
     if @props.game.game_id isnt nextProps.game.game_id
       newGame = nextProps.game
       # TODO: should also reset map position, tags, basically everything
@@ -352,12 +357,12 @@ SiftrView = createClass
     if newAuth? or newGame?
       @loadResults({auth: newAuth ? undefined, game: newGame ? undefined})
 
-  applyNomenData: (nomenData) ->
+  applyNomenData: ({nomenData, saved_note}) ->
     if @state.createNote?
       # continue note filling in data
       if @isMounted then @setState {nomenData}
     else
-      @startCreate nomenData
+      @startCreate {nomenData, saved_note}
     @props.clearNomenData()
 
   checkNomenFieldData: ->
@@ -684,15 +689,21 @@ SiftrView = createClass
           lat: posn.coords.latitude
           lng: posn.coords.longitude
 
-  startCreate: (nomenData) ->
+  startCreate: ({nomenData, saved_note} = {}) ->
     return if @state.createNote?
     if @props.auth.authToken? or not @props.online
-      @setState
+      obj =
         createNote: {}
         searchOpen: false
         viewingNote: null
         primaryMenuOpen: false
         nomenData: nomenData
+      if (note = saved_note?.note)?
+        obj.createNote = note
+      if (loc = saved_note?.location)?
+        obj.center = loc
+        @refs.theSiftrMap?.moveToPoint loc
+      @setState obj
     else
       @props.onPromptLogin()
 
@@ -760,6 +771,7 @@ SiftrView = createClass
         onBack={=> @setState createNote: {}}
         getColor={@getColor}
         progress={@state.progress}
+        onViolaIdentify={@props.onViolaIdentify}
       />
     # @endif
     # @ifdef WEB

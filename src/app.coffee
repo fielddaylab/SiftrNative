@@ -1324,7 +1324,7 @@ SiftrNative = createClass
         nomen_id: parseInt(mapping.nomen_id)
         species_id: decodeURIComponent((mapping.species_id+'').replace(/\+/g, '%20'))
 
-  launchByID: ({aris, siftr_id, nomen_id, species_id}) ->
+  launchByID: ({aris, siftr_id, nomen_id, species_id, saved_note}) ->
     return if @state.game?.game_id is siftr_id
     (@state.auth ? new Auth).getGame
       game_id: siftr_id
@@ -1332,12 +1332,15 @@ SiftrNative = createClass
       @setState
         game: game
         aris: aris
+        saved_note: saved_note
         nomenData:
           if nomen_id
             {nomen_id, species_id}
 
   clearNomenData: ->
-    @setState nomenData: null
+    @setState
+      nomenData: null
+      saved_note: null
   # @endif
 
   updateGames: ->
@@ -1374,7 +1377,12 @@ SiftrNative = createClass
           @updateGames()
           @updateFollowed()
           if @props.viola
-            @launchByID siftr_id: 6234
+            {nomen_id, species_id, saved_note} = @props.getViolaInfo();
+            @launchByID
+              siftr_id: @props.siftr_id
+              nomen_id: nomen_id
+              species_id: species_id
+              saved_note: saved_note
         @setState menuOpen: false
 
   showTerms: (username, password, email) ->
@@ -1466,6 +1474,8 @@ SiftrNative = createClass
                 followGame={@followGame}
                 unfollowGame={@unfollowGame}
                 queueMessage={@state.queueMessage}
+                onViolaIdentify={@props.onViolaIdentify}
+                saved_note={@state.saved_note}
               />
             else
               <NativeHome
