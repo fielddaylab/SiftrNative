@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1046549405758",
+    "firebase_url": "https://siftr-c50abbc.firebaseio.com",
+    "project_id": "siftr-c50abbc",
+    "storage_bucket": "siftr-c50abbc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1046549405758:android:c9853e16d598946c",
+        "android_client_info": {
+          "package_name": "org.siftr.client"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1046549405758-86v196jsr7b7v59fj2q680d585l4784r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDY6Z4RIRPVWFeZ6IRAhqzrevNkYAd7Pqo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

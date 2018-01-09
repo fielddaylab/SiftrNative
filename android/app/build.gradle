@@ -142,6 +142,15 @@ android {
 }
 
 dependencies {
+    compile(project(':react-native-firebase')) {
+        transitive = false
+    }
+    // MT: note, version 11.4.2 was chosen below due to
+    // https://github.com/react-community/react-native-maps/issues/1777
+    // firebase recommended 11.6.0 but that conflicts with maps.
+    compile "com.google.android.gms:play-services-base:11.4.2"
+    compile "com.google.firebase:firebase-core:11.4.2"
+    compile "com.google.android.gms:play-services-maps:11.4.2"
     compile project(':react-native-camera')
     compile project(':react-native-orientation')
     compile project(':react-native-fs')
@@ -159,3 +168,5 @@ task copyDownloadableDepsToLibs(type: Copy) {
     from configurations.compile
     into 'libs'
 }
+
+apply plugin: 'com.google.gms.google-services'
