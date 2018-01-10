@@ -26,6 +26,7 @@ import Hyperlink from 'react-native-hyperlink'
 import Gallery from 'react-native-image-gallery'
 {styles, Text} = require './styles'
 import {Media, CacheMedia} from './media'
+import firebase from 'react-native-firebase'
 # @endif
 
 {clicker, withSuccess, P, UL, LI, DIV, BUTTON} = require './utils'
@@ -566,6 +567,9 @@ class SiftrNoteView extends React.Component
   # @endif
 
   componentWillMount: ->
+    firebase.analytics().logEvent 'view_note',
+      note_id: @props.note.note_id
+      game_id: @props.note.game_id
     @loadExtra()
     # @ifdef NATIVE
     @hardwareBack = =>

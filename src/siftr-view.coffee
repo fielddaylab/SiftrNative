@@ -18,11 +18,12 @@ createClass = require 'create-react-class'
 , Platform
 } = require 'react-native'
 RNFS = require 'react-native-fs'
-{styles, Text} = require './styles'
-{StatusSpace} = require './status-space'
+import {styles, Text} from './styles'
+import {StatusSpace} from './status-space'
 {KeyboardAwareView} = require 'react-native-keyboard-aware-view'
 {default: SideMenu} = require 'react-native-side-menu'
 {default: Markdown} = require 'react-native-simple-markdown'
+import firebase from 'react-native-firebase'
 # @endif
 
 {fitBounds} = require 'google-map-react/utils'
@@ -236,6 +237,8 @@ SiftrView = createClass
     primaryMenuOpen: false
 
   componentWillMount: ->
+    firebase.analytics().logEvent 'view_siftr',
+      game_id: @props.game.game_id
     @isMounted = true
     # @ifdef NATIVE
     siftrDir = "#{RNFS.DocumentDirectoryPath}/siftrs/#{@props.game.game_id}"

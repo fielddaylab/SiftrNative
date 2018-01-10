@@ -5,6 +5,7 @@ import T from 'prop-types';
 import createClass from 'create-react-class';
 
 import RNFS from 'react-native-fs';
+import firebase from 'react-native-firebase'
 
 import {Auth} from './aris';
 
@@ -137,6 +138,10 @@ export const UploadQueue = createClass({
       });
       return this.props.auth.promise('call', 'notes.createNote', json);
     }).then((note) => {
+      firebase.analytics().logEvent('create_note', {
+        note_id: note.note_id,
+        game_id: note.game_id,
+      });
       return RNFS.unlink(dir.path);
     }).catch((err) => {
       return console.warn(err);

@@ -27,6 +27,7 @@ EXIF = require 'exif-js'
 {styles, Text} = require './styles'
 import Camera from 'react-native-camera'
 import InfiniteScrollView from 'react-native-infinite-scroll-view'
+import firebase from 'react-native-firebase'
 # @endif
 
 {Auth, Game, Tag, Field, FieldData} = require './aris'
@@ -166,6 +167,7 @@ export CreateStep1 = createClass
 
   # @ifdef NATIVE
   componentWillMount: ->
+    firebase.analytics().logEvent 'start_create_note', {}
     @hardwareBack = =>
       @props.onCancel()
       true
@@ -616,6 +618,7 @@ export CreateData = createClass
     tagListOpen: false
 
   componentWillMount: ->
+    firebase.analytics().logEvent 'entering_note_info', {}
     unless @props.resumedNote
       @props.onStartLocation()
     @hardwareBack = =>

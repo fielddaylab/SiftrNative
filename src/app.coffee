@@ -23,13 +23,14 @@ createClass = require 'create-react-class'
 , Alert
 , Dimensions
 } = require 'react-native'
-{UploadQueue} = require './upload-queue'
-{styles, Text} = require './styles'
-{StatusSpace} = require './status-space'
-{KeyboardAwareView} = require 'react-native-keyboard-aware-view'
-RNFS = require 'react-native-fs'
-{CacheMedia} = require './media'
-{Terms} = require './terms'
+import {UploadQueue} from './upload-queue'
+import {styles, Text} from './styles'
+import {StatusSpace} from './status-space'
+import {CacheMedia} from './media'
+import {Terms} from './terms'
+import {KeyboardAwareView} from 'react-native-keyboard-aware-view'
+import RNFS from 'react-native-fs'
+import firebase from 'react-native-firebase'
 # @endif
 
 { Auth
@@ -1373,6 +1374,9 @@ SiftrNative = createClass
         games: null
         followed: null
       if newAuth.authToken?
+        firebase.analytics().logEvent 'login',
+          username: newAuth.authToken.username
+          user_id: newAuth.authToken.user_id
         if @state.online
           @updateGames()
           @updateFollowed()
