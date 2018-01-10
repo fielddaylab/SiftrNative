@@ -567,11 +567,11 @@ class SiftrNoteView extends React.Component
   # @endif
 
   componentWillMount: ->
+    @loadExtra()
+    # @ifdef NATIVE
     firebase.analytics().logEvent 'view_note',
       note_id: @props.note.note_id
       game_id: @props.note.game_id
-    @loadExtra()
-    # @ifdef NATIVE
     @hardwareBack = =>
       @props.onClose()
       true

@@ -237,10 +237,10 @@ SiftrView = createClass
     primaryMenuOpen: false
 
   componentWillMount: ->
-    firebase.analytics().logEvent 'view_siftr',
-      game_id: @props.game.game_id
     @isMounted = true
     # @ifdef NATIVE
+    firebase.analytics().logEvent 'view_siftr',
+      game_id: @props.game.game_id
     siftrDir = "#{RNFS.DocumentDirectoryPath}/siftrs/#{@props.game.game_id}"
     RNFS.mkdir siftrDir, NSURLIsExcludedFromBackupKey: true
     RNFS.writeFile "#{siftrDir}/game.txt", JSON.stringify @props.game

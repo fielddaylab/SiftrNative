@@ -1374,9 +1374,11 @@ SiftrNative = createClass
         games: null
         followed: null
       if newAuth.authToken?
+        # @ifdef NATIVE
         firebase.analytics().logEvent 'login',
           username: newAuth.authToken.username
           user_id: newAuth.authToken.user_id
+        # @endif
         if @state.online
           @updateGames()
           @updateFollowed()

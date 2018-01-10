@@ -618,7 +618,9 @@ export CreateData = createClass
     tagListOpen: false
 
   componentWillMount: ->
+    # @ifdef NATIVE
     firebase.analytics().logEvent 'entering_note_info', {}
+    # @endif
     unless @props.resumedNote
       @props.onStartLocation()
     @hardwareBack = =>
