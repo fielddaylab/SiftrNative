@@ -563,10 +563,10 @@ $auth-menu-width: 300px;
 .create-step-1 {
   @include right-pane;
 }
-.create-step-2, .create-step-3, .create-step-4 {
+.create-step-2, .create-step-3, .create-step-4, .create-step-5 {
   @include left-pane;
 }
-.create-step-2, .create-step-3, .create-step-4 {
+.create-step-2, .create-step-3, .create-step-4, .create-step-5 {
   // cover bottom of map
   // note: sass is dumb. this has to be separate from from the left-pane decl
   // or the media query parts of left-pane will be moved after these decls.
