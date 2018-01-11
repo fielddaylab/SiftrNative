@@ -490,11 +490,25 @@ $auth-menu-width: 300px;
   align-items: center;
 }
 
-.note-photo {
+.note-photos {
   width: 100%;
+  height: 50vh;
+  display: flex;
+  flex-direction: row;
   padding: 0;
   margin: 0;
-  display: block;
+  align-items: stretch;
+}
+
+.note-photo-link {
+  flex: 1;
+}
+
+.note-photo {
+  background-position: center;
+  background-size: cover;
+  width: 100%;
+  height: 100%;
 }
 
 .note-actions {

@@ -861,6 +861,15 @@ class SiftrNoteView extends React.Component
 
   # @ifdef WEB
   render: ->
+    photoURLs = [@props.note.photo_url]
+    if (@state.field_data? and @props.fields?)
+      for field in @props.fields
+        if field.field_type is 'MEDIA'
+          data =
+            d for d in @state.field_data when d.field_id is field.field_id
+          if data.length > 0
+            photoURLs.push data[0].media.url.replace('http://', 'https://')
+
     <div className="note-view">
       <div className="note-top">
         <div className="note-dot" style={
@@ -873,9 +882,14 @@ class SiftrNoteView extends React.Component
           <img src="assets/img/x-blue.png" />
         </a>
       </div>
-      <a href={@props.note.photo_url} target="_blank">
-        <img className="note-photo" src={@props.note.photo_url} />
-      </a>
+      <div className="note-photos">
+        {
+          for url, i in photoURLs
+            <a className="note-photo-link" href={url} target="_blank" key={i}>
+              <div className="note-photo" style={backgroundImage: "url(#{url})"} />
+            </a>
+        }
+      </div>
       <div className="note-actions">
         {
           if @props.auth.authToken? and @props.note.player_liked
