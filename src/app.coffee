@@ -674,7 +674,15 @@ BrowserSearch = makeBrowser (props, cb) ->
       search: props.search
       count: 10
     , withSuccess (games) ->
-      cb games
+      props.auth.searchSiftrs
+        siftr_url: props.search
+      , withSuccess (url_games) ->
+        if url_games.length > 0
+          games =
+            for game in games
+              continue if game.game_id is url_games[0].game_id
+              game
+        cb url_games.concat(games)
 
 BrowserSearchPane = createClass
   getInitialState: ->
