@@ -103,49 +103,63 @@ AuthContainer = createClass
 
   # @ifdef WEB
   render: ->
+    userPic = @state.userPicture?.big_thumb_url
+    if userPic?
+      userPic = arisHTTPS userPic
     <div className={"auth-container #{if @props.menuOpen then 'auth-menu-open' else 'auth-menu-closed'}"}>
       <div className="auth-nav">
-        <a href="#"
-          onClick={clicker => @props.onMenuMove not @props.menuOpen}
-          className="auth-nav-button"
-        ><img src="assets/img/menu.png" /></a>
-        <span>
-        {
-          if @props.auth.authToken?
-            " Logged in as #{@props.auth.authToken.display_name}"
-          else
-            " Log in"
-        }
-        </span>
+        <div className="auth-nav-side">
+          <a href="https://siftr.org">
+            <img className="auth-nav-logo" src="assets/img/siftr-logo-black.png" />
+          </a>
+          <a href="#">Discover</a>
+        </div>
+        <div className="auth-nav-side">
+          {
+            if @props.auth.authToken?
+              <a href="#"
+                onClick={clicker => @props.onMenuMove not @props.menuOpen}
+              >
+                <img className="auth-nav-user-pic" src={userPic} />
+                {@props.auth.authToken.display_name}
+              </a>
+            else
+              <a href="#"
+                onClick={clicker => @props.onMenuMove not @props.menuOpen}
+              >Log in</a>
+          }
+        </div>
       </div>
       <div className="auth-contents">
         {@props.children}
       </div>
-      <div className="auth-menu">
-        {
-          if @props.auth.authToken?
-            <div>
-              <div className="auth-menu-user-picture" style={
-                backgroundImage:
-                  if (url = @state.userPicture?.big_thumb_url)
-                    "url(#{arisHTTPS url})"
-              } />
+      <div className="auth-menu-layer" onClick={clicker => @props.onMenuMove false}>
+        <div className="auth-menu" onClick={(e) => e.stopPropagation()}>
+          {
+            if @props.auth.authToken?
+              <div>
+                <div className="auth-menu-user-picture" style={
+                  backgroundImage:
+                    if userPic
+                      "url(#{userPic})"
+                } />
+                <p>
+                  {@props.auth.authToken.display_name}
+                </p>
+                <p>
+                  <button type="button" onClick={@props.onLogout}>Logout</button>
+                </p>
+              </div>
+            else
+              <LoginBox onLogin={@props.onLogin} />
+          }
+          {
+            if @props.hasBrowserButton
               <p>
-                {@props.auth.authToken.display_name}
+                <button type="button" onClick={@goBackToBrowser}>Back to Browser</button>
               </p>
-              <p>
-                <button type="button" onClick={@props.onLogout}>Logout</button>
-              </p>
-            </div>
-          else
-            <LoginBox onLogin={@props.onLogin} />
-        }
-        {
-          if @props.hasBrowserButton
-            <p>
-              <button type="button" onClick={@goBackToBrowser}>Back to Browser</button>
-            </p>
-        }
+          }
+        </div>
       </div>
     </div>
   # @endif
