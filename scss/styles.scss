@@ -88,42 +88,9 @@ $sqrt2: 1.4142135;
   display: block;
   padding-bottom: 100%;
 }
-@media #{$large-screen} {
-  .primary-map .siftr-thumbnail {
-    width: 45%;
-    @media(min-width:1300px) {
-      width: 31%;
-    }
-    @media(min-width:1600px) {
-      width: 23%;
-    }
-    @media(min-width:2000px) {
-      width: 18.5%;
-    }
-  }
-  .primary-thumbs .siftr-thumbnail {
-    width: 31%;
-    @media(min-width:1200px) {
-      width: 23%;
-    }
-    @media(min-width:1450px) {
-      width: 18.5%;
-    }
-    @media(min-width:1750px) {
-      width: 15.5%;
-    }
-  }
-}
-@media #{$small-screen} {
-  .siftr-thumbnail {
-    width: 45%;
-    @media(min-width:550px) {
-      width: 31%;
-    }
-    @media(min-width:700px) {
-      width: 23%;
-    }
-  }
+.siftr-thumbnail {
+  width: 31%;
+  max-width: 160px;
 }
 
 .siftr-thumbnail-dot {
@@ -386,9 +353,9 @@ $sqrt2: 1.4142135;
   @media #{$large-screen} {
     width: 60%;
   }
+  z-index: 3; // this is overridden for map/thumbs below
   @media #{$small-screen} {
     width: 100%;
-    z-index: 3; // this is overridden for map/thumbs below
   }
   overflow-y: auto;
   margin: 0;
@@ -409,9 +376,9 @@ $sqrt2: 1.4142135;
   @media #{$large-screen} {
     width: 40%;
   }
+  z-index: 3; // this is overridden for map/thumbs below
   @media #{$small-screen} {
     width: 100%;
-    z-index: 3; // this is overridden for map/thumbs below
   }
   overflow-y: auto;
   margin: 0;
@@ -419,26 +386,29 @@ $sqrt2: 1.4142135;
   box-sizing: border-box;
 }
 
-// on desktop, the primary pane is larger and to the left of the secondary pane
-.primary-map .siftr-map {
-  @include left-pane;
+@mixin full-pane {
+  background-color: white;
+  height: 100%;
+  position: absolute;
+  @media #{$large-screen} {
+    top: 0;
+  }
+  @media #{$small-screen} {
+    bottom: 0;
+  }
+  left: 0;
+  width: 100%;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-.primary-thumbs .siftr-map {
-  @include right-pane;
-}
-.primary-thumbs .siftr-thumbs {
-  @include left-pane;
-}
-.primary-map .siftr-thumbs {
-  @include right-pane;
-}
-@media #{$small-screen} {
-  // on mobile, the primary pane goes on top of the secondary pane
-  .primary-map    .siftr-map    { z-index: 2; }
-  .primary-thumbs .siftr-thumbs { z-index: 2; }
-  .primary-map    .siftr-thumbs { z-index: 1; }
-  .primary-thumbs .siftr-map    { z-index: 1; }
-}
+
+// thumbnails go on top of map, unless we're only viewing map
+.siftr-map                   { z-index: 1; @include full-pane; }
+.siftr-thumbs                { z-index: 2; @include full-pane; }
+.main-view-map .siftr-map    { z-index: 2; }
+.main-view-map .siftr-thumbs { z-index: 1; }
 
 .siftr-search {
   @include right-pane;

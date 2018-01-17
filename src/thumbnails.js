@@ -21,6 +21,9 @@ import {CacheMedia} from './media';
 import InfiniteScroll from 'react-infinite-scroller';
 // @endif
 
+// TODO: if the initial batch of thumbnails fits on screen,
+// the infinite scroll view isn't attempting to load the next batch
+
 export class SiftrThumbnails extends React.Component {
   constructor(props) {
     super(props);

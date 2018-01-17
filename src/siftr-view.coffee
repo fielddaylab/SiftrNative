@@ -231,7 +231,7 @@ SiftrView = createClass
     searchParams:
       sort: 'recent'
     searchOpen: false
-    primaryMap: true
+    mainView: 'map' # 'map', 'hybrid', 'thumbs'
     fields: null
     infoOpen: false
     primaryMenuOpen: false
@@ -388,15 +388,6 @@ SiftrView = createClass
               field_data: $set: field_data
       else
         if @isMounted then @setState nomenData: null
-
-  # @ifdef WEB
-  componentWillUpdate: (nextProps, nextState) ->
-    # hack to force map to notice it has been resized
-    if @state.primaryMap isnt nextState.primaryMap
-      setTimeout =>
-        window.dispatchEvent new Event 'resize'
-      , 500
-  # @endif
 
   getColor: (x) ->
     return 'white' unless @state.tags? and @state.colors? and x?
@@ -1028,10 +1019,10 @@ SiftrView = createClass
           {
             if @state.createNote? and not (@state.createNote.media? or @state.createNote.files? or @state.createNote.uploading)
               undefined
-            else if @state.primaryMap
-              [@renderThumbnails(), @renderMap()]
-            else
+            else if @state.mainView is 'thumbs'
               [@renderMap(), @renderThumbnails()]
+            else
+              [@renderThumbnails(), @renderMap()]
           }
           {@renderNoteView()}
           {@renderCreateNote()}
@@ -1046,13 +1037,13 @@ SiftrView = createClass
               backgroundColor: 'white'
             }>
               <TouchableOpacity style={padding: 10} onPress={=>
-                @setState primaryMap: not @state.primaryMap
+                @setState mainView: if @state.mainView is 'thumbs' then 'map' else 'thumbs'
               }>
                 <Image style={resizeMode: 'contain', height: 30} source={
-                  if @state.primaryMap
-                    require('../web/assets/img/icon-map.png')
-                  else
+                  if @state.mainView is 'thumbs'
                     require('../web/assets/img/icon-grid.png')
+                  else
+                    require('../web/assets/img/icon-map.png')
                 } />
               </TouchableOpacity>
               <TouchableOpacity style={padding: 10} onPress={@startCreate}>
@@ -1074,7 +1065,7 @@ SiftrView = createClass
     classes = [
       'siftr-view'
       if @state.searchOpen then 'search-open' else 'search-closed'
-      if @state.primaryMap then 'primary-map' else 'primary-thumbs'
+      "main-view-#{@state.mainView}"
     ]
     <div className={classes.join(' ')}>
       <div className="siftr-view-nav">
@@ -1082,11 +1073,11 @@ SiftrView = createClass
           <a href="#" onClick={clicker @props.onExit}>
             <img src="assets/img/brand.png" />
           </a>
-          <a href="#" onClick={clicker => @setState primaryMap: true}>
-            <img src={"assets/img/map-#{if @state.primaryMap then 'on' else 'off'}.png"} />
+          <a href="#" onClick={clicker => @setState mainView: 'map'}>
+            <img src={"assets/img/map-#{if @state.mainView is 'map' then 'on' else 'off'}.png"} />
           </a>
-          <a href="#" onClick={clicker => @setState primaryMap: false}>
-            <img src={"assets/img/thumbs-#{if @state.primaryMap then 'off' else 'on'}.png"} />
+          <a href="#" onClick={clicker => @setState mainView: 'thumbs'}>
+            <img src={"assets/img/thumbs-#{if @state.mainView is 'thumbs' then 'on' else 'off'}.png"} />
           </a>
         </div>
         <div className="siftr-view-nav-section">
