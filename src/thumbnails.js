@@ -108,6 +108,7 @@ export class SiftrThumbnails extends React.Component {
         {
           this.props.notes.map((note) =>
             <a
+              className="siftr-thumbnail-card"
               key={note.note_id}
               href="#"
               onClick={clicker(() => this.props.onSelectNote(note))}
@@ -115,7 +116,9 @@ export class SiftrThumbnails extends React.Component {
               <div
                 className="siftr-thumbnail"
                 style={{backgroundImage: `url(${note.thumb_url})`}}
-              >
+              />
+              <div className="siftr-thumbnail-info">
+                <div>{note.user.display_name}</div>
                 <div
                   className="siftr-thumbnail-dot"
                   style={{backgroundColor: this.props.getColor(note.tag_id)}}

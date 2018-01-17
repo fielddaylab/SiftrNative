@@ -1067,25 +1067,31 @@ SiftrView = createClass
       if @state.searchOpen then 'search-open' else 'search-closed'
       "main-view-#{@state.mainView}"
     ]
+    on_off = (b) -> if b then 'on' else 'off'
     <div className={classes.join(' ')}>
       <div className="siftr-view-nav">
         <div className="siftr-view-nav-section">
-          <a href="#" onClick={clicker @props.onExit}>
-            <img src="assets/img/brand.png" />
-          </a>
-          <a href="#" onClick={clicker => @setState mainView: 'map'}>
-            <img src={"assets/img/map-#{if @state.mainView is 'map' then 'on' else 'off'}.png"} />
-          </a>
-          <a href="#" onClick={clicker => @setState mainView: 'thumbs'}>
-            <img src={"assets/img/thumbs-#{if @state.mainView is 'thumbs' then 'on' else 'off'}.png"} />
-          </a>
+          <h2>
+            {@props.game.name}
+          </h2>
         </div>
         <div className="siftr-view-nav-section">
           <a href="#" onClick={clicker @startCreate}>
             <img src="assets/img/mobile-plus.png" />
           </a>
-          <a href="#" onClick={clicker => @setState searchOpen: not @state.searchOpen}>
-            <img src={"assets/img/search-#{if @state.searchOpen then 'on' else 'off'}.png"} />
+        </div>
+        <div className="siftr-view-nav-section">
+          <a href="#" className="main-view-option" onClick={clicker => @setState mainView: 'map'}>
+            <img src={"assets/img/main-view-map-#{on_off(@state.mainView is 'map')}.png"} />
+          </a>
+          <a href="#" className="main-view-option" onClick={clicker => @setState mainView: 'hybrid'}>
+            <img src={"assets/img/main-view-hybrid-#{on_off(@state.mainView is 'hybrid')}.png"} />
+          </a>
+          <a href="#" className="main-view-option" onClick={clicker => @setState mainView: 'thumbs'}>
+            <img src={"assets/img/main-view-thumbs-#{on_off(@state.mainView is 'thumbs')}.png"} />
+          </a>
+          <a href="#" className="main-view-option" onClick={clicker => @setState searchOpen: not @state.searchOpen}>
+            <img src={"assets/img/#{if @state.searchOpen then 'icon-x-black' else 'icon-filter'}.png"} />
           </a>
         </div>
       </div>
