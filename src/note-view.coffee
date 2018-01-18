@@ -871,17 +871,6 @@ class SiftrNoteView extends React.Component
             photoURLs.push data[0].media.url.replace('http://', 'https://')
 
     <div className="note-view">
-      <div className="note-top">
-        <div className="note-dot" style={
-          backgroundColor: @props.getColor @props.note
-        } />
-        <h2 className="note-credit">
-          {@props.note.user.display_name} at {@props.note.created.toLocaleString()}
-        </h2>
-        <a href="#" onClick={clicker @props.onClose} className="note-x">
-          <img src="assets/img/x-blue.png" />
-        </a>
-      </div>
       <div className="note-photos">
         {
           for url, i in photoURLs
@@ -890,84 +879,97 @@ class SiftrNoteView extends React.Component
             </a>
         }
       </div>
-      <div className="note-actions">
-        {
-          if @props.auth.authToken? and @props.note.player_liked
-            <a href="#" className="note-action" onClick={clicker @unlikeNote.bind(@)}>
-              <img src="assets/img/freepik/heart-filled.png" />
-            </a>
-          else
-            <a href="#" className="note-action" onClick={clicker @likeNote.bind(@)}>
-              <img src="assets/img/freepik/heart.png" />
-            </a>
-        }
-        {
-          if @props.note.user.user_id is @props.auth.authToken?.user_id or @props.isAdmin
-            <a href="#" className="note-action" onClick={clicker @confirmDelete.bind(@)}>
-              <img src="assets/img/freepik/delete81.png" />
-            </a>
-        }
-        {
-          if @props.note.published is 'AUTO' and @props.auth.authToken?.user_id isnt @props.note.user.user_id
-            <a href="#" className="note-action" onClick={clicker @confirmFlag.bind(@)}>
-              <img src="assets/img/freepik/warning.png" />
-            </a>
-        }
-        {
-          if @props.note.user.user_id is @props.auth.authToken?.user_id
-            <a href="#" className="note-action" onClick={clicker => @setState editingCaption: true}>
-              <img src="assets/img/freepik/edit45.png" />
-            </a>
-        }
-      </div>
-      {
-        switch @props.note.published
-          when 'PENDING'
-            if @props.isAdmin
-              <BUTTON onClick={@approveNote.bind(@)}><P>Approve this note</P></BUTTON>
+      <div className="note-right">
+        <div className="note-top">
+          <div className="note-dot" style={
+            backgroundColor: @props.getColor @props.note
+          } />
+          <h2 className="note-credit">
+            {@props.note.user.display_name} at {@props.note.created.toLocaleString()}
+          </h2>
+          <a href="#" onClick={clicker @props.onClose} className="note-x">
+            <img src="assets/img/x-blue.png" />
+          </a>
+        </div>
+        <div className="note-actions">
+          {
+            if @props.auth.authToken? and @props.note.player_liked
+              <a href="#" className="note-action" onClick={clicker @unlikeNote.bind(@)}>
+                <img src="assets/img/freepik/heart-filled.png" />
+              </a>
             else
-              <P>This note is visible only to you until a moderator approves it.</P>
-          when 'AUTO', 'APPROVED'
-            null
-      }
-      {
-        if @state.editingCaption
-          <div className="note-comments">
-            <SiftrCommentInput
-              defaultText={@props.note.description}
-              canCancel={true}
-              onCancel={=> @setState editingCaption: false}
-              onSave={(text) =>
-                @setState editingCaption: false
-                @saveCaption text
-              }
-            />
-          </div>
-        else
-          <div className="note-caption">
-            { writeParagraphs @props.note.description }
-          </div>
-      }
-      {
-        @showFields 'p'
-      }
-      <div className="note-comments">
+              <a href="#" className="note-action" onClick={clicker @likeNote.bind(@)}>
+                <img src="assets/img/freepik/heart.png" />
+              </a>
+          }
+          {
+            if @props.note.user.user_id is @props.auth.authToken?.user_id or @props.isAdmin
+              <a href="#" className="note-action" onClick={clicker @confirmDelete.bind(@)}>
+                <img src="assets/img/freepik/delete81.png" />
+              </a>
+          }
+          {
+            if @props.note.published is 'AUTO' and @props.auth.authToken?.user_id isnt @props.note.user.user_id
+              <a href="#" className="note-action" onClick={clicker @confirmFlag.bind(@)}>
+                <img src="assets/img/freepik/warning.png" />
+              </a>
+          }
+          {
+            if @props.note.user.user_id is @props.auth.authToken?.user_id
+              <a href="#" className="note-action" onClick={clicker => @setState editingCaption: true}>
+                <img src="assets/img/freepik/edit45.png" />
+              </a>
+          }
+        </div>
         {
-          if @state.comments is null
-            <div className="note-comment">
-              <p className="note-comment-credit">Loading comments...</p>
+          switch @props.note.published
+            when 'PENDING'
+              if @props.isAdmin
+                <BUTTON onClick={@approveNote.bind(@)}><P>Approve this note</P></BUTTON>
+              else
+                <P>This note is visible only to you until a moderator approves it.</P>
+            when 'AUTO', 'APPROVED'
+              null
+        }
+        {
+          if @state.editingCaption
+            <div className="note-comments">
+              <SiftrCommentInput
+                defaultText={@props.note.description}
+                canCancel={true}
+                onCancel={=> @setState editingCaption: false}
+                onSave={(text) =>
+                  @setState editingCaption: false
+                  @saveCaption text
+                }
+              />
             </div>
           else
-            <SiftrComments
-              note={@props.note}
-              auth={@props.auth}
-              comments={@state.comments ? []}
-              onEditComment={@doEditComment.bind(@)}
-              onNewComment={@doNewComment.bind(@)}
-              onDeleteComment={@doDeleteComment.bind(@)}
-              isAdmin={@props.isAdmin}
-            />
+            <div className="note-caption">
+              { writeParagraphs @props.note.description }
+            </div>
         }
+        {
+          @showFields 'p'
+        }
+        <div className="note-comments">
+          {
+            if @state.comments is null
+              <div className="note-comment">
+                <p className="note-comment-credit">Loading comments...</p>
+              </div>
+            else
+              <SiftrComments
+                note={@props.note}
+                auth={@props.auth}
+                comments={@state.comments ? []}
+                onEditComment={@doEditComment.bind(@)}
+                onNewComment={@doNewComment.bind(@)}
+                onDeleteComment={@doDeleteComment.bind(@)}
+                isAdmin={@props.isAdmin}
+              />
+          }
+        </div>
       </div>
     </div>
   # @endif
