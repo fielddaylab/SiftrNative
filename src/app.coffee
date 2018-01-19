@@ -1554,6 +1554,9 @@ SiftrNative = createClass
               nomenData={@state.nomenData}
               clearNomenData={@clearNomenData}
               online={@state.online}
+              followed={@state.followed}
+              followGame={@followGame}
+              unfollowGame={@unfollowGame}
             />
         }
         {

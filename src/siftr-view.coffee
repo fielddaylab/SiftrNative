@@ -1067,13 +1067,35 @@ SiftrView = createClass
       if @state.searchOpen then 'search-open' else 'search-closed'
       "main-view-#{@state.mainView}"
     ]
+    isFollowing =
+      @props.followed?.some (game) => game.game_id is @props.game.game_id
     on_off = (b) -> if b then 'on' else 'off'
     <div className={classes.join(' ')}>
       <div className="siftr-view-nav">
         <div className="siftr-view-nav-section">
-          <h2>
-            {@props.game.name}
-          </h2>
+          <div className="siftr-view-nav-vertical">
+            <h2>
+              {@props.game.name}
+            </h2>
+            {
+              if @props.auth.authToken?
+                <p className="siftr-view-nav-follow">
+                  <a href="#" onClick={clicker =>
+                    if isFollowing
+                      @props.unfollowGame @props.game
+                    else
+                      @props.followGame @props.game
+                  }>
+                    {
+                      if isFollowing
+                        'Followed'
+                      else
+                        'Follow this Siftr'
+                    }
+                  </a>
+                </p>
+            }
+          </div>
         </div>
         <div className="siftr-view-nav-section">
           <a href="#" onClick={clicker @startCreate}>
