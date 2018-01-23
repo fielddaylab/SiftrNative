@@ -209,8 +209,13 @@ LoginBox = createClass
   render: ->
     <form>
       <p>
+        <img src="assets/img/siftr-logo-black-thin.png" style={
+          height: 80
+        } />
+      </p>
+      <p>
         <input
-          placeholder="Username"
+          placeholder="username"
           type="text"
           ref="username"
           onKeyDown={@handleEnter}
@@ -219,15 +224,19 @@ LoginBox = createClass
       </p>
       <p>
         <input
-          placeholder="Password"
+          placeholder="password"
           type="password"
           ref="password"
           onKeyDown={@handleEnter}
           className="login-field"
         />
       </p>
+      <div className="auth-button-row">
+        <a className="auth-button-log-in" href="#" onClick={clicker @doLogin}>log in</a>
+        <a className="auth-button-forgot" href="https://siftr.org/login/#forgot">forgot password?</a>
+      </div>
       <p>
-        <button type="button" onClick={clicker @doLogin}>Login</button>
+        <a className="auth-button-sign-up" href="https://siftr.org/login/#signup">Don't have an account yet? Sign up!</a>
       </p>
     </form>
   # @endif
