@@ -432,7 +432,7 @@ $sqrt2: 1.4142135;
   @media #{$large-screen} {
     width: 60%;
   }
-  z-index: 3; // this is overridden for map/thumbs below
+  z-index: 4; // this is overridden for map/thumbs below
   @media #{$small-screen} {
     width: 100%;
   }
@@ -455,7 +455,7 @@ $sqrt2: 1.4142135;
   @media #{$large-screen} {
     width: 40%;
   }
-  z-index: 3; // this is overridden for map/thumbs below
+  z-index: 4; // this is overridden for map/thumbs below
   @media #{$small-screen} {
     width: 100%;
   }
@@ -468,10 +468,10 @@ $sqrt2: 1.4142135;
   background-color: white;
   position: absolute;
   @media #{$large-screen} {
-    top: 50px;
+    top: 75px;
     bottom: 50px;
     left: 50px;
-    right: 50px;
+    right: 125px;
   }
   @media #{$small-screen} {
     top: 0;
@@ -479,8 +479,7 @@ $sqrt2: 1.4142135;
     left: 0;
     right: 0;
   }
-  z-index: 3; // this is overridden for map/thumbs below
-  overflow-y: auto;
+  z-index: 4; // this is overridden for map/thumbs below
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -573,6 +572,7 @@ $sqrt2: 1.4142135;
 .note-right {
   flex: 1;
   overflow-y: auto;
+  padding: 5px 15px;
 }
 
 .note-top {
@@ -591,14 +591,20 @@ $sqrt2: 1.4142135;
 }
 
 .note-credit {
-  margin: 0;
-  font-size: 16px;
+  h2, h3 { margin: 0; }
+  h2 { font-size: 16px; }
+  h3 { font-size: 13px; }
 }
 
 .note-x {
   display: flex;
   flex-direction: row;
   align-items: center;
+  bottom: 100%;
+  position: absolute;
+  right: 0;
+  padding: 6px 12px;
+  background-color: white;
 }
 
 .note-photos {
@@ -627,13 +633,13 @@ $sqrt2: 1.4142135;
 }
 
 .note-actions {
-  background-color: rgb(97,201,226);
   width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   padding: 5px;
   box-sizing: border-box;
+  border-bottom: 2px solid rgb(229,229,229);
 }
 
 .note-action {
@@ -642,6 +648,9 @@ $sqrt2: 1.4142135;
   display: flex;
   flex-direction: row;
   align-items: center;
+  img {
+    height: 20px;
+  }
 }
 
 .note-caption {
@@ -653,10 +662,13 @@ $sqrt2: 1.4142135;
 }
 
 .note-comment {
-  border: 1px solid #89c;
-  background-color: #e8ebf5;
-  padding: 0 10px;
+  padding: 0 12px;
   margin: 10px 0;
+}
+
+.note-comment-new {
+  padding: 12px;
+  border-top: 2px solid rgb(229,229,229);
 }
 
 .note-comment textarea {
@@ -664,6 +676,7 @@ $sqrt2: 1.4142135;
   height: 90px;
   resize: none;
   box-sizing: border-box;
+  border: none;
 }
 
 .note-comment-credit {
@@ -673,6 +686,9 @@ $sqrt2: 1.4142135;
 .note-comment-action {
   vertical-align: middle;
   margin-left: 6px;
+  img {
+    height: 16px;
+  }
 }
 
 .create-step-1, .create-step-2 {
@@ -690,7 +706,7 @@ $sqrt2: 1.4142135;
     left: 0;
     right: 0;
   }
-  z-index: 3; // this is overridden for map/thumbs below
+  z-index: 4;
   overflow-y: auto;
   margin: 0;
   padding: 0;

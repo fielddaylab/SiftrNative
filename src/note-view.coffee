@@ -172,15 +172,7 @@ class SiftrCommentInput extends React.Component
 
   # @ifdef WEB
   render: ->
-    <div className="note-comment">
-      <p className="note-comment-credit">
-        {
-          if @props.canCancel
-            'Editing...'
-          else
-            'New comment...'
-        }
-      </p>
+    <div className={if @props.canCancel then "note-comment" else "note-comment note-comment-new"}>
       <textarea placeholder="Enter a comment..."
         value={@state.text}
         onChange={(e) => @setState text: e.target.value}
@@ -362,13 +354,13 @@ class SiftrComment extends React.Component
           {
             if @props.auth.authToken?.user_id is @props.comment.user.user_id
               <a className="note-comment-action" href="#" onClick={clicker => @setState editing: true}>
-                <img src="assets/img/freepik/edit45_blue.png" />
+                <img src="assets/img/icon-edit-pencil.png" />
               </a>
           }
           {
             if @props.auth.authToken?.user_id is @props.comment.user.user_id or @props.isAdmin
               <a className="note-comment-action" href="#" onClick={clicker @confirmDelete.bind(@)}>
-                <img src="assets/img/freepik/delete81_blue.png" />
+                <img src="assets/img/icon-x-black.png" />
               </a>
           }
         </p>
@@ -880,32 +872,34 @@ class SiftrNoteView extends React.Component
         }
       </div>
       <div className="note-right">
+        <a href="#" onClick={clicker @props.onClose} className="note-x">
+          <img src="assets/img/x-blue.png" />
+        </a>
         <div className="note-top">
-          <div className="note-dot" style={
-            backgroundColor: @props.getColor @props.note
-          } />
-          <h2 className="note-credit">
-            {@props.note.user.display_name} at {@props.note.created.toLocaleString()}
-          </h2>
-          <a href="#" onClick={clicker @props.onClose} className="note-x">
-            <img src="assets/img/x-blue.png" />
-          </a>
+          <div className="note-credit">
+            <h2>
+              {@props.note.user.display_name}
+            </h2>
+            <h3>
+              {@props.note.created.toLocaleString()}
+            </h3>
+          </div>
         </div>
         <div className="note-actions">
           {
             if @props.auth.authToken? and @props.note.player_liked
               <a href="#" className="note-action" onClick={clicker @unlikeNote.bind(@)}>
-                <img src="assets/img/freepik/heart-filled.png" />
+                <img src="assets/img/icon-heart-full.png" />
               </a>
             else
               <a href="#" className="note-action" onClick={clicker @likeNote.bind(@)}>
-                <img src="assets/img/freepik/heart.png" />
+                <img src="assets/img/icon-heart-empty.png" />
               </a>
           }
           {
             if @props.note.user.user_id is @props.auth.authToken?.user_id or @props.isAdmin
               <a href="#" className="note-action" onClick={clicker @confirmDelete.bind(@)}>
-                <img src="assets/img/freepik/delete81.png" />
+                <img src="assets/img/icon-x-black.png" />
               </a>
           }
           {
@@ -917,7 +911,7 @@ class SiftrNoteView extends React.Component
           {
             if @props.note.user.user_id is @props.auth.authToken?.user_id
               <a href="#" className="note-action" onClick={clicker => @setState editingCaption: true}>
-                <img src="assets/img/freepik/edit45.png" />
+                <img src="assets/img/icon-speech-bubble.png" />
               </a>
           }
         </div>
