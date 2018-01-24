@@ -384,10 +384,10 @@ export CreateStep1 = createClass
         </div>
         <div className="create-buttons">
           <a href="#" className="create-button-gray" onClick={clicker @props.onCancel}>
-            CANCEL
+            cancel
           </a>
           <a href="#" className="create-button-blue" onClick={clicker @beginUpload}>
-            DESCRIPTION {'>'}
+            next
           </a>
         </div>
       </div>

@@ -1098,11 +1098,6 @@ SiftrView = createClass
           </div>
         </div>
         <div className="siftr-view-nav-section">
-          <a href="#" onClick={clicker @startCreate}>
-            <img src="assets/img/mobile-plus.png" />
-          </a>
-        </div>
-        <div className="siftr-view-nav-section">
           <a href="#" className="main-view-option" onClick={clicker => @setState mainView: 'map'}>
             <img src={"assets/img/main-view-map-#{on_off(@state.mainView is 'map')}.png"} />
           </a>
@@ -1123,6 +1118,9 @@ SiftrView = createClass
         {@renderNoteView()}
         {@renderCreateNote()}
         {@renderSearch()}
+        <a className="start-create-plus" href="#" onClick={clicker @startCreate}>
+          <img src="assets/img/mobile-plus.png" />
+        </a>
       </div>
     </div>
   # @endif
