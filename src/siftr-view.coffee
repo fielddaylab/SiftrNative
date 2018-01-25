@@ -1116,9 +1116,21 @@ SiftrView = createClass
         {@renderMap()}
         {@renderThumbnails()}
         {@renderNoteView()}
-        {@renderCreateNote()}
+        <div className="create-step-box">
+          {@renderCreateNote()}
+        </div>
         {@renderSearch()}
-        <a className="start-create-plus" href="#" onClick={clicker @startCreate}>
+        <a className={
+          if @state.createNote?
+            "start-create-plus cancel-button"
+          else
+            "start-create-plus"
+        } href="#" onClick={clicker =>
+          if @state.createNote?
+            @setState createNote: null
+          else
+            @startCreate()
+        }>
           <img src="assets/img/mobile-plus.png" />
         </a>
       </div>

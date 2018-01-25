@@ -691,42 +691,59 @@ $sqrt2: 1.4142135;
   }
 }
 
-.create-step-1, .create-step-2 {
-  background-color: white;
+.create-step-box {
   position: absolute;
+  margin: 0;
+  padding: 0;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.create-step-1, .create-step-2, .create-step-3, .create-step-4, .create-step-5 {
+  background-color: white;
+  margin: 0;
   @media #{$large-screen} {
-    top: 50px;
-    bottom: 50px;
-    left: 250px;
-    right: 250px;
+    min-width: 450px;
   }
   @media #{$small-screen} {
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    flex: 1;
   }
   z-index: 4;
   overflow-y: auto;
-  margin: 0;
-  padding: 0;
+  padding: 15px;
+  border-radius: 15px;
   box-sizing: border-box;
-}
-.create-step-3, .create-step-4, .create-step-5 {
-  @include left-pane;
-}
-.create-step-3, .create-step-4, .create-step-5 {
-  // cover bottom of map
-  // note: sass is dumb. this has to be separate from from the left-pane decl
-  // or the media query parts of left-pane will be moved after these decls.
-  height: initial;
-  top: initial;
-  bottom: 0;
 }
 
 .create-step-1, .create-step-2 {
   display: flex;
   flex-direction: column;
+}
+
+.create-step-3-box {
+  z-index: 4;
+  pointer-events: none;
+}
+
+.create-step-3-window {
+  background-color: rgba(0,0,0,0);
+  border: 15px solid white;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  border-bottom-width: 0;
+  height: 200px;
+}
+
+.create-step-3 {
+  pointer-events: auto;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  .create-content-center { padding: 0; }
 }
 
 .create-content {
@@ -747,13 +764,17 @@ $sqrt2: 1.4142135;
   box-sizing: border-box;
 }
 
-.create-button-blue, .create-button-gray {
+.create-button-blue, .create-button-gray, .create-button-white {
   padding: 8px 20px;
   text-decoration: none;
-  color: white;
+  &:hover { text-decoration: underline; }
+  color: black;
+  border-radius: 999px;
+  border: 2px solid rgba(0,0,0,0);
 }
-.create-button-blue { background-color: rgb(97,201,226); }
-.create-button-gray { background-color: #cfcbcc; }
+.create-button-blue { background-color: rgb(115,185,185); }
+.create-button-gray { background-color: rgb(239,239,239); }
+.create-button-white { background-color: white; border-color: black; }
 
 .create-caption-box {
   flex: 1;
@@ -819,4 +840,8 @@ $sqrt2: 1.4142135;
     height: 60px;
   }
   z-index: 3;
+  transition: 0.5s transform;
+  &.cancel-button {
+    transform: rotate(45deg);
+  }
 }

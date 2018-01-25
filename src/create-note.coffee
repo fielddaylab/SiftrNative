@@ -386,7 +386,7 @@ export CreateStep1 = createClass
           <a href="#" className="create-button-gray" onClick={clicker @props.onCancel}>
             cancel
           </a>
-          <a href="#" className="create-button-blue" onClick={clicker @beginUpload}>
+          <a href="#" className="create-button-white" onClick={clicker @beginUpload}>
             next
           </a>
         </div>
@@ -427,17 +427,14 @@ export CreateStep2 = createClass
             onChange={(e) => @setState text: e.target.value}
             placeholder="Enter a caption…"
           />
-          <a href="#" onClick={clicker @props.onCancel}>
-            <img src="assets/img/x-blue.png" />
-          </a>
         </div>
       </div>
       <div className="create-buttons">
-        <a href="#" className="create-button-blue" onClick={clicker @props.onBack}>
-          {'<'} IMAGE
+        <a href="#" className="create-button-gray" onClick={clicker @props.onBack}>
+          back
         </a>
-        <a href="#" className="create-button-blue" onClick={clicker @doEnterCaption}>
-          LOCATION {'>'}
+        <a href="#" className="create-button-white" onClick={clicker @doEnterCaption}>
+          next
         </a>
       </div>
     </div>
@@ -455,20 +452,21 @@ export CreateStep3 = createClass
     onCancel: (->)
 
   render: ->
-    <div className="create-step-3">
-      <div className="create-content-center">
-        <span>Pick Location</span>
-        <a href="#" className="create-float-x" onClick={clicker @props.onCancel}>
-          <img src="assets/img/x-blue.png" />
-        </a>
+    <div className="create-step-3-box">
+      <div className="create-step-3-window">
       </div>
-      <div className="create-buttons">
-        <a href="#" className="create-button-blue" onClick={clicker @props.onBack}>
-          {'<'} CAPTION
-        </a>
-        <a href="#" className="create-button-blue" onClick={clicker @props.onPickLocation}>
-          CATEGORY {'>'}
-        </a>
+      <div className="create-step-3">
+        <div className="create-content-center">
+          <span>Pick Location</span>
+        </div>
+        <div className="create-buttons">
+          <a href="#" className="create-button-gray" onClick={clicker @props.onBack}>
+            back
+          </a>
+          <a href="#" className="create-button-white" onClick={clicker @props.onPickLocation}>
+            next
+          </a>
+        </div>
       </div>
     </div>
 
@@ -493,9 +491,6 @@ export CreateStep4 = createClass
   render: ->
     <div className="create-step-4">
       <div className="create-content-center">
-        <a href="#" className="create-float-x" onClick={clicker @props.onCancel}>
-          <img src="assets/img/x-blue.png" />
-        </a>
         <p>
           {
             @props.categories.map (category) =>
@@ -516,11 +511,11 @@ export CreateStep4 = createClass
         </p>
       </div>
       <div className="create-buttons">
-        <a href="#" className="create-button-blue" onClick={clicker @props.onBack}>
-          {'<'} LOCATION
+        <a href="#" className="create-button-gray" onClick={clicker @props.onBack}>
+          back
         </a>
-        <a href="#" className="create-button-blue" onClick={clicker => @props.onFinish @props.category}>
-          FORM {'>'}
+        <a href="#" className="create-button-white" onClick={clicker => @props.onFinish @props.category}>
+          next
         </a>
       </div>
     </div>
@@ -546,17 +541,14 @@ export CreateStep5 = createClass
   render: ->
     <div className="create-step-5">
       <div className="create-content-center">
-        <a href="#" className="create-float-x" onClick={clicker @props.onCancel}>
-          <img src="assets/img/x-blue.png" />
-        </a>
         <p>{ JSON.stringify @props.fields }</p>
       </div>
       <div className="create-buttons">
-        <a href="#" className="create-button-blue" onClick={clicker @props.onBack}>
-          {'<'} CATEGORY
+        <a href="#" className="create-button-gray" onClick={clicker @props.onBack}>
+          back
         </a>
         <a href="#" className="create-button-blue" onClick={clicker => @props.onFinish @props.field_data}>
-          FINISH
+          post!
         </a>
       </div>
     </div>
