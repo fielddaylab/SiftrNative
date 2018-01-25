@@ -54,6 +54,7 @@ AuthContainer = createClass
   propTypes:
     auth: T.instanceOf(Auth).isRequired
     onLogin: T.func
+    onRegister: T.func
     onLogout: T.func
     hasBrowserButton: T.bool
     onBrowserButton: T.func
@@ -63,6 +64,7 @@ AuthContainer = createClass
 
   getDefaultProps: ->
     onLogin: (->)
+    onRegister: (->)
     onLogout: (->)
     hasBrowserButton: false
     onBrowserButton: (->)
@@ -104,6 +106,8 @@ AuthContainer = createClass
   # @ifdef WEB
   render: ->
     userPic = @state.userPicture?.big_thumb_url
+    unless @state.userPicture? and parseInt(@state.userPicture.media_id)
+      userPic = null
     if userPic?
       userPic = arisHTTPS userPic
     <div className={"auth-container #{if @props.menuOpen then 'auth-menu-open' else 'auth-menu-closed'}"}>
@@ -151,7 +155,7 @@ AuthContainer = createClass
                 </p>
               </div>
             else
-              <LoginBox onLogin={@props.onLogin} />
+              <LoginBox onLogin={@props.onLogin} onRegister={@props.onRegister} />
           }
           {
             if @props.hasBrowserButton
@@ -167,78 +171,136 @@ AuthContainer = createClass
 LoginBox = createClass
   propTypes:
     onLogin: T.func
+    onRegister: T.func
+
+  getDefaultProps: ->
+    onLogin: (->)
+    onRegister: (->)
+
+  getInitialState: ->
+    registering: false
 
   doLogin: ->
-    if @props.onLogin?
-      # @ifdef NATIVE
-      @props.onLogin @username, @password
-      # @endif
-      # @ifdef WEB
+    if @state.registering
+      if @refs.password.value is ''
+        alert "You must enter a password."
+      else if @refs.password.value isnt @refs.password2.value
+        alert "Passwords don't match."
+      else
+        @props.onRegister @refs.username.value, @refs.password.value, @refs.email.value
+    else
       @props.onLogin @refs.username.value, @refs.password.value
-      # @endif
 
   handleEnter: (e) ->
     @doLogin() if e.keyCode is 13
 
   # @ifdef NATIVE
   render: ->
-    <View>
-      <TextInput
-        placeholder="Username"
-        style={styles.input}
-        autoCapitalize="none"
-        autoCorrect={false}
-        autoFocus={true}
-        onChangeText={(username) => @username = username}
-      />
-      <TextInput
-        placeholder="Password"
-        secureTextEntry={true}
-        style={styles.input}
-        autoCapitalize="none"
-        autoCorrect={false}
-        onChangeText={(password) => @password = password}
-      />
-      <TouchableOpacity onPress={@doLogin}>
-        <Text style={[styles.blueButton, margin: 10]}>Login</Text>
-      </TouchableOpacity>
-    </View>
+    null # removed
   # @endif
 
   # @ifdef WEB
   render: ->
-    <form>
-      <p>
-        <img src="assets/img/siftr-logo-black-thin.png" style={
-          height: 80
-        } />
-      </p>
-      <p>
-        <input
-          placeholder="username"
-          type="text"
-          ref="username"
-          onKeyDown={@handleEnter}
-          className="login-field"
-        />
-      </p>
-      <p>
-        <input
-          placeholder="password"
-          type="password"
-          ref="password"
-          onKeyDown={@handleEnter}
-          className="login-field"
-        />
-      </p>
-      <div className="auth-button-row">
-        <a className="auth-button-log-in" href="#" onClick={clicker @doLogin}>log in</a>
-        <a className="auth-button-forgot" href="https://siftr.org/login/#forgot">forgot password?</a>
-      </div>
-      <p>
-        <a className="auth-button-sign-up" href="https://siftr.org/login/#signup">Don't have an account yet? Sign up!</a>
-      </p>
-    </form>
+    if @state.registering
+      <form>
+        <p>
+          <img src="assets/img/siftr-logo-black-thin.png" style={
+            height: 80
+          } />
+        </p>
+        <p>
+          <input
+            placeholder="username"
+            type="text"
+            ref="username"
+            onKeyDown={@handleEnter}
+            className="login-field"
+          />
+        </p>
+        <p>
+          <input
+            placeholder="password"
+            type="password"
+            ref="password"
+            onKeyDown={@handleEnter}
+            className="login-field"
+          />
+        </p>
+        <p>
+          <input
+            placeholder="repeat password"
+            type="password"
+            ref="password2"
+            onKeyDown={@handleEnter}
+            className="login-field"
+          />
+        </p>
+        <p>
+          <input
+            placeholder="email (optional)"
+            type="text"
+            ref="email"
+            onKeyDown={@handleEnter}
+            className="login-field"
+          />
+        </p>
+        <p>
+          By registering for Siftr, you agree to the
+          {' '}
+          <a target="_blank" href="https://docs.google.com/document/d/16P8kIfHka-zHXoQcd9mWlUWiOkaTp6I7UcpD_GoB8LY/edit">
+            Terms of Use
+          </a>
+          {' '}
+          and
+          {' '}
+          <a target="_blank" href="https://docs.google.com/document/d/1yLXB67G0NfIgp0AAsRUQYB7-LoyFsrihUydxsL_qrms/edit">
+            Privacy Policy
+          </a>.
+        </p>
+        <div className="auth-button-row">
+          <a className="auth-button-log-in" href="#" onClick={clicker @doLogin}>sign up</a>
+        </div>
+        <p>
+          <a className="auth-button-sign-up" href="#" onClick={clicker => @setState registering: false}>
+            Back to login
+          </a>
+        </p>
+      </form>
+    else
+      <form>
+        <p>
+          <img src="assets/img/siftr-logo-black-thin.png" style={
+            height: 80
+          } />
+        </p>
+        <p>
+          <input
+            placeholder="username"
+            type="text"
+            ref="username"
+            onKeyDown={@handleEnter}
+            className="login-field"
+          />
+        </p>
+        <p>
+          <input
+            placeholder="password"
+            type="password"
+            ref="password"
+            onKeyDown={@handleEnter}
+            className="login-field"
+          />
+        </p>
+        <div className="auth-button-row">
+          <a className="auth-button-log-in" href="#" onClick={clicker @doLogin}>log in</a>
+          <a className="auth-button-forgot" href="https://siftr.org/login/#forgot">forgot password?</a>
+        </div>
+        <p>
+          <a className="auth-button-sign-up" href="#" onClick={clicker => @setState registering: true}>
+            Don't have an account yet? Sign up!
+          </a>
+        </p>
+      </form>
   # @endif
 
 Loading = createClass
@@ -1426,6 +1488,10 @@ SiftrNative = createClass
     @registerInfo = {username, password, email}
     @setState showingTerms: true
 
+  registerNow: (username, password, email) ->
+    @registerInfo = {username, password, email}
+    @register()
+
   register: ->
     return unless @state.online
     {username, password, email} = @registerInfo
@@ -1545,7 +1611,7 @@ SiftrNative = createClass
   render: ->
     if @state.auth?
       <AuthContainer
-        auth={@state.auth} onLogin={@login} onLogout={@logout}
+        auth={@state.auth} onLogin={@login} onRegister={@registerNow} onLogout={@logout}
         hasBrowserButton={@state.game?}
         onBrowserButton={=> @setState game: null}
         onMenuMove={(b) => @setState menuOpen: b}
