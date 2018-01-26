@@ -345,8 +345,7 @@ export CreateStep1 = createClass
 
   # @ifdef WEB
 
-  getEXIF: ->
-    file = (@refs.fileInput?.files ? [])[0]
+  getEXIF: (file) ->
     return unless file?
     EXIF.getData file, =>
       @setState file: file
@@ -359,28 +358,57 @@ export CreateStep1 = createClass
         </div>
       </div>
     else
+      stop = (ev) =>
+        ev.stopPropagation()
+        ev.preventDefault()
       <div className="create-step-1">
         <form className="file-form">
           <input ref="fileInput" type="file" name="raw_upload"
-            onChange={@getEXIF}
+            onChange={=>
+              files = @refs.fileInput?.files
+              if files? and files.length > 0
+                @getEXIF files[0]
+            }
           />
         </form>
         <div className="create-content">
-          {
-            if @state.file?
-              <a href="#" onClick={clicker => @refs.fileInput.click()}>
+          <a href="#"
+            onClick={clicker => @refs.fileInput.click()}
+            className={"photo-drop #{if @state.highlight then 'photo-drop-highlight' else ''}"}
+            onDragEnter={(ev) =>
+              stop ev
+              @setState highlight: true
+            }
+            onDragExit={(ev) =>
+              stop ev
+              @setState highlight: false
+            }
+            onDragOver={stop}
+            onDrop={(ev) =>
+              stop ev
+              @setState highlight: false
+              files = ev.dataTransfer.files
+              if files.length > 0
+                @getEXIF files[0]
+            }
+          >
+            {
+              if @state.file?
                 <div
                   className={"upload-preview exif-#{EXIF.getTag(@state.file, 'Orientation')}"}
-                  style={
-                    backgroundImage: "url(#{URL.createObjectURL @state.file})"
-                  }
+                  style={backgroundImage: "url(#{URL.createObjectURL @state.file})"}
                 />
-              </a>
-            else
-              <a href="#" onClick={clicker => @refs.fileInput.click()}>
-                <img src="assets/img/select-image.png" />
-              </a>
-          }
+              else
+                <div
+                  className="upload-preview no-image"
+                  style={backgroundImage: "url(assets/img/icon-cloud-upload.png)"}
+                />
+            }
+            <div>
+              <h3>Main image</h3>
+              <h4>required*</h4>
+            </div>
+          </a>
         </div>
         <div className="create-buttons">
           <a href="#" className="create-button-gray" onClick={clicker @props.onCancel}>
@@ -421,13 +449,11 @@ export CreateStep2 = createClass
   render: ->
     <div className="create-step-2">
       <div className="create-content">
-        <div className="create-caption-box">
-          <textarea className="create-caption"
-            value={@state.text}
-            onChange={(e) => @setState text: e.target.value}
-            placeholder="Enter a caption…"
-          />
-        </div>
+        <textarea className="create-caption"
+          value={@state.text}
+          onChange={(e) => @setState text: e.target.value}
+          placeholder="Enter a caption…"
+        />
       </div>
       <div className="create-buttons">
         <a href="#" className="create-button-gray" onClick={clicker @props.onBack}>
