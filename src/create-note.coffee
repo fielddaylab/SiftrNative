@@ -567,7 +567,80 @@ export CreateStep5 = createClass
   render: ->
     <div className="create-step-5">
       <div className="create-content-center">
-        <p>{ JSON.stringify @props.fields }</p>
+        {
+          @props.fields.map (field) =>
+            return null if field.field_type is 'MEDIA'
+            <div key={field.field_id}>
+              <div>
+                <p>{ if field.field_type is 'NOMEN' then "Nomen #{field.label}" else field.label }</p>
+              </div>
+              {
+                field_data = @props.field_data ? []
+                onChangeData = (newData) => @props.onChangeData newData
+                getText = =>
+                  for data in field_data
+                    if data.field_id is field.field_id
+                      return data.field_data
+                  ''
+                setText = (event) =>
+                  newData =
+                    data for data in field_data when data.field_id isnt field.field_id
+                  newData.push new FieldData {
+                    field_id: field.field_id
+                    field_data: event.target.value
+                  }
+                  onChangeData newData
+                switch field.field_type
+                  when 'TEXT'
+                    <p>
+                      <input
+                        type="text"
+                        value={getText()}
+                        onChange={setText}
+                        placeholder={field.label}
+                      />
+                    </p>
+                  when 'TEXTAREA'
+                    <p>
+                      <textarea
+                        value={getText()}
+                        onChange={setText}
+                        placeholder={field.label}
+                      />
+                    </p>
+                  when 'SINGLESELECT'
+                    <p>
+                      <select
+                        value={do =>
+                          for data in field_data
+                            if data.field_id is field.field_id
+                              return data.field_option_id
+                          field.options[0].field_option_id
+                        }
+                        onChange={(field_option_id) =>
+                          newData =
+                            data for data in field_data when data.field_id isnt field.field_id
+                          newData.push new FieldData {
+                            field_id: field.field_id
+                            field_option_id: field_option_id
+                          }
+                          onChangeData newData
+                        }
+                      >
+                        {
+                          field.options.map (option) =>
+                            <option value={option.field_option_id} key={option.field_option_id}>
+                              {option.option}
+                            </option>
+                        }
+                      </select>
+                    </p>
+                  # TODO when 'MULTISELECT'
+                  else
+                    <p>(not implemented yet)</p>
+              }
+            </div>
+        }
       </div>
       <div className="create-buttons">
         <a href="#" className="create-button-gray" onClick={clicker @props.onBack}>
@@ -786,6 +859,7 @@ export CreateData = createClass
                       for data in field_data
                         if data.field_id is field.field_id
                           return data.field_data
+                      ''
                     setText = (text) =>
                       newData =
                         data for data in field_data when data.field_id isnt field.field_id
