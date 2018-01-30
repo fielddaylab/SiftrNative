@@ -617,7 +617,8 @@ export CreateStep5 = createClass
                               return data.field_option_id
                           field.options[0].field_option_id
                         }
-                        onChange={(field_option_id) =>
+                        onChange={(event) =>
+                          field_option_id = event.target.value
                           newData =
                             data for data in field_data when data.field_id isnt field.field_id
                           newData.push new FieldData {
@@ -635,7 +636,30 @@ export CreateStep5 = createClass
                         }
                       </select>
                     </p>
-                  # TODO when 'MULTISELECT'
+                  when 'MULTISELECT'
+                    field.options.map (option) =>
+                      <p key={option.field_option_id}>
+                        <label>
+                          <input
+                            type="checkbox"
+                            value={field_data.some (data) =>
+                              data.field_id is field.field_id and data.field_option_id is option.field_option_id
+                            }
+                            onChange={(event) =>
+                              checked = event.target.checked
+                              newData =
+                                data for data in field_data when not (data.field_id is field.field_id and data.field_option_id is option.field_option_id)
+                              if checked
+                                newData.push new FieldData {
+                                  field_id: field.field_id
+                                  field_option_id: option.field_option_id
+                                }
+                              onChangeData newData
+                            }
+                          />
+                          { option.option }
+                        </label>
+                      </p>
                   else
                     <p>(not implemented yet)</p>
               }
