@@ -784,6 +784,7 @@ SiftrView = createClass
         onCancel={=> @setState createNote: null}
         onCreateMedia={({media, exif}) => @setState createNote: {media, exif, online: true}}
         online={@props.online}
+        fields={@state.fields ? []}
       />
     else unless @state.createNote.caption?
       <CreateStep2

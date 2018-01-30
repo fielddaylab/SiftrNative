@@ -93,6 +93,72 @@ SiftrRoll.defaultProps =
   onSelectImage: (->)
 # @endif
 
+# @ifdef WEB
+CreatePhotoBox = createClass
+  getDefaultProps: ->
+    onChooseFile: (->)
+    file: null
+    orientation: null
+    header: 'Main image'
+    required: true
+
+  getInitialState: ->
+    highlight: false
+
+  render: ->
+    stop = (ev) =>
+      ev.stopPropagation()
+      ev.preventDefault()
+    <div>
+      <form className="file-form">
+        <input ref="fileInput" type="file" name="raw_upload"
+          onChange={=>
+            files = @refs.fileInput?.files
+            if files? and files.length > 0
+              @props.onChooseFile files[0]
+          }
+        />
+      </form>
+      <a href="#"
+        onClick={clicker => @refs.fileInput.click()}
+        className={"photo-drop #{if @state.highlight then 'photo-drop-highlight' else ''}"}
+        onDragEnter={(ev) =>
+          stop ev
+          @setState highlight: true
+        }
+        onDragExit={(ev) =>
+          stop ev
+          @setState highlight: false
+        }
+        onDragOver={stop}
+        onDrop={(ev) =>
+          stop ev
+          @setState highlight: false
+          files = ev.dataTransfer.files
+          if files.length > 0
+            @props.onChooseFile files[0]
+        }
+      >
+        {
+          if @props.file?
+            <div
+              className={"upload-preview exif-#{@props.orientation}"}
+              style={backgroundImage: "url(#{URL.createObjectURL @props.file})"}
+            />
+          else
+            <div
+              className="upload-preview no-image"
+              style={backgroundImage: "url(assets/img/icon-cloud-upload.png)"}
+            />
+        }
+        <div>
+          <h3>{ @props.header }</h3>
+          <h4>{ if @props.required then 'required*' else 'optional' }</h4>
+        </div>
+      </a>
+    </div>
+# @endif
+
 # Step 1: Upload
 export CreateStep1 = createClass
   propTypes:
@@ -351,6 +417,17 @@ export CreateStep1 = createClass
       @setState file: file
 
   render: ->
+    pictureSlots = []
+    # main picture
+    pictureSlots.push
+      field_id: null
+      currentImage: => @state.file
+    # other pictures
+    for field in @props.fields.filter((field) => field.field_type is 'MEDIA')
+      pictureSlots.push
+        field_id: field.field_id
+        currentImage: => @state.extraFiles.get(field.field_id, null)
+
     if @state.progress?
       <div className="create-step-1">
         <div className="create-content">
@@ -358,57 +435,15 @@ export CreateStep1 = createClass
         </div>
       </div>
     else
-      stop = (ev) =>
-        ev.stopPropagation()
-        ev.preventDefault()
       <div className="create-step-1">
-        <form className="file-form">
-          <input ref="fileInput" type="file" name="raw_upload"
-            onChange={=>
-              files = @refs.fileInput?.files
-              if files? and files.length > 0
-                @getEXIF files[0]
-            }
-          />
-        </form>
         <div className="create-content">
-          <a href="#"
-            onClick={clicker => @refs.fileInput.click()}
-            className={"photo-drop #{if @state.highlight then 'photo-drop-highlight' else ''}"}
-            onDragEnter={(ev) =>
-              stop ev
-              @setState highlight: true
-            }
-            onDragExit={(ev) =>
-              stop ev
-              @setState highlight: false
-            }
-            onDragOver={stop}
-            onDrop={(ev) =>
-              stop ev
-              @setState highlight: false
-              files = ev.dataTransfer.files
-              if files.length > 0
-                @getEXIF files[0]
-            }
-          >
-            {
-              if @state.file?
-                <div
-                  className={"upload-preview exif-#{EXIF.getTag(@state.file, 'Orientation')}"}
-                  style={backgroundImage: "url(#{URL.createObjectURL @state.file})"}
-                />
-              else
-                <div
-                  className="upload-preview no-image"
-                  style={backgroundImage: "url(assets/img/icon-cloud-upload.png)"}
-                />
-            }
-            <div>
-              <h3>Main image</h3>
-              <h4>required*</h4>
-            </div>
-          </a>
+          <CreatePhotoBox
+            onChooseFile={(file) => @getEXIF file}
+            file={@state.file}
+            orientation={if @state.file? then EXIF.getTag(@state.file, 'Orientation') else null}
+            header="Main image"
+            required={true}
+          />
         </div>
         <div className="create-buttons">
           <a href="#" className="create-button-gray" onClick={clicker @props.onCancel}>
