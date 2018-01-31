@@ -225,10 +225,16 @@ export CreateStep1 = createClass
 
   # @ifdef WEB
   beginUpload: ->
-    file = @state.file
-    return unless file?
+    files = @filesReady()
+    return unless files.every ({file}) => file? # TODO should field files be optional
     updateProgress = (n) => @setState progress: n
-    Photos.uploadImage file, @props.auth, @props.game, updateProgress, @props.onCreateMedia
+    Photos.uploadImages files.map(({file}) => file), @props.auth, @props.game, updateProgress, (results) =>
+      fieldMedia = []
+      for {field_id}, i in files
+        continue if i is 0
+        {media} = results[i]
+        fieldMedia.push {field_id: field_id, media_id: media.media_id}
+      @props.onCreateMedia results[0], fieldMedia
   # @endif
 
   # @ifdef NATIVE
@@ -411,10 +417,13 @@ export CreateStep1 = createClass
 
   # @ifdef WEB
 
-  getEXIF: (file) ->
+  getEXIF: (field_id, file) ->
     return unless file?
     EXIF.getData file, =>
-      @setState file: file
+      if field_id?
+        @setState extraFiles: @state.extraFiles.set(field_id, file)
+      else
+        @setState {file}
 
   render: ->
     pictureSlots = []
@@ -422,11 +431,13 @@ export CreateStep1 = createClass
     pictureSlots.push
       field_id: null
       currentImage: => @state.file
+      header: 'Main image'
     # other pictures
     for field in @props.fields.filter((field) => field.field_type is 'MEDIA')
       pictureSlots.push
         field_id: field.field_id
         currentImage: => @state.extraFiles.get(field.field_id, null)
+        header: field.label
 
     if @state.progress?
       <div className="create-step-1">
@@ -437,13 +448,17 @@ export CreateStep1 = createClass
     else
       <div className="create-step-1">
         <div className="create-content">
-          <CreatePhotoBox
-            onChooseFile={(file) => @getEXIF file}
-            file={@state.file}
-            orientation={if @state.file? then EXIF.getTag(@state.file, 'Orientation') else null}
-            header="Main image"
-            required={true}
-          />
+          {
+            pictureSlots.map ({field_id, currentImage, header}) =>
+              img = currentImage()
+              <CreatePhotoBox
+                onChooseFile={(file) => @getEXIF(field_id, file)}
+                file={img}
+                orientation={if img? then EXIF.getTag(img, 'Orientation') else null}
+                header={header}
+                required={true}
+              />
+          }
         </div>
         <div className="create-buttons">
           <a href="#" className="create-button-gray" onClick={clicker @props.onCancel}>

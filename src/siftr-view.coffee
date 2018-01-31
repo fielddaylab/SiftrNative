@@ -782,7 +782,7 @@ SiftrView = createClass
         auth={@props.auth}
         game={@props.game}
         onCancel={=> @setState createNote: null}
-        onCreateMedia={({media, exif}) => @setState createNote: {media, exif, online: true}}
+        onCreateMedia={({media, exif}, fieldMedia) => @setState createNote: {media, exif, online: true, field_media: fieldMedia}}
         online={@props.online}
         fields={@state.fields ? []}
       />
@@ -794,6 +794,7 @@ SiftrView = createClass
               media: @state.createNote.media
               exif: @state.createNote.exif
               online: @state.createNote.online
+              field_media: @state.createNote.field_media
               caption: caption
           , => @startLocatingNote exif: @state.createNote.exif
         }
@@ -807,6 +808,7 @@ SiftrView = createClass
           media: @state.createNote.media
           exif: @state.createNote.exif
           online: @state.createNote.online
+          field_media: @state.createNote.field_media
           caption: @state.createNote.caption
           location: @state.center
           category: @state.tags[0] # TODO handle empty case better
@@ -816,6 +818,7 @@ SiftrView = createClass
           media: @state.createNote.media
           exif: @state.createNote.exif
           online: @state.createNote.online
+          field_media: @state.createNote.field_media
           defaultCaption: @state.createNote.caption
         }
       />
@@ -831,6 +834,7 @@ SiftrView = createClass
           media: @state.createNote.media
           exif: @state.createNote.exif
           online: @state.createNote.online
+          field_media: @state.createNote.field_media
           caption: @state.createNote.caption
           location: @state.createNote.location
           category: @state.createNote.category
@@ -841,6 +845,9 @@ SiftrView = createClass
           @setState
             createNote:
               media: @state.createNote.media
+              exif: @state.createNote.exif
+              online: @state.createNote.online
+              field_media: @state.createNote.field_media
               caption: @state.createNote.caption
           , => @startLocatingNote center: @state.createNote.location
         }
@@ -859,6 +866,7 @@ SiftrView = createClass
             media: @state.createNote.media
             exif: @state.createNote.exif
             online: @state.createNote.online
+            field_media: @state.createNote.field_media
             caption: @state.createNote.caption
             location: @state.createNote.location
             category: @state.createNote.category
@@ -869,7 +877,8 @@ SiftrView = createClass
     # @endif
 
   finishNoteCreation: (field_data = @state.createNote?.field_data ? []) ->
-    {media, files, online, caption, category} = @state.createNote
+    {media, files, online, caption, category, field_media} = @state.createNote
+    field_media ?= []
     location = @state.center
     createArgs =
       game_id: @props.game.game_id
@@ -878,7 +887,7 @@ SiftrView = createClass
         latitude: location.lat
         longitude: fixLongitude location.lng
       tag_id: category.tag_id
-      field_data: field_data
+      field_data: field_data.concat(field_media)
     if media?
       # we've already uploaded media, now create note
       createArgs.media_id = media.media_id
