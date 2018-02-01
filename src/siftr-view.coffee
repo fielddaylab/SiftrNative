@@ -314,6 +314,17 @@ SiftrView = createClass
     @props.auth.getFieldsForGame
       game_id: @props.game.game_id
     , withSuccess (fields) => if @isMounted then @setState {fields}
+    @handleHistory = (event) =>
+      if typeof event.state is 'number'
+        @loadNoteByID(event.state, true)
+      else
+        @setState viewingNote: null
+    window.addEventListener 'popstate', @handleHistory
+    hash = window.location.hash
+    if hash[0] is '#'
+      n = parseInt hash[1..]
+      if n
+        @loadNoteByID(n, true)
     # @endif
     if @props.nomenData?
       @applyNomenData
@@ -332,6 +343,9 @@ SiftrView = createClass
     BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
     Keyboard.removeListener 'keyboardWillShow', @keyboardShow
     Keyboard.removeListener 'keyboardWillHide', @keyboardHide
+    # @endif
+    # @ifdef WEB
+    window.removeEventListener 'popstate', @handleHistory
     # @endif
 
   componentWillReceiveProps: (nextProps) ->
@@ -518,11 +532,17 @@ SiftrView = createClass
   moveMap: (obj) ->
     if @isMounted then @setState obj, => @loadResults()
 
-  loadNoteByID: (note_id) ->
+  loadNoteByID: (note_id, from_history = false) ->
     @props.auth.searchNotes
       game_id: @props.game.game_id
       note_id: note_id
-    , withSuccess (data) => if @isMounted then @setState viewingNote: data[0]
+    , withSuccess (data) =>
+      return unless @isMounted
+      @setState {
+        viewingNote: data[0]
+      }, =>
+        unless from_history
+          history.pushState(note_id, '', '#' + note_id)
 
   selectNote: (note) ->
     return if note.note_id is 0
@@ -571,7 +591,11 @@ SiftrView = createClass
       <SiftrNoteView
         ref={(noteView) => @noteView = noteView}
         note={@state.viewingNote}
-        onClose={=> if @isMounted then @setState viewingNote: null}
+        onClose={=>
+          if @isMounted
+            @setState viewingNote: null
+            history.pushState null, '', '#'
+        }
         auth={@props.auth}
         onDelete={@deleteNote}
         onFlag={@flagNote}
