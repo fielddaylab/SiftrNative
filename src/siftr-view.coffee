@@ -586,16 +586,17 @@ SiftrView = createClass
       getColor={@getColor}
     />
 
+  closeNote: ->
+    if @isMounted
+      @setState viewingNote: null
+      history.pushState null, '', '#'
+
   renderNoteView: ->
     if @state.viewingNote?
       <SiftrNoteView
         ref={(noteView) => @noteView = noteView}
         note={@state.viewingNote}
-        onClose={=>
-          if @isMounted
-            @setState viewingNote: null
-            history.pushState null, '', '#'
-        }
+        onClose={=> @closeNote()}
         auth={@props.auth}
         onDelete={@deleteNote}
         onFlag={@flagNote}
@@ -727,6 +728,7 @@ SiftrView = createClass
       else
         obj.resumedNote = false
       @setState obj
+      @closeNote()
     else
       @props.onPromptLogin()
 
@@ -980,7 +982,7 @@ SiftrView = createClass
           }>
             <TouchableOpacity style={flex: 1, alignItems: 'flex-start'} onPress={
               if @state.viewingNote?
-                => @setState viewingNote: null
+                => @closeNote()
               else if @state.createNote?
                 => @setState createNote: null
               else if @state.searchOpen
