@@ -413,8 +413,23 @@ $sqrt2: 1.4142135;
 .main-view-option {
   margin: 10px;
   img {
-    height: 32px;
+    height: 26px;
+    padding: 3px;
   }
+  &.option-off {
+    opacity: 0.5;
+  }
+  &.option-on {
+    background-color: rgb(223,239,239);
+    border-radius: 5px;
+  }
+}
+
+.main-view-option-separator {
+  background-color: #D9EAEB;
+  margin: 10px;
+  width: 1px;
+  height: 20px;
 }
 
 .siftr-view-nav-section {
