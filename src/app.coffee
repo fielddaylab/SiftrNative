@@ -1460,24 +1460,24 @@ SiftrNative = createClass
         auth: newAuth
         games: null
         followed: null
+      # @ifdef WEB
+      search = window.location.search
+      if search[0] is '?'
+        url = search[1..]
+        if url.match(/[^0-9]/)
+          newAuth.searchSiftrs
+            siftr_url: url
+          , withSuccess (games) =>
+            if games.length is 1
+              @setState game: games[0]
+        else
+          newAuth.getGame
+            game_id: parseInt(url)
+          , withSuccess (game) =>
+            if game?
+              @setState {game}
+      # @endif
       if newAuth.authToken?
-        # @ifdef WEB
-        search = window.location.search
-        if search[0] is '?'
-          url = search[1..]
-          if url.match(/[^0-9]/)
-            newAuth.searchSiftrs
-              siftr_url: url
-            , withSuccess (games) =>
-              if games.length is 1
-                @setState game: games[0]
-          else
-            newAuth.getGame
-              game_id: parseInt(url)
-            , withSuccess (game) =>
-              if game?
-                @setState {game}
-        # @endif
         # @ifdef NATIVE
         firebase.analytics().logEvent 'login',
           username: newAuth.authToken.username
