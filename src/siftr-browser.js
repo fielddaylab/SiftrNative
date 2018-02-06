@@ -60,13 +60,24 @@ export class SiftrURL extends React.Component {
   }
 
   findSiftr() {
-    this.props.auth.searchSiftrs({
-      siftr_url: this.state.url
-    }, withSuccess((games) => {
-      if (games.length === 1) {
-        this.props.onSelect(games[0]);
-      }
-    }));
+    const url = this.state.url;
+    if (url.match(/[^0-9]/)) {
+      this.props.auth.searchSiftrs({
+        siftr_url: url
+      }, withSuccess((games) => {
+        if (games.length === 1) {
+          this.props.onSelect(games[0]);
+        }
+      }));
+    } else {
+      this.props.auth.getGame({
+        game_id: parseInt(url)
+      }, withSuccess((game) => {
+        if (game != null) {
+          this.props.onSelect(game);
+        }
+      }));
+    }
   }
 
   render() {
