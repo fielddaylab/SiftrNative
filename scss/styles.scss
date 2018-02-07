@@ -871,13 +871,22 @@ $sqrt2: 1.4142135;
   position: absolute;
   right: 30px;
   top: 30px;
+  text-decoration: none;
   img {
     width: 60px;
     height: 60px;
+    margin: 0;
+    padding: 0;
+    display: block;
   }
   z-index: 3;
-  transition: 0.5s transform;
+  border-radius: 999px;
+  margin: 0;
+  padding: 0;
+  background-color: #111;
+  transition: transform 0.5s, background-color 0.5s;
   &.cancel-button {
     transform: rotate(45deg);
+    background-color: rgb(253,125,111);
   }
 }
