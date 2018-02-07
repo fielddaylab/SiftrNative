@@ -11,6 +11,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: none;
+  z-index: 4;
+  // ^ wasn't needed in FF but is in safari because of
+  // https://stackoverflow.com/questions/31646746/z-index-behaviour-is-different-in-chrome-to-firefox/31710969#31710969
 }
 
 .create-step-1, .create-step-2, .create-step-3, .create-step-4, .create-step-5 {
@@ -27,6 +31,7 @@
   padding: 15px;
   border-radius: 15px;
   box-sizing: border-box;
+  pointer-events: auto;
 }
 
 .create-step-1, .create-step-2 {

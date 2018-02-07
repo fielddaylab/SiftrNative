@@ -452,6 +452,7 @@ export CreateStep1 = createClass
             pictureSlots.map ({field_id, currentImage, header}) =>
               img = currentImage()
               <CreatePhotoBox
+                key={field_id}
                 onChooseFile={(file) => @getEXIF(field_id, file)}
                 file={img}
                 orientation={if img? then EXIF.getTag(img, 'Orientation') else null}
