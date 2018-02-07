@@ -530,6 +530,7 @@ export CreateStep3 = createClass
 
   render: ->
     <div className="create-step-3-box">
+      <div className="create-step-3-padding" />
       <div className="create-step-3-window">
       </div>
       <div className="create-step-3">
@@ -544,6 +545,13 @@ export CreateStep3 = createClass
             next
           </a>
         </div>
+      </div>
+      <div className="siftr-map-note create-pin">
+        <div className="siftr-map-note-shadow" />
+        <div
+          className="siftr-map-note-pin"
+          style={backgroundColor: 'black'}
+        />
       </div>
     </div>
 

@@ -50,10 +50,15 @@
   border-top-left-radius: 15px;
   border-top-right-radius: 15px;
   border-bottom-width: 0;
-  height: 200px;
+  height: 180px;
+}
+
+.create-step-3-padding {
+  height: 85px;
 }
 
 .create-step-3 {
+  padding: 8px;
   pointer-events: auto;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
@@ -141,4 +146,10 @@
   // hack!
   position: fixed;
   left: 9999px;
+}
+
+.create-pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
 }

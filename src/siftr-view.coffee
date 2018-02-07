@@ -622,13 +622,7 @@ SiftrView = createClass
           pin.tag_id = @state.createNote.category.tag_id
           [pin]
         else if createStep3
-          pin = new Note
-          pin.note_id = 0
-          pin.latitude = @state.center.lat
-          pin.longitude = @state.center.lng
-          pin.description = @state.createNote.caption
-          pin.tag_id = @state.tags[0]
-          [pin]
+          [] # pin gets shown by CreateStep3 instead
         # @endif
         # @ifdef NATIVE
         if @state.createNote?.category?
