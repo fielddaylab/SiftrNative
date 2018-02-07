@@ -1,0 +1,128 @@
+@import 'sizes';
+@import 'pane-mixins';
+
+.note-view {
+  @include modal-pane;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  @media #{$small-screen} {
+    display: block;
+  }
+}
+
+.note-right {
+  flex: 1;
+  overflow-y: auto;
+  padding: 5px 15px;
+}
+
+.note-top {
+  display: flex;
+  margin: 0;
+  padding: 12px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.note-credit {
+  h2, h3 { margin: 0; }
+  h2 { font-size: 16px; }
+  h3 { font-size: 13px; }
+}
+
+.note-x {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  bottom: 100%;
+  position: absolute;
+  right: 0;
+  padding: 6px 12px;
+  background-color: white;
+}
+
+.note-photos {
+  width: 60%;
+  height: 100%;
+  @media #{$small-screen} {
+    width: 100%;
+    height: 60vh;
+  }
+  display: flex;
+  flex-direction: row;
+  padding: 0;
+  margin: 0;
+  align-items: stretch;
+}
+
+.note-photo-link {
+  flex: 1;
+}
+
+.note-photo {
+  background-position: center;
+  background-size: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.note-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 5px;
+  box-sizing: border-box;
+  border-bottom: 2px solid rgb(229,229,229);
+}
+
+.note-action {
+  margin: 5px;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  img {
+    height: 20px;
+  }
+}
+
+.note-caption {
+  padding: 0 10px;
+}
+
+.note-comments {
+  padding: 0 10px;
+}
+
+.note-comment {
+  padding: 0 12px;
+  margin: 10px 0;
+}
+
+.note-comment-new {
+  padding: 12px;
+  border-top: 2px solid rgb(229,229,229);
+}
+
+.note-comment textarea {
+  width: 100%;
+  height: 90px;
+  resize: none;
+  box-sizing: border-box;
+  border: none;
+}
+
+.note-comment-credit {
+  font-size: 13px;
+}
+
+.note-comment-action {
+  vertical-align: middle;
+  margin-left: 6px;
+  img {
+    height: 16px;
+  }
+}

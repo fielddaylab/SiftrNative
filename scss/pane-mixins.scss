@@ -1,0 +1,88 @@
+@import 'sizes';
+
+@mixin left-pane {
+  background-color: white;
+  height: 100%;
+  position: absolute;
+  @media #{$large-screen} {
+    top: 0;
+  }
+  @media #{$small-screen} {
+    bottom: 0;
+  }
+  left: 0;
+  @media #{$large-screen} {
+    width: 60%;
+  }
+  z-index: 4; // this is overridden for map/thumbs
+  @media #{$small-screen} {
+    width: 100%;
+  }
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+@mixin right-pane {
+  background-color: white;
+  height: 100%;
+  position: absolute;
+  @media #{$large-screen} {
+    top: 0;
+  }
+  @media #{$small-screen} {
+    bottom: 0;
+  }
+  right: 0;
+  @media #{$large-screen} {
+    width: 40%;
+  }
+  z-index: 4; // this is overridden for map/thumbs
+  @media #{$small-screen} {
+    width: 100%;
+  }
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+@mixin modal-pane {
+  background-color: white;
+  position: absolute;
+  @media #{$large-screen} {
+    top: 75px;
+    bottom: 50px;
+    left: 50px;
+    right: 125px;
+  }
+  @media #{$small-screen} {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  z-index: 4; // this is overridden for map/thumbs
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+@mixin full-pane {
+  background-color: white;
+  height: 100%;
+  position: absolute;
+  @media #{$large-screen} {
+    top: 0;
+  }
+  @media #{$small-screen} {
+    bottom: 0;
+  }
+  left: 0;
+  width: 100%;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
