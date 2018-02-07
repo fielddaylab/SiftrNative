@@ -867,7 +867,7 @@ class SiftrNoteView extends React.Component
         {
           for url, i in photoURLs
             <a className="note-photo-link" href={url} target="_blank" key={i}>
-              <div className="note-photo" style={backgroundImage: "url(#{url})"} />
+              <img src={url} className="note-photo" />
             </a>
         }
       </div>
