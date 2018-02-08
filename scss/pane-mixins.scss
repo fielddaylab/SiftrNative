@@ -12,7 +12,7 @@
   }
   left: 0;
   @media #{$large-screen} {
-    width: 60%;
+    width: 45%;
   }
   z-index: 4; // this is overridden for map/thumbs
   @media #{$small-screen} {

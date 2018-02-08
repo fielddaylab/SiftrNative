@@ -29,6 +29,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  z-index: 30;
 }
 
 .auth-nav-side {
@@ -40,7 +41,7 @@
 .auth-nav-side a {
   color: black;
   text-decoration: none;
-  margin: 13px;
+  margin: 7px 13px;
   &:hover {
     text-decoration: underline;
   }
@@ -80,6 +81,9 @@
   color: black;
   padding-left: 20px;
   padding-right: 20px;
+  box-shadow: 0px 0px 16px 5px rgba(0,0,0,0.1);
+  z-index:20;
+
   h2 {
     font-weight: normal;
     display: inline-block;
@@ -115,25 +119,26 @@
   padding: 0;
   margin: 0;
   line-height: 0;
+  z-index: 20;
 }
 
 .siftr-view-nav-follow {
   a {
-    padding: 3px 15px;
-    border: 1px solid black;
     border-radius: 999px;
-    color: black;
+    color: $primary-dark;
     text-decoration: none;
     &:hover { text-decoration: underline; }
     background-color: white;
-    font-size: 13px;
+    font-size: 12px;
   }
   padding-bottom: 12px;
+  margin: 10px 0px;
 }
 
 .siftr-view-content {
   flex: 1;
   position: relative;
+  z-index:10;
 }
 
 // organizing/positioning the siftr panels
@@ -145,8 +150,11 @@
 .main-view-map .siftr-thumbs { z-index: 1; }
 
 .main-view-hybrid .siftr-thumbs {
-  background-color: rgba(0,0,0,0) !important;
   @include left-pane;
+  padding-top: 12px;
+  padding-left:12px;
+  text-align:left;
+  background-color: rgba(0,0,0,0);
 }
 
 .start-create-plus {
@@ -155,8 +163,8 @@
   top: 30px;
   text-decoration: none;
   img {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     margin: 0;
     padding: 0;
     display: block;
