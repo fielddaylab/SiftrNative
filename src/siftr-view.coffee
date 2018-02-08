@@ -1095,7 +1095,7 @@ SiftrView = createClass
     classes = [
       'siftr-view'
       if @state.searchOpen then 'search-open' else 'search-closed'
-      "main-view-#{@state.mainView}"
+      "main-view-#{if @state.createNote? then 'map' else @state.mainView}"
     ]
     isFollowing =
       @props.followed?.some (game) => game.game_id is @props.game.game_id
@@ -1128,13 +1128,13 @@ SiftrView = createClass
           </div>
         </div>
         <div className="siftr-view-nav-section">
-          <a href="#" className="main-view-option option-#{on_off(@state.mainView is 'hybrid')}" onClick={clicker => @setState mainView: 'hybrid'}>
+          <a href="#" className="main-view-option option-#{on_off(@state.mainView is 'hybrid' and not @state.createNote?)}" onClick={clicker => @setState mainView: 'hybrid'}>
             <img src={"assets/img/main-view-hybrid-on.png"} />
           </a>
-          <a href="#" className="main-view-option option-#{on_off(@state.mainView is 'map')}" onClick={clicker => @setState mainView: 'map'}>
+          <a href="#" className="main-view-option option-#{on_off(@state.mainView is 'map' and not @state.createNote?)}" onClick={clicker => @setState mainView: 'map'}>
             <img src={"assets/img/main-view-map-on.png"} />
           </a>
-          <a href="#" className="main-view-option option-#{on_off(@state.mainView is 'thumbs')}" onClick={clicker => @setState mainView: 'thumbs'}>
+          <a href="#" className="main-view-option option-#{on_off(@state.mainView is 'thumbs' and not @state.createNote?)}" onClick={clicker => @setState mainView: 'thumbs'}>
             <img src={"assets/img/main-view-thumbs-on.png"} />
           </a>
           <span className="main-view-option-separator" />

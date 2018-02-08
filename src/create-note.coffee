@@ -631,7 +631,7 @@ export CreateStep5 = createClass
             return null if field.field_type is 'MEDIA'
             <div key={field.field_id}>
               <div>
-                <p>{ if field.field_type is 'NOMEN' then "Nomen #{field.label}" else field.label }</p>
+                <p className="create-field-label">{ if field.field_type is 'NOMEN' then "Nomen #{field.label}" else field.label }</p>
               </div>
               {
                 field_data = @props.field_data ? []
@@ -716,6 +716,7 @@ export CreateStep5 = createClass
                               onChangeData newData
                             }
                           />
+                          {' '}
                           { option.option }
                         </label>
                       </p>

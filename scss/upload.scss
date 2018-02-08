@@ -119,6 +119,7 @@
   border-radius: 8px;
   padding: 10px;
   color: black;
+  margin: 8px 0;
   text-decoration: none;
   &:hover { text-decoration: underline; }
   h3, h4 {
@@ -152,4 +153,14 @@
   position: absolute;
   left: 50%;
   top: 50%;
+}
+
+.create-step-5 {
+  input[type="text"], select {
+    width: 100%;
+  }
+  .create-field-label {
+    text-align: left;
+    text-transform: lowercase;
+  }
 }
