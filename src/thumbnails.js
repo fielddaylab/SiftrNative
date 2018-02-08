@@ -118,7 +118,7 @@ export class SiftrThumbnails extends React.Component {
                 style={{backgroundImage: note.thumb_url ? `url(${note.thumb_url})` : undefined}}
               />
               <div className="siftr-thumbnail-info">
-                <div>{note.user.display_name}</div>
+                <div className="siftr-thumbnail-username">{note.user.display_name}</div>
                 <div
                   className="siftr-thumbnail-dot"
                   style={{backgroundColor: this.props.getColor(note.tag_id)}}
