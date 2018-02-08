@@ -231,7 +231,7 @@ SiftrView = createClass
     searchParams:
       sort: 'recent'
     searchOpen: false
-    mainView: 'map' # 'map', 'hybrid', 'thumbs'
+    mainView: 'hybrid' # 'hybrid', 'map', 'thumbs'
     fields: null
     infoOpen: false
     primaryMenuOpen: false
@@ -1128,11 +1128,11 @@ SiftrView = createClass
           </div>
         </div>
         <div className="siftr-view-nav-section">
-          <a href="#" className="main-view-option option-#{on_off(@state.mainView is 'map')}" onClick={clicker => @setState mainView: 'map'}>
-            <img src={"assets/img/main-view-map-on.png"} />
-          </a>
           <a href="#" className="main-view-option option-#{on_off(@state.mainView is 'hybrid')}" onClick={clicker => @setState mainView: 'hybrid'}>
             <img src={"assets/img/main-view-hybrid-on.png"} />
+          </a>
+          <a href="#" className="main-view-option option-#{on_off(@state.mainView is 'map')}" onClick={clicker => @setState mainView: 'map'}>
+            <img src={"assets/img/main-view-map-on.png"} />
           </a>
           <a href="#" className="main-view-option option-#{on_off(@state.mainView is 'thumbs')}" onClick={clicker => @setState mainView: 'thumbs'}>
             <img src={"assets/img/main-view-thumbs-on.png"} />
