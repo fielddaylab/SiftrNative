@@ -481,25 +481,51 @@ export CreateStep2 = createClass
     onBack: T.func
     onCancel: T.func
     defaultCaption: T.string
+    categories: T.arrayOf(T.instanceOf Tag).isRequired
+    getColor: T.func
 
   getDefaultProps: ->
     onEnterCaption: (->)
     onBack: (->)
     onCancel: (->)
     defaultCaption: ''
+    getColor: (->)
 
   componentWillMount: ->
     @setState
       text: @props.defaultCaption
+      category: @props.categories[0]
 
   doEnterCaption: ->
     text = @state.text
     return unless text.match(/\S/)
-    @props.onEnterCaption text
+    @props.onEnterCaption
+      text: text
+      category: @state.category
 
   render: ->
     <div className="create-step-2">
       <div className="create-content">
+        <select
+          value={@state.category.tag_id}
+          onChange={(event) =>
+            tag_id = event.target.value
+            tag = null
+            for cat in @props.categories
+              if cat.tag_id is parseInt(tag_id)
+                tag = cat
+                break
+            if tag?
+              @setState category: tag
+          }
+        >
+          {
+            @props.categories.map (cat) =>
+              <option value={cat.tag_id} key={cat.tag_id}>
+                {cat.tag}
+              </option>
+          }
+        </select>
         <textarea className="create-caption"
           value={@state.text}
           onChange={(e) => @setState text: e.target.value}
@@ -529,6 +555,7 @@ export CreateStep3 = createClass
     onCancel: (->)
 
   render: ->
+    # TODO show pin with the color from CreateStep2's category
     <div className="create-step-3-box">
       <div className="create-step-3-padding" />
       <div className="create-step-3-window">
@@ -552,56 +579,6 @@ export CreateStep3 = createClass
           className="siftr-map-note-pin"
           style={backgroundColor: 'black'}
         />
-      </div>
-    </div>
-
-# Step 4: Category
-export CreateStep4 = createClass
-  propTypes:
-    categories: T.arrayOf(T.instanceOf Tag).isRequired
-    category: T.instanceOf(Tag).isRequired
-    onPickCategory: T.func
-    onFinish: T.func
-    onBack: T.func
-    onCancel: T.func
-    getColor: T.func
-
-  getDefaultProps: ->
-    onPickCategory: (->)
-    onFinish: (->)
-    onBack: (->)
-    onCancel: (->)
-    getColor: -> 'black'
-
-  render: ->
-    <div className="create-step-4">
-      <div className="create-content-center">
-        <p>
-          {
-            @props.categories.map (category) =>
-              checked = category is @props.category
-              color = @props.getColor category
-              <a href="#" key={category.tag_id}
-                onClick={clicker => @props.onPickCategory category}
-                className={"search-tag #{if checked then 'search-tag-on' else ''}"}
-                style={
-                  borderColor: color
-                  color: if checked then undefined else color
-                  backgroundColor: if checked then color else undefined
-                }
-              >
-                { if checked then "✓ #{category.tag}" else "● #{category.tag}" }
-              </a>
-          }
-        </p>
-      </div>
-      <div className="create-buttons">
-        <a href="#" className="create-button-gray" onClick={clicker @props.onBack}>
-          back
-        </a>
-        <a href="#" className="create-button-white" onClick={clicker => @props.onFinish @props.category}>
-          next
-        </a>
       </div>
     </div>
 
