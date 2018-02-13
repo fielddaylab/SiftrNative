@@ -2,6 +2,13 @@
 
 .siftr-thumbs {
   text-align: center;
+  &::-webkit-scrollbar-track {
+    width: 6px;
+    background-color: #F5F5F5;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #000000;
+  }
 }
 .siftr-thumbnail {
   background-size: cover;

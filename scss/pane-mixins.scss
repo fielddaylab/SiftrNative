@@ -50,12 +50,7 @@
 
 @mixin modal-pane {
   background-color: white;
-  position: absolute;
   @media #{$large-screen} {
-    top: 75px;
-    bottom: 50px;
-    left: 50px;
-    right: 125px;
   }
   @media #{$small-screen} {
     top: 0;
