@@ -854,14 +854,15 @@ SiftrView = createClass
         onFinish={@finishNoteCreation}
         onCancel={=> @setState createNote: null}
         onBack={=>
-          @setState createNote:
-            media: @state.createNote.media
-            exif: @state.createNote.exif
-            online: @state.createNote.online
-            field_media: @state.createNote.field_media
-            caption: @state.createNote.caption
-            location: @state.createNote.location
-            category: @state.createNote.category
+          @setState
+            createNote:
+              media: @state.createNote.media
+              exif: @state.createNote.exif
+              online: @state.createNote.online
+              field_media: @state.createNote.field_media
+              caption: @state.createNote.caption
+              category: @state.createNote.category
+            center: @state.createNote.location
         }
         fields={@state.fields}
         field_data={@state.createNote.field_data}
