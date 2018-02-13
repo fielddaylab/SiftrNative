@@ -506,26 +506,30 @@ export CreateStep2 = createClass
   render: ->
     <div className="create-step-2">
       <div className="create-content">
-        <select
-          value={@state.category.tag_id}
-          onChange={(event) =>
-            tag_id = event.target.value
-            tag = null
-            for cat in @props.categories
-              if cat.tag_id is parseInt(tag_id)
-                tag = cat
-                break
-            if tag?
-              @setState category: tag
-          }
-        >
-          {
-            @props.categories.map (cat) =>
-              <option value={cat.tag_id} key={cat.tag_id}>
-                {cat.tag}
-              </option>
-          }
-        </select>
+        <div className="create-select-parent">
+          <div className="create-select-div">
+            <select
+              value={@state.category.tag_id}
+              onChange={(event) =>
+                tag_id = event.target.value
+                tag = null
+                for cat in @props.categories
+                  if cat.tag_id is parseInt(tag_id)
+                    tag = cat
+                    break
+                if tag?
+                  @setState category: tag
+              }
+            >
+              {
+                @props.categories.map (cat) =>
+                  <option value={cat.tag_id} key={cat.tag_id}>
+                    {cat.tag}
+                  </option>
+              }
+            </select>
+          </div>
+        </div>
         <textarea className="create-caption"
           value={@state.text}
           onChange={(e) => @setState text: e.target.value}
@@ -645,33 +649,35 @@ export CreateStep5 = createClass
                       />
                     </p>
                   when 'SINGLESELECT'
-                    <p>
-                      <select
-                        value={do =>
-                          for data in field_data
-                            if data.field_id is field.field_id
-                              return data.field_option_id
-                          field.options[0].field_option_id
-                        }
-                        onChange={(event) =>
-                          field_option_id = event.target.value
-                          newData =
-                            data for data in field_data when data.field_id isnt field.field_id
-                          newData.push new FieldData {
-                            field_id: field.field_id
-                            field_option_id: field_option_id
+                    <div className="create-select-parent">
+                      <div className="create-select-div">
+                        <select
+                          value={do =>
+                            for data in field_data
+                              if data.field_id is field.field_id
+                                return data.field_option_id
+                            field.options[0].field_option_id
                           }
-                          onChangeData newData
-                        }
-                      >
-                        {
-                          field.options.map (option) =>
-                            <option value={option.field_option_id} key={option.field_option_id}>
-                              {option.option}
-                            </option>
-                        }
-                      </select>
-                    </p>
+                          onChange={(event) =>
+                            field_option_id = event.target.value
+                            newData =
+                              data for data in field_data when data.field_id isnt field.field_id
+                            newData.push new FieldData {
+                              field_id: field.field_id
+                              field_option_id: field_option_id
+                            }
+                            onChangeData newData
+                          }
+                        >
+                          {
+                            field.options.map (option) =>
+                              <option value={option.field_option_id} key={option.field_option_id}>
+                                {option.option}
+                              </option>
+                          }
+                        </select>
+                      </div>
+                    </div>
                   when 'MULTISELECT'
                     field.options.map (option) =>
                       <p key={option.field_option_id}>

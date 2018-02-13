@@ -33,6 +33,35 @@
   box-sizing: border-box;
   pointer-events: auto;
   box-shadow: 0px 0px 16px 5px rgba(0,0,0,0.1);
+  .create-select-parent {
+    position: relative;
+    width: 100%;
+  }
+  .create-select-div {
+    width: 100%;
+    select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      border: none;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 4px 10px;
+      background-color: rgba(0,0,0,0);
+    }
+    &:after {
+      content: '>';
+      font-family: monospace;
+      font-size: 20px;
+      -webkit-transform: rotate(90deg) scale(1, 2);
+      -moz-transform: rotate(90deg) scale(1, 2);
+      -ms-transform: rotate(90deg) scale(1, 2);
+      transform: rotate(90deg) scale(1, 2);
+      top: 8px;
+      right: 15px;
+      position: absolute;
+      pointer-events: none;
+    }
+  }
 }
 
 .create-step-1, .create-step-2 {
