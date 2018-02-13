@@ -680,28 +680,29 @@ export CreateStep5 = createClass
                     </div>
                   when 'MULTISELECT'
                     field.options.map (option) =>
+                      selected = field_data.some (data) =>
+                        data.field_id is field.field_id and data.field_option_id is option.field_option_id
                       <p key={option.field_option_id}>
-                        <label>
-                          <input
-                            type="checkbox"
-                            value={field_data.some (data) =>
-                              data.field_id is field.field_id and data.field_option_id is option.field_option_id
+                        <a href="#" className="form-multi-option #{
+                          if selected
+                            'form-multi-option-on'
+                          else
+                            'form-multi-option-off'
+                        }" onClick={clicker =>
+                          newData =
+                            data for data in field_data when not (data.field_id is field.field_id and data.field_option_id is option.field_option_id)
+                          if not selected
+                            newData.push new FieldData {
+                              field_id: field.field_id
+                              field_option_id: option.field_option_id
                             }
-                            onChange={(event) =>
-                              checked = event.target.checked
-                              newData =
-                                data for data in field_data when not (data.field_id is field.field_id and data.field_option_id is option.field_option_id)
-                              if checked
-                                newData.push new FieldData {
-                                  field_id: field.field_id
-                                  field_option_id: option.field_option_id
-                                }
-                              onChangeData newData
-                            }
-                          />
-                          {' '}
-                          { option.option }
-                        </label>
+                          onChangeData newData
+                        }>
+                          <span className="form-multi-option-text">{ option.option }</span>
+                          <span className="form-multi-option-switch">
+                            <span className="form-multi-option-ball" />
+                          </span>
+                        </a>
                       </p>
                   else
                     <p>(not implemented yet)</p>
