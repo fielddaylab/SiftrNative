@@ -808,19 +808,22 @@ SiftrView = createClass
       />
     else unless @state.createNote.caption?
       <CreateStep2
-        onEnterCaption={(caption) =>
+        categories={@state.tags ? []}
+        onEnterCaption={({text, category}) =>
           @setState
             createNote:
               media: @state.createNote.media
               exif: @state.createNote.exif
               online: @state.createNote.online
               field_media: @state.createNote.field_media
-              caption: caption
+              caption: text
+              category: category
           , => @startLocatingNote exif: @state.createNote.exif
         }
         onCancel={=> @setState createNote: null}
         onBack={=> @setState createNote: {}}
         defaultCaption={@state.createNote.defaultCaption}
+        getColor={@getColor}
       />
     else unless @state.createNote.location?
       <CreateStep3
@@ -831,7 +834,7 @@ SiftrView = createClass
           field_media: @state.createNote.field_media
           caption: @state.createNote.caption
           location: @state.center
-          category: @state.tags[0] # TODO handle empty case better
+          category: @state.createNote.category
         }
         onCancel={=> @setState createNote: null}
         onBack={=> @setState createNote:
@@ -841,37 +844,6 @@ SiftrView = createClass
           field_media: @state.createNote.field_media
           defaultCaption: @state.createNote.caption
         }
-      />
-    else unless @state.createNote.field_data?
-      <CreateStep4
-        categories={@state.tags ? []}
-        category={@state.createNote.category}
-        onPickCategory={(category) =>
-          @setState createNote: update @state.createNote,
-            category: $set: category
-        }
-        onFinish={=> @setState createNote:
-          media: @state.createNote.media
-          exif: @state.createNote.exif
-          online: @state.createNote.online
-          field_media: @state.createNote.field_media
-          caption: @state.createNote.caption
-          location: @state.createNote.location
-          category: @state.createNote.category
-          field_data: []
-        }
-        onCancel={=> @setState createNote: null}
-        onBack={=>
-          @setState
-            createNote:
-              media: @state.createNote.media
-              exif: @state.createNote.exif
-              online: @state.createNote.online
-              field_media: @state.createNote.field_media
-              caption: @state.createNote.caption
-          , => @startLocatingNote center: @state.createNote.location
-        }
-        getColor={@getColor}
       />
     else
       <CreateStep5

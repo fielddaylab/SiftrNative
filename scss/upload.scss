@@ -17,7 +17,7 @@
   // https://stackoverflow.com/questions/31646746/z-index-behaviour-is-different-in-chrome-to-firefox/31710969#31710969
 }
 
-.create-step-1, .create-step-2, .create-step-3, .create-step-4, .create-step-5 {
+.create-step-1, .create-step-2, .create-step-3, .create-step-5 {
   background-color: white;
   margin: 0;
   @media #{$large-screen} {
@@ -163,5 +163,12 @@
   .create-field-label {
     text-align: left;
     text-transform: lowercase;
+  }
+}
+
+.create-step-2 {
+  select {
+    width: 100%;
+    margin-bottom: 10px;
   }
 }
