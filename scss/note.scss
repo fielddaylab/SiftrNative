@@ -2,25 +2,24 @@
 @import 'pane-mixins';
 .note-wrapper {
   width: 100vw;
-  height: 100vh;
+  height: 100%;
   background: #fff;
   display: flex;
   align-items: center;
   position: absolute;
   z-index: 100;
+  overflow-y: auto;
 }
 .note-view {
-  @include modal-pane;
   z-index: 4;
-  margin: 0;
   padding: 0;
   box-sizing: border-box;
   display: flex;
   flex-direction: row;
   align-items: stretch;
   margin: 0 auto;
-  margin-top: -10vw;
   position: relative;
+  max-height: 100%;
   @media #{$small-screen} {
     display: block;
   }
@@ -53,11 +52,9 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  bottom: 100%;
+  top: 8px;
   position: absolute;
-  right: 0;
-  padding: 6px 12px;
-  background-color: white;
+  right: 18px;
 }
 
 .note-photos {
