@@ -300,7 +300,7 @@ export class SearchNotes extends React.Component {
           return (
             <p key={tag.tag_id}>
               <ToggleSwitch checked={checked} onClick={() => this.clickTag(tag)}>
-                <span class="tag-badge" style={{backgroundColor: color}}>...</span>
+                <span className="tag-badge" style={{backgroundColor: color}}>...</span>
                 {' '}
                 {tag.tag}
               </ToggleSwitch>
