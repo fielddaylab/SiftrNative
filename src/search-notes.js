@@ -256,8 +256,40 @@ export class SearchNotes extends React.Component {
           className="search-text"
         />
       </p>
-      <hr />
-      <h2>BY DATE:</h2>
+      <div className="create-select-parent">
+        <div className="create-select-div">
+          <select
+            value={sort}
+            onChange={(event) => {
+              switch (event.target.value) {
+                case 'recent':
+                  this.clickRecent();
+                  break;
+                case 'popular':
+                  this.clickPopular();
+                  break;
+              }
+            }}
+          >
+            <option value="recent" key="recent">
+              Sort by recent
+            </option>
+            <option value="popular" key="popular">
+              Sort by popular
+            </option>
+          </select>
+        </div>
+      </div>
+      {
+        this.props.auth.authToken !== null ?
+          <p>
+            <ToggleSwitch checked={mine} onClick={this.clickMine.bind(this)}>
+              Only show my notes
+            </ToggleSwitch>
+          </p>
+        : undefined
+      }
+      <h2>Date range:</h2>
       <TimeSlider
         minBound={this.props.game.created.getTime()}
         maxBound={Date.now()}
@@ -265,34 +297,7 @@ export class SearchNotes extends React.Component {
         p2={max_time}
         onChange={this.changeDates.bind(this)}
       />
-      <hr />
-      <h2>BY ACTIVITY:</h2>
-      <div className="activity-buttons">
-        <a href="#"
-          className={`activity-button ${sort === 'recent' ? 'activity-on' : ''}`}
-          onClick={clicker(this.clickRecent.bind(this))}
-        >
-          newest
-        </a>
-        <a href="#"
-          className={`activity-button ${sort === 'popular' ? 'activity-on' : ''}`}
-          onClick={clicker(this.clickPopular.bind(this))}
-        >
-          popular
-        </a>
-        {
-          this.props.auth.authToken !== null ?
-            <a href="#"
-              className={`activity-button ${mine ? 'activity-on' : ''}`}
-              onClick={clicker(this.clickMine.bind(this))}
-            >
-              mine
-            </a>
-          : undefined
-        }
-      </div>
-      <hr />
-      <h2>BY CATEGORY:</h2>
+      <h2>Categories:</h2>
       {
         this.props.tags.map((tag) => {
           const checked = tags.indexOf(tag.tag_id) !== -1;
