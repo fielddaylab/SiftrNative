@@ -84,18 +84,8 @@
   border: 1px solid #bbb;
 }
 
-.search-tag {
-  margin: 5px;
-  padding: 5px;
-  border: 1px solid gray;
-  color: gray;
-  background-color: white;
-  border-radius: 5px;
-  white-space: nowrap;
-  display: inline-block;
-  text-decoration: none;
-}
-.search-tag.search-tag-on {
-  background-color: gray;
+.tag-badge {
+  padding: 3px;
+  border-radius: 999px;
   color: white;
 }

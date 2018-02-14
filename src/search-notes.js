@@ -22,6 +22,10 @@ import
 , Game
 } from './aris';
 
+// @ifdef WEB
+import {ToggleSwitch} from './toggle';
+// @endif
+
 import {TimeSlider} from './time-slider';
 import {clicker} from './utils';
 
@@ -290,25 +294,19 @@ export class SearchNotes extends React.Component {
       <hr />
       <h2>BY CATEGORY:</h2>
       {
-        <p>
-          {
-            this.props.tags.map((tag) => {
-              const checked = tags.indexOf(tag.tag_id) !== -1;
-              const color = this.props.getColor(tag);
-              return <a href="#" key={tag.tag_id}
-                onClick={clicker(() => this.clickTag(tag))}
-                className={`search-tag ${checked ? 'search-tag-on' : ''}`}
-                style={{
-                  borderColor: color,
-                  color: checked ? undefined : color,
-                  backgroundColor: checked ? color : undefined,
-                }}
-              >
-                { checked ? `✓ ${tag.tag}` : `● ${tag.tag}` }
-              </a>
-            })
-          }
-        </p>
+        this.props.tags.map((tag) => {
+          const checked = tags.indexOf(tag.tag_id) !== -1;
+          const color = this.props.getColor(tag);
+          return (
+            <p key={tag.tag_id}>
+              <ToggleSwitch checked={checked} onClick={() => this.clickTag(tag)}>
+                <span class="tag-badge" style={{backgroundColor: color}}>...</span>
+                {' '}
+                {tag.tag}
+              </ToggleSwitch>
+            </p>
+          );
+        })
       }
     </div>
   }

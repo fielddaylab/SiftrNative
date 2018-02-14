@@ -30,6 +30,10 @@ import InfiniteScrollView from 'react-native-infinite-scroll-view'
 import firebase from 'react-native-firebase'
 # @endif
 
+# @ifdef WEB
+import {ToggleSwitch} from './toggle';
+# @endif
+
 {Auth, Game, Tag, Field, FieldData} = require './aris'
 {clicker, withSuccess, P, BUTTON, DIV} = require './utils'
 Photos = require './photos'
@@ -683,26 +687,21 @@ export CreateStep5 = createClass
                       selected = field_data.some (data) =>
                         data.field_id is field.field_id and data.field_option_id is option.field_option_id
                       <p key={option.field_option_id}>
-                        <a href="#" className="form-multi-option #{
-                          if selected
-                            'form-multi-option-on'
-                          else
-                            'form-multi-option-off'
-                        }" onClick={clicker =>
-                          newData =
-                            data for data in field_data when not (data.field_id is field.field_id and data.field_option_id is option.field_option_id)
-                          if not selected
-                            newData.push new FieldData {
-                              field_id: field.field_id
-                              field_option_id: option.field_option_id
-                            }
-                          onChangeData newData
-                        }>
-                          <span className="form-multi-option-text">{ option.option }</span>
-                          <span className="form-multi-option-switch">
-                            <span className="form-multi-option-ball" />
-                          </span>
-                        </a>
+                        <ToggleSwitch
+                          checked={selected}
+                          onClick={(newSelected) =>
+                            newData =
+                              data for data in field_data when not (data.field_id is field.field_id and data.field_option_id is option.field_option_id)
+                            if newSelected
+                              newData.push new FieldData {
+                                field_id: field.field_id
+                                field_option_id: option.field_option_id
+                              }
+                            onChangeData newData
+                          }
+                        >
+                          { option.option }
+                        </ToggleSwitch>
                       </p>
                   else
                     <p>(not implemented yet)</p>
