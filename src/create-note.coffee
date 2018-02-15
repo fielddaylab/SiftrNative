@@ -204,15 +204,18 @@ export CreateStep1 = createClass
     files.push {field_id: null, file: @state.file}
     for field in @props.fields
       continue unless field.field_type is 'MEDIA'
+      file = @state.extraFiles.get(field.field_id, null)
+      if field.required and not file?
+        return null
       files.push
         field_id: field.field_id
-        file: @state.extraFiles.get(field.field_id, null)
+        file: file
     files
 
   # @ifdef NATIVE
   beginUpload: ->
     files = @filesReady()
-    return unless files.every ({file}) => file? # TODO should field files be optional
+    return unless files?
     if not @props.online
       @props.onStoreMedia {files}
       return
@@ -230,14 +233,15 @@ export CreateStep1 = createClass
   # @ifdef WEB
   beginUpload: ->
     files = @filesReady()
-    return unless files.every ({file}) => file? # TODO should field files be optional
+    return unless files?
     updateProgress = (n) => @setState progress: n
     Photos.uploadImages files.map(({file}) => file), @props.auth, @props.game, updateProgress, (results) =>
       fieldMedia = []
       for {field_id}, i in files
         continue if i is 0
-        {media} = results[i]
-        fieldMedia.push {field_id: field_id, media_id: media.media_id}
+        if results[i]?
+          {media} = results[i]
+          fieldMedia.push {field_id: field_id, media_id: media.media_id}
       @props.onCreateMedia results[0], fieldMedia
   # @endif
 
@@ -409,7 +413,7 @@ export CreateStep1 = createClass
         </TouchableOpacity>
         <TouchableOpacity onPress={@beginUpload}>
           <Text style={
-            if @filesReady().every(({file}) => file?)
+            if @filesReady()
               styles.blackViolaButton
             else
               [styles.blackViolaButton, {color: 'rgb(188,188,188)'}]
@@ -436,12 +440,14 @@ export CreateStep1 = createClass
       field_id: null
       currentImage: => @state.file
       header: 'Main image'
+      required: true
     # other pictures
     for field in @props.fields.filter((field) => field.field_type is 'MEDIA')
       pictureSlots.push
         field_id: field.field_id
         currentImage: => @state.extraFiles.get(field.field_id, null)
         header: field.label
+        required: field.required
 
     if @state.progress?
       <div className="create-step-1">
@@ -453,7 +459,7 @@ export CreateStep1 = createClass
       <div className="create-step-1">
         <div className="create-content">
           {
-            pictureSlots.map ({field_id, currentImage, header}) =>
+            pictureSlots.map ({field_id, currentImage, header, required}) =>
               img = currentImage()
               <CreatePhotoBox
                 key={field_id}
@@ -461,7 +467,7 @@ export CreateStep1 = createClass
                 file={img}
                 orientation={if img? then EXIF.getTag(img, 'Orientation') else null}
                 header={header}
-                required={true}
+                required={required}
               />
           }
         </div>

@@ -81,17 +81,22 @@ export function uploadImage(file, auth, game, updateProgress, cb) {
 
 export function uploadImages(files, auth, game, updateProgress, cb) {
   let results = [];
-  function downloadIndex(i) {
+  function uploadIndex(i) {
     if (i === files.length) {
       cb(results);
     } else {
-      uploadImage(files[i], auth, game, function(p){
-        updateProgress((i + p) / files.length);
-      }, function(res){
-        results.push(res);
-        downloadIndex(i + 1);
-      });
+      if (files[i] == null) {
+        results.push(null);
+        uploadIndex(i + 1);
+      } else {
+        uploadImage(files[i], auth, game, function(p){
+          updateProgress((i + p) / files.length);
+        }, function(res){
+          results.push(res);
+          uploadIndex(i + 1);
+        });
+      }
     }
   }
-  downloadIndex(0);
+  uploadIndex(0);
 }

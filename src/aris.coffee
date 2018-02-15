@@ -167,6 +167,7 @@ class Field
       @game_id    = parseInt json.game_id
       @field_type = json.field_type
       @label      = json.label
+      @required   = !!(parseInt json.required)
 
 class FieldOption
   constructor: (json = null) ->
