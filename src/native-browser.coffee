@@ -1,30 +1,24 @@
 'use strict'
 
-React = require 'react'
-T = require 'prop-types'
-createClass = require 'create-react-class'
-
-{ View
+import React from 'react'
+import T from 'prop-types'
+import createClass from 'create-react-class'
+import {
+  View
 , TextInput
 , TouchableOpacity
 , ScrollView
 , Image
 , ActivityIndicator
-} = require 'react-native'
-import {UploadQueue} from './upload-queue'
-import {styles, Text} from './styles'
-import {StatusSpace} from './status-space'
+} from 'react-native'
+import {Text} from './styles'
 import {CacheMedia} from './media'
-import {Terms} from './terms'
 import RNFS from 'react-native-fs'
-import firebase from 'react-native-firebase'
+import {deserializeGame} from './aris'
+import {withSuccess} from './utils'
 
-{ Game
-, deserializeGame
-, deserializeNote
-} = require './aris'
-
-{withSuccess} = require './utils'
+mapMaybe = (xs, f) =>
+  xs.map(f).filter((x) => x?)
 
 NativeCard = createClass
   getInitialState: ->
@@ -44,17 +38,17 @@ NativeCard = createClass
       game_id: @props.game.game_id
     , withSuccess (authors) =>
       return unless @isMounted
-      @setState
-        authors:
-          author.display_name for author in authors
+      @setState authors: authors.map((author) => author.display_name)
     useNotes = (notes) =>
       return unless @isMounted
       @setState
         photos:
-          for note in notes.slice(0, 8)
-            continue unless note.thumb_url?
-            url: note.thumb_url
-            note_id: note.note_id
+          mapMaybe notes.slice(0, 8), (note) =>
+            if note.thumb_url?
+              url: note.thumb_url
+              note_id: note.note_id
+            else
+              null
         posts: notes.length
         contributors: do =>
           user_ids = {}
@@ -71,8 +65,7 @@ NativeCard = createClass
     else
       siftrDir = "#{RNFS.DocumentDirectoryPath}/siftrs/#{@props.game.game_id}"
       RNFS.readFile("#{siftrDir}/notes.txt").then (json) =>
-        notes =
-          deserializeNote(note) for note in JSON.parse json
+        notes = JSON.parse(json).map((note) => deserializeNote(note))
         useNotes notes
 
   componentWillUnmount: ->
@@ -104,7 +97,7 @@ NativeCard = createClass
           <View style={flexDirection: 'row', overflow: 'hidden'}>
             {
               if @state.photos?
-                for {url, note_id} in @state.photos
+                @state.photos.map ({url, note_id}) =>
                   <CacheMedia
                     key={note_id}
                     url={url}
@@ -154,10 +147,10 @@ BrowserList = createClass
     cardMode: 'full'
 
   shouldComponentUpdate: (nextProps, nextState) ->
+    # onSelect and onInfo are function-wrapped
     @props.games isnt nextProps.games or
     @props.cardMode isnt nextProps.cardMode or
     @props.auth isnt nextProps.auth
-    # onSelect and onInfo are function-wrapped
 
   render: ->
     if @props.games?
@@ -205,10 +198,10 @@ makeBrowser = (getGames) ->
         @setState {games}
 
     shouldComponentUpdate: (nextProps, nextState) ->
+      # onSelect and onInfo are function-wrapped
       @props.auth isnt nextProps.auth or
       @state.games isnt nextState.games or
       @props.cardMode isnt nextProps.cardMode
-      # onSelect and onInfo are function-wrapped
 
     componentWillReceiveProps: (newProps) ->
       if not @props.auth? or ['auth', 'search', 'mine', 'followed'].some((x) => @props[x] isnt newProps[x])
@@ -236,10 +229,8 @@ BrowserSearch = makeBrowser (props, cb) ->
         siftr_url: props.search
       , withSuccess (url_games) ->
         if url_games.length > 0
-          games =
-            for game in games
-              continue if game.game_id is url_games[0].game_id
-              game
+          games = games.filter (game) =>
+            game.game_id isnt url_games[0].game_id
         cb url_games.concat(games)
 
 export BrowserSearchPane = createClass
@@ -247,10 +238,10 @@ export BrowserSearchPane = createClass
     search: ''
 
   shouldComponentUpdate: (nextProps, nextState) ->
+    # onSelect and onInfo are function-wrapped
     @props.auth isnt nextProps.auth or
     @state.search isnt nextState.search or
     @props.cardMode isnt nextProps.cardMode
-    # onSelect and onInfo are function-wrapped
 
   render: ->
     <View style={flex: 1}>
@@ -288,18 +279,20 @@ export BrowserDownloaded = makeBrowser (props, cb) ->
   RNFS.exists(siftrsDir).then (dirExists) ->
     if dirExists
       RNFS.readDir(siftrsDir).then (files) ->
-        proms = for f in files
+        proms = mapMaybe files, (f) =>
           game_id = parseInt f.name
-          continue unless game_id and f.isDirectory()
-          RNFS.readFile "#{siftrsDir}/#{game_id}/game.txt"
+          if game_id and f.isDirectory()
+            RNFS.readFile "#{siftrsDir}/#{game_id}/game.txt"
+          else
+            null
         Promise.all(proms).then (games) ->
-          cb( deserializeGame(JSON.parse game) for game in games )
+          cb(games.map((game) => deserializeGame(JSON.parse(game))))
     else
       cb []
 
 export BrowserFeatured = makeBrowser (props, cb) ->
   props.auth.getStaffPicks {}, withSuccess (games) ->
-    cb(game for game in games when game.is_siftr)
+    cb(games.filter((game) => game.is_siftr))
 
 export BrowserPopular = makeBrowser (props, cb) ->
   props.auth.searchSiftrs
