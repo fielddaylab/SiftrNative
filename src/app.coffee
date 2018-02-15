@@ -113,10 +113,10 @@ AuthContainer = createClass
     <div className={"auth-container #{if @props.menuOpen then 'auth-menu-open' else 'auth-menu-closed'}"}>
       <div className="auth-nav">
         <div className="auth-nav-side">
-          <a href="https://siftr.org">
+          <a target="_blank" href="https://siftr.org">
             <img className="auth-nav-logo" src="assets/img/siftr-logo-black.png" />
           </a>
-          <a href="#">Discover</a>
+          <a target="_blank" href="https://siftr.org/discover/">Discover</a>
         </div>
         <div className="auth-nav-side">
           {
@@ -1644,19 +1644,6 @@ SiftrNative = createClass
               followGame={@followGame}
               unfollowGame={@unfollowGame}
             />
-        }
-        {
-          unless @state.game?
-            <GameList games={
-              if @state.auth.authToken?
-                @state.games
-              else
-                []
-            } onSelect={(game) => @setState {game}} online={@state.online} />
-        }
-        {
-          unless @state.game?
-            <SiftrURL auth={@state.auth} onSelect={(game) => @setState {game}} />
         }
       </AuthContainer>
     else
