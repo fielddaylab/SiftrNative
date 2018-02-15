@@ -30,7 +30,6 @@ import {TimeSlider} from './time-slider';
 import {clicker} from './utils';
 
 // @ifdef NATIVE
-
 class FilterHeader extends React.Component {
   constructor(props) {
     super(props);
@@ -238,6 +237,18 @@ export class SearchNotes extends React.Component {
   }
   // @endif
 
+  getTagCount(tag) {
+    if (this.props.allNotes == null) return '...';
+
+    if (this.cachedCounts == null || this.props.allNotes !== this.cachedCounts.allNotes) {
+      this.cachedCounts = {allNotes: this.props.allNotes};
+    }
+    if (this.cachedCounts[tag.tag_id] == null) {
+      this.cachedCounts[tag.tag_id] = this.cachedCounts.allNotes.filter((note) => note.tag_id === tag.tag_id).length;
+    }
+    return this.cachedCounts[tag.tag_id];
+  }
+
   // @ifdef WEB
   render() {
     let {sort, mine, tags, text, min_time, max_time} = this.props.searchParams
@@ -289,7 +300,7 @@ export class SearchNotes extends React.Component {
           </p>
         : undefined
       }
-      <h2>Date range:</h2>
+      <h2>Date range:<div className="header-decoration" /></h2>
       <TimeSlider
         minBound={this.props.game.created.getTime()}
         maxBound={Date.now()}
@@ -297,15 +308,17 @@ export class SearchNotes extends React.Component {
         p2={max_time}
         onChange={this.changeDates.bind(this)}
       />
-      <h2>Categories:</h2>
+      <h2>Categories:<div className="header-decoration" /></h2>
       {
         this.props.tags.map((tag) => {
           const checked = tags.indexOf(tag.tag_id) !== -1;
           const color = this.props.getColor(tag);
           return (
-            <p key={tag.tag_id}>
+            <p className="tag-toggle" key={tag.tag_id}>
               <ToggleSwitch checked={checked} onClick={() => this.clickTag(tag)}>
-                <span className="tag-badge" style={{backgroundColor: color}}>...</span>
+                <span className="tag-badge" style={{backgroundColor: color}}>
+                  { this.getTagCount(tag) }
+                </span>
                 {' '}
                 {tag.tag}
               </ToggleSwitch>

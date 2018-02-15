@@ -9,12 +9,28 @@
   text-align: center;
   padding-left: 10px;
   padding-right: 10px;
-  max-width:450px;
+  max-width: 450px;
   h2 {
     font-size: 16px;
     font-weight: normal;
     text-align: left;
     padding-left: 20px;
+    padding-right: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .header-decoration {
+      height: 2px;
+      background-color: #ececec;
+      flex: 1;
+      margin-left: 10px;
+    }
+  }
+
+  .tag-toggle {
+    margin-left: 20px;
+    border-bottom: 2px solid #ececec;
+    padding-bottom: 13px;
   }
 }
 

@@ -320,6 +320,12 @@ export SiftrView = createClass
       n = parseInt hash[1..]
       if n
         @loadNoteByID(n, true)
+    @props.auth.searchNotes
+      game_id: @props.game.game_id
+      order_by: 'recent'
+    , withSuccess (notes) =>
+      return unless @isMounted
+      @setState allNotes: notes
     # @endif
     if @props.nomenData?
       @applyNomenData
@@ -579,6 +585,7 @@ export SiftrView = createClass
         @setState {searchParams}, => @loadResults()
       }
       getColor={@getColor}
+      allNotes={@state.allNotes}
     />
 
   closeNote: ->
