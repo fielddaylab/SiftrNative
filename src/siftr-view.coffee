@@ -54,7 +54,7 @@ fixLongitude = (longitude) ->
   longitude
 
 # @ifdef NATIVE
-SiftrInfo = createClass
+export SiftrInfo = createClass
   propTypes: ->
     game: T.instanceOf Game
     tags: T.arrayOf T.instanceOf Tag
@@ -170,13 +170,8 @@ SiftrInfo = createClass
       {@props.children}
     </SideMenu>
 # @endif
-# @ifdef WEB
-SiftrInfo = createClass
-  render: ->
-    @props.children
-# @endif
 
-SiftrView = createClass
+export SiftrView = createClass
   propTypes:
     game: T.instanceOf(Game).isRequired
     auth: T.instanceOf(Auth).isRequired
@@ -1140,6 +1135,3 @@ SiftrView = createClass
       </div>
     </div>
   # @endif
-
-exports.SiftrView = SiftrView
-exports.SiftrInfo = SiftrInfo

@@ -31,6 +31,15 @@ import {Terms} from './terms'
 import {KeyboardAwareView} from 'react-native-keyboard-aware-view'
 import RNFS from 'react-native-fs'
 import firebase from 'react-native-firebase'
+import {
+  BrowserSearchPane
+, BrowserMine
+, BrowserFollowed
+, BrowserDownloaded
+, BrowserFeatured
+, BrowserPopular
+, BrowserNearMe
+} from './native-browser'
 # @endif
 
 { Auth
@@ -43,259 +52,12 @@ import firebase from 'react-native-firebase'
 {SiftrView, SiftrInfo} = require './siftr-view'
 Photos = require './photos'
 # @ifdef WEB
-{GameList, SiftrURL} = require './siftr-browser'
+{WebNav} = require './web-nav'
 # @endif
 
-{clicker, withSuccess, DIV, P, BUTTON} = require './utils'
+{clicker, withSuccess} = require './utils'
 
 {parseUri} = require './parse-uri'
-
-AuthContainer = createClass
-  propTypes:
-    auth: T.instanceOf(Auth).isRequired
-    onLogin: T.func
-    onRegister: T.func
-    onLogout: T.func
-    hasBrowserButton: T.bool
-    onBrowserButton: T.func
-    menuOpen: T.bool
-    onMenuMove: T.func
-    online: T.bool
-
-  getDefaultProps: ->
-    onLogin: (->)
-    onRegister: (->)
-    onLogout: (->)
-    hasBrowserButton: false
-    onBrowserButton: (->)
-    menuOpen: false
-    onMenuMove: (->)
-
-  getInitialState: ->
-    hasBrowserButton: false
-    onBrowserButton: (->)
-    userPicture: null
-
-  goBackToBrowser: ->
-    @props.onMenuMove false
-    @props.onBrowserButton()
-
-  componentWillMount: ->
-    @fetchPicture()
-
-  componentWillReceiveProps: (nextProps) ->
-    if @props.auth isnt nextProps.auth
-      @fetchPicture nextProps.auth
-
-  fetchPicture: (auth = @props.auth) ->
-    media_id = auth.authToken?.media_id
-    unless media_id?
-      @setState userPicture: null
-      return
-    if @props.online
-      @props.auth.call 'media.getMedia',
-        media_id: media_id
-      , withSuccess (userPicture) =>
-        @setState {userPicture}
-
-  # @ifdef NATIVE
-  render: ->
-    null # removed
-  # @endif
-
-  # @ifdef WEB
-  render: ->
-    userPic = @state.userPicture?.big_thumb_url
-    unless @state.userPicture? and parseInt(@state.userPicture.media_id)
-      userPic = null
-    if userPic?
-      userPic = arisHTTPS userPic
-    <div className={"auth-container #{if @props.menuOpen then 'auth-menu-open' else 'auth-menu-closed'}"}>
-      <div className="auth-nav">
-        <div className="auth-nav-side">
-          <a target="_blank" href="https://siftr.org">
-            <img className="auth-nav-logo" src="assets/img/siftr-logo-black.png" />
-          </a>
-          <a target="_blank" href="https://siftr.org/discover/">Discover</a>
-        </div>
-        <div className="auth-nav-side">
-          {
-            if @props.auth.authToken?
-              <a href="#"
-                onClick={clicker => @props.onMenuMove not @props.menuOpen}
-              >
-                <img className="auth-nav-user-pic" src={userPic} />
-                {@props.auth.authToken.display_name}
-              </a>
-            else
-              <a href="#"
-                onClick={clicker => @props.onMenuMove not @props.menuOpen}
-              >Log in</a>
-          }
-        </div>
-      </div>
-      <div className="auth-contents">
-        {@props.children}
-      </div>
-      <div className="auth-menu-layer" onClick={clicker => @props.onMenuMove false}>
-        <div className="auth-menu" onClick={(e) => e.stopPropagation()}>
-          {
-            if @props.auth.authToken?
-              <div>
-                <div className="auth-menu-user-picture" style={
-                  backgroundImage:
-                    if userPic
-                      "url(#{userPic})"
-                } />
-                <p>
-                  {@props.auth.authToken.display_name}
-                </p>
-                <p>
-                  <button type="button" onClick={@props.onLogout}>Logout</button>
-                </p>
-              </div>
-            else
-              <LoginBox onLogin={@props.onLogin} onRegister={@props.onRegister} />
-          }
-        </div>
-      </div>
-    </div>
-  # @endif
-
-LoginBox = createClass
-  propTypes:
-    onLogin: T.func
-    onRegister: T.func
-
-  getDefaultProps: ->
-    onLogin: (->)
-    onRegister: (->)
-
-  getInitialState: ->
-    registering: false
-
-  doLogin: ->
-    if @state.registering
-      if @refs.password.value is ''
-        alert "You must enter a password."
-      else if @refs.password.value isnt @refs.password2.value
-        alert "Passwords don't match."
-      else
-        @props.onRegister @refs.username.value, @refs.password.value, @refs.email.value
-    else
-      @props.onLogin @refs.username.value, @refs.password.value
-
-  handleEnter: (e) ->
-    @doLogin() if e.keyCode is 13
-
-  # @ifdef NATIVE
-  render: ->
-    null # removed
-  # @endif
-
-  # @ifdef WEB
-  render: ->
-    if @state.registering
-      <form>
-        <p>
-          <img src="assets/img/siftr-logo-black-thin.png" style={
-            height: 80
-          } />
-        </p>
-        <p>
-          <input
-            placeholder="username"
-            type="text"
-            ref="username"
-            onKeyDown={@handleEnter}
-            className="login-field"
-          />
-        </p>
-        <p>
-          <input
-            placeholder="password"
-            type="password"
-            ref="password"
-            onKeyDown={@handleEnter}
-            className="login-field"
-          />
-        </p>
-        <p>
-          <input
-            placeholder="repeat password"
-            type="password"
-            ref="password2"
-            onKeyDown={@handleEnter}
-            className="login-field"
-          />
-        </p>
-        <p>
-          <input
-            placeholder="email (optional)"
-            type="text"
-            ref="email"
-            onKeyDown={@handleEnter}
-            className="login-field"
-          />
-        </p>
-        <p>
-          By registering for Siftr, you agree to the
-          {' '}
-          <a target="_blank" href="https://docs.google.com/document/d/16P8kIfHka-zHXoQcd9mWlUWiOkaTp6I7UcpD_GoB8LY/edit">
-            Terms of Use
-          </a>
-          {' '}
-          and
-          {' '}
-          <a target="_blank" href="https://docs.google.com/document/d/1yLXB67G0NfIgp0AAsRUQYB7-LoyFsrihUydxsL_qrms/edit">
-            Privacy Policy
-          </a>.
-        </p>
-        <div className="auth-button-row">
-          <a className="auth-button-log-in" href="#" onClick={clicker @doLogin}>sign up</a>
-        </div>
-        <p>
-          <a className="auth-button-sign-up" href="#" onClick={clicker => @setState registering: false}>
-            Back to login
-          </a>
-        </p>
-      </form>
-    else
-      <form>
-        <p>
-          <img src="assets/img/siftr-logo-black-thin.png" style={
-            height: 80
-          } />
-        </p>
-        <p>
-          <input
-            placeholder="username"
-            type="text"
-            ref="username"
-            onKeyDown={@handleEnter}
-            className="login-field"
-          />
-        </p>
-        <p>
-          <input
-            placeholder="password"
-            type="password"
-            ref="password"
-            onKeyDown={@handleEnter}
-            className="login-field"
-          />
-        </p>
-        <div className="auth-button-row">
-          <a className="auth-button-log-in" href="#" onClick={clicker @doLogin}>log in</a>
-          <a className="auth-button-forgot" href="https://siftr.org/login/#forgot">forgot password?</a>
-        </div>
-        <p>
-          <a className="auth-button-sign-up" href="#" onClick={clicker => @setState registering: true}>
-            Don't have an account yet? Sign up!
-          </a>
-        </p>
-      </form>
-  # @endif
 
 Loading = createClass
   # @ifdef NATIVE
@@ -546,296 +308,6 @@ NativeLogin = createClass
             </View>
       }
     </KeyboardAwareView>
-
-NativeCard = createClass
-  getInitialState: ->
-    contributors: null
-    posts: null
-    photos: null
-    authors: null
-
-  getDefaultProps: ->
-    onSelect: (->)
-    onInfo: (->)
-    cardMode: 'full'
-
-  componentWillMount: ->
-    @isMounted = true
-    @props.auth.getUsersForGame
-      game_id: @props.game.game_id
-    , withSuccess (authors) =>
-      return unless @isMounted
-      @setState
-        authors:
-          author.display_name for author in authors
-    useNotes = (notes) =>
-      return unless @isMounted
-      @setState
-        photos:
-          for note in notes.slice(0, 8)
-            continue unless note.thumb_url?
-            url: note.thumb_url
-            note_id: note.note_id
-        posts: notes.length
-        contributors: do =>
-          user_ids = {}
-          for note in notes
-            user_ids[note.user.user_id] = true
-            for comment in note.comments
-              user_ids[comment.user.user_id] = true
-          Object.keys(user_ids).length
-    if @props.online
-      @props.auth.searchNotes
-        game_id: @props.game.game_id
-        order_by: 'recent'
-      , withSuccess useNotes
-    else
-      siftrDir = "#{RNFS.DocumentDirectoryPath}/siftrs/#{@props.game.game_id}"
-      RNFS.readFile("#{siftrDir}/notes.txt").then (json) =>
-        notes =
-          deserializeNote(note) for note in JSON.parse json
-        useNotes notes
-
-  componentWillUnmount: ->
-    @isMounted = false
-
-  shouldComponentUpdate: (nextProps, nextState) ->
-    @props.cardMode isnt nextProps.cardMode or
-    @props.game isnt nextProps.game or
-    @state.authors isnt nextState.authors or
-    @state.photos isnt nextState.photos or
-    @state.contributors isnt nextState.contributors or
-    @state.posts isnt nextState.posts
-
-  render: ->
-    switch @props.cardMode
-      when 'full'
-        <TouchableOpacity onPress={(args...) => @props.onSelect(args...)} style={
-          backgroundColor: 'white'
-          margin: 12
-          marginBottom: 0
-          borderRadius: 12
-        }>
-          <View style={flexDirection: 'row', justifyContent: 'space-between', padding: 10, alignItems: 'center'}>
-            <View style={flex: 1}>
-              <Text>{@props.game.name}</Text>
-              <Text>{@state.authors?.join(', ') ? '…'}</Text>
-            </View>
-          </View>
-          <View style={flexDirection: 'row', overflow: 'hidden'}>
-            {
-              if @state.photos?
-                for {url, note_id} in @state.photos
-                  <CacheMedia
-                    key={note_id}
-                    url={url}
-                    withURL={(url) =>
-                      <Image
-                        source={if url? then uri: url else undefined}
-                        style={height: 100, width: 100}
-                      />
-                    }
-                  />
-              else
-                <View style={height: 100, width: 100} />
-            }
-          </View>
-          <View style={flexDirection: 'row', justifyContent: 'space-between', padding: 10, alignItems: 'center'}>
-            <View>
-              <Text>{@state.contributors ? '…'} contributors</Text>
-              <Text>{@state.posts ? '…'} posts</Text>
-            </View>
-            <TouchableOpacity style={padding: 10} onPress={(args...) => @props.onInfo(args...)}>
-              <Image source={require('../web/assets/img/icon-4dots.png')} style={width: 38 * 0.7, height: 40 * 0.7, resizeMode: 'contain'} />
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      when 'compact'
-        <TouchableOpacity onPress={(args...) => @props.onSelect(args...)} style={
-          backgroundColor: 'white'
-          margin: 12
-          marginBottom: 0
-          borderRadius: 12
-        }>
-          <View style={flexDirection: 'row', justifyContent: 'space-between', padding: 10, alignItems: 'center'}>
-            <View style={flex: 1}>
-              <Text>{@props.game.name}</Text>
-              <Text>{@state.authors?.join(', ') ? '…'}</Text>
-            </View>
-            <TouchableOpacity style={padding: 10} onPress={(args...) => @props.onInfo(args...)}>
-              <Image source={require('../web/assets/img/icon-4dots.png')} style={width: 38 * 0.7, height: 40 * 0.7, resizeMode: 'contain'} />
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-
-BrowserList = createClass
-  getDefaultProps: ->
-    onSelect: (->)
-    onInfo: (->)
-    cardMode: 'full'
-
-  shouldComponentUpdate: (nextProps, nextState) ->
-    @props.games isnt nextProps.games or
-    @props.cardMode isnt nextProps.cardMode or
-    @props.auth isnt nextProps.auth
-    # onSelect and onInfo are function-wrapped
-
-  render: ->
-    if @props.games?
-      <ScrollView style={flex: 1, backgroundColor: 'rgb(233,240,240)'}>
-        {
-          @props.games.map (game) =>
-            <NativeCard
-              key={game.game_id}
-              cardMode={@props.cardMode}
-              game={game}
-              onSelect={=> @props.onSelect game}
-              auth={@props.auth}
-              onInfo={=> @props.onInfo game}
-              online={@props.online}
-            />
-        }
-      </ScrollView>
-    else
-      <View style={flex: 1, alignItems: 'center', justifyContent: 'center'}>
-        <ActivityIndicator size="large" />
-      </View>
-
-makeBrowser = (getGames) ->
-  createClass
-    getDefaultProps: ->
-      onSelect: (->)
-      onInfo: (->)
-      cardMode: 'full'
-
-    getInitialState: ->
-      games: null
-
-    componentWillMount: ->
-      @_isMounted = true
-      @updateGames()
-
-    componentWillUnmount: ->
-      @_isMounted = false
-
-    updateGames: (props = @props) ->
-      thisSearch = @lastSearch = Date.now()
-      getGames props, (games) =>
-        return unless @_isMounted
-        return unless thisSearch is @lastSearch
-        @setState {games}
-
-    shouldComponentUpdate: (nextProps, nextState) ->
-      @props.auth isnt nextProps.auth or
-      @state.games isnt nextState.games or
-      @props.cardMode isnt nextProps.cardMode
-      # onSelect and onInfo are function-wrapped
-
-    componentWillReceiveProps: (newProps) ->
-      if not @props.auth? or ['auth', 'search', 'mine', 'followed'].some((x) => @props[x] isnt newProps[x])
-        @updateGames newProps
-
-    render: ->
-      <BrowserList
-        auth={@props.auth}
-        games={@state.games}
-        onSelect={(args...) => @props.onSelect(args...)}
-        onInfo={(args...) => @props.onInfo(args...)}
-        cardMode={@props.cardMode}
-        online={@props.online}
-      />
-
-BrowserSearch = makeBrowser (props, cb) ->
-  if props.search is ''
-    cb []
-  else
-    props.auth.searchSiftrs
-      search: props.search
-      count: 10
-    , withSuccess (games) ->
-      props.auth.searchSiftrs
-        siftr_url: props.search
-      , withSuccess (url_games) ->
-        if url_games.length > 0
-          games =
-            for game in games
-              continue if game.game_id is url_games[0].game_id
-              game
-        cb url_games.concat(games)
-
-BrowserSearchPane = createClass
-  getInitialState: ->
-    search: ''
-
-  shouldComponentUpdate: (nextProps, nextState) ->
-    @props.auth isnt nextProps.auth or
-    @state.search isnt nextState.search or
-    @props.cardMode isnt nextProps.cardMode
-    # onSelect and onInfo are function-wrapped
-
-  render: ->
-    <View style={flex: 1}>
-      <TextInput
-        style={
-          height: 40
-          borderWidth: 2
-          borderColor: 'gray'
-          padding: 10
-        }
-        placeholder="Search…"
-        autoCapitalize="none"
-        autoCorrect={true}
-        autoFocus={false}
-        onChangeText={(search) => @setState search: search}
-      />
-      <BrowserSearch
-        auth={@props.auth}
-        onSelect={(args...) => @props.onSelect(args...)}
-        onInfo={(args...) => @props.onInfo(args...)}
-        search={@state.search}
-        cardMode={@props.cardMode}
-        online={@props.online}
-      />
-    </View>
-
-BrowserMine = makeBrowser (props, cb) ->
-  cb props.mine
-
-BrowserFollowed = makeBrowser (props, cb) ->
-  cb props.followed
-
-BrowserDownloaded = makeBrowser (props, cb) ->
-  siftrsDir = "#{RNFS.DocumentDirectoryPath}/siftrs"
-  RNFS.exists(siftrsDir).then (dirExists) ->
-    if dirExists
-      RNFS.readDir(siftrsDir).then (files) ->
-        proms = for f in files
-          game_id = parseInt f.name
-          continue unless game_id and f.isDirectory()
-          RNFS.readFile "#{siftrsDir}/#{game_id}/game.txt"
-        Promise.all(proms).then (games) ->
-          cb( deserializeGame(JSON.parse game) for game in games )
-    else
-      cb []
-
-BrowserFeatured = makeBrowser (props, cb) ->
-  props.auth.getStaffPicks {}, withSuccess (games) ->
-    cb(game for game in games when game.is_siftr)
-
-BrowserPopular = makeBrowser (props, cb) ->
-  props.auth.searchSiftrs
-    count: 20 # TODO infinite scroll
-    offset: 0
-    order_by: 'popular'
-  , withSuccess cb
-
-BrowserNearMe = makeBrowser (props, cb) ->
-  navigator.geolocation.getCurrentPosition (res) ->
-    props.auth.getNearbyGamesForPlayer
-      latitude: res.coords.latitude
-      longitude: res.coords.longitude
-      filter: 'siftr'
-    , withSuccess cb
 
 NativePassword = createClass
   getDefaultProps: ->
@@ -1352,7 +824,7 @@ NativeHome = createClass
     </SiftrInfo>
 # @endif
 
-SiftrNative = createClass
+export SiftrNative = createClass
   getInitialState: ->
     auth: null
     games: null
@@ -1621,8 +1093,11 @@ SiftrNative = createClass
   # @ifdef WEB
   render: ->
     if @state.auth?
-      <AuthContainer
-        auth={@state.auth} onLogin={@login} onRegister={@registerNow} onLogout={@logout}
+      <WebNav
+        auth={@state.auth}
+        onLogin={@login}
+        onRegister={@registerNow}
+        onLogout={@logout}
         hasBrowserButton={@state.game?}
         onBrowserButton={=> @setState game: null}
         onMenuMove={(b) => @setState menuOpen: b}
@@ -1645,9 +1120,7 @@ SiftrNative = createClass
               unfollowGame={@unfollowGame}
             />
         }
-      </AuthContainer>
+      </WebNav>
     else
       <Loading />
   # @endif
-
-exports.SiftrNative = SiftrNative
