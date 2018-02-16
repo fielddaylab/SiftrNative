@@ -128,7 +128,9 @@ class SiftrCommentInput extends React.Component
 
   doSave: ->
     @props.onSave @state.text
-    @setState text: ''
+    setTimeout =>
+      @setState text: ''
+    , 100
 
   # @ifdef NATIVE
   render: ->
@@ -176,12 +178,9 @@ class SiftrCommentInput extends React.Component
       <textarea placeholder="Enter a comment..."
         value={@state.text}
         onChange={(e) => @setState text: e.target.value}
+        onKeyDown={(e) => @doSave() if e.keyCode is 13}
       />
       <p>
-        <a href="#" onClick={clicker @doSave.bind(@)} className="create-button-blue">
-          SAVE
-        </a>
-        {' '}
         {
           if @props.canCancel
             <a href="#" onClick={clicker @props.onCancel} className="create-button-gray">
