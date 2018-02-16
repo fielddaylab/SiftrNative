@@ -614,6 +614,21 @@ export CreateStep5 = createClass
     fields: []
     field_data: []
 
+  finishForm: ->
+    field_data = @props.field_data
+    for field in @props.fields
+      if field.field_type is 'SINGLESELECT'
+        if field_data.some((data) => data.field_id is field.field_id)
+        else
+          field_data.push new FieldData {
+            field_id: field.field_id
+            field_option_id: field.options[0].field_option_id
+          }
+      else if field.required and field.field_type in ['TEXT', 'TEXTAREA']
+        unless field_data.some((data) => data.field_id is field.field_id)
+          return # TODO pop up a message to user
+    @props.onFinish field_data
+
   render: ->
     <div className="create-step-5">
       <div className="create-content-center">
@@ -622,7 +637,11 @@ export CreateStep5 = createClass
             return null if field.field_type is 'MEDIA'
             <div key={field.field_id}>
               <div>
-                <p className="create-field-label">{ if field.field_type is 'NOMEN' then "Nomen #{field.label}" else field.label }</p>
+                <p className="create-field-label">
+                  {
+                    field.label + if field.required then '*' else ''
+                  }
+                </p>
               </div>
               {
                 field_data = @props.field_data ? []
@@ -719,7 +738,7 @@ export CreateStep5 = createClass
         <a href="#" className="create-button-gray" onClick={clicker @props.onBack}>
           back
         </a>
-        <a href="#" className="create-button-blue" onClick={clicker => @props.onFinish @props.field_data}>
+        <a href="#" className="create-button-blue" onClick={clicker => @finishForm()}>
           post!
         </a>
       </div>
