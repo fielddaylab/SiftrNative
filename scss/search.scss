@@ -1,14 +1,19 @@
-@import 'sizes';
-@import 'pane-mixins';
-
 .siftr-search {
-  @include right-pane;
+  background-color: white;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 4;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
   height: 0;
-  overflow-y: scroll;
   transition: height 0.25s;
   text-align: center;
   padding-left: 10px;
   padding-right: 10px;
+  width: 100%;
   max-width: 450px;
   h2 {
     font-size: 16px;

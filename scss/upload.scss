@@ -1,5 +1,3 @@
-@import 'sizes';
-
 .create-step-box {
   position: absolute;
   margin: 0;
@@ -20,10 +18,10 @@
 .create-step-1, .create-step-2, .create-step-3, .create-step-5 {
   background-color: white;
   margin: 0;
-  @media #{$large-screen} {
+  @media screen and (min-width: 950px) {
     min-width: 450px;
   }
-  @media #{$small-screen} {
+  @media screen and (max-width: 949px) {
     flex: 1;
   }
   z-index: 4;
