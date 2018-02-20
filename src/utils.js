@@ -28,10 +28,8 @@ export const withSuccess = function(cb) {
 
 // @ifdef NATIVE
 export const P = Text;
-export const DIV = View;
-export const UL = View;
-export const LI = View;
 export const BUTTON = createClass({
+  displayName: 'BUTTON',
   render() {
     return <TouchableOpacity onPress={this.props.onClick}>
       {this.props.children}
@@ -41,10 +39,8 @@ export const BUTTON = createClass({
 // @endif
 // @ifdef WEB
 export const P = 'p';
-export const DIV = 'div';
-export const UL = 'ul';
-export const LI = 'li';
 export const BUTTON = createClass({
+  displayName: 'BUTTON',
   render() {
     return <a href="#" onClick={clicker(this.props.onClick)}>
       {this.props.children}

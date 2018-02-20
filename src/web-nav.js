@@ -7,6 +7,7 @@ import {Auth, arisHTTPS} from './aris';
 import {clicker, withSuccess} from './utils';
 
 export var WebNav = createClass({
+  displayName: 'WebNav',
   propTypes: {
     auth: T.instanceOf(Auth).isRequired,
     onLogin: T.func,
@@ -130,6 +131,7 @@ export var WebNav = createClass({
 });
 
 const LoginBox = createClass({
+  displayName: 'LoginBox',
   propTypes: {
     onLogin: T.func,
     onRegister: T.func

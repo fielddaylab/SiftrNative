@@ -21,6 +21,7 @@ mapMaybe = (xs, f) =>
   xs.map(f).filter((x) => x?)
 
 NativeCard = createClass
+  displayName: 'NativeCard'
   getInitialState: ->
     contributors: null
     posts: null
@@ -141,6 +142,7 @@ NativeCard = createClass
         </TouchableOpacity>
 
 BrowserList = createClass
+  displayName: 'BrowserList'
   getDefaultProps: ->
     onSelect: (->)
     onInfo: (->)
@@ -234,6 +236,7 @@ BrowserSearch = makeBrowser (props, cb) ->
         cb url_games.concat(games)
 
 export BrowserSearchPane = createClass
+  displayName: 'BrowserSearchPane'
   getInitialState: ->
     search: ''
 

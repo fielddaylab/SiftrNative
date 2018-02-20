@@ -35,7 +35,7 @@ import {ToggleSwitch} from './toggle';
 # @endif
 
 {Auth, Game, Tag, Field, FieldData} = require './aris'
-{clicker, withSuccess, P, BUTTON, DIV} = require './utils'
+{clicker, withSuccess} = require './utils'
 Photos = require './photos'
 
 # @ifdef NATIVE
@@ -99,6 +99,7 @@ SiftrRoll.defaultProps =
 
 # @ifdef WEB
 CreatePhotoBox = createClass
+  displayName: 'CreatePhotoBox'
   getDefaultProps: ->
     onChooseFile: (->)
     file: null
@@ -165,6 +166,7 @@ CreatePhotoBox = createClass
 
 # Step 1: Upload
 export CreateStep1 = createClass
+  displayName: 'CreateStep1'
   propTypes:
     onCreateMedia: T.func
     onCancel: T.func
@@ -486,6 +488,7 @@ export CreateStep1 = createClass
 
 # Step 2: Caption
 export CreateStep2 = createClass
+  displayName: 'CreateStep2'
   propTypes:
     onEnterCaption: T.func
     onBack: T.func
@@ -558,6 +561,7 @@ export CreateStep2 = createClass
 
 # Step 3: Location
 export CreateStep3 = createClass
+  displayName: 'CreateStep3'
   propTypes:
     onPickLocation: T.func
     onBack: T.func
@@ -600,6 +604,7 @@ export CreateStep3 = createClass
 
 # Step 5: Form
 export CreateStep5 = createClass
+  displayName: 'CreateStep5'
   propTypes:
     onChangeData: T.func
     onFinish: T.func
@@ -775,6 +780,7 @@ export class Blackout extends React.Component
 
 # Steps 2-5 (native app), all non-photo data together
 export CreateData = createClass
+  displayName: 'CreateData'
   propTypes:
     createNote: T.any.isRequired
     onUpdateNote: T.func

@@ -12,6 +12,7 @@ import {Auth} from './aris';
 import {Platform} from 'react-native';
 
 export const UploadQueue = createClass({
+  displayName: 'UploadQueue',
   propTypes: {
     auth: T.instanceOf(Auth).isRequired,
     online: T.bool

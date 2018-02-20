@@ -46,7 +46,7 @@ import firebase from 'react-native-firebase'
 {SiftrNoteView} = require './note-view'
 {CreateStep1, CreateStep2, CreateStep3, CreateStep4, CreateStep5, CreateData, Blackout} = require './create-note'
 
-{clicker, withSuccess, DIV, P, BUTTON} = require './utils'
+{clicker, withSuccess} = require './utils'
 
 fixLongitude = (longitude) ->
   longitude %%= 360
@@ -55,6 +55,7 @@ fixLongitude = (longitude) ->
 
 # @ifdef NATIVE
 export SiftrInfo = createClass
+  displayName: 'SiftrInfo'
   propTypes: ->
     game: T.instanceOf Game
     tags: T.arrayOf T.instanceOf Tag
@@ -172,6 +173,7 @@ export SiftrInfo = createClass
 # @endif
 
 export SiftrView = createClass
+  displayName: 'SiftrView'
   propTypes:
     game: T.instanceOf(Game).isRequired
     auth: T.instanceOf(Auth).isRequired

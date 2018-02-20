@@ -29,7 +29,7 @@ import {Media, CacheMedia} from './media'
 import firebase from 'react-native-firebase'
 # @endif
 
-{clicker, withSuccess, P, UL, LI, DIV, BUTTON} = require './utils'
+{clicker, withSuccess, P, BUTTON} = require './utils'
 
 # @ifdef WEB
 

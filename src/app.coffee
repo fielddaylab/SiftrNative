@@ -60,6 +60,7 @@ Photos = require './photos'
 {parseUri} = require './parse-uri'
 
 Loading = createClass
+  displayName: 'Loading'
   # @ifdef NATIVE
   render: ->
     <View style={flex: 1, backgroundColor: 'rgb(233,240,240)'}>
@@ -76,6 +77,7 @@ Loading = createClass
 
 # @ifdef NATIVE
 NativeLogin = createClass
+  displayName: 'NativeLogin'
   getDefaultProps: ->
     onLogin: (->)
     onRegister: (->)
@@ -310,6 +312,7 @@ NativeLogin = createClass
     </KeyboardAwareView>
 
 NativePassword = createClass
+  displayName: 'NativePassword'
   getDefaultProps: ->
     onClose: (->)
     onChangePassword: (->)
@@ -386,6 +389,7 @@ NativePassword = createClass
     </View>
 
 NativeProfile = createClass
+  displayName: 'NativeProfile'
   getDefaultProps: ->
     onClose: (->)
     onEditProfile: (->)
@@ -537,6 +541,7 @@ NativeProfile = createClass
     </View>
 
 NativeSettings = createClass
+  displayName: 'NativeSettings'
   getInitialState: ->
     setting: null
 
@@ -615,6 +620,7 @@ NativeSettings = createClass
         </View>
 
 NativeHome = createClass
+  displayName: 'NativeHome'
   getInitialState: ->
     discoverPage: if @props.online then null else 'downloaded'
     viewingGameInfo: null
@@ -825,6 +831,7 @@ NativeHome = createClass
 # @endif
 
 export SiftrNative = createClass
+  displayName: 'SiftrNative'
   getInitialState: ->
     auth: null
     games: null

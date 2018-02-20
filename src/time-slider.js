@@ -17,6 +17,7 @@ const nubType = T.oneOfType([T.number, T.oneOf(['min', 'max'])]);
 
 // @ifdef WEB
 const TimeSliderNub = createClass({
+  displayName: 'TimeSliderNub',
   propTypes: {
     fraction: T.number.isRequired,
     getSlider: T.func.isRequired,
@@ -72,6 +73,7 @@ const TimeSliderNub = createClass({
 // @endif
 
 export const TimeSlider = createClass({
+  displayName: 'TimeSlider',
   propTypes: {
     minBound: T.number.isRequired,
     maxBound: T.number.isRequired,
