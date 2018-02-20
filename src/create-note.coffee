@@ -572,27 +572,29 @@ export CreateStep3 = createClass
     # TODO show pin with the color from CreateStep2's category
     <div className="create-step-3-box">
       <div className="create-step-3-padding" />
-      <div className="create-step-3-window">
-      </div>
-      <div className="create-step-3">
-        <div className="create-content-center">
-          <span>Pick Location</span>
+      <div className="create-step-3-shadow">
+        <div className="create-step-3-window">
         </div>
-        <div className="create-buttons">
-          <a href="#" className="create-button-gray" onClick={clicker @props.onBack}>
-            back
-          </a>
-          <a href="#" className="create-button-white" onClick={clicker @props.onPickLocation}>
-            next
-          </a>
+        <div className="create-step-3">
+          <div className="create-content-center">
+            <span>Pick Location</span>
+          </div>
+          <div className="create-buttons">
+            <a href="#" className="create-button-gray" onClick={clicker @props.onBack}>
+              back
+            </a>
+            <a href="#" className="create-button-white" onClick={clicker @props.onPickLocation}>
+              next
+            </a>
+          </div>
         </div>
-      </div>
-      <div className="siftr-map-note create-pin">
-        <div className="siftr-map-note-shadow" />
-        <div
-          className="siftr-map-note-pin"
-          style={backgroundColor: 'black'}
-        />
+        <div className="siftr-map-note create-pin">
+          <div className="siftr-map-note-shadow" />
+          <div
+            className="siftr-map-note-pin"
+            style={backgroundColor: 'black'}
+          />
+        </div>
       </div>
     </div>
 
