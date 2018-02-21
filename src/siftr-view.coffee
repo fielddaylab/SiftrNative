@@ -431,35 +431,47 @@ export SiftrView = createClass
     @state.zoom
   # @endif
 
-  commonSearchParams: ({auth = @props.auth, game = @props.game} = {}) ->
-    game_id: game.game_id
-    min_latitude: @state.bounds?.se?.lat
-    max_latitude: @state.bounds?.nw?.lat
-    min_longitude: @state.bounds?.nw?.lng
-    max_longitude: @state.bounds?.se?.lng
-    search: @state.searchParams.text ? ''
-    order: @state.searchParams.sort ? 'recent'
-    filter: if auth.authToken? and @state.searchParams.mine then 'mine' else undefined
-    tag_ids: @state.searchParams.tags ? undefined
-    min_time: timeToARIS @state.searchParams.min_time
-    max_time: timeToARIS @state.searchParams.max_time
-    zoom: @getGoogleZoom()
+  commonSearchParams: (filterByMap = true, {auth = @props.auth, game = @props.game} = {}) ->
+    o =
+      game_id: game.game_id
+      search: @state.searchParams.text ? ''
+      order: @state.searchParams.sort ? 'recent'
+      filter: if auth.authToken? and @state.searchParams.mine then 'mine' else undefined
+      tag_ids: @state.searchParams.tags ? undefined
+      min_time: timeToARIS @state.searchParams.min_time
+      max_time: timeToARIS @state.searchParams.max_time
+      zoom: @getGoogleZoom()
+    if filterByMap
+      o.min_latitude = @state.bounds?.se?.lat
+      o.max_latitude = @state.bounds?.nw?.lat
+      o.min_longitude = @state.bounds?.nw?.lng
+      o.max_longitude = @state.bounds?.se?.lng
+    o
 
-  loadResults: ({auth = @props.auth, game = @props.game} = {}) ->
+  loadResults: (authGame) ->
+    @loadResultsSingle(true, authGame)
+    @loadResultsSingle(false, authGame)
+
+  loadResultsSingle: (filterByMap, {auth = @props.auth, game = @props.game} = {}) ->
+    notesKey = if filterByMap then 'notes' else 'notesEverywhere'
+    loadedAllKey = if filterByMap then 'loadedAll' else 'loadedAllEverywhere'
+    xhrKey = if filterByMap then 'lastResultsXHR' else 'lastResultsXHREverywhere'
+    loadingKey = if filterByMap then 'loading' else 'loadingEverywhere'
     unless @props.online
       if @state.allNotes?
         words = (@state.searchParams.text ? '').split(/\s+/).filter((w) => w.length).map((w) => w.toLowerCase())
         filteredNotes =
           for note in @state.allNotes
-            # filter by map
-            if (min_latitude = @state.bounds?.se?.lat)? and (max_latitude = @state.bounds?.nw?.lat)?
-              continue unless min_latitude <= note.latitude <= max_latitude
-            if (min_longitude = @state.bounds?.nw?.lng)? and (max_longitude = @state.bounds?.se?.lng)?
-              if min_longitude <= max_longitude
-                continue unless min_longitude <= note.longitude <= max_longitude
-              else
-                # the international date line is inside the 2 longitudes
-                continue unless min_longitude <= note.longitude or note.longitude <= max_longitude
+            if filterByMap
+              # filter by map
+              if (min_latitude = @state.bounds?.se?.lat)? and (max_latitude = @state.bounds?.nw?.lat)?
+                continue unless min_latitude <= note.latitude <= max_latitude
+              if (min_longitude = @state.bounds?.nw?.lng)? and (max_longitude = @state.bounds?.se?.lng)?
+                if min_longitude <= max_longitude
+                  continue unless min_longitude <= note.longitude <= max_longitude
+                else
+                  # the international date line is inside the 2 longitudes
+                  continue unless min_longitude <= note.longitude or note.longitude <= max_longitude
             # filter by text
             searchMatched = true
             for word in words
@@ -496,41 +508,49 @@ export SiftrView = createClass
               note_count: cluster.length
               tags: tags
               note_ids: (note.note_id for note in cluster)
-          notes: filteredNotes
+          "#{notesKey}": filteredNotes
       # otherwise, need to wait for notes to be deserialized
       return
-    @loading = true
-    @lastResultsXHR?.abort()
-    params = update @commonSearchParams({auth, game}),
+    @[loadingKey] = true
+    @[xhrKey]?.abort()
+    params = update @commonSearchParams(filterByMap, {auth, game}),
       limit: $set: 50
-    @lastResultsXHR = auth.siftrSearch params
+    @[xhrKey] = auth.siftrSearch params
     , withSuccess ({map_notes, map_clusters, notes}) =>
-      @lastResultsXHR = null
+      @[xhrKey] = null
       @refs.thumbs?.scrollTop()
-      @loading = false
+      @[loadingKey] = false
       if @isMounted then @setState
         map_notes: map_notes
         map_clusters: map_clusters
-        notes: notes
-        loadedAll: false
+        "#{notesKey}": notes
+        "#{loadedAllKey}": false
 
   loadMoreResults: ->
+    @loadMoreResultsSingle(true)
+    @loadMoreResultsSingle(false)
+
+  loadMoreResultsSingle: (filterByMap) ->
+    notesKey = if filterByMap then 'notes' else 'notesEverywhere'
+    loadedAllKey = if filterByMap then 'loadedAll' else 'loadedAllEverywhere'
+    xhrKey = if filterByMap then 'lastResultsXHR' else 'lastResultsXHREverywhere'
+    loadingKey = if filterByMap then 'loading' else 'loadingEverywhere'
     return unless @props.online
-    currentNotes = @state.notes
-    return if @loading or @state.loadedAll or not currentNotes?
-    @loading = true
-    @lastResultsXHR?.abort()
-    params = update @commonSearchParams(),
+    currentNotes = @state[notesKey]
+    return if @[loadingKey] or @state[loadedAllKey] or not currentNotes?
+    @[loadingKey] = true
+    @[xhrKey]?.abort()
+    params = update @commonSearchParams(filterByMap),
       offset: $set: currentNotes.length
       map_data: $set: false
       limit: $set: 50
-    @lastResultsXHR = @props.auth.siftrSearch params
+    @[xhrKey] = @props.auth.siftrSearch params
     , withSuccess ({notes}) =>
-      @lastResultsXHR = null
-      @loading = false
+      @[xhrKey] = null
+      @[loadingKey] = false
       if @isMounted then @setState
-        notes: currentNotes.concat notes
-        loadedAll: notes.length < 50
+        "#{notesKey}": currentNotes.concat notes
+        "#{loadedAllKey}": notes.length < 50
 
   moveMap: (obj) ->
     if @isMounted then @setState obj, => @loadResults()
@@ -669,13 +689,16 @@ export SiftrView = createClass
     />
 
   renderThumbnails: ->
+    filterByMap = @state.mainView is 'hybrid'
+    notesKey = if filterByMap then 'notes' else 'notesEverywhere'
+    loadedAllKey = if filterByMap then 'loadedAll' else 'loadedAllEverywhere'
     <SiftrThumbnails
       ref="thumbs"
-      notes={@state.notes}
+      notes={@state[notesKey]}
       getColor={@getColor}
       onSelectNote={@selectNote}
       key={2}
-      hasMore={not @state.loadedAll}
+      hasMore={not @state[loadedAllKey]}
       loadMore={@loadMoreResults}
     />
 
