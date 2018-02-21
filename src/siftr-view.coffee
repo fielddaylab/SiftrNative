@@ -544,8 +544,13 @@ export SiftrView = createClass
       @setState {
         viewingNote: data[0]
       }, =>
+        # @ifdef WEB
         unless from_history
           history.pushState(note_id, '', '#' + note_id)
+        # @endif
+        # @ifdef NATIVE
+        null
+        # @endif
 
   selectNote: (note) ->
     return if note.note_id is 0
@@ -593,7 +598,9 @@ export SiftrView = createClass
   closeNote: ->
     if @isMounted
       @setState viewingNote: null
+      # @ifdef WEB
       history.pushState null, '', '#'
+      # @endif
 
   renderNoteView: ->
     if @state.viewingNote?
