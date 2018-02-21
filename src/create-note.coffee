@@ -168,27 +168,29 @@ CreatePhotoBox = createClass
 export CreateStep1 = createClass
   displayName: 'CreateStep1'
   propTypes:
-    onCreateMedia: T.func
     onCancel: T.func
     # @ifdef NATIVE
     onStoreMedia: T.func
+    # @endif
+    # @ifdef WEB
     onStartUpload: T.func
     onProgress: T.func
+    onCreateMedia: T.func
     # @endif
     auth: T.instanceOf(Auth).isRequired
     game: T.instanceOf(Game).isRequired
-    online: T.bool
     fields: T.arrayOf(T.instanceOf Field)
 
   getDefaultProps: ->
-    onCreateMedia: (->)
     onCancel: (->)
     # @ifdef NATIVE
     onStoreMedia: (->)
+    # @endif
+    # @ifdef WEB
     onStartUpload: (->)
     onProgress: (->)
+    onCreateMedia: (->)
     # @endif
-    online: true
 
   getInitialState: ->
     progress: null
@@ -218,25 +220,14 @@ export CreateStep1 = createClass
   beginUpload: ->
     files = @filesReady()
     return unless files?
-    if not @props.online
-      @props.onStoreMedia {files}
-      return
-    updateProgress = @props.onProgress
-    Photos.uploadImages files.map(({file}) => file), @props.auth, @props.game, updateProgress, (results) =>
-      fieldMedia = []
-      for {field_id}, i in files
-        continue if i is 0
-        {media} = results[i]
-        fieldMedia.push {field_id: field_id, media_id: media.media_id}
-      @props.onCreateMedia results[0], fieldMedia
-    @props.onStartUpload()
+    @props.onStoreMedia {files}
   # @endif
 
   # @ifdef WEB
   beginUpload: ->
     files = @filesReady()
     return unless files?
-    updateProgress = (n) => @setState progress: n
+    updateProgress = @props.onProgress
     Photos.uploadImages files.map(({file}) => file), @props.auth, @props.game, updateProgress, (results) =>
       fieldMedia = []
       for {field_id}, i in files
@@ -245,6 +236,7 @@ export CreateStep1 = createClass
           {media} = results[i]
           fieldMedia.push {field_id: field_id, media_id: media.media_id}
       @props.onCreateMedia results[0], fieldMedia
+    @props.onStartUpload()
   # @endif
 
   # @ifdef NATIVE
@@ -486,6 +478,13 @@ export CreateStep1 = createClass
 
 # @ifdef WEB
 
+export ProgressBar = createClass
+  displayName: 'ProgressBar'
+  render: ->
+    <p style={textAlign: 'center'}>
+      {if @props.progress? then "Uploading… (#{Math.floor((@props.progress ? 0) * 100)}%)" else ''}
+    </p>
+
 # Step 2: Caption
 export CreateStep2 = createClass
   displayName: 'CreateStep2'
@@ -496,6 +495,7 @@ export CreateStep2 = createClass
     defaultCaption: T.string
     categories: T.arrayOf(T.instanceOf Tag).isRequired
     getColor: T.func
+    progress: T.number
 
   getDefaultProps: ->
     onEnterCaption: (->)
@@ -518,6 +518,7 @@ export CreateStep2 = createClass
 
   render: ->
     <div className="create-step-2">
+      <ProgressBar progress={@props.progress} />
       <div className="create-content">
         <div className="create-select-parent">
           <div className="create-select-div">
@@ -566,6 +567,7 @@ export CreateStep3 = createClass
     onPickLocation: T.func
     onBack: T.func
     onCancel: T.func
+    progress: T.number
 
   getDefaultProps: ->
     onPickLocation: (->)
@@ -612,6 +614,7 @@ export CreateStep5 = createClass
     onCancel: T.func
     fields: T.arrayOf(T.instanceOf Field)
     field_data: T.arrayOf(T.instanceOf FieldData)
+    progress: T.number
 
   getDefaultProps: ->
     onChangeData: (->)
@@ -634,10 +637,12 @@ export CreateStep5 = createClass
       else if field.required and field.field_type in ['TEXT', 'TEXTAREA']
         unless field_data.some((data) => data.field_id is field.field_id)
           return # TODO pop up a message to user
+    return if @props.progress?
     @props.onFinish field_data
 
   render: ->
     <div className="create-step-5">
+      <ProgressBar progress={@props.progress} />
       <div className="create-content-center">
         {
           @props.fields.map (field) =>

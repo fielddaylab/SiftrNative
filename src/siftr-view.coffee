@@ -739,34 +739,6 @@ export SiftrView = createClass
         auth={@props.auth}
         game={@props.game}
         onCancel={=> @setState createNote: null}
-        onStartUpload={=> @setState createNote: {
-          uploading: true
-          caption: ''
-          location: @state.center
-          category: @state.tags[0]
-          field_data: []
-          online: true
-        }}
-        onProgress={(n) =>
-          return unless @isMounted and @state.createNote?
-          t = Date.now()
-          if not @state.progressTime? or t - @state.progressTime > 300
-            @setState
-              progress: n
-              progressTime: t
-        }
-        onCreateMedia={({media, exif}, fieldMedia) =>
-          return unless @isMounted and @state.createNote?
-          @setState createNote: {
-            media: media
-            exif: exif
-            caption: @state.createNote?.caption ? ''
-            location: @state.createNote?.center ? @state.center
-            category: @state.createNote?.category ? @state.tags[0]
-            field_data: (@state.createNote?.field_data ? []).concat(fieldMedia)
-            online: true
-          }
-        }
         onStoreMedia={({files}) => @setState createNote: {
           files: files
           caption: ''
@@ -775,10 +747,6 @@ export SiftrView = createClass
           field_data: []
           online: false
         }}
-        online={
-          false # always using queue now
-          # @props.online
-        }
         fields={@state.fields ? []}
       />
     else
@@ -801,13 +769,34 @@ export SiftrView = createClass
     # @ifdef WEB
     unless @state.createNote?
       null
-    else unless @state.createNote.media?
+    else unless @state.createNote.media? or @state.createNote.uploading
       <CreateStep1
         auth={@props.auth}
         game={@props.game}
         onCancel={=> @setState createNote: null}
-        onCreateMedia={({media, exif}, fieldMedia) => @setState createNote: {media, exif, online: true, field_media: fieldMedia}}
-        online={@props.online}
+        onStartUpload={=> @setState createNote: {
+          uploading: true
+        }}
+        onProgress={(n) =>
+          return unless @isMounted and @state.createNote?
+          t = Date.now()
+          if not @state.progressTime? or t - @state.progressTime > 300
+            @setState
+              progress: n
+              progressTime: t
+        }
+        onCreateMedia={({media, exif}, fieldMedia) =>
+          return unless @isMounted and @state.createNote?
+          @setState createNote: {
+            media: media
+            exif: exif
+            caption: @state.createNote?.caption
+            location: @state.createNote?.location
+            category: @state.createNote?.category
+            field_media: fieldMedia
+            field_data: @state.createNote?.field_data
+          }
+        }
         fields={@state.fields ? []}
       />
     else unless @state.createNote.caption?
@@ -817,8 +806,8 @@ export SiftrView = createClass
           @setState
             createNote:
               media: @state.createNote.media
+              uploading: @state.createNote.uploading
               exif: @state.createNote.exif
-              online: @state.createNote.online
               field_media: @state.createNote.field_media
               caption: text
               category: category
@@ -828,13 +817,14 @@ export SiftrView = createClass
         onBack={=> @setState createNote: {}}
         defaultCaption={@state.createNote.defaultCaption}
         getColor={@getColor}
+        progress={if @state.createNote.media? then null else @state.progress}
       />
     else unless @state.createNote.location?
       <CreateStep3
         onPickLocation={(caption) => @setState createNote:
           media: @state.createNote.media
+          uploading: @state.createNote.uploading
           exif: @state.createNote.exif
-          online: @state.createNote.online
           field_media: @state.createNote.field_media
           caption: @state.createNote.caption
           location: @state.center
@@ -843,11 +833,12 @@ export SiftrView = createClass
         onCancel={=> @setState createNote: null}
         onBack={=> @setState createNote:
           media: @state.createNote.media
+          uploading: @state.createNote.uploading
           exif: @state.createNote.exif
-          online: @state.createNote.online
           field_media: @state.createNote.field_media
           defaultCaption: @state.createNote.caption
         }
+        progress={if @state.createNote.media? then null else @state.progress}
       />
     else
       <CreateStep5
@@ -861,8 +852,8 @@ export SiftrView = createClass
           @setState
             createNote:
               media: @state.createNote.media
+              uploading: @state.createNote.uploading
               exif: @state.createNote.exif
-              online: @state.createNote.online
               field_media: @state.createNote.field_media
               caption: @state.createNote.caption
               category: @state.createNote.category
@@ -870,11 +861,12 @@ export SiftrView = createClass
         }
         fields={@state.fields}
         field_data={@state.createNote.field_data}
+        progress={if @state.createNote.media? then null else @state.progress}
       />
     # @endif
 
   finishNoteCreation: (field_data = @state.createNote?.field_data ? []) ->
-    {media, files, online, caption, category, field_media} = @state.createNote
+    {media, files, caption, category, field_media} = @state.createNote
     field_media ?= []
     location = @state.center
     createArgs =
