@@ -57,3 +57,12 @@ $sqrt2: 1.4142135;
   -o-transform: rotate(-45deg);
   transform: rotate(-45deg);
 }
+
+.siftr-map-note, .siftr-map-cluster {
+  transition: all .1s ease-in-out;
+}
+.siftr-map-note.hybrid-hover, .siftr-map-cluster.hybrid-hover {
+  transform: scale(1.6);
+  -webkit-transform: scale(1.6);
+  -moz-transform: scale(1.6);
+}

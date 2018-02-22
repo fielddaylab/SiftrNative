@@ -687,12 +687,13 @@ export SiftrView = createClass
       key={1}
       ref="theSiftrMap"
       onMouseEnter={(obj) =>
-        @setState mouseHover: obj
+        @setState mapHover: obj
       }
       onMouseLeave={(obj) =>
-        if @state.mouseHover is obj
-          @setState mouseHover: null
+        if @state.mapHover is obj
+          @setState mapHover: null
       }
+      thumbHover={@state.thumbHover?.note_id}
     />
 
   renderThumbnails: ->
@@ -707,10 +708,17 @@ export SiftrView = createClass
       key={2}
       hasMore={not @state[loadedAllKey]}
       loadMore={@loadMoreResults}
-      mouseHover={
-        if (note_id = @state.mouseHover?.note_id)?
+      onMouseEnter={(note) =>
+        @setState thumbHover: note
+      }
+      onMouseLeave={(note) =>
+        if @state.thumbHover is note
+          @setState thumbHover: null
+      }
+      mapHover={
+        if (note_id = @state.mapHover?.note_id)?
           [note_id]
-        else if (note_ids = @state.mouseHover?.note_ids)?
+        else if (note_ids = @state.mapHover?.note_ids)?
           note_ids.map (x) => parseInt(x)
         else
           []

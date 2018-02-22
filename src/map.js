@@ -202,10 +202,14 @@ class MapCluster extends React.Component {
     }
     stops.unshift(`${last_color} 1 0%`);
     const gradient = getConicGradient({stops: stops.join(', '), size: width});
-    return <div className="siftr-map-cluster" style={{background: `url(${gradient})`}}
+    let className = 'siftr-map-cluster';
+    if (this.props.thumbHover && this.props.cluster.note_ids.indexOf('' + this.props.thumbHover) !== -1) {
+      className += ' hybrid-hover';
+    }
+    return <div className={className} style={{background: `url(${gradient})`}}
       onClick={clicker(() => this.props.onSelect(this.props.cluster))}
-      onMouseEnter={clicker(() => this.props.onMouseEnter(this.props.cluster))}
-      onMouseLeave={clicker(() => this.props.onMouseLeave(this.props.cluster))}
+      onMouseEnter={() => this.props.onMouseEnter(this.props.cluster)}
+      onMouseLeave={() => this.props.onMouseLeave(this.props.cluster)}
     >
       <span className="siftr-map-cluster-number">
         {this.props.cluster.note_count}
@@ -277,14 +281,18 @@ class MapNote extends React.Component {
 
   // @ifdef WEB
   render() {
-    return <div className="siftr-map-note">
+    let className = 'siftr-map-note';
+    if (this.props.thumbHover && this.props.note.note_id === this.props.thumbHover) {
+      className += ' hybrid-hover';
+    }
+    return <div className={className}>
       <div className="siftr-map-note-shadow" />
       <div
         className="siftr-map-note-pin"
         style={{backgroundColor: this.props.getColor(this.props.note.tag_id)}}
         onClick={clicker(() => this.props.onSelect(this.props.note))}
-        onMouseEnter={clicker(() => this.props.onMouseEnter(this.props.note))}
-        onMouseLeave={clicker(() => this.props.onMouseLeave(this.props.note))}
+        onMouseEnter={() => this.props.onMouseEnter(this.props.note)}
+        onMouseLeave={() => this.props.onMouseLeave(this.props.note)}
       />
     </div>;
   }
@@ -329,6 +337,7 @@ export class SiftrMap extends React.Component {
     // NOTE: onMove, onLayout, onSelectNote are all looked up dynamically when they happen
     if (this.props.getColor !== nextProps.getColor) return true;
     if (this.props.colors !== nextProps.colors) return true;
+    if (this.props.thumbHover !== nextProps.thumbHover) return true;
     return false;
   }
 
@@ -426,6 +435,7 @@ export class SiftrMap extends React.Component {
         onSelect={this.openCluster.bind(this)}
         onMouseEnter={this.props.onMouseEnter}
         onMouseLeave={this.props.onMouseLeave}
+        thumbHover={this.props.thumbHover}
       />;
     });
   }
@@ -441,6 +451,7 @@ export class SiftrMap extends React.Component {
         onSelect={(...args) => this.props.onSelectNote(...args)}
         onMouseEnter={this.props.onMouseEnter}
         onMouseLeave={this.props.onMouseLeave}
+        thumbHover={this.props.thumbHover}
       />
     );
   }

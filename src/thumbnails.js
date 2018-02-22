@@ -110,11 +110,13 @@ export class SiftrThumbnails extends React.Component {
             <a
               className={
                 "siftr-thumbnail-card" +
-                (this.props.mouseHover.indexOf(note.note_id) !== -1 ? ' siftr-thumbnail-card-big' : '')
+                (this.props.mapHover.indexOf(note.note_id) !== -1 ? ' hybrid-hover' : '')
               }
               key={note.note_id}
               href="#"
               onClick={clicker(() => this.props.onSelectNote(note))}
+              onMouseEnter={() => this.props.onMouseEnter(note)}
+              onMouseLeave={() => this.props.onMouseLeave(note)}
             >
               <div
                 className="siftr-thumbnail"
@@ -140,6 +142,8 @@ SiftrThumbnails.propTypes = {
   notes: T.arrayOf(T.instanceOf(Note)),
   getColor: T.func,
   onSelectNote: T.func,
+  onMouseEnter: T.func,
+  onMouseLeave: T.func,
   loadMore: T.func,
   hasMore: T.bool,
 };
@@ -148,6 +152,8 @@ SiftrThumbnails.defaultProps = {
   notes: [],
   getColor: () => 'white',
   onSelectNote: function(){},
+  onMouseEnter: function(){},
+  onMouseLeave: function(){},
   loadMore: function(){},
   hasMore: false,
 };
