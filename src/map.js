@@ -204,6 +204,8 @@ class MapCluster extends React.Component {
     const gradient = getConicGradient({stops: stops.join(', '), size: width});
     return <div className="siftr-map-cluster" style={{background: `url(${gradient})`}}
       onClick={clicker(() => this.props.onSelect(this.props.cluster))}
+      onMouseEnter={clicker(() => this.props.onMouseEnter(this.props.cluster))}
+      onMouseLeave={clicker(() => this.props.onMouseLeave(this.props.cluster))}
     >
       <span className="siftr-map-cluster-number">
         {this.props.cluster.note_count}
@@ -219,11 +221,15 @@ MapCluster.propTypes = {
   lng: T.number.isRequired,
   getColor: T.func,
   onSelect: T.func,
+  onMouseEnter: T.func,
+  onMouseLeave: T.func,
 };
 
 MapCluster.defaultProps = {
   getColor: function(){return 'white';},
   onSelect: function(){},
+  onMouseEnter: function(){},
+  onMouseLeave: function(){},
 };
 
 class MapNote extends React.Component {
@@ -277,6 +283,8 @@ class MapNote extends React.Component {
         className="siftr-map-note-pin"
         style={{backgroundColor: this.props.getColor(this.props.note.tag_id)}}
         onClick={clicker(() => this.props.onSelect(this.props.note))}
+        onMouseEnter={clicker(() => this.props.onMouseEnter(this.props.note))}
+        onMouseLeave={clicker(() => this.props.onMouseLeave(this.props.note))}
       />
     </div>;
   }
@@ -289,11 +297,15 @@ MapNote.propTypes = {
   lng: T.number.isRequired,
   getColor: T.func,
   onSelect: T.func,
+  onMouseEnter: T.func,
+  onMouseLeave: T.func,
 };
 
 MapNote.defaultProps = {
   getColor: function(){return 'white';},
   onSelect: function(){},
+  onMouseEnter: function(){},
+  onMouseLeave: function(){},
 };
 
 export class SiftrMap extends React.Component {
@@ -412,6 +424,8 @@ export class SiftrMap extends React.Component {
         cluster={map_cluster}
         getColor={this.props.getColor}
         onSelect={this.openCluster.bind(this)}
+        onMouseEnter={this.props.onMouseEnter}
+        onMouseLeave={this.props.onMouseLeave}
       />;
     });
   }
@@ -425,6 +439,8 @@ export class SiftrMap extends React.Component {
         note={map_note}
         getColor={this.props.getColor}
         onSelect={(...args) => this.props.onSelectNote(...args)}
+        onMouseEnter={this.props.onMouseEnter}
+        onMouseLeave={this.props.onMouseLeave}
       />
     );
   }
@@ -557,6 +573,8 @@ SiftrMap.propTypes = {
   // @endif
   // @ifdef WEB
   zoom: T.number.isRequired,
+  onMouseEnter: T.func,
+  onMouseLeave: T.func,
   // @endif
   map_notes: T.arrayOf(T.instanceOf(Note)),
   map_clusters: T.array,

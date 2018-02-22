@@ -32,7 +32,7 @@
     text-decoration: none;
     box-shadow: 0px 0px 8px 4px rgba(0, 0, 0, 0.1);
     transition: all .1s ease-in-out;
-  &:hover {
+  &:hover, &.siftr-thumbnail-card-big {
     text-decoration: none;
     transform: scale(1.07);
     -webkit-transform: scale(1.07);

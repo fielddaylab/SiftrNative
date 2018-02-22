@@ -108,7 +108,10 @@ export class SiftrThumbnails extends React.Component {
         {
           this.props.notes.map((note) =>
             <a
-              className="siftr-thumbnail-card"
+              className={
+                "siftr-thumbnail-card" +
+                (this.props.mouseHover.indexOf(note.note_id) !== -1 ? ' siftr-thumbnail-card-big' : '')
+              }
               key={note.note_id}
               href="#"
               onClick={clicker(() => this.props.onSelectNote(note))}

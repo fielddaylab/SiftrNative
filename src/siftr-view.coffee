@@ -686,6 +686,13 @@ export SiftrView = createClass
       onSelectNote={@selectNote}
       key={1}
       ref="theSiftrMap"
+      onMouseEnter={(obj) =>
+        @setState mouseHover: obj
+      }
+      onMouseLeave={(obj) =>
+        if @state.mouseHover is obj
+          @setState mouseHover: null
+      }
     />
 
   renderThumbnails: ->
@@ -700,6 +707,14 @@ export SiftrView = createClass
       key={2}
       hasMore={not @state[loadedAllKey]}
       loadMore={@loadMoreResults}
+      mouseHover={
+        if (note_id = @state.mouseHover?.note_id)?
+          [note_id]
+        else if (note_ids = @state.mouseHover?.note_ids)?
+          note_ids.map (x) => parseInt(x)
+        else
+          []
+      }
     />
 
   startLocatingNote: ({exif, center}) ->
