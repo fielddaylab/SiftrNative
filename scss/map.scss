@@ -66,3 +66,13 @@ $sqrt2: 1.4142135;
   -webkit-transform: scale(1.6);
   -moz-transform: scale(1.6);
 }
+
+.siftr-map-legend {
+  position: absolute;
+  bottom: 17px;
+  right: 45px;
+  background-color: white;
+  border-radius: 999px;
+  font-size: 13px;
+  padding: 3px 8px;
+}

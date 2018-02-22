@@ -338,6 +338,7 @@ export class SiftrMap extends React.Component {
     if (this.props.getColor !== nextProps.getColor) return true;
     if (this.props.colors !== nextProps.colors) return true;
     if (this.props.thumbHover !== nextProps.thumbHover) return true;
+    if (this.props.tags !== nextProps.tags) return true;
     return false;
   }
 
@@ -566,6 +567,22 @@ export class SiftrMap extends React.Component {
         {this.renderClusters()}
         {this.renderNotes()}
       </GoogleMap>
+      <div className="siftr-map-legend">
+        Legend:
+        {
+          this.props.tags ? (
+            this.props.tags.map((tag) =>
+              <span>
+                <div
+                  className="siftr-thumbnail-dot"
+                  style={{backgroundColor: this.props.getColor(tag)}}
+                />
+                {tag.tag}
+              </span>
+            )
+          ) : null
+        }
+      </div>
     </div>;
   }
   // @endif

@@ -694,6 +694,7 @@ export SiftrView = createClass
           @setState mapHover: null
       }
       thumbHover={@state.thumbHover?.note_id}
+      tags={@state.tags}
     />
 
   renderThumbnails: ->
