@@ -572,7 +572,7 @@ export class SiftrMap extends React.Component {
         {
           this.props.tags ? (
             this.props.tags.map((tag) =>
-              <span>
+              <span className="siftr-map-legend-tag">
                 <div
                   className="siftr-thumbnail-dot"
                   style={{backgroundColor: this.props.getColor(tag)}}

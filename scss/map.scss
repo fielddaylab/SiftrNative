@@ -76,3 +76,12 @@ $sqrt2: 1.4142135;
   font-size: 13px;
   padding: 3px 8px;
 }
+
+.siftr-map-legend-tag {
+  border-right: 2px solid #E8E8E8;
+  padding-left: 5px;
+  padding-right: 5px;
+  &:last-child {
+    border-right: none;
+  }
+}
