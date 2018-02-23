@@ -29,7 +29,7 @@ import {Media, CacheMedia} from './media'
 import firebase from 'react-native-firebase'
 # @endif
 
-{clicker, withSuccess, P, BUTTON} = require './utils'
+{clicker, withSuccess} = require './utils'
 
 # @ifdef WEB
 
@@ -855,9 +855,11 @@ class SiftrNoteView extends React.Component
         switch @props.note.published
           when 'PENDING'
             if @props.isAdmin
-              <BUTTON onClick={@approveNote.bind(@)}><P>Approve this note</P></BUTTON>
+              <TouchableOpacity onPress={@approveNote.bind(@)}>
+                <Text>Approve this note</Text>
+              </TouchableOpacity>
             else
-              <P>This note is visible only to you until a moderator approves it.</P>
+              <Text>This note is visible only to you until a moderator approves it.</Text>
           when 'AUTO', 'APPROVED'
             null
       }
@@ -968,9 +970,16 @@ class SiftrNoteView extends React.Component
             switch @props.note.published
               when 'PENDING'
                 if @props.isAdmin
-                  <BUTTON onClick={@approveNote.bind(@)}><P>Approve this note</P></BUTTON>
+                  <div>
+                    <p>
+                      This note requires your permission to be visible.
+                    </p>
+                    <p>
+                      <a href="#" onClick={clicker => @approveNote()}>Approve this note</a>
+                    </p>
+                  </div>
                 else
-                  <P>This note is visible only to you until a moderator approves it.</P>
+                  <p>This note is visible only to you until a moderator approves it.</p>
               when 'AUTO', 'APPROVED'
                 null
           }

@@ -359,7 +359,9 @@ export SiftrView = createClass
       newAuth = nextProps.auth
       if @state.viewingNote? and @props.auth.authToken?
         # if we were logged in, close the open note
-        if @isMounted then @setState viewingNote: null
+        if @isMounted
+          @setState viewingNote: null
+          history.pushState(null, '', '#')
       if not nextProps.auth.authToken?
         # cancel note creation on logout
         if @isMounted then @setState createNote: null
