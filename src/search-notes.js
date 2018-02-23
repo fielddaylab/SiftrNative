@@ -293,14 +293,14 @@ export class SearchNotes extends React.Component {
       </div>
       {
         this.props.auth.authToken !== null ?
-          <p>
+          <p className="my-notes">
             <ToggleSwitch checked={mine} onClick={this.clickMine.bind(this)}>
               Only show my notes
             </ToggleSwitch>
           </p>
         : undefined
       }
-      <h2>Date range:<div className="header-decoration" /></h2>
+      <h2>Date range:</h2>
       <TimeSlider
         minBound={this.props.game.created.getTime()}
         maxBound={Date.now()}
@@ -308,7 +308,7 @@ export class SearchNotes extends React.Component {
         p2={max_time}
         onChange={this.changeDates.bind(this)}
       />
-      <h2>Categories:<div className="header-decoration" /></h2>
+      <h2>Categories:</h2>
       {
         this.props.tags.map((tag) => {
           const checked = tags.indexOf(tag.tag_id) !== -1;

@@ -6,24 +6,41 @@
   z-index: 4;
   overflow-y: auto;
   margin: 0;
-  padding: 0;
   box-sizing: border-box;
   height: 0;
   transition: height 0.25s;
   text-align: center;
-  padding-left: 10px;
-  padding-right: 10px;
   width: 100%;
   max-width: 450px;
+  .create-select-div {
+    cursor:pointer;
+  }
+  hr {
+    margin-top: 35px;
+    margin-bottom: 35px;
+  }
+  p{
+    padding: 5px;
+  }
+  a{
+    &:hover {
+      text-decoration: none;
+    }
+  }
   h2 {
     font-size: 16px;
     font-weight: normal;
     text-align: left;
-    padding-left: 20px;
+    padding-left: 0px;
     padding-right: 0;
     display: flex;
     flex-direction: row;
     align-items: center;
+    margin-top:30px;
+    margin-bottom:30px;
+    padding: 10px;
+    background:$ultralight-gray;
+    color: $gray;
     .header-decoration {
       height: 2px;
       background-color: #ececec;
@@ -33,14 +50,24 @@
   }
 
   .tag-toggle {
-    margin-left: 20px;
     border-bottom: 2px solid #ececec;
-    padding-bottom: 13px;
+    padding: 0px 20px 20px 20px;
+    &:hover {
+      text-decoration:none;
+    }
+  }
+  .search-tag  {
+    margin:10px;
+  }
+  .my-notes {
+    margin:20px;
+    padding-top:10px;
   }
 }
 
 .search-open .siftr-search {
   height: 100%;
+  padding-top:6px;
 }
 
 .activity-buttons {
@@ -71,7 +98,7 @@
 }
 
 .date-bounds {
-  margin: 10px;
+  margin: 20px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -94,7 +121,7 @@ $nub-diameter: 23px;
   height: $nub-diameter;
   width: $nub-diameter;
   border-radius: 999px;
-  background-color: white;
+  background-color: #fff;
   box-shadow: 0px 0px 2px rgba(0,0,0,0.8);
   position: absolute;
   top: -(($nub-diameter - $slider-height) / 2);
@@ -107,7 +134,7 @@ $nub-diameter: 23px;
 }
 
 .search-text {
-  width: 100%;
+  width: 93%;
   box-sizing: border-box;
   padding: 8px 20px;
   border-radius: 999px;
@@ -115,7 +142,10 @@ $nub-diameter: 23px;
 }
 
 .tag-badge {
-  padding: 3px;
+  padding: 6px;
   border-radius: 999px;
   color: white;
+  min-width: 20px;
+  display: inline-block;
+  margin-right: 7px;
 }
