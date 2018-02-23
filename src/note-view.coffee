@@ -682,20 +682,21 @@ class SiftrNoteView extends React.Component
       @props.onDelete @props.note
   # @endif
 
-  showFields: (GenText) ->
+  # @ifdef NATIVE
+  showFields: ->
     if not (@state.field_data? and @props.fields?)
-      <GenText style={margin: 10}>Loading data...</GenText>
+      <Text style={margin: 10}>Loading data...</Text>
     else
       for field in @props.fields
         data =
           d for d in @state.field_data when d.field_id is field.field_id
         switch field.field_type
           when 'TEXT', 'TEXTAREA'
-            <GenText key={field.field_id} style={margin: 10}>
+            <Text key={field.field_id} style={margin: 10}>
               [{field.label}] {data[0]?.field_data}
-            </GenText>
+            </Text>
           when 'SINGLESELECT', 'MULTISELECT'
-            <GenText key={field.field_id} style={margin: 10}>
+            <Text key={field.field_id} style={margin: 10}>
               [{field.label}]
               {
                 opts = []
@@ -705,13 +706,62 @@ class SiftrNoteView extends React.Component
                       opts.push opt.option
                 ' ' + opts.join(', ')
               }
-            </GenText>
+            </Text>
           when 'NOMEN'
-            <GenText key={field.field_id} style={margin: 10}>
+            <Text key={field.field_id} style={margin: 10}>
               [Nomen {field.label}] {data[0]?.field_data}
-            </GenText>
+            </Text>
           else
             continue
+  # @endif
+
+  # @ifdef WEB
+  showFields: ->
+    fields = []
+    if @props.tag?
+      fields.push(
+        <div className="note-field-data" key={0}>
+          <span className="note-field-data-key">Category</span>
+          <span className="note-field-data-value">
+            <div
+              className="siftr-thumbnail-dot"
+              style={{backgroundColor: @props.getColor(@props.tag)}}
+            />
+            {' '}
+            {@props.tag.tag}
+          </span>
+        </div>
+      )
+    if (@state.field_data? and @props.fields?)
+      for field in @props.fields
+        data =
+          d for d in @state.field_data when d.field_id is field.field_id
+        switch field.field_type
+          when 'TEXT', 'TEXTAREA', 'NOMEN'
+            if data[0]? and data[0] isnt ''
+              fields.push(
+                <div className="note-field-data" key={field.field_id}>
+                  <span className="note-field-data-key">{field.label}</span>
+                  <span className="note-field-data-value">{data[0].field_data}</span>
+                </div>
+              )
+          when 'SINGLESELECT', 'MULTISELECT'
+            opts = []
+            for d in data
+              for opt in field.options
+                if opt.field_option_id is d.field_option_id
+                  opts.push opt.option
+            if opts.length > 0
+              fields.push(
+                <div className="note-field-data" key={field.field_id}>
+                  <span className="note-field-data-key">{field.label}</span>
+                  <span className="note-field-data-value">
+                    {opts.join(', ')}
+                  </span>
+                </div>
+              )
+    fields
+  # @endif
 
   # @ifdef NATIVE
   render: ->
@@ -943,7 +993,7 @@ class SiftrNoteView extends React.Component
               </div>
           }
           {
-            @showFields 'p'
+            @showFields()
           }
           <div className="note-comments">
             {

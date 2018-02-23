@@ -183,6 +183,7 @@
 
 .create-content-center {
   text-align: center;
+  padding: 15px 30px;
 }
 
 .photo-drop {
@@ -236,6 +237,12 @@
   input[type="text"], select {
     width: 100%;
   }
+  textarea {
+    width: 100%;
+    resize: none;
+    height: 70px;
+    padding: 5px;
+  }
   .create-field-label {
     text-align: left;
     text-transform: lowercase;
@@ -243,6 +250,8 @@
     background:$ultralight_gray;
     color:$gray;
     border-radius:5px;
+    font-size: 14px;
+    margin: 5px 0;
   }
 }
 
@@ -304,4 +313,8 @@
   font-size: 13px;
   text-align: center;
   color: white;
+}
+
+.create-multi-toggle {
+  margin: 8px;
 }

@@ -636,6 +636,11 @@ export SiftrView = createClass
         onPromptLogin={@props.onPromptLogin}
         getColor={@getColor}
         fields={@state.fields}
+        tag={do =>
+          for tag in (@state.tags ? [])
+            if tag.tag_id is @state.viewingNote.tag_id
+              return tag
+        }
       />
 
   renderMap: ->

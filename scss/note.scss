@@ -144,3 +144,13 @@
     height: 16px;
   }
 }
+
+.note-field-data {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-top: 1px solid #e5e5e5;
+  padding: 10px 0;
+  font-size: 14px;
+}
