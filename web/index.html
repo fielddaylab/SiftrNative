@@ -5,14 +5,35 @@
   <title>Siftr</title>
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, target-densitydpi=device-dpi" />
   <meta name="apple-itunes-app" content="app-id=1169649470">
+  <meta name="google-play-app" content="app-id=org.siftr.client">
   <script type="text/javascript" src="dist.js"></script>
   <link rel="stylesheet" type="text/css" href="styles.css">
+  <link rel="stylesheet" href="smart-app-banner.css" type="text/css" media="screen">
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Varela+Round" rel="stylesheet">
-  <!-- http://play.google.com/store/apps/details?id=org.siftr.client -->
 </head>
 <body>
 
 <div id="app-container"></div>
+
+<script src="smart-app-banner.js"></script>
+<script type="text/javascript">
+  new SmartBanner({
+      daysHidden: 15,   // days to hide banner after close button is clicked (defaults to 15)
+      daysReminder: 90, // days to hide banner after "VIEW" button is clicked (defaults to 90)
+      title: 'Siftr',
+      author: 'Field Day Lab',
+      button: 'VIEW',
+      store: {
+          ios: 'On the App Store',
+          android: 'In Google Play',
+      },
+      price: {
+          ios: 'FREE',
+          android: 'FREE',
+      },
+      icon: 'assets/img/siftr-app-logo.png',
+  });
+</script>
 
 </body>
 </html>
