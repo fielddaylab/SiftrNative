@@ -481,9 +481,15 @@ export CreateStep1 = createClass
 export ProgressBar = createClass
   displayName: 'ProgressBar'
   render: ->
-    <p style={textAlign: 'center'}>
-      {if @props.progress? then "Uploading… (#{Math.floor((@props.progress ? 0) * 100)}%)" else ''}
-    </p>
+    if @props.progress?
+      percent = Math.floor((@props.progress ? 0) * 100)
+      <p className="create-progress-bar" style={
+        background: "linear-gradient(to right, rgb(99,176,81) 0%,rgb(99,176,81) #{percent}%,rgb(185,220,176) #{percent}%,rgb(185,220,176) 100%)"
+      }>
+        {"uploading… (#{percent}%)"}
+      </p>
+    else
+      null
 
 # Step 2: Caption
 export CreateStep2 = createClass
