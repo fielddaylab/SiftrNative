@@ -81,16 +81,19 @@ export function uploadImage(file, auth, game, updateProgress, cb) {
 
 export function uploadImages(files, auth, game, updateProgress, cb) {
   let results = [];
+  let noImage = files.filter((x) => x == null).length;
+  let noImageDone = 0;
   function uploadIndex(i) {
     if (i === files.length) {
       cb(results);
     } else {
       if (files[i] == null) {
         results.push(null);
+        noImageDone++;
         uploadIndex(i + 1);
       } else {
         uploadImage(files[i], auth, game, function(p){
-          updateProgress((i + p) / files.length);
+          updateProgress((i + p - noImageDone) / (files.length - noImage));
         }, function(res){
           results.push(res);
           uploadIndex(i + 1);

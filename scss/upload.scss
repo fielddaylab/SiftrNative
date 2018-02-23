@@ -9,6 +9,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   pointer-events: none;
   z-index: 4;
   // ^ wasn't needed in FF but is in safari because of
@@ -56,7 +57,7 @@
   margin: 0;
   z-index: 4;
   overflow-y: auto;
-  padding: 35px;
+  padding: 5px;
   border-radius: 5px;
   box-sizing: border-box;
   pointer-events: auto;
@@ -139,7 +140,7 @@
   align-items: center;
   display: flex;
   flex-direction: column;
-  padding: 15px;
+  padding: 15px 30px;
   box-sizing: border-box;
 }
 
@@ -283,4 +284,12 @@
       padding-right: 25px;
     }
   }
+}
+
+.create-progress-bar {
+  padding: 5px 0;
+  margin: 0;
+  font-size: 13px;
+  text-align: center;
+  color: white;
 }
