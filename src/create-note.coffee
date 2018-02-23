@@ -446,12 +446,14 @@ export CreateStep1 = createClass
     if @state.progress?
       <div className="create-step-1">
         <div className="create-content">
+          <h2>Drop photos into each  section</h2>
           <span>Uploading… {Math.floor(@state.progress * 100)}%</span>
         </div>
       </div>
     else
       <div className="create-step-1">
         <div className="create-content">
+          <h2>Drop photos into each  section</h2>
           {
             pictureSlots.map ({field_id, currentImage, header, required}) =>
               img = currentImage()
@@ -526,6 +528,7 @@ export CreateStep2 = createClass
     <div className="create-step-2">
       <ProgressBar progress={@props.progress} />
       <div className="create-content">
+      <h2>Choose Tag</h2>
         <div className="create-select-parent">
           <div className="create-select-div">
             <select

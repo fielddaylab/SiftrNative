@@ -69,18 +69,19 @@ $sqrt2: 1.4142135;
 
 .siftr-map-legend {
   position: absolute;
-  bottom: 17px;
-  right: 45px;
+  bottom: 33px;
+  right: 60px;
   background-color: white;
   border-radius: 999px;
   font-size: 13px;
-  padding: 3px 8px;
+  padding: 8px 12px;
+  box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.3);
 }
 
 .siftr-map-legend-tag {
   border-right: 2px solid #E8E8E8;
-  padding-left: 5px;
-  padding-right: 5px;
+  padding-left: 9px;
+  padding-right: 9px;
   &:last-child {
     border-right: none;
   }
