@@ -729,7 +729,7 @@ export CreateStep5 = createClass
                     field.options.map (option) =>
                       selected = field_data.some (data) =>
                         data.field_id is field.field_id and data.field_option_id is option.field_option_id
-                      <p key={option.field_option_id}>
+                      <p class="create-multi-toggle" key={option.field_option_id}>
                         <ToggleSwitch
                           checked={selected}
                           onClick={(newSelected) =>
