@@ -940,21 +940,26 @@ export SiftrNative = createClass
         games: null
         followed: null
       # @ifdef WEB
-      search = window.location.search
-      if search[0] is '?'
-        url = search[1..]
-        if url.match(/[^0-9]/)
-          newAuth.searchSiftrs
-            siftr_url: url
-          , withSuccess (games) =>
-            if games.length is 1
-              @setState game: games[0]
-        else
-          newAuth.getGame
-            game_id: parseInt(url)
-          , withSuccess (game) =>
-            if game?
-              @setState {game}
+      siftr_id = 0
+      siftr_url = window.location.search.replace('?', '')
+      if siftr_url.length is 0 or siftr_url.match(/aris=1/)
+        siftr_url = window.location.pathname.replace(/\//g, '')
+      unless siftr_url.match(/[^0-9]/)
+        siftr_id = parseInt siftr_url
+        siftr_url = null
+
+      if siftr_url?
+        newAuth.searchSiftrs
+          siftr_url: siftr_url
+        , withSuccess (games) =>
+          if games.length is 1
+            @setState game: games[0]
+      else if siftr_id
+        newAuth.getGame
+          game_id: siftr_id
+        , withSuccess (game) =>
+          if game?
+            @setState {game}
       # @endif
       if newAuth.authToken?
         # @ifdef NATIVE
