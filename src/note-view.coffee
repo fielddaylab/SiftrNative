@@ -856,10 +856,10 @@ class SiftrNoteView extends React.Component
           when 'PENDING'
             if @props.isAdmin
               <TouchableOpacity onPress={@approveNote.bind(@)}>
-                <Text>Approve this note</Text>
+                <Text style={margin: 10}>Approve this note</Text>
               </TouchableOpacity>
             else
-              <Text>This note is visible only to you until a moderator approves it.</Text>
+              <Text style={margin: 10}>This note is visible only to you until a moderator approves it.</Text>
           when 'AUTO', 'APPROVED'
             null
       }
