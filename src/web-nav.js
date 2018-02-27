@@ -112,16 +112,18 @@ export var WebNav = createClass({
           {
             ( this.props.auth.authToken != null
             ? <div>
-                <div className="auth-menu-user-picture" style={{
-                  backgroundImage: userPic ? `url(${userPic})` : undefined
-                }} />
+                <a href="https://siftr.org/editor/#account" target="_blank">
+                  <div className="auth-menu-user-picture" style={{
+                    backgroundImage: userPic ? `url(${userPic})` : undefined
+                  }} />
                   <p>
                     {this.props.auth.authToken.display_name}
                   </p>
-                  <p>
-                    <button type="button" onClick={this.props.onLogout}>Logout</button>
-                  </p>
-                </div>
+                </a>
+                <p>
+                  <button type="button" onClick={this.props.onLogout}>Logout</button>
+                </p>
+              </div>
             : <LoginBox onLogin={this.props.onLogin} onRegister={this.props.onRegister} />
             )
           }
