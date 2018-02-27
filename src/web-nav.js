@@ -82,6 +82,7 @@ export var WebNav = createClass({
             <img className="auth-nav-logo" src="assets/img/siftr-logo-black.png" />
           </a>
           <a target="_blank" href="https://siftr.org/discover/">Discover</a>
+          <a target="_blank" href="https://siftr.org/editor/">Editor</a>
         </div>
         <div className="auth-nav-side">
           {
