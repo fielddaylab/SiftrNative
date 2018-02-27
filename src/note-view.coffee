@@ -924,7 +924,7 @@ class SiftrNoteView extends React.Component
         </div>
         <div className="note-right">
           <a href="#" onClick={clicker @props.onClose} className="note-x">
-            <img src="assets/img/x-blue.png" />
+            <img src="assets/img/icon-x-black.png" />
           </a>
           <div className="note-top">
             <div className="note-credit">
