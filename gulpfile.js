@@ -3,7 +3,8 @@ var grinder = require('gulp-coffee');
 var coffee2 = require('coffeescript');
 var sass = require('gulp-sass');
 var gutil = require('gulp-util');
-var webpack = require('webpack-stream');
+var webpackStream = require('webpack-stream');
+var webpack = require('webpack');
 var preprocess = require('gulp-preprocess');
 
 gulp.task('pre-native', function() {
@@ -29,8 +30,14 @@ gulp.task('coffee-web', ['pre-web'], function() {
 });
 gulp.task('webpack', ['coffee-web'], function() {
   return gulp.src('src-web/web.js')
-    .pipe(webpack({
+    .pipe(webpackStream({
       output: {filename: 'dist.js'},
+      plugins: [
+        new webpack.DefinePlugin({
+          'process.env': {NODE_ENV: "'production'"}
+        }),
+        new webpack.optimize.UglifyJsPlugin(),
+      ],
       module: {
         loaders: [
           {
@@ -42,8 +49,8 @@ gulp.task('webpack', ['coffee-web'], function() {
             }
           }
         ]
-      }
-    }))
+      },
+    }, webpack))
     .pipe(gulp.dest('web/'));
 });
 
