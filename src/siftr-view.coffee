@@ -950,11 +950,11 @@ export SiftrView = createClass
       queueDir = "#{RNFS.DocumentDirectoryPath}/siftrqueue/#{Date.now()}"
       filesToCopy = []
       for f in files
+        continue unless f.file?
         name = f.file.name
         if f.field_id?
           name = "#{f.field_id}.#{name.split('.').pop()}"
-        unless createArgs.files?
-          createArgs.files = []
+        createArgs.files ?= []
         createArgs.files.push
           field_id: f.field_id
           filename: name
