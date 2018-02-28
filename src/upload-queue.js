@@ -21,6 +21,7 @@ export const UploadQueue = createClass({
     return {
       online: true,
       onMessage: function(){},
+      onUpload: function(){},
     };
   },
   componentDidMount: function() {
@@ -139,6 +140,7 @@ export const UploadQueue = createClass({
       });
       return this.props.auth.promise('call', 'notes.createNote', json);
     }).then((note) => {
+      this.props.onUpload(note);
       firebase.analytics().logEvent('create_note', {
         note_id: note.note_id,
         game_id: note.game_id,
