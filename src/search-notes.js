@@ -233,6 +233,21 @@ export class SearchNotes extends React.Component {
           <Text style={{color: sort === 'popular' ? 'black' : '#D3D3D3'}}>popularity</Text>
         </TouchableOpacity>
       </View>
+      <View style={{
+        padding: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        alignSelf: 'stretch',
+      }}>
+        <Text>
+          Only show my notes
+        </Text>
+        <Switch
+          value={mine}
+          onChange={() => this.clickMine()}
+        />
+      </View>
     </ScrollView>
   }
   // @endif
