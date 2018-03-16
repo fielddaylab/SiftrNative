@@ -3,6 +3,7 @@
 React = require 'react'
 T = require 'prop-types'
 createClass = require 'create-react-class'
+update = require 'immutability-helper'
 
 # @ifdef NATIVE
 { View
@@ -930,6 +931,28 @@ export SiftrNative = createClass
       game_id: game.game_id
     , withSuccess => @updateFollowed()
 
+  # @ifdef WEB
+  tryLoadGame: (auth, game, password = auth.password ? game.password) ->
+    auth.searchNotes
+      game_id: game.game_id
+      note_count: 1
+      password: password
+    , (result) =>
+      if result.returnCode is 0
+        @setState
+          game: game
+          auth: update auth, password: $set: password
+      else
+        newPassword = prompt(
+          if password?
+            'Incorrect password.'
+          else
+            'This Siftr requires a password to access.'
+        )
+        if newPassword?
+          @tryLoadGame auth, game, newPassword
+  # @endif
+
   login: (username, password) ->
     return unless @state.online
     (@state.auth ? new Auth).login username, password, (newAuth, err) =>
@@ -953,13 +976,13 @@ export SiftrNative = createClass
           siftr_url: siftr_url
         , withSuccess (games) =>
           if games.length is 1
-            @setState game: games[0]
+            @tryLoadGame newAuth, games[0]
       else if siftr_id
         newAuth.getGame
           game_id: siftr_id
         , withSuccess (game) =>
           if game?
-            @setState {game}
+            @tryLoadGame newAuth, game
       # @endif
       if newAuth.authToken?
         # @ifdef NATIVE
@@ -1124,7 +1147,7 @@ export SiftrNative = createClass
               game={@state.game}
               auth={@state.auth}
               isAdmin={@gameBelongsToUser @state.game}
-              onExit={=> @setState game: null}
+              onExit={=> @setState game: null, password: null}
               onPromptLogin={=> @setState menuOpen: true}
               nomenData={@state.nomenData}
               clearNomenData={@clearNomenData}

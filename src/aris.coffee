@@ -27,6 +27,7 @@ class Game
       @icon_media_id = parseInt json.icon_media_id
       @created       = new Date(json.created.replace(' ', 'T') + 'Z')
       @prompt        = json.prompt
+      @password      = json.password
     else
       @game_id       = null
       @name          = null
@@ -42,6 +43,7 @@ class Game
       @icon_media_id = null
       @created       = null
       @prompt        = null
+      @password      = null
 
   createJSON: ->
     game_id:        @game_id or undefined
@@ -57,6 +59,7 @@ class Game
     colors_id:      @colors_id
     icon_media_id:  @icon_media_id
     prompt:         @prompt
+    password:       @password
 
 deserializeGame = (json) ->
   g = Object.assign(new Game, json)
@@ -255,6 +258,12 @@ class Auth
     req.setRequestHeader 'Content-Type',
       'application/json; charset=UTF-8'
     @loadSavedAuth (auth) =>
+      if @password?
+        auth =
+          if auth?
+            update auth, password: $set: @password
+          else
+            password: @password
       json =
         if auth?
           update json, auth: $set: auth
@@ -284,6 +293,8 @@ class Auth
     {data: json, returnCode} = obj
     if returnCode is 0 and json.user_id isnt null
       auth = new Auth json
+      if @password?
+        auth = update auth, password: $set: @password
       # @ifdef NATIVE
       AsyncStorage.setItem 'aris-auth', JSON.stringify(auth.authToken), => cb auth
       # @endif
@@ -344,7 +355,10 @@ class Auth
       window.localStorage.removeItem 'aris-auth'
     catch err
       null
-    cb(new Auth)
+    auth = new Auth
+    if @password?
+      auth = update auth, password: $set: @password
+    cb auth
     # @endif
 
   # Perform an ARIS call, but then wrap a successful result with a class.
