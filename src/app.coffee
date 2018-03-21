@@ -940,8 +940,8 @@ export SiftrNative = createClass
     , (result) =>
       if result.returnCode is 0
         @setState
-          game: game
           auth: update auth, password: $set: password
+        , => @loadGamePosition game
       else
         newPassword = prompt(
           if password?
@@ -951,6 +951,15 @@ export SiftrNative = createClass
         )
         if newPassword?
           @tryLoadGame auth, game, newPassword
+
+  loadGamePosition: (game) ->
+    if game.type is 'ANYWHERE'
+      @state.auth.call 'notes.siftrBounds',
+        game_id: game.game_id
+      , withSuccess (bounds) =>
+        @setState {game, bounds}
+    else
+      @setState {game}
   # @endif
 
   login: (username, password) ->
@@ -1155,6 +1164,7 @@ export SiftrNative = createClass
               followed={@state.followed}
               followGame={@followGame}
               unfollowGame={@unfollowGame}
+              bounds={@state.bounds}
             />
         }
       </WebNav>

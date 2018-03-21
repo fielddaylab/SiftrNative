@@ -202,9 +202,25 @@ export SiftrView = createClass
     onViolaIdentify: (->)
 
   getInitialState: ->
+    fitted = null
+    # @ifdef WEB
+    if @props.bounds?
+      w = window.innerWidth or document.documentElement.clientWidth or document.body.clientWidth
+      h = window.innerHeight or document.documentElement.clientHeight or document.body.clientHeight
+      h -= 150
+      corners =
+        nw:
+          lat: parseFloat @props.bounds.max_latitude
+          lng: parseFloat @props.bounds.min_longitude
+        se:
+          lat: parseFloat @props.bounds.min_latitude
+          lng: parseFloat @props.bounds.max_longitude
+      fitted = fitBounds(corners, {width: w, height: h})
+    # @endif
+
     center:
-      lat: @props.game.latitude
-      lng: @props.game.longitude
+      lat: fitted?.center?.lat ? @props.game.latitude
+      lng: fitted?.center?.lng ? @props.game.longitude
     # @ifdef NATIVE
     delta: do =>
       # more research needed, this is a hack
@@ -214,7 +230,7 @@ export SiftrView = createClass
       lng: delta
     # @endif
     # @ifdef WEB
-    zoom: @props.game.zoom
+    zoom: fitted?.zoom ? @props.game.zoom
     # @endif
     map_notes: []
     map_clusters: []
