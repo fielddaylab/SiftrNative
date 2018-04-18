@@ -546,7 +546,6 @@ class SiftrNoteView extends React.Component
     super props
     @state =
       comments: null
-      editingCaption: false
       # @ifdef NATIVE
       noteModal: false
       gallery: null
@@ -808,7 +807,7 @@ class SiftrNoteView extends React.Component
             options={[
               if @props.note.user.user_id is @props.auth.authToken?.user_id
                 text: 'Edit post'
-                onPress: => @setState editingCaption: true, noteModal: false
+                onPress: => @props.onEdit @props.note
               if @props.note.published is 'AUTO' and @props.auth.authToken?.user_id isnt @props.note.user.user_id
                 text: 'Flag for inappropriate content'
                 onPress: @confirmFlag.bind(@)
@@ -867,20 +866,9 @@ class SiftrNoteView extends React.Component
         { @props.note.created.toLocaleString() }
       </Text>
       {
-        if @state.editingCaption
-          <SiftrCommentInput
-            defaultText={@props.note.description}
-            canCancel={true}
-            onCancel={=> @setState editingCaption: false}
-            onSave={(text) =>
-              @setState editingCaption: false
-              @saveCaption text
-            }
-          />
-        else
-          <View>
-            { writeParagraphs @props.note.description }
-          </View>
+        <View>
+          { writeParagraphs @props.note.description }
+        </View>
       }
       {
         @showFields Text
@@ -961,8 +949,10 @@ class SiftrNoteView extends React.Component
             }
             {
               if @props.note.user.user_id is @props.auth.authToken?.user_id
-                <a href="#" className="note-action" onClick={clicker => @setState editingCaption: true}>
-                  <img src="assets/img/icon-speech-bubble.png" />
+                <a href="#" className="note-action" onClick={clicker =>
+                  @props.onEdit @props.note
+                }>
+                  <img src="assets/img/icon-edit-pencil.png" />
                 </a>
             }
           </div>
@@ -984,22 +974,9 @@ class SiftrNoteView extends React.Component
                 null
           }
           {
-            if @state.editingCaption
-              <div className="note-comments">
-                <SiftrCommentInput
-                  defaultText={@props.note.description}
-                  canCancel={true}
-                  onCancel={=> @setState editingCaption: false}
-                  onSave={(text) =>
-                    @setState editingCaption: false
-                    @saveCaption text
-                  }
-                />
-              </div>
-            else
-              <div className="note-caption">
-                { writeParagraphs @props.note.description }
-              </div>
+            <div className="note-caption">
+              { writeParagraphs @props.note.description }
+            </div>
           }
           {
             @showFields()

@@ -500,7 +500,7 @@ export CreateStep2 = createClass
     onEnterCaption: T.func
     onBack: T.func
     onCancel: T.func
-    defaultCaption: T.string
+    note: T.any
     categories: T.arrayOf(T.instanceOf Tag).isRequired
     getColor: T.func
     progress: T.number
@@ -509,13 +509,12 @@ export CreateStep2 = createClass
     onEnterCaption: (->)
     onBack: (->)
     onCancel: (->)
-    defaultCaption: ''
     getColor: (->)
 
   componentWillMount: ->
     @setState
-      text: @props.defaultCaption
-      category: @props.categories[0]
+      text: @props.note.caption
+      category: @props.note.category ? @props.categories[0]
 
   doEnterCaption: ->
     text = @state.text
