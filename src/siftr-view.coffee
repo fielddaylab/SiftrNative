@@ -812,7 +812,7 @@ export SiftrView = createClass
     else
       @props.onPromptLogin()
 
-  startEdit: (note) ->
+  startEdit: (note, field_data) ->
     if @props.auth.authToken? or not @props.online
       obj =
         createNote:
@@ -824,6 +824,7 @@ export SiftrView = createClass
           location:
             lat: note.latitude
             lng: note.longitude
+          field_data: field_data
         createStep: 2
         searchOpen: false
         viewingNote: null
@@ -936,11 +937,11 @@ export SiftrView = createClass
       />
     else if @state.createStep is 3
       <CreateStep3
-        onPickLocation={(caption) => @setState
+        onPickLocation={=> @setState
           createNote:
             update @state.createNote,
-              caption:
-                $set: caption
+              location:
+                $set: @state.center
           createStep: 5
         }
         onCancel={=> @setState createNote: null}
@@ -967,56 +968,73 @@ export SiftrView = createClass
     # @endif
 
   finishNoteCreation: (field_data = @state.createNote?.field_data ? []) ->
-    {media, files, caption, category, field_media} = @state.createNote
-    field_media ?= []
-    location = @state.center
-    createArgs =
-      game_id: @props.game.game_id
-      description: caption
-      trigger:
-        latitude: location.lat
-        longitude: fixLongitude location.lng
-      tag_id: category.tag_id
-      field_data: field_data.concat(field_media)
-    if media?
-      # we've already uploaded media, now create note
-      createArgs.media_id = media.media_id
-      @props.auth.call 'notes.createNote', createArgs, withSuccess (note) =>
+    if @state.createNote.note_id?
+      # editing an existing note
+      {note_id, caption, category, location} = @state.createNote
+      updateArgs =
+        note_id: note_id
+        game_id: @props.game.game_id
+        description: caption
+        trigger:
+          latitude: location.lat
+          longitude: fixLongitude location.lng
+        tag_id: category.tag_id
+        # TODO field_data
+      @props.auth.call 'notes.updateNote', updateArgs, withSuccess (note) =>
         @setState createNote: null
         @loadResults()
         @loadNoteByID note.note_id
     else
-      # save note for later upload queue
-      queueDir = "#{RNFS.DocumentDirectoryPath}/siftrqueue/#{Date.now()}"
-      filesToCopy = []
-      for f in files
-        continue unless f.file?
-        name = f.file.name
-        if f.field_id?
-          name = "#{f.field_id}.#{name.split('.').pop()}"
-        createArgs.files ?= []
-        createArgs.files.push
-          field_id: f.field_id
-          filename: name
-          mimetype: f.file.type
-          game_id: @props.game.game_id
-        filesToCopy.push
-          copyFrom: f.file.uri
-          copyTo: "#{queueDir}/#{name}"
-      RNFS.mkdir(queueDir)
-      .then => RNFS.writeFile("#{queueDir}/createNote.json", JSON.stringify(createArgs))
-      .then =>
-        Promise.all(
-          for fileToCopy in filesToCopy
-            if fileToCopy.copyFrom.match(/^assets-library/)
-              RNFS.copyAssetsFileIOS(fileToCopy.copyFrom, fileToCopy.copyTo, 0, 0)
-            else
-              RNFS.copyFile(fileToCopy.copyFrom, fileToCopy.copyTo)
-        )
-      .then =>
-        @setState createNote: null
-      .catch (err) =>
-        console.warn JSON.stringify err
+      # creating a new note
+      {media, files, caption, category, field_media, location} = @state.createNote
+      field_media ?= []
+      createArgs =
+        game_id: @props.game.game_id
+        description: caption
+        trigger:
+          latitude: location.lat
+          longitude: fixLongitude location.lng
+        tag_id: category.tag_id
+        field_data: field_data.concat(field_media)
+      if media?
+        # we've already uploaded media, now create note
+        createArgs.media_id = media.media_id
+        @props.auth.call 'notes.createNote', createArgs, withSuccess (note) =>
+          @setState createNote: null
+          @loadResults()
+          @loadNoteByID note.note_id
+      else
+        # save note for later upload queue
+        queueDir = "#{RNFS.DocumentDirectoryPath}/siftrqueue/#{Date.now()}"
+        filesToCopy = []
+        for f in files
+          continue unless f.file?
+          name = f.file.name
+          if f.field_id?
+            name = "#{f.field_id}.#{name.split('.').pop()}"
+          createArgs.files ?= []
+          createArgs.files.push
+            field_id: f.field_id
+            filename: name
+            mimetype: f.file.type
+            game_id: @props.game.game_id
+          filesToCopy.push
+            copyFrom: f.file.uri
+            copyTo: "#{queueDir}/#{name}"
+        RNFS.mkdir(queueDir)
+        .then => RNFS.writeFile("#{queueDir}/createNote.json", JSON.stringify(createArgs))
+        .then =>
+          Promise.all(
+            for fileToCopy in filesToCopy
+              if fileToCopy.copyFrom.match(/^assets-library/)
+                RNFS.copyAssetsFileIOS(fileToCopy.copyFrom, fileToCopy.copyTo, 0, 0)
+              else
+                RNFS.copyFile(fileToCopy.copyFrom, fileToCopy.copyTo)
+          )
+        .then =>
+          @setState createNote: null
+        .catch (err) =>
+          console.warn JSON.stringify err
 
   # @ifdef NATIVE
   render: ->

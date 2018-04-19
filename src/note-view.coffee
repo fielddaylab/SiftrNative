@@ -948,9 +948,9 @@ class SiftrNoteView extends React.Component
                 </a>
             }
             {
-              if @props.note.user.user_id is @props.auth.authToken?.user_id
+              if @props.note.user.user_id is @props.auth.authToken?.user_id and @state.field_data?
                 <a href="#" className="note-action" onClick={clicker =>
-                  @props.onEdit @props.note
+                  @props.onEdit @props.note, @state.field_data
                 }>
                   <img src="assets/img/icon-edit-pencil.png" />
                 </a>

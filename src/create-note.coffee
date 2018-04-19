@@ -559,9 +559,14 @@ export CreateStep2 = createClass
         />
       </div>
       <div className="create-buttons">
-        <a href="#" className="create-button-gray" onClick={clicker @props.onBack}>
-          back
-        </a>
+        {
+          if @props.note.note_id?
+            <span />
+          else
+            <a href="#" className="create-button-gray" onClick={clicker @props.onBack}>
+              back
+            </a>
+        }
         <a href="#" className="create-button-white" onClick={clicker @doEnterCaption}>
           next
         </a>
