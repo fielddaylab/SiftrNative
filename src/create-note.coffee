@@ -204,6 +204,7 @@ export CreateStep1 = createClass
     # @endif
 
   filesReady: ->
+    return unless @state.file?
     files = []
     files.push {field_id: null, file: @state.file}
     for field in @props.fields

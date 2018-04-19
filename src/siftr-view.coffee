@@ -933,7 +933,7 @@ export SiftrView = createClass
           createStep: 1
         }
         getColor={@getColor}
-        progress={if @state.createNote.media? then null else @state.progress}
+        progress={if @state.createNote.media? or @state.createNote.note_id? then null else @state.progress}
       />
     else if @state.createStep is 3
       <CreateStep3
@@ -946,7 +946,7 @@ export SiftrView = createClass
         }
         onCancel={=> @setState createNote: null}
         onBack={=> @setState createStep: 2}
-        progress={if @state.createNote.media? then null else @state.progress}
+        progress={if @state.createNote.media? or @state.createNote.note_id? then null else @state.progress}
       />
     else
       <CreateStep5
@@ -963,7 +963,7 @@ export SiftrView = createClass
         }
         fields={@state.fields}
         field_data={@state.createNote.field_data}
-        progress={if @state.createNote.media? then null else @state.progress}
+        progress={if @state.createNote.media? or @state.createNote.note_id? then null else @state.progress}
       />
     # @endif
 
