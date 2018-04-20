@@ -992,7 +992,13 @@ export SiftrView = createClass
         @loadNoteByID note.note_id
     else
       # creating a new note
-      {media, files, caption, category, field_media, location} = @state.createNote
+      {media, files, caption, category, field_media} = @state.createNote
+      # @ifdef WEB
+      {location} = @state.createNote
+      # @endif
+      # @ifdef NATIVE
+      location = @state.center
+      # @endif
       field_media ?= []
       createArgs =
         game_id: @props.game.game_id
