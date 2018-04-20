@@ -807,7 +807,7 @@ class SiftrNoteView extends React.Component
             options={[
               if @props.note.user.user_id is @props.auth.authToken?.user_id
                 text: 'Edit post'
-                onPress: => @props.onEdit @props.note
+                onPress: => @props.onEdit @props.note, @state.field_data
               if @props.note.published is 'AUTO' and @props.auth.authToken?.user_id isnt @props.note.user.user_id
                 text: 'Flag for inappropriate content'
                 onPress: @confirmFlag.bind(@)

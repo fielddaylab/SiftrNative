@@ -664,12 +664,10 @@ export SiftrView = createClass
       />
 
   renderMap: ->
-    createStep3 = @state.createNote?.caption?
-    createStep4 = @state.createNote?.location?
     <SiftrMap
       map_notes={
         # @ifdef WEB
-        if createStep4
+        if @state.createNote? and @state.createStep is 5
           pin = new Note
           pin.note_id = 0
           pin.latitude = @state.createNote.location.lat
@@ -677,11 +675,11 @@ export SiftrView = createClass
           pin.description = @state.createNote.caption
           pin.tag_id = @state.createNote.category.tag_id
           [pin]
-        else if createStep3
+        else if @state.createNote? and @state.createStep is 3
           [] # pin gets shown by CreateStep3 instead
         # @endif
         # @ifdef NATIVE
-        if @state.createNote?.category?
+        if @state.createNote? and @state.createStep > 1
           pin = new Note
           pin.note_id = 0
           pin.latitude = @state.center.lat
@@ -694,10 +692,18 @@ export SiftrView = createClass
           @state.map_notes
       }
       map_clusters={
-        if createStep3
+        # @ifdef WEB
+        if @state.createNote? and @state.createStep is 3
           []
         else
           @state.map_clusters
+        # @endif
+        # @ifdef NATIVE
+        if @state.createNote? and @state.createStep > 1
+          []
+        else
+          @state.map_clusters
+        # @endif
       }
       onMove={@moveMap}
       onLayout={(event) =>
@@ -979,7 +985,7 @@ export SiftrView = createClass
           latitude: location.lat
           longitude: fixLongitude location.lng
         tag_id: category.tag_id
-        # TODO field_data
+        field_data: field_data
       @props.auth.call 'notes.updateNote', updateArgs, withSuccess (note) =>
         @setState createNote: null
         @loadResults()
@@ -1136,7 +1142,7 @@ export SiftrView = createClass
         }>
           {
             if @state.createNote? and not (@state.createNote.media? or @state.createNote.files? or @state.createNote.uploading)
-              undefined
+              @renderMap()
             else if @state.mainView is 'thumbs'
               [@renderMap(), @renderThumbnails()]
             else

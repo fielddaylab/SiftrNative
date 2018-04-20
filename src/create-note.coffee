@@ -844,6 +844,22 @@ export CreateData = createClass
   componentWillUnmount: ->
     BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
 
+  finishForm: ->
+    field_data = @props.createNote.field_data ? []
+    for field in @props.fields
+      if field.field_type is 'SINGLESELECT'
+        if field_data.some((data) => data.field_id is field.field_id)
+        else
+          field_data.push new FieldData {
+            field_id: field.field_id
+            field_option_id: field.options[0].field_option_id
+          }
+      else if field.required and field.field_type in ['TEXT', 'TEXTAREA']
+        unless field_data.some((data) => data.field_id is field.field_id)
+          return # TODO pop up a message to user
+    return if @props.progress?
+    @props.onFinish field_data
+
   render: ->
     if @state.isPickingLocation
       <View style={styles.overlayBottom}>
@@ -1103,7 +1119,7 @@ export CreateData = createClass
             } />
             <TouchableOpacity onPress={=>
               unless @props.createNote.uploading
-                @props.onFinish @props.onCreateNote
+                @finishForm()
             } style={flex: 1, alignItems: 'center'}>
               <Text style={styles.blackViolaButton}>
                 {
