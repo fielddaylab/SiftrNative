@@ -855,7 +855,6 @@ export SiftrView = createClass
           createNote:
             files: files
             caption: ''
-            location: @state.center
             category: @state.tags[0]
             field_data: []
             online: false
@@ -974,9 +973,17 @@ export SiftrView = createClass
     # @endif
 
   finishNoteCreation: (field_data = @state.createNote?.field_data ? []) ->
+    getLocation = =>
+      # @ifdef WEB
+      @state.createNote.location
+      # @endif
+      # @ifdef NATIVE
+      @state.center
+      # @endif
     if @state.createNote.note_id?
       # editing an existing note
-      {note_id, caption, category, location} = @state.createNote
+      {note_id, caption, category} = @state.createNote
+      location = getLocation()
       updateArgs =
         note_id: note_id
         game_id: @props.game.game_id
@@ -993,12 +1000,7 @@ export SiftrView = createClass
     else
       # creating a new note
       {media, files, caption, category, field_media} = @state.createNote
-      # @ifdef WEB
-      {location} = @state.createNote
-      # @endif
-      # @ifdef NATIVE
-      location = @state.center
-      # @endif
+      location = getLocation()
       field_media ?= []
       createArgs =
         game_id: @props.game.game_id
