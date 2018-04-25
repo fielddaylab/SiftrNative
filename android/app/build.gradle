@@ -142,6 +142,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-geocoder')
     compile(project(':react-native-firebase')) {
         transitive = false
     }

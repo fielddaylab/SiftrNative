@@ -3,6 +3,7 @@ package org.siftr.client;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.devfd.RNGeocoder.RNGeocoderPackage;
 import io.invertase.firebase.RNFirebasePackage;
 import io.invertase.firebase.analytics.RNFirebaseAnalyticsPackage;
 import com.lwansbrough.RCTCamera.RCTCameraPackage;
@@ -32,6 +33,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNGeocoderPackage(),
             new RNFirebasePackage(),
             new RNFirebaseAnalyticsPackage(),
             new RCTCameraPackage(),

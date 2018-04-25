@@ -28,6 +28,7 @@ EXIF = require 'exif-js'
 import Camera from 'react-native-camera'
 import InfiniteScrollView from 'react-native-infinite-scroll-view'
 import firebase from 'react-native-firebase'
+import Geocoder from 'react-native-geocoder';
 # @endif
 
 # @ifdef WEB
@@ -826,11 +827,10 @@ export CreateData = createClass
   getInitialState: ->
     isPickingLocation: false
     tagListOpen: false
+    geocodeResult: null
 
   componentWillMount: ->
-    # @ifdef NATIVE
     firebase.analytics().logEvent 'entering_note_info', {}
-    # @endif
     unless @props.resumedNote
       @props.onStartLocation()
     @hardwareBack = =>
@@ -840,6 +840,10 @@ export CreateData = createClass
         @props.onBack()
       true
     BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
+    setTimeout =>
+      Geocoder.geocodePosition(@props.getLocation()).then (res) =>
+        @setState geocodeResult: res
+    , 1000
 
   componentWillUnmount: ->
     BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
@@ -865,6 +869,8 @@ export CreateData = createClass
       <View style={styles.overlayBottom}>
         <View style={styles.buttonRow}>
           <TouchableOpacity onPress={=>
+            Geocoder.geocodePosition(@props.getLocation()).then (res) =>
+              @setState geocodeResult: res
             @setState isPickingLocation: false
           }>
             <Text style={styles.blueButton}>Pick Location</Text>
@@ -918,7 +924,12 @@ export CreateData = createClass
                 <TouchableOpacity onPress={=>
                   @setState isPickingLocation: true
                 }>
-                  <Text style={styles.blueButton}>Pick Location</Text>
+                  <Text style={styles.blueButton}>{
+                    if @state.geocodeResult? and @state.geocodeResult[0]?
+                      @state.geocodeResult[0].feature ? @state.geocodeResult[0].formattedAddress
+                    else
+                      'Pick Location'
+                  }</Text>
                 </TouchableOpacity>
               </View>
               <TouchableOpacity onPress={=>

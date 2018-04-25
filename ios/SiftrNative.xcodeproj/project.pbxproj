@@ -39,6 +39,7 @@
 		5342413B1F5733A400327826 /* libAirMaps.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 534241371F57334C00327826 /* libAirMaps.a */; };
 		5342413C1F5733A800327826 /* libRNImagePicker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 535719E51E8C3A6C0018DDA2 /* libRNImagePicker.a */; };
 		535041AF2005615300EC81EF /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 535041AE2005615300EC81EF /* GoogleService-Info.plist */; };
+		53765C30209136A1001F1BB9 /* libRNGeocoder.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 53765C2C20913691001F1BB9 /* libRNGeocoder.a */; };
 		5382FEF71F95478A007BA728 /* libRCTCameraRoll.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5382FEF51F951F17007BA728 /* libRCTCameraRoll.a */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
@@ -322,6 +323,13 @@
 			remoteGlobalIDString = 134814201AA4EA6300B7C361;
 			remoteInfo = RCTOrientation;
 		};
+		53765C2B20913691001F1BB9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 53765BFF20913691001F1BB9 /* RNGeocoder.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = BF8FCF941BFFB184000FCD37;
+			remoteInfo = RNGeocoder;
+		};
 		5382FEE21F9518E5007BA728 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FA3334AF895A46E49E7E9BB3 /* RCTCamera.xcodeproj */;
@@ -395,6 +403,7 @@
 		526BA23B0C35A1880FBE5D97 /* Pods-SiftrNative.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SiftrNative.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SiftrNative/Pods-SiftrNative.debug.xcconfig"; sourceTree = "<group>"; };
 		534241321F57334C00327826 /* AirMaps.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AirMaps.xcodeproj; path = "../node_modules/react-native-maps/lib/ios/AirMaps.xcodeproj"; sourceTree = "<group>"; };
 		535041AE2005615300EC81EF /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "SiftrNative/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		53765BFF20913691001F1BB9 /* RNGeocoder.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNGeocoder.xcodeproj; path = "../node_modules/react-native-geocoder/ios/RNGeocoder.xcodeproj"; sourceTree = "<group>"; };
 		5382FEF01F951F17007BA728 /* RCTCameraRoll.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTCameraRoll.xcodeproj; path = "../node_modules/react-native/Libraries/CameraRoll/RCTCameraRoll.xcodeproj"; sourceTree = "<group>"; };
 		5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTAnimation.xcodeproj; path = "../node_modules/react-native/Libraries/NativeAnimation/RCTAnimation.xcodeproj"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
@@ -421,6 +430,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				53765C30209136A1001F1BB9 /* libRNGeocoder.a in Frameworks */,
 				5382FEF71F95478A007BA728 /* libRCTCameraRoll.a in Frameworks */,
 				5342413C1F5733A800327826 /* libRNImagePicker.a in Frameworks */,
 				5342413B1F5733A400327826 /* libAirMaps.a in Frameworks */,
@@ -634,6 +644,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		53765C0020913691001F1BB9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				53765C2C20913691001F1BB9 /* libRNGeocoder.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		5382FEDF1F9518E5007BA728 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -698,6 +716,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				53765BFF20913691001F1BB9 /* RNGeocoder.xcodeproj */,
 				5382FEF01F951F17007BA728 /* RCTCameraRoll.xcodeproj */,
 				534241321F57334C00327826 /* AirMaps.xcodeproj */,
 				5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */,
@@ -786,8 +805,6 @@
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				C98834C7E882A64031081A6E /* [CP] Embed Pods Frameworks */,
-				1E7370817F0853ED01B06297 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -941,6 +958,10 @@
 				{
 					ProductGroup = 533701B11F06E8CA001CAD3A /* Products */;
 					ProjectRef = 30319DF7F8874E51A1040D70 /* RNFS.xcodeproj */;
+				},
+				{
+					ProductGroup = 53765C0020913691001F1BB9 /* Products */;
+					ProjectRef = 53765BFF20913691001F1BB9 /* RNGeocoder.xcodeproj */;
 				},
 				{
 					ProductGroup = 535719BC1E8C3A6C0018DDA2 /* Products */;
@@ -1221,6 +1242,13 @@
 			remoteRef = 536F95C51F575AA4003FBD92 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		53765C2C20913691001F1BB9 /* libRNGeocoder.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRNGeocoder.a;
+			remoteRef = 53765C2B20913691001F1BB9 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		5382FEE31F9518E5007BA728 /* libRCTCamera.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1315,21 +1343,6 @@
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
 		};
-		1E7370817F0853ED01B06297 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SiftrNative/Pods-SiftrNative-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		2D02E4CB1E0B4B27006451C7 /* Bundle React Native Code And Images */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1360,21 +1373,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		C98834C7E882A64031081A6E /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SiftrNative/Pods-SiftrNative-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
