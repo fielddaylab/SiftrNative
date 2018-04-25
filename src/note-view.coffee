@@ -181,9 +181,12 @@ class SiftrCommentInput extends React.Component
         onKeyDown={(e) => @doSave() if e.keyCode is 13}
       />
       <p>
+        <a href="#" onClick={clicker @doSave.bind(@)} className="edit-comment-button">
+          { if @props.canCancel then 'SAVE' else 'POST' }
+        </a>
         {
           if @props.canCancel
-            <a href="#" onClick={clicker @props.onCancel} className="create-button-gray">
+            <a href="#" onClick={clicker @props.onCancel} className="edit-comment-button">
               CANCEL
             </a>
         }
