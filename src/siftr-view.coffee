@@ -26,6 +26,10 @@ import {StatusSpace} from './status-space'
 import firebase from 'react-native-firebase'
 # @endif
 
+# @ifdef WEB
+import {markdown} from 'markdown'
+# @endif
+
 {fitBounds} = require 'google-map-react/utils'
 
 { Auth
@@ -1208,6 +1212,23 @@ export SiftrView = createClass
           <div className="siftr-view-nav-vertical">
             <h2>
               {@props.game.name}
+              {' '}
+              <a href="#" className="siftr-instructicon" onClick={(e) =>
+                e.preventDefault()
+                @setState instructions: not @state.instructions
+              }>
+                <img src="assets/img/icon-4dots.png" />
+                <div
+                  className="siftr-instructions #{if @state.instructions then 'siftr-instructions-show'}"
+                  dangerouslySetInnerHTML={
+                    __html: markdown.toHTML(@props.game.description).replace(/<a /g, '<a target="_blank" ')
+                  }
+                  onClick={(e) =>
+                    if e.target.tagName.toLowerCase() is 'a'
+                      e.stopPropagation() # so the preventDefault() doesn't happen
+                  }
+                />
+              </a>
             </h2>
             {
               if @props.auth.authToken?

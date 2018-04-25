@@ -103,6 +103,29 @@ $small-nav: "screen and (max-width: 550px)";
     @media #{$small-nav} {
       font-size: 20px;
     }
+
+    .siftr-instructicon {
+      z-index: 1;
+      // ^ this fixes weird z-index issues with the opacity 0.5 buttons, see
+      // https://philipwalton.com/articles/what-no-one-told-you-about-z-index/
+      img { height: 19px; }
+      position: relative;
+      overflow: visible;
+      .siftr-instructions {
+        display: none;
+        &.siftr-instructions-show { display: block; }
+        position: absolute;
+        top: 20px;
+        left: -150px;
+        width: 250px;
+        color: black;
+        font-size: 14px;
+        background-color: white;
+        padding: 10px;
+        border: 1px solid black;
+        overflow-x: hidden;
+      }
+    }
   }
 }
 
@@ -137,7 +160,6 @@ $small-nav: "screen and (max-width: 550px)";
   align-items: center;
   padding: 0;
   margin: 0;
-  z-index: 20;
 }
 
 .siftr-view-nav-follow {
