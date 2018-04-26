@@ -318,6 +318,15 @@ NativePassword = createClass
     onClose: (->)
     onChangePassword: (->)
 
+  componentWillMount: ->
+    @hardwareBack = =>
+      @props.onClose()
+      true
+    BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
+
+  componentWillUnmount: ->
+    BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
+
   render: ->
     <View style={
       flexDirection: 'column'
@@ -405,6 +414,13 @@ NativeProfile = createClass
 
   componentWillMount: ->
     @fetchPicture()
+    @hardwareBack = =>
+      @props.onClose()
+      true
+    BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
+
+  componentWillUnmount: ->
+    BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
 
   fetchPicture: ->
     media_id = @props.auth.authToken.media_id
@@ -551,6 +567,15 @@ NativeSettings = createClass
     onClose: (->)
     onChangePassword: (->)
     onEditProfile: (->)
+
+  componentWillMount: ->
+    @hardwareBack = =>
+      @props.onClose()
+      true
+    BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
+
+  componentWillUnmount: ->
+    BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
 
   render: ->
     switch @state.setting
@@ -963,7 +988,9 @@ export SiftrNative = createClass
   # @endif
 
   login: (username, password) ->
-    return unless @state.online
+    unless @state.online
+      Alert.alert "Couldn't connect to Siftr."
+      return
     (@state.auth ? new Auth).login username, password, (newAuth, err) =>
       if username? and password? and not newAuth.authToken?
         Alert.alert err.returnCodeDescription
@@ -1020,7 +1047,9 @@ export SiftrNative = createClass
     @register()
 
   register: ->
-    return unless @state.online
+    unless @state.online
+      Alert.alert "Couldn't connect to Siftr.", "You need to be connected to the internet to create an account."
+      return
     {username, password, email} = @registerInfo
     (@state.auth ? new Auth).register username, password, email, (newAuth, err) =>
       unless newAuth.authToken?
