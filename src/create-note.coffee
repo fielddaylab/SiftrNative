@@ -23,6 +23,7 @@ EXIF = require 'exif-js'
 , ListView
 , TouchableWithoutFeedback
 , Keyboard
+, Alert
 } = require 'react-native'
 {styles, Text} = require './styles'
 import Camera from 'react-native-camera'
@@ -349,12 +350,15 @@ export CreateStep1 = createClass
                 <TouchableOpacity onPress={=>
                   return unless this.camera?
                   field_id = @state.field_id
-                  this.camera.capture({}).then ({path}) =>
+                  this.camera.capture({})
+                  .then ({path}) =>
                     @chooseImage field_id,
                       uri: path
                       isStatic: true
                       type: 'image/jpeg'
                       name: 'upload.jpg'
+                  .catch (err) =>
+                    Alert.alert "Couldn't capture photo", "Please check that Siftr has access to the camera and photo roll."
                 }>
                   <Image source={require '../web/assets/img/icon-take-picture.png'} style={
                     width: 50
