@@ -1212,28 +1212,11 @@ export SiftrView = createClass
           <div className="siftr-view-nav-vertical">
             <h2>
               {@props.game.name}
-              {' '}
-              <a href="#" className="siftr-instructicon" onClick={(e) =>
-                e.preventDefault()
-                @setState instructions: not @state.instructions
-              }>
-                <img src="assets/img/icon-4dots.png" />
-                <div
-                  className="siftr-instructions #{if @state.instructions then 'siftr-instructions-show'}"
-                  dangerouslySetInnerHTML={
-                    __html: markdown.toHTML(@props.game.description).replace(/<a /g, '<a target="_blank" ')
-                  }
-                  onClick={(e) =>
-                    if e.target.tagName.toLowerCase() is 'a'
-                      e.stopPropagation() # so the preventDefault() doesn't happen
-                  }
-                />
-              </a>
             </h2>
             {
               if @props.auth.authToken?
                 <p className="siftr-view-nav-follow">
-                  <a href="#" onClick={clicker =>
+                  <a class="button light_gray" href="#" onClick={clicker =>
                     if isFollowing
                       @props.unfollowGame @props.game
                     else
@@ -1241,10 +1224,29 @@ export SiftrView = createClass
                   }>
                     {
                       if isFollowing
-                        'Followed'
+                        'Following'
                       else
                         'Follow this Siftr'
                     }
+                  </a>
+                  {' '}
+                  <a href="#" className="button light_gray siftr-instructicon" onClick={(e) =>
+                    e.preventDefault()
+                    @setState instructions: not @state.instructions
+                  }>
+                    instructions
+                    <img src="assets/img/icon-4dots.png" />
+                    <div
+                      className="siftr-instructions #{if @state.instructions then 'siftr-instructions-show'}"
+                      dangerouslySetInnerHTML={
+                        __html: markdown.toHTML(@props.game.description).replace(/<a /g, '<a target="_blank" ')
+                      }
+                      onClick={(e) =>
+                        if e.target.tagName.toLowerCase() is 'a'
+                          e.stopPropagation() # so the preventDefault() doesn't happen
+                      }
+                    >
+                    </div>
                   </a>
                 </p>
             }

@@ -1,0 +1,15 @@
+.button {
+  padding: 5px 10px;
+  margin-right: 10px;
+  border: 1px solid;
+  border-radius:5px;
+  text-decoration: none;
+  color: $black;
+  font-size:12px;
+  &:hover {
+    text-decoration:none;
+  }
+  &.light_gray {
+    border-color: $light_gray;
+  }
+}
