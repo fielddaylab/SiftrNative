@@ -29,7 +29,8 @@ EXIF = require 'exif-js'
 import Camera from 'react-native-camera'
 import InfiniteScrollView from 'react-native-infinite-scroll-view'
 import firebase from 'react-native-firebase'
-import Geocoder from 'react-native-geocoder';
+import Geocoder from 'react-native-geocoder'
+import Permissions from 'react-native-permissions'
 # @endif
 
 # @ifdef WEB
@@ -249,6 +250,8 @@ export CreateStep1 = createClass
       @props.onCancel()
       true
     BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
+    Permissions.request('camera') # take photos
+    Permissions.request('photo') # access photos
 
   componentWillUnmount: ->
     BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
@@ -350,15 +353,20 @@ export CreateStep1 = createClass
                 <TouchableOpacity onPress={=>
                   return unless this.camera?
                   field_id = @state.field_id
-                  this.camera.capture({})
-                  .then ({path}) =>
-                    @chooseImage field_id,
-                      uri: path
-                      isStatic: true
-                      type: 'image/jpeg'
-                      name: 'upload.jpg'
-                  .catch (err) =>
-                    Alert.alert "Couldn't capture photo", "Please check that Siftr has access to the camera and photo roll."
+                  cameraError = =>
+                    Alert.alert "Couldn't capture photo", "Please check that Siftr has access to the camera and photo roll in system privacy settings."
+                  Permissions.checkMultiple(['camera', 'photo']).then (response) =>
+                    if response.camera is 'authorized' and response.photo is 'authorized'
+                      this.camera.capture({})
+                      .then ({path}) =>
+                        @chooseImage field_id,
+                          uri: path
+                          isStatic: true
+                          type: 'image/jpeg'
+                          name: 'upload.jpg'
+                      .catch(cameraError)
+                    else
+                      cameraError()
                 }>
                   <Image source={require '../web/assets/img/icon-take-picture.png'} style={
                     width: 50

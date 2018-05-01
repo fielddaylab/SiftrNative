@@ -4928,6 +4928,10 @@ react-native-orientation@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/react-native-orientation/-/react-native-orientation-3.1.0.tgz#ce470fe44a9a47df5be4995b01a1089d3f4a033e"
 
+react-native-permissions@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-permissions/-/react-native-permissions-1.1.1.tgz#4876004681ff8556454613d85249b01baff9b35b"
+
 react-native-scrollable-mixin@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/react-native-scrollable-mixin/-/react-native-scrollable-mixin-1.0.1.tgz#34a32167b64248594154fd0d6a8b03f22740548e"
