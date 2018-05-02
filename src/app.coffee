@@ -48,6 +48,7 @@ import {
 , arisHTTPS
 , deserializeGame
 , deserializeNote
+, displayError
 } = require './aris'
 
 {SiftrView, SiftrInfo} = require './siftr-view'
@@ -989,11 +990,12 @@ export SiftrNative = createClass
 
   login: (username, password) ->
     unless @state.online
-      Alert.alert "Couldn't connect to Siftr."
+      displayError
+        error: "Couldn't connect to Siftr."
       return
     (@state.auth ? new Auth).login username, password, (newAuth, err) =>
       if username? and password? and not newAuth.authToken?
-        Alert.alert err.returnCodeDescription
+        displayError(err)
       @setState
         auth: newAuth
         games: null
@@ -1048,12 +1050,14 @@ export SiftrNative = createClass
 
   register: ->
     unless @state.online
-      Alert.alert "Couldn't connect to Siftr.", "You need to be connected to the internet to create an account."
+      displayError
+        error: "Couldn't connect to Siftr."
+        errorMore: "You need to be connected to the internet to create an account."
       return
     {username, password, email} = @registerInfo
     (@state.auth ? new Auth).register username, password, email, (newAuth, err) =>
       unless newAuth.authToken?
-        Alert.alert err.returnCodeDescription
+        displayError(err)
       @setState
         showingTerms: false
         auth: newAuth

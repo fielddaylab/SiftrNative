@@ -2,6 +2,7 @@
 
 # @ifdef NATIVE
 { AsyncStorage
+, Alert
 } = require 'react-native'
 # @endif
 update = require 'immutability-helper'
@@ -196,6 +197,22 @@ class FieldData
       @media           = json.media
       @field_option_id = parseInt json.field_option_id
 
+displayError = (err) ->
+  if err.returnCodeDescription?
+    # @ifdef NATIVE
+    Alert.alert("Error", err.returnCodeDescription)
+    # @endif
+    # @ifdef WEB
+    alert(err.returnCodeDescription)
+    # @endif
+  else
+    # @ifdef NATIVE
+    Alert.alert(err.error, err.errorMore)
+    # @endif
+    # @ifdef WEB
+    alert("#{err.error} - #{err.errorMore}")
+    # @endif
+
 # Handles Aris v2 authentication and API calls.
 class Auth
   constructor: (json = null) ->
@@ -282,16 +299,20 @@ class Auth
           handleError req.status
       req.onerror = => handleError "Could not connect to Siftr"
       tries = 3
+      trySend = =>
+        if req.readyState is req.OPENED
+          req.send jsonString
+        else
+          cb
+            error: "Could not connect to Siftr"
+            errorMore: "Make sure you can connect to siftr.org and arisgames.org."
       handleError = (error) =>
         if tries is 0
           cb {error}
         else
           tries -= 1
-          if req.readyState is req.OPENED
-            req.send jsonString
-      # TODO call cb with an error if not OPENED which means we're offline
-      if req.readyState is req.OPENED
-        req.send jsonString
+          trySend()
+      trySend()
     req
 
   useLoginResult: (obj, logoutOnFail, cb = (->)) ->
@@ -466,5 +487,5 @@ class Auth
   getNearbyGamesForPlayer: (json, cb) ->
     @callWrapped 'client.getNearbyGamesForPlayer', json, cb, (data) -> new Game o for o in data
 
-for k, v of {Game, deserializeGame, User, Tag, Comment, Note, Auth, Colors, Field, FieldData, FieldOption, arisHTTPS, deserializeNote}
+for k, v of {Game, deserializeGame, User, Tag, Comment, Note, Auth, Colors, Field, FieldData, FieldOption, arisHTTPS, deserializeNote, displayError}
   exports[k] = v
