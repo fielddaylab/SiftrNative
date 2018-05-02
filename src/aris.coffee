@@ -174,6 +174,7 @@ class Field
       @field_type = json.field_type
       @label      = json.label
       @required   = !!(parseInt json.required)
+      @sort_index = if json.sort_index? then parseInt json.sort_index else null
 
 class FieldOption
   constructor: (json = null) ->
@@ -182,6 +183,7 @@ class FieldOption
       @field_id        = parseInt json.field_id
       @game_id         = parseInt json.game_id
       @option          = json.option
+      @sort_index      = if json.sort_index? then parseInt json.sort_index else null
 
 class FieldData
   constructor: (json = null) ->
@@ -401,14 +403,25 @@ class Auth
     @callWrapped 'users.getUsersForGame', json, cb, (data) -> new User o for o in data
 
   getFieldsForGame: (json, cb) ->
+    sortByIndex = (key_id) -> (a, b) ->
+      if a.sort_index? and b.sort_index?
+        a.sort_index - b.sort_index
+      else if a.sort_index?
+        1
+      else if b.sort_index?
+        -1
+      else
+        a[key_id] - b[key_id]
     @callWrapped 'fields.getFieldsForGame', json, cb, (data) ->
       fields =
         new Field o for o in data.fields
+      fields.sort sortByIndex 'field_id'
       options =
         new FieldOption o for o in data.options
       for field in fields
         field.options =
           opt for opt in options when field.field_id is opt.field_id
+        field.options.sort sortByIndex 'field_option_id'
       fields
 
   getGamesForUser: (json, cb) ->
