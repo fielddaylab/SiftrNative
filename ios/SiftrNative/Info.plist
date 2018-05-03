@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.9</string>
+	<string>1.0.10</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -32,7 +32,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>41</string>
+	<string>42</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
@@ -65,7 +65,7 @@
 	<string>This permission is not used by Siftr.</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>This permission is not used by Siftr.</string>
-	<key>kTCCServiceMediaLibrary</key>
+	<key>NSAppleMusicUsageDescription</key>
 	<string>This permission is not used by Siftr.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>This permission is not used by Siftr.</string>
