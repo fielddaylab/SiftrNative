@@ -61,6 +61,16 @@
 	<string>Save your Siftr photos to the camera roll.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Upload your photos to Siftr.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>This permission is not used by Siftr.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>This permission is not used by Siftr.</string>
+	<key>kTCCServiceMediaLibrary</key>
+	<string>This permission is not used by Siftr.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>This permission is not used by Siftr.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This permission is not used by Siftr.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
