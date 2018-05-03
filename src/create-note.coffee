@@ -910,6 +910,9 @@ export CreateData = createClass
             alignItems: 'stretch'
           }>
             <Blackout keyboardUp={@state.focusedBox?} isFocused={@state.focusedBox is 'caption'}>
+              <View style={styles.settingsHeader}>
+                <Text style={styles.settingsHeaderText}>Enter caption</Text>
+              </View>
               <TextInput
                 placeholder="Add a description…"
                 value={@props.createNote.caption}
@@ -932,17 +935,43 @@ export CreateData = createClass
               />
             </Blackout>
             <Blackout keyboardUp={@state.focusedBox?} isFocused={false}>
-              <View style={[styles.buttonRow, backgroundColor: 'white']}>
+              <View style={styles.settingsHeader}>
+                <Text style={styles.settingsHeaderText}>Pick location</Text>
+              </View>
+              <View style={backgroundColor: 'white'}>
                 <TouchableOpacity onPress={=>
                   @setState isPickingLocation: true
+                } style={
+                  flexDirection: 'row'
                 }>
-                  <Text style={styles.blueButton}>{
+                  <Text style={
+                    paddingLeft: 20
+                    paddingRight: 20
+                    paddingTop: 8
+                    paddingBottom: 8
+                    color: 'black'
+                    fontSize: 18
+                    flex: 1
+                  }>{
                     if @state.geocodeResult? and @state.geocodeResult[0]?
                       @state.geocodeResult[0].feature ? @state.geocodeResult[0].formattedAddress
                     else
-                      'Pick Location'
+                      'Locating…'
                   }</Text>
+                  <Text style={
+                    paddingLeft: 20
+                    paddingRight: 20
+                    paddingTop: 8
+                    paddingBottom: 8
+                    color: 'black'
+                    fontSize: 18
+                  }>
+                    {'>'}
+                  </Text>
                 </TouchableOpacity>
+              </View>
+              <View style={styles.settingsHeader}>
+                <Text style={styles.settingsHeaderText}>Pick category</Text>
               </View>
               <TouchableOpacity onPress={=>
                 @setState tagListOpen: not @state.tagListOpen
@@ -1005,7 +1034,7 @@ export CreateData = createClass
                 return null if field.field_type is 'MEDIA'
                 <Blackout keyboardUp={@state.focusedBox?} isFocused={@state.focusedBox is field.field_id} key={field.field_id} style={alignSelf: 'stretch'}>
                   <View style={styles.settingsHeader}>
-                    <Text style={styles.settingsHeaderText}>{ if field.field_type is 'NOMEN' then "Nomen #{field.label}" else field.label }</Text>
+                    <Text style={styles.settingsHeaderText}>Enter data: { field.label }</Text>
                   </View>
                   {
                     field_data = @props.createNote.field_data ? []
@@ -1088,7 +1117,7 @@ export CreateData = createClass
                         </Picker>
                       when 'MULTISELECT'
                         field.options.map (option) =>
-                          <View style={flexDirection: 'row', backgroundColor: 'white'} key={option.field_option_id}>
+                          <View style={flexDirection: 'row', backgroundColor: 'white', alignItems: 'center'} key={option.field_option_id}>
                             <Switch
                               value={field_data.some (data) =>
                                 data.field_id is field.field_id and data.field_option_id is option.field_option_id
@@ -1103,8 +1132,9 @@ export CreateData = createClass
                                   }
                                 onChangeData newData
                               }
+                              style={margin: 10}
                             />
-                            <Text>{ option.option }</Text>
+                            <Text style={margin: 10}>{ option.option }</Text>
                           </View>
                       when 'NOMEN'
                         <TouchableOpacity style={padding: 10, backgroundColor: 'white'} onPress={=>
