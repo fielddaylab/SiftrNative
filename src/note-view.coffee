@@ -352,7 +352,7 @@ class SiftrComment extends React.Component
     else
       <div className="note-comment">
         <p className="note-comment-credit">
-          { @props.comment.user.display_name } at { @props.comment.created.toLocaleString() }
+          { @props.comment.user.display_name } <span className="note-comment-date">at { @props.comment.created.toLocaleString() }</span>
           {
             if @props.auth.authToken?.user_id is @props.comment.user.user_id
               <a className="note-comment-action" href="#" onClick={clicker => @setState editing: true}>
@@ -739,10 +739,18 @@ class SiftrNoteView extends React.Component
         data =
           d for d in @state.field_data when d.field_id is field.field_id
         switch field.field_type
-          when 'TEXT', 'TEXTAREA', 'NOMEN'
+          when 'TEXT', 'NOMEN'
             if data[0]? and data[0] isnt ''
               fields.push(
                 <div className="note-field-data" key={field.field_id}>
+                  <span className="note-field-data-key">{field.label}</span>
+                  <span className="note-field-data-value">{data[0].field_data}</span>
+                </div>
+              )
+          when 'TEXTAREA'
+            if data[0]? and data[0] isnt ''
+              fields.push(
+                <div className="note-field-data textarea" key={field.field_id}>
                   <span className="note-field-data-key">{field.label}</span>
                   <span className="note-field-data-value">{data[0].field_data}</span>
                 </div>
