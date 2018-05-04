@@ -164,7 +164,6 @@ export const styles = StyleSheet.create({
     height: 70,
     resizeMode: 'cover',
     margin: 10,
-    marginBottom: 3,
     borderRadius: 8,
   },
 

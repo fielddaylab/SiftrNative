@@ -167,44 +167,29 @@ CreatePhotoBox = createClass
     </div>
 # @endif
 
+# @ifdef WEB
+
 # Step 1: Upload
 export CreateStep1 = createClass
   displayName: 'CreateStep1'
   propTypes:
     onCancel: T.func
-    # @ifdef NATIVE
-    onStoreMedia: T.func
-    # @endif
-    # @ifdef WEB
     onStartUpload: T.func
     onProgress: T.func
     onCreateMedia: T.func
-    # @endif
     auth: T.instanceOf(Auth).isRequired
     game: T.instanceOf(Game).isRequired
     fields: T.arrayOf(T.instanceOf Field)
 
   getDefaultProps: ->
     onCancel: (->)
-    # @ifdef NATIVE
-    onStoreMedia: (->)
-    # @endif
-    # @ifdef WEB
     onStartUpload: (->)
     onProgress: (->)
     onCreateMedia: (->)
-    # @endif
 
   getInitialState: ->
-    progress: null
     file: null # file that has EXIF tags already loaded
     extraFiles: Map()
-    # @ifdef NATIVE
-    source: 'camera'
-    camera: 'back'
-    flash: false
-    field_id: null
-    # @endif
 
   filesReady: ->
     return unless @state.file?
@@ -220,14 +205,6 @@ export CreateStep1 = createClass
         file: file
     files
 
-  # @ifdef NATIVE
-  beginUpload: ->
-    files = @filesReady()
-    return unless files?
-    @props.onStoreMedia {files}
-  # @endif
-
-  # @ifdef WEB
   beginUpload: ->
     files = @filesReady()
     return unless files?
@@ -241,11 +218,80 @@ export CreateStep1 = createClass
           fieldMedia.push {field_id: field_id, media_id: media.media_id}
       @props.onCreateMedia results[0], fieldMedia
     @props.onStartUpload()
-  # @endif
 
-  # @ifdef NATIVE
+  getEXIF: (field_id, file) ->
+    return unless file?
+    EXIF.getData file, =>
+      if field_id?
+        @setState extraFiles: @state.extraFiles.set(field_id, file)
+      else
+        @setState {file}
+
+  render: ->
+    pictureSlots = []
+    # main picture
+    pictureSlots.push
+      field_id: null
+      currentImage: => @state.file
+      header: 'Main image'
+      required: true
+    # other pictures
+    for field in @props.fields.filter((field) => field.field_type is 'MEDIA')
+      pictureSlots.push
+        field_id: field.field_id
+        currentImage: => @state.extraFiles.get(field.field_id, null)
+        header: field.label
+        required: field.required
+
+    <div className="create-step-1">
+      <div className="create-content">
+        <h2>Drop photos into each section</h2>
+        {
+          pictureSlots.map ({field_id, currentImage, header, required}) =>
+            img = currentImage()
+            <CreatePhotoBox
+              key={field_id}
+              onChooseFile={(file) => @getEXIF(field_id, file)}
+              file={img}
+              orientation={if img? then EXIF.getTag(img, 'Orientation') else null}
+              header={header}
+              required={required}
+            />
+        }
+      </div>
+      <div className="create-buttons">
+        <a href="#" className="create-button-gray" onClick={clicker @props.onCancel}>
+          cancel
+        </a>
+        <a href="#" className="create-button-white" onClick={clicker @beginUpload}>
+          next
+        </a>
+      </div>
+    </div>
+
+# @endif
+
+# @ifdef NATIVE
+
+# photo taker on native: takes a single photo at a time
+export CreatePhoto = createClass
+  displayName: 'CreatePhoto'
+  propTypes:
+    onCancel: T.func
+    onSelectImage: T.func
+    instruction: T.string
+
+  getDefaultProps: ->
+    onCancel: (->)
+    onSelectImage: (->)
+    instruction: null
+
+  getInitialState: ->
+    source: 'camera'
+    camera: 'back'
+    flash: false
+
   componentWillMount: ->
-    firebase.analytics().logEvent 'start_create_note', {}
     @hardwareBack = =>
       @props.onCancel()
       true
@@ -256,66 +302,15 @@ export CreateStep1 = createClass
   componentWillUnmount: ->
     BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
 
-  chooseImage: (field_id, file) ->
-    return unless file?
-    if field_id?
-      @setState extraFiles: @state.extraFiles.set(field_id, file)
-    else
-      @setState {file}
-
   render: ->
-    pictureSlots = []
-    # main picture
-    pictureSlots.push
-      field_id: null
-      currentImage: => @state.file
-    # other pictures
-    for field in @props.fields.filter((field) => field.field_type is 'MEDIA')
-      pictureSlots.push
-        field_id: field.field_id
-        currentImage: => @state.extraFiles.get(field.field_id, null)
-
     <View style={styles.overlayWhole}>
-      <View>
-        <ScrollView horizontal={true} centerContent={true} style={
-          backgroundColor: 'rgb(240,240,240)'
-        }>
-          {
-            pictureSlots.map ({field_id, currentImage}) =>
-              <TouchableOpacity key={field_id ? 0} onPress={=> @setState {field_id}} style={
-                flexDirection: 'column'
-                alignItems: 'center'
-              }>
-                {
-                  <Image source={
-                    if (file = currentImage())?
-                      file
-                    else
-                      require '../web/assets/img/icon-needs-pic.png'
-                  } style={styles.photoSlot} />
-                }
-                {
-                  if @state.field_id is field_id
-                    <Image
-                      source={require '../web/assets/img/white-indicator.png'}
-                      style={
-                        width: 250 * 0.08
-                        height: 110 * 0.08
-                      }
-                    />
-                }
-              </TouchableOpacity>
-          }
-        </ScrollView>
-      </View>
       <View style={backgroundColor: 'white', padding: 3}>
         <Text style={color: '#979797', textAlign: 'center'}>
           {
-            if @state.field_id?
-              field = @props.fields.find((field) => field.field_id is @state.field_id)
-              "Add image of: #{field.label}".toUpperCase()
+            if @props.instruction?
+              "Add image of: #{@props.instruction}".toUpperCase()
             else
-              'Add main image'.toUpperCase()
+              'Main image'.toUpperCase()
           }
         </Text>
       </View>
@@ -359,7 +354,7 @@ export CreateStep1 = createClass
                     if response.camera is 'authorized' and response.photo is 'authorized'
                       this.camera.capture({})
                       .then ({path}) =>
-                        @chooseImage field_id,
+                        @props.onSelectImage
                           uri: path
                           isStatic: true
                           type: 'image/jpeg'
@@ -389,7 +384,7 @@ export CreateStep1 = createClass
             <View style={flex: 1}>
               <SiftrRoll
                 onSelectImage={(path) =>
-                  @chooseImage @state.field_id,
+                  @props.onSelectImage
                     uri: path
                     isStatic: true
                     # TODO do we need to support other types
@@ -419,78 +414,11 @@ export CreateStep1 = createClass
               require '../web/assets/img/icon-from-roll-gray.png'
           } />
         </TouchableOpacity>
-        <TouchableOpacity onPress={@beginUpload}>
-          <Text style={
-            if @filesReady()
-              styles.blackViolaButton
-            else
-              [styles.blackViolaButton, {color: 'rgb(188,188,188)'}]
-          }>next</Text>
-        </TouchableOpacity>
+        <View />
       </View>
     </View>
-  # @endif
 
-  # @ifdef WEB
-
-  getEXIF: (field_id, file) ->
-    return unless file?
-    EXIF.getData file, =>
-      if field_id?
-        @setState extraFiles: @state.extraFiles.set(field_id, file)
-      else
-        @setState {file}
-
-  render: ->
-    pictureSlots = []
-    # main picture
-    pictureSlots.push
-      field_id: null
-      currentImage: => @state.file
-      header: 'Main image'
-      required: true
-    # other pictures
-    for field in @props.fields.filter((field) => field.field_type is 'MEDIA')
-      pictureSlots.push
-        field_id: field.field_id
-        currentImage: => @state.extraFiles.get(field.field_id, null)
-        header: field.label
-        required: field.required
-
-    if @state.progress?
-      <div className="create-step-1">
-        <div className="create-content">
-          <h2>Drop photos into each  section</h2>
-          <span>Uploading… {Math.floor(@state.progress * 100)}%</span>
-        </div>
-      </div>
-    else
-      <div className="create-step-1">
-        <div className="create-content">
-          <h2>Drop photos into each  section</h2>
-          {
-            pictureSlots.map ({field_id, currentImage, header, required}) =>
-              img = currentImage()
-              <CreatePhotoBox
-                key={field_id}
-                onChooseFile={(file) => @getEXIF(field_id, file)}
-                file={img}
-                orientation={if img? then EXIF.getTag(img, 'Orientation') else null}
-                header={header}
-                required={required}
-              />
-          }
-        </div>
-        <div className="create-buttons">
-          <a href="#" className="create-button-gray" onClick={clicker @props.onCancel}>
-            cancel
-          </a>
-          <a href="#" className="create-button-white" onClick={clicker @beginUpload}>
-            next
-          </a>
-        </div>
-      </div>
-  # @endif
+# @endif
 
 # @ifdef WEB
 
@@ -532,7 +460,9 @@ export CreateStep2 = createClass
 
   doEnterCaption: ->
     text = @state.text
-    return unless text.match(/\S/)
+    unless text.match(/\S/)
+      alert 'Please enter a caption.'
+      return
     @props.onEnterCaption
       text: text
       category: @state.category
@@ -663,7 +593,8 @@ export CreateStep5 = createClass
           }
       else if field.required and field.field_type in ['TEXT', 'TEXTAREA']
         unless field_data.some((data) => data.field_id is field.field_id)
-          return # TODO pop up a message to user
+          alert "Please fill in the field: #{field.label}"
+          return
     return if @props.progress?
     @props.onFinish field_data
 
@@ -810,6 +741,32 @@ export class Blackout extends React.Component
       }
     </View>
 
+CreateDataPhotoButton = createClass
+  displayName: 'CreateDataPhotoButton'
+
+  render: ->
+    file = null
+    for f in @props.files
+      if f.field_id is @props.field_id
+        file = f.file
+        break
+    <TouchableOpacity onPress={@props.onPress} style={
+      flexDirection: 'row'
+      alignItems: 'center'
+      backgroundColor: 'white'
+      padding: 3
+    }>
+      <Image source={
+        if file?
+          file
+        else
+          require '../web/assets/img/icon-needs-pic.png'
+      } style={styles.photoSlot} />
+      <Text style={flex: 1}>
+        {@props.label}
+      </Text>
+    </TouchableOpacity>
+
 # Steps 2-5 (native app), all non-photo data together
 export CreateData = createClass
   displayName: 'CreateData'
@@ -838,6 +795,7 @@ export CreateData = createClass
 
   getInitialState: ->
     isPickingLocation: false
+    isTakingPhoto: null
     tagListOpen: false
     geocodeResult: null
 
@@ -861,7 +819,11 @@ export CreateData = createClass
     BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
 
   finishForm: ->
+    unless @props.createNote.caption? and @props.createNote.caption.match(/\S/)
+      Alert.alert 'Missing data', 'Please enter a caption.'
+      return
     field_data = @props.createNote.field_data ? []
+    files = @props.createNote.files ? []
     for field in @props.fields
       if field.field_type is 'SINGLESELECT'
         if field_data.some((data) => data.field_id is field.field_id)
@@ -872,7 +834,12 @@ export CreateData = createClass
           }
       else if field.required and field.field_type in ['TEXT', 'TEXTAREA']
         unless field_data.some((data) => data.field_id is field.field_id)
-          return # TODO pop up a message to user
+          Alert.alert 'Missing data', "Please fill in the field: #{field.label}"
+          return
+      else if field.required and field.field_type is 'MEDIA'
+        unless files.some((file) => file.field_id is field.field_id)
+          Alert.alert 'Missing photo', "Please supply a photo for: #{field.label}"
+          return
     return if @props.progress?
     @props.onFinish field_data
 
@@ -889,6 +856,24 @@ export CreateData = createClass
           </TouchableOpacity>
         </View>
       </View>
+    else if @state.isTakingPhoto?
+      if @state.isTakingPhoto is 'main'
+        field = null
+        field_id = null
+      else
+        field = @state.isTakingPhoto.label
+        field_id = @state.isTakingPhoto.field_id
+      <CreatePhoto
+        onCancel={=> @setState isTakingPhoto: null}
+        onSelectImage={(file) =>
+          newFiles = @props.createNote.files.filter (file) => file.field_id isnt field_id
+          newFiles.push {file, field_id}
+          @props.onUpdateNote update @props.createNote,
+            files: $set: newFiles
+          @setState isTakingPhoto: null
+        }
+        instruction={field}
+      />
     else
       <View style={flex: 1}>
         <ScrollView
@@ -909,10 +894,15 @@ export CreateData = createClass
             flexDirection: 'column'
             alignItems: 'stretch'
           }>
+            <Blackout keyboardUp={@state.focusedBox?} isFocused={false}>
+              <CreateDataPhotoButton
+                files={@props.createNote.files}
+                field_id={null}
+                onPress={=> @setState isTakingPhoto: 'main'}
+                label="Photo"
+              />
+            </Blackout>
             <Blackout keyboardUp={@state.focusedBox?} isFocused={@state.focusedBox is 'caption'}>
-              <View style={styles.settingsHeader}>
-                <Text style={styles.settingsHeaderText}>Enter caption</Text>
-              </View>
               <TextInput
                 placeholder="Add a description…"
                 value={@props.createNote.caption}
@@ -1031,7 +1021,6 @@ export CreateData = createClass
             </Blackout>
             {
               @props.fields.map (field) =>
-                return null if field.field_type is 'MEDIA'
                 <Blackout keyboardUp={@state.focusedBox?} isFocused={@state.focusedBox is field.field_id} key={field.field_id} style={alignSelf: 'stretch'}>
                   <View style={styles.settingsHeader}>
                     <Text style={styles.settingsHeaderText}>Enter data: { field.label }</Text>
@@ -1078,8 +1067,6 @@ export CreateData = createClass
                           onChangeText={setText}
                           style={
                             height: 120
-                            borderColor: '#222'
-                            borderWidth: 1
                             padding: 10
                             fontSize: 16
                             alignSelf: 'stretch'
@@ -1136,6 +1123,13 @@ export CreateData = createClass
                             />
                             <Text style={margin: 10}>{ option.option }</Text>
                           </View>
+                      when 'MEDIA'
+                        <CreateDataPhotoButton
+                          files={@props.createNote.files}
+                          field_id={field.field_id}
+                          onPress={=> @setState isTakingPhoto: field}
+                          label={field.label}
+                        />
                       when 'NOMEN'
                         <TouchableOpacity style={padding: 10, backgroundColor: 'white'} onPress={=>
                           # Linking.openURL "nomen://?nomen_id=#{field.label}&siftr_id=6234" # TODO actual siftr_id
