@@ -228,7 +228,7 @@ export SiftrView = createClass
     # @ifdef NATIVE
     delta: do =>
       # more research needed, this is a hack
-      delta = 26 / (2 ** (@props.game.zoom - 4))
+      delta = 26 / Math.pow(2, @props.game.zoom - 4)
       delta = Math.min(90, delta)
       lat: delta
       lng: delta
