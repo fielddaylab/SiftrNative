@@ -679,8 +679,10 @@ export SiftrView = createClass
           pin.description = @state.createNote.caption
           pin.tag_id = @state.createNote.category.tag_id
           [pin]
-        else if @state.createNote? and @state.createStep is 3
+        else if @state.createNote?
           [] # pin gets shown by CreateStep3 instead
+        else
+          @state.map_notes
         # @endif
         # @ifdef NATIVE
         if @state.createNote? and @state.createStep > 1
@@ -691,23 +693,15 @@ export SiftrView = createClass
           pin.description = @state.createNote.caption
           pin.tag_id = @state.createNote.category.tag_id
           [pin]
-        # @endif
         else
           @state.map_notes
+        # @endif
       }
       map_clusters={
-        # @ifdef WEB
-        if @state.createNote? and @state.createStep is 3
+        if @state.createNote?
           []
         else
           @state.map_clusters
-        # @endif
-        # @ifdef NATIVE
-        if @state.createNote? and @state.createStep > 1
-          []
-        else
-          @state.map_clusters
-        # @endif
       }
       onMove={@moveMap}
       onLayout={(event) =>
