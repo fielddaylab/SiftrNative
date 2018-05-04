@@ -48,7 +48,7 @@ import {markdown} from 'markdown'
 {SiftrMap, makeClusters} = require './map'
 {SiftrThumbnails} = require './thumbnails'
 {SiftrNoteView} = require './note-view'
-{CreateStep1, CreateStep2, CreateStep3, CreateStep4, CreateStep5, CreateData, Blackout} = require './create-note'
+{CreateStep1, CreateStep2, CreateStep3, CreateStep4, CreateStep5, CreatePhoto, CreateData, Blackout} = require './create-note'
 
 {clicker, withSuccess} = require './utils'
 
@@ -851,20 +851,17 @@ export SiftrView = createClass
     unless @state.createNote?
       null
     else if @state.createStep is 1
-      <CreateStep1
-        auth={@props.auth}
-        game={@props.game}
+      <CreatePhoto
         onCancel={=> @setState createNote: null}
-        onStoreMedia={({files}) => @setState
+        onSelectImage={(file) => @setState
           createNote:
-            files: files
+            files: [{field_id: null, file: file}]
             caption: ''
             category: @state.tags[0]
             field_data: []
             online: false
           createStep: 2
         }
-        fields={@state.fields ? []}
       />
     else
       <CreateData
