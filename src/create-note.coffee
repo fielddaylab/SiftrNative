@@ -460,7 +460,9 @@ export CreateStep2 = createClass
 
   doEnterCaption: ->
     text = @state.text
-    return unless text.match(/\S/)
+    unless text.match(/\S/)
+      alert 'Please enter a caption.'
+      return
     @props.onEnterCaption
       text: text
       category: @state.category
@@ -591,7 +593,8 @@ export CreateStep5 = createClass
           }
       else if field.required and field.field_type in ['TEXT', 'TEXTAREA']
         unless field_data.some((data) => data.field_id is field.field_id)
-          return # TODO pop up a message to user
+          alert "Please fill in the field: #{field.label}"
+          return
     return if @props.progress?
     @props.onFinish field_data
 
@@ -816,7 +819,11 @@ export CreateData = createClass
     BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
 
   finishForm: ->
+    unless @props.createNote.caption? and @props.createNote.caption.match(/\S/)
+      Alert.alert 'Missing data', 'Please enter a caption.'
+      return
     field_data = @props.createNote.field_data ? []
+    files = @props.createNote.files ? []
     for field in @props.fields
       if field.field_type is 'SINGLESELECT'
         if field_data.some((data) => data.field_id is field.field_id)
@@ -827,7 +834,12 @@ export CreateData = createClass
           }
       else if field.required and field.field_type in ['TEXT', 'TEXTAREA']
         unless field_data.some((data) => data.field_id is field.field_id)
-          return # TODO pop up a message to user
+          Alert.alert 'Missing data', "Please fill in the field: #{field.label}"
+          return
+      else if field.required and field.field_type is 'MEDIA'
+        unless files.some((file) => file.field_id is field.field_id)
+          Alert.alert 'Missing photo', "Please supply a photo for: #{field.label}"
+          return
     return if @props.progress?
     @props.onFinish field_data
 
