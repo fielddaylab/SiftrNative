@@ -856,7 +856,7 @@ export SiftrView = createClass
         onSelectImage={(file, location) => @setState
           createNote:
             files: [{field_id: null, file: file}]
-            caption: ''
+            caption: (@props.game.prompt ? '')
             category: @state.tags[0]
             field_data: []
             online: false
@@ -895,6 +895,7 @@ export SiftrView = createClass
         onStartUpload={=> @setState
           createNote:
             uploading: true
+            caption: (@props.game.prompt ? '')
           createStep: 2
         }
         onProgress={(n) =>
