@@ -236,9 +236,11 @@
 .create-step-5 {
   input[type="text"], select {
     width: 100%;
+    box-sizing: border-box;
   }
   textarea {
     width: 100%;
+    box-sizing: border-box;
     resize: none;
     height: 70px;
     padding: 5px;
