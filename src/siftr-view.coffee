@@ -766,7 +766,7 @@ export SiftrView = createClass
     if (center = @state.createNote.location)?
       goToCenter center
       return
-    # then get location from exif
+    # then get location from exif. first, complicated form from exif.js
     lat = exif?.GPSLatitude
     lng = exif?.GPSLongitude
     if lat? and lng?
@@ -777,6 +777,12 @@ export SiftrView = createClass
       lat *= -1 if exif.GPSLatitudeRef is 'S'
       lng = readGPS lng
       lng *= -1 if exif.GPSLongitudeRef is 'W'
+      goToCenter {lat, lng}
+      return
+    # simple form returned by RN CameraRoll
+    lat = exif?.latitude
+    lng = exif?.longitude
+    if lat? and lng?
       goToCenter {lat, lng}
       return
     # then, use game's location, but try to override from browser
@@ -847,13 +853,14 @@ export SiftrView = createClass
     else if @state.createStep is 1
       <CreatePhoto
         onCancel={=> @setState createNote: null}
-        onSelectImage={(file) => @setState
+        onSelectImage={(file, location) => @setState
           createNote:
             files: [{field_id: null, file: file}]
             caption: ''
             category: @state.tags[0]
             field_data: []
             online: false
+            exif: location
           createStep: 2
         }
       />

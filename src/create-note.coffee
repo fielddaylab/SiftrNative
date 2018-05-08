@@ -48,7 +48,7 @@ class SiftrRoll extends React.Component
     this.state =
       photos: []
       canLoadMore: true
-      dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 != r2})
+      dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1[0] != r2[0]})
 
   componentWillMount: ->
     @getMorePhotos()
@@ -63,7 +63,7 @@ class SiftrRoll extends React.Component
       return unless thisGet is this.lastGet
       if result.edges.length > 0
         @setState
-          photos: @state.photos.concat result.edges.map ({node}) => node.image.uri
+          photos: @state.photos.concat result.edges.map ({node}) => [node.image.uri, node.location]
           photoCursor: result.page_info.end_cursor
           canLoadMore: result.page_info.has_next_page
       else
@@ -81,8 +81,8 @@ class SiftrRoll extends React.Component
       enableEmptySections={true}
       renderScrollComponent={(props) => <InfiniteScrollView {...props} />}
       dataSource={this.state.dataSource.cloneWithRows(this.state.photos)}
-      renderRow={(uri) =>
-        <TouchableOpacity onPress={=> this.props.onSelectImage uri}>
+      renderRow={([uri, location]) =>
+        <TouchableOpacity onPress={=> this.props.onSelectImage uri, location}>
           <Image source={
             uri: uri
           } style={
@@ -383,13 +383,14 @@ export CreatePhoto = createClass
           when 'roll'
             <View style={flex: 1}>
               <SiftrRoll
-                onSelectImage={(path) =>
-                  @props.onSelectImage
-                    uri: path
+                onSelectImage={(uri, location) =>
+                  img =
+                    uri: uri
                     isStatic: true
                     # TODO do we need to support other types
                     type: 'image/jpeg'
                     name: 'upload.jpg'
+                  @props.onSelectImage img, location
                 }
               />
             </View>
