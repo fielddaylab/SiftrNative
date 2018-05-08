@@ -414,7 +414,9 @@ export CreatePhoto = createClass
               require '../web/assets/img/icon-from-roll-gray.png'
           } />
         </TouchableOpacity>
-        <View />
+        <View>
+          <Text style={[styles.blackViolaButton, {opacity: 0}]}>cancel</Text>
+        </View>
       </View>
     </View>
 
@@ -750,22 +752,29 @@ CreateDataPhotoButton = createClass
       if f.field_id is @props.field_id
         file = f.file
         break
-    <TouchableOpacity onPress={@props.onPress} style={
+    <View style={
       flexDirection: 'row'
       alignItems: 'center'
       backgroundColor: 'white'
       padding: 3
     }>
-      <Image source={
-        if file?
-          file
+      <TouchableOpacity onPress={@props.onPress}>
+        <Image source={
+          if file?
+            file
+          else
+            require '../web/assets/img/icon-needs-pic.png'
+        } style={styles.photoSlot} />
+      </TouchableOpacity>
+      {
+        if @props.blurb?
+          @props.blurb
         else
-          require '../web/assets/img/icon-needs-pic.png'
-      } style={styles.photoSlot} />
-      <Text style={flex: 1}>
-        {@props.label}
-      </Text>
-    </TouchableOpacity>
+          <TouchableOpacity style={flex: 1} onPress={@props.onPress}>
+            <Text>{@props.label}</Text>
+          </TouchableOpacity>
+      }
+    </View>
 
 # Steps 2-5 (native app), all non-photo data together
 export CreateData = createClass
@@ -894,39 +903,40 @@ export CreateData = createClass
             flexDirection: 'column'
             alignItems: 'stretch'
           }>
-            <Blackout keyboardUp={@state.focusedBox?} isFocused={false}>
+            <Blackout keyboardUp={@state.focusedBox?} isFocused={@state.focusedBox is 'caption'}>
               <CreateDataPhotoButton
                 files={@props.createNote.files}
                 field_id={null}
                 onPress={=> @setState isTakingPhoto: 'main'}
                 label="Photo"
-              />
-            </Blackout>
-            <Blackout keyboardUp={@state.focusedBox?} isFocused={@state.focusedBox is 'caption'}>
-              <TextInput
-                placeholder="Add a description…"
-                value={@props.createNote.caption}
-                onChangeText={(text) =>
-                  @props.onUpdateNote update @props.createNote,
-                    caption: $set: text
-                }
-                onFocus={=> @setState focusedBox: 'caption'}
-                onEndEditing={=>
-                  if @state.focusedBox is 'caption'
-                    @setState focusedBox: null
-                }
-                multiline={true}
-                style={
-                  height: 120
-                  padding: 10
-                  fontSize: 16
-                  backgroundColor: 'white'
+                blurb={
+                  <TextInput
+                    placeholder="Add a description…"
+                    value={@props.createNote.caption}
+                    onChangeText={(text) =>
+                      @props.onUpdateNote update @props.createNote,
+                        caption: $set: text
+                    }
+                    onFocus={=> @setState focusedBox: 'caption'}
+                    onEndEditing={=>
+                      if @state.focusedBox is 'caption'
+                        @setState focusedBox: null
+                    }
+                    multiline={true}
+                    style={
+                      height: 100
+                      padding: 10
+                      fontSize: 16
+                      backgroundColor: 'white'
+                      flex: 1
+                    }
+                  />
                 }
               />
             </Blackout>
             <Blackout keyboardUp={@state.focusedBox?} isFocused={false}>
               <View style={styles.settingsHeader}>
-                <Text style={styles.settingsHeaderText}>Pick location</Text>
+                <Text style={styles.settingsHeaderText}>Modify location</Text>
               </View>
               <View style={backgroundColor: 'white'}>
                 <TouchableOpacity onPress={=>
@@ -1023,7 +1033,14 @@ export CreateData = createClass
               @props.fields.map (field) =>
                 <Blackout keyboardUp={@state.focusedBox?} isFocused={@state.focusedBox is field.field_id} key={field.field_id} style={alignSelf: 'stretch'}>
                   <View style={styles.settingsHeader}>
-                    <Text style={styles.settingsHeaderText}>Enter data: { field.label }</Text>
+                    <Text style={styles.settingsHeaderText}>
+                      {
+                        if field.field_type is 'MEDIA'
+                          'Extra photo'
+                        else
+                          "Enter data: #{field.label}"
+                      }
+                    </Text>
                   </View>
                   {
                     field_data = @props.createNote.field_data ? []

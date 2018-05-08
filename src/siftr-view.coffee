@@ -1075,7 +1075,7 @@ export SiftrView = createClass
               if @state.viewingNote?
                 => @closeNote()
               else if @state.createNote?
-                => @setState createNote: null
+                null # no back button
               else if @state.searchOpen
                 => @setState searchOpen: false
               else
@@ -1088,7 +1088,9 @@ export SiftrView = createClass
                     resizeMode: 'contain'
                     height: 18
                     opacity:
-                      if Platform.OS is 'ios' and @props.aris and not @state.viewingNote? and not @state.createNote? and not @state.searchOpen
+                      if Platform.OS is 'ios' and @props.aris and not @state.viewingNote? and not @state.searchOpen
+                        0
+                      else if @state.createNote?
                         0
                       else
                         1
@@ -1168,9 +1170,9 @@ export SiftrView = createClass
               }>
                 <Image style={resizeMode: 'contain', height: 30} source={
                   if @state.mainView is 'thumbs'
-                    require('../web/assets/img/icon-grid.png')
-                  else
                     require('../web/assets/img/icon-map.png')
+                  else
+                    require('../web/assets/img/icon-grid.png')
                 } />
               </TouchableOpacity>
               <TouchableOpacity style={padding: 10} onPress={@startCreate}>
