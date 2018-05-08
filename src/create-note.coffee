@@ -944,6 +944,7 @@ export CreateData = createClass
                   @setState isPickingLocation: true
                 } style={
                   flexDirection: 'row'
+                  alignItems: 'center'
                 }>
                   <Text style={
                     paddingLeft: 20
@@ -959,16 +960,17 @@ export CreateData = createClass
                     else
                       'Locating…'
                   }</Text>
-                  <Text style={
+                  <View style={
                     paddingLeft: 20
                     paddingRight: 20
                     paddingTop: 8
                     paddingBottom: 8
-                    color: 'black'
-                    fontSize: 18
                   }>
-                    {'>'}
-                  </Text>
+                    <Image style={
+                      width: 69 * 0.15
+                      height: 112 * 0.15
+                    } source={require('../web/assets/img/disclosure-arrow.png')} />
+                  </View>
                 </TouchableOpacity>
               </View>
               <View style={styles.settingsHeader}>
