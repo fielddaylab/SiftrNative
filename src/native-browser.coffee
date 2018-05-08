@@ -14,7 +14,7 @@ import {
 import {Text} from './styles'
 import {CacheMedia} from './media'
 import RNFS from 'react-native-fs'
-import {deserializeGame} from './aris'
+import {deserializeGame, deserializeNote} from './aris'
 import {withSuccess} from './utils'
 
 mapMaybe = (xs, f) =>
@@ -35,11 +35,6 @@ NativeCard = createClass
 
   componentWillMount: ->
     @isMounted = true
-    @props.auth.getUsersForGame
-      game_id: @props.game.game_id
-    , withSuccess (authors) =>
-      return unless @isMounted
-      @setState authors: authors.map((author) => author.display_name)
     useNotes = (notes) =>
       return unless @isMounted
       @setState
@@ -59,15 +54,22 @@ NativeCard = createClass
               user_ids[comment.user.user_id] = true
           Object.keys(user_ids).length
     if @props.online
+      @props.auth.getUsersForGame
+        game_id: @props.game.game_id
+      , withSuccess (authors) =>
+        return unless @isMounted
+        @setState authors: authors.map((author) => author.display_name)
       @props.auth.searchNotes
         game_id: @props.game.game_id
         order_by: 'recent'
       , withSuccess useNotes
     else
       siftrDir = "#{RNFS.DocumentDirectoryPath}/siftrs/#{@props.game.game_id}"
-      RNFS.readFile("#{siftrDir}/notes.txt").then (json) =>
+      RNFS.readFile("#{siftrDir}/notes.txt")
+      .then (json) =>
         notes = JSON.parse(json).map((note) => deserializeNote(note))
         useNotes notes
+      .catch (err) => null # whatever
 
   componentWillUnmount: ->
     @isMounted = false
