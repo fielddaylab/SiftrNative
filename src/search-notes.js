@@ -91,7 +91,7 @@ export class SearchNotes extends React.Component {
     this.props.onSearch(update(this.props.searchParams, {
       tags: {
         $apply: (tag_ids) => {
-          if (tag_ids == null) tag_ids = [];
+          if (tag_ids == null) tag_ids = this.props.tags.map((tag) => tag.tag_id);
           if (tag_ids.indexOf(tag.tag_id) !== -1) {
             return tag_ids.filter((tag_id) => tag_id !== tag.tag_id);
           } else {
@@ -116,6 +116,15 @@ export class SearchNotes extends React.Component {
         text: {$set: text}
       }));
     }, 250);
+  }
+
+  tagChecked(tag) {
+    const tags = this.props.searchParams.tags;
+    if (tags == null) {
+      return true;
+    } else {
+      return tags.indexOf(tag.tag_id) !== -1;
+    }
   }
 
   // @ifdef NATIVE
@@ -170,7 +179,7 @@ export class SearchNotes extends React.Component {
       }}>
         {
           this.props.tags.map((tag) => {
-            const checked = tags.indexOf(tag.tag_id) !== -1;
+            const checked = this.tagChecked(tag);
             const color = this.props.getColor(tag);
             return <View key={tag.tag_id} style={{
               flexDirection: 'row',
@@ -326,7 +335,7 @@ export class SearchNotes extends React.Component {
       <h2>Categories:</h2>
       {
         this.props.tags.map((tag) => {
-          const checked = tags.indexOf(tag.tag_id) !== -1;
+          const checked = this.tagChecked(tag);
           const color = this.props.getColor(tag);
           return (
             <p className="tag-toggle" key={tag.tag_id}>
