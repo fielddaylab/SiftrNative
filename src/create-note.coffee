@@ -777,6 +777,68 @@ CreateDataPhotoButton = createClass
       }
     </View>
 
+export CreateSingleSelect = createClass
+  displayName: 'CreateSingleSelect'
+
+  getInitialState: ->
+    menuOpen: false
+
+  render: ->
+    <View>
+      <TouchableOpacity onPress={=>
+        @setState menuOpen: not @state.menuOpen
+      } style={
+        padding: 13
+        flexDirection: 'row'
+        alignItems: 'center'
+        justifyContent: 'space-between'
+        backgroundColor: 'white'
+      }>
+        <View style={
+          backgroundColor: @props.getColor(@props.current)
+          height: 16
+          width: 16
+          borderRadius: 8
+          marginRight: 20
+        } />
+        <Text style={flex: 1}>{ @props.getLabel(@props.current) }</Text>
+        <Image source={require('../web/assets/img/icon-expand.png')} style={
+          width: 32 * 0.7
+          height: 18 * 0.7
+          resizeMode: 'contain'
+        } />
+      </TouchableOpacity>
+      {
+        if @state.menuOpen
+          <View>
+            {
+              @props.options.map (option) =>
+                <TouchableOpacity key={@props.getKey(option)} onPress={=>
+                  @setState menuOpen: false
+                  @props.onSelectOption option
+                } style={
+                  borderTopColor: 'rgb(230,230,230)'
+                  borderTopWidth: 1
+                  padding: 13
+                  flexDirection: 'row'
+                  alignItems: 'center'
+                  justifyContent: 'space-between'
+                  backgroundColor: 'rgb(240,240,240)'
+                }>
+                  <View style={
+                    backgroundColor: @props.getColor(option)
+                    height: 16
+                    width: 16
+                    borderRadius: 8
+                    marginRight: 20
+                  } />
+                  <Text style={flex: 1}>{ @props.getLabel(option) }</Text>
+                </TouchableOpacity>
+            }
+          </View>
+      }
+    </View>
+
 # Steps 2-5 (native app), all non-photo data together
 export CreateData = createClass
   displayName: 'CreateData'
@@ -806,7 +868,6 @@ export CreateData = createClass
   getInitialState: ->
     isPickingLocation: false
     isTakingPhoto: null
-    tagListOpen: false
     geocodeResult: null
 
   componentWillMount: ->
@@ -976,61 +1037,16 @@ export CreateData = createClass
               <View style={styles.settingsHeader}>
                 <Text style={styles.settingsHeaderText}>Pick category</Text>
               </View>
-              <TouchableOpacity onPress={=>
-                @setState tagListOpen: not @state.tagListOpen
-              } style={
-                borderTopColor: 'rgb(230,230,230)'
-                borderTopWidth: 1
-                padding: 13
-                flexDirection: 'row'
-                alignItems: 'center'
-                justifyContent: 'space-between'
-                backgroundColor: 'white'
-              }>
-                <View style={
-                  backgroundColor: @props.getColor(@props.createNote.category)
-                  height: 16
-                  width: 16
-                  borderRadius: 8
-                  marginRight: 20
-                } />
-                <Text style={flex: 1}>{ @props.createNote.category?.tag }</Text>
-                <Image source={require('../web/assets/img/icon-expand.png')} style={
-                  width: 32 * 0.7
-                  height: 18 * 0.7
-                  resizeMode: 'contain'
-                } />
-              </TouchableOpacity>
-              {
-                if @state.tagListOpen
-                  <View>
-                    {
-                      @props.categories.map (category) =>
-                        <TouchableOpacity key={category.tag_id} onPress={=>
-                          @setState tagListOpen: false
-                          @props.onUpdateNote update @props.createNote,
-                            category: $set: category
-                        } style={
-                          borderTopColor: 'rgb(230,230,230)'
-                          borderTopWidth: 1
-                          padding: 13
-                          flexDirection: 'row'
-                          alignItems: 'center'
-                          justifyContent: 'space-between'
-                          backgroundColor: 'rgb(240,240,240)'
-                        }>
-                          <View style={
-                            backgroundColor: @props.getColor(category)
-                            height: 16
-                            width: 16
-                            borderRadius: 8
-                            marginRight: 20
-                          } />
-                          <Text style={flex: 1}>{ category.tag }</Text>
-                        </TouchableOpacity>
-                    }
-                  </View>
-              }
+              <CreateSingleSelect
+                current={@props.createNote.category}
+                options={@props.categories}
+                getColor={@props.getColor}
+                getLabel={(cat) => cat.tag}
+                getKey={(cat) => cat.tag_id}
+                onSelectOption={(cat) =>
+                  @props.onUpdateNote update @props.createNote, category: $set: cat
+                }
+              />
             </Blackout>
             {
               @props.fields.map (field) =>
@@ -1099,29 +1115,32 @@ export CreateData = createClass
                           }
                         />
                       when 'SINGLESELECT'
-                        <Picker
-                          style={backgroundColor: 'white'}
-                          selectedValue={do =>
+                        <CreateSingleSelect
+                          current={do =>
+                            field_option_id = null
                             for data in field_data
                               if data.field_id is field.field_id
-                                return data.field_option_id
-                            field.options[0].field_option_id
+                                field_option_id = data.field_option_id
+                                break
+                            for option in field.options
+                              if option.field_option_id is field_option_id
+                                return option
+                            field.options[0]
                           }
-                          onValueChange={(field_option_id) =>
+                          options={field.options}
+                          getColor={=> 'rgba(0,0,0,0)'}
+                          getLabel={(opt) => opt.option}
+                          getKey={(opt) => opt.field_option_id}
+                          onSelectOption={(opt) =>
                             newData =
                               data for data in field_data when data.field_id isnt field.field_id
                             newData.push new FieldData {
                               field_id: field.field_id
-                              field_option_id: field_option_id
+                              field_option_id: opt.field_option_id
                             }
                             onChangeData newData
                           }
-                        >
-                          {
-                            field.options.map (option) =>
-                              <Picker.Item label={option.option} value={option.field_option_id} key={option.field_option_id} />
-                          }
-                        </Picker>
+                        />
                       when 'MULTISELECT'
                         field.options.map (option) =>
                           <View style={flexDirection: 'row', backgroundColor: 'white', alignItems: 'center'} key={option.field_option_id}>
