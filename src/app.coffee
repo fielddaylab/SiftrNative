@@ -977,16 +977,20 @@ export SiftrNative = createClass
         )
         if newPassword?
           @tryLoadGame auth, game, newPassword
+  # @endif
 
   loadGamePosition: (game) ->
-    if game.type is 'ANYWHERE'
+    if game.type is 'ANYWHERE' and @state.online
       @state.auth.call 'notes.siftrBounds',
         game_id: game.game_id
       , withSuccess (bounds) =>
+        bounds.max_latitude  = parseFloat(bounds.max_latitude)
+        bounds.min_longitude = parseFloat(bounds.min_longitude)
+        bounds.min_latitude  = parseFloat(bounds.min_latitude)
+        bounds.max_longitude = parseFloat(bounds.max_longitude)
         @setState {game, bounds}
     else
       @setState {game}
-  # @endif
 
   login: (username, password) ->
     unless @state.online
@@ -1114,6 +1118,7 @@ export SiftrNative = createClass
             if @state.game?
               <SiftrView
                 game={@state.game}
+                bounds={@state.bounds}
                 auth={@state.auth}
                 isAdmin={@gameBelongsToUser @state.game}
                 aris={@state.aris}
@@ -1146,7 +1151,7 @@ export SiftrNative = createClass
               <NativeHome
                 auth={@state.auth}
                 onLogout={@logout}
-                onSelect={(game) => @setState {game}}
+                onSelect={(game) => @loadGamePosition(game)}
                 online={@state.online}
                 mine={@state.games}
                 followed={@state.followed}

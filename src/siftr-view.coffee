@@ -207,6 +207,16 @@ export SiftrView = createClass
 
   getInitialState: ->
     fitted = null
+    # @ifdef NATIVE
+    if @props.bounds? and false # TODO fix the delta calculation
+      fitted =
+        center:
+          lat: (@props.bounds.max_latitude + @props.bounds.min_latitude) / 2
+          lng: (@props.bounds.max_longitude + @props.bounds.min_longitude) / 2
+        delta:
+          lat: Math.abs(@props.bounds.max_latitude - @props.bounds.min_latitude)
+          lng: Math.abs(@props.bounds.max_longitude - @props.bounds.min_longitude)
+    # @endif
     # @ifdef WEB
     if @props.bounds?
       w = window.innerWidth or document.documentElement.clientWidth or document.body.clientWidth
@@ -214,11 +224,11 @@ export SiftrView = createClass
       h -= 150
       corners =
         nw:
-          lat: parseFloat @props.bounds.max_latitude
-          lng: parseFloat @props.bounds.min_longitude
+          lat: @props.bounds.max_latitude
+          lng: @props.bounds.min_longitude
         se:
-          lat: parseFloat @props.bounds.min_latitude
-          lng: parseFloat @props.bounds.max_longitude
+          lat: @props.bounds.min_latitude
+          lng: @props.bounds.max_longitude
       fitted = fitBounds(corners, {width: w, height: h})
     # @endif
 
@@ -226,7 +236,7 @@ export SiftrView = createClass
       lat: fitted?.center?.lat ? @props.game.latitude
       lng: fitted?.center?.lng ? @props.game.longitude
     # @ifdef NATIVE
-    delta: do =>
+    delta: fitted?.center?.delta ? do =>
       # more research needed, this is a hack
       delta = 26 / Math.pow(2, @props.game.zoom - 4)
       delta = Math.min(90, delta)
