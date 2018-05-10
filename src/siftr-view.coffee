@@ -208,14 +208,14 @@ export SiftrView = createClass
   getInitialState: ->
     fitted = null
     # @ifdef NATIVE
-    if @props.bounds? and false # TODO fix the delta calculation
+    if @props.bounds?
       fitted =
         center:
           lat: (@props.bounds.max_latitude + @props.bounds.min_latitude) / 2
           lng: (@props.bounds.max_longitude + @props.bounds.min_longitude) / 2
         delta:
-          lat: Math.abs(@props.bounds.max_latitude - @props.bounds.min_latitude)
-          lng: Math.abs(@props.bounds.max_longitude - @props.bounds.min_longitude)
+          lat: Math.abs(@props.bounds.max_latitude - @props.bounds.min_latitude) * 1.1
+          lng: Math.abs(@props.bounds.max_longitude - @props.bounds.min_longitude) * 1.1
     # @endif
     # @ifdef WEB
     if @props.bounds?
@@ -236,7 +236,7 @@ export SiftrView = createClass
       lat: fitted?.center?.lat ? @props.game.latitude
       lng: fitted?.center?.lng ? @props.game.longitude
     # @ifdef NATIVE
-    delta: fitted?.center?.delta ? do =>
+    delta: fitted?.delta ? do =>
       # more research needed, this is a hack
       delta = 26 / Math.pow(2, @props.game.zoom - 4)
       delta = Math.min(90, delta)
