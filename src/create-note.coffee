@@ -749,7 +749,7 @@ CreateDataPhotoButton = createClass
 
   render: ->
     file = null
-    for f in @props.files
+    for f in (@props.files ? [])
       if f.field_id is @props.field_id
         file = f.file
         break
@@ -915,6 +915,8 @@ export CreateData = createClass
     @props.onFinish field_data
 
   render: ->
+    isEditing = (@props.createNote.note_id ? 0) isnt 0
+
     if @state.isPickingLocation
       <View style={styles.overlayBottom}>
         <View style={styles.buttonRow}>
@@ -966,12 +968,8 @@ export CreateData = createClass
             alignItems: 'stretch'
           }>
             <Blackout keyboardUp={@state.focusedBox?} isFocused={@state.focusedBox is 'caption'}>
-              <CreateDataPhotoButton
-                files={@props.createNote.files}
-                field_id={null}
-                onPress={=> @setState isTakingPhoto: 'main'}
-                label="Photo"
-                blurb={
+              {
+                descBox =
                   <TextInput
                     placeholder="Add a description…"
                     value={@props.createNote.caption}
@@ -993,8 +991,17 @@ export CreateData = createClass
                       flex: 1
                     }
                   />
-                }
-              />
+                if isEditing
+                  descBox
+                else
+                  <CreateDataPhotoButton
+                    files={@props.createNote.files}
+                    field_id={null}
+                    onPress={=> @setState isTakingPhoto: 'main'}
+                    label="Photo"
+                    blurb={descBox}
+                  />
+              }
             </Blackout>
             <Blackout keyboardUp={@state.focusedBox?} isFocused={false}>
               <View style={styles.settingsHeader}>
@@ -1050,6 +1057,8 @@ export CreateData = createClass
             </Blackout>
             {
               @props.fields.map (field) =>
+                if isEditing and field.field_type is 'MEDIA'
+                  return null
                 <Blackout keyboardUp={@state.focusedBox?} isFocused={@state.focusedBox is field.field_id} key={field.field_id} style={alignSelf: 'stretch'}>
                   <View style={styles.settingsHeader}>
                     <Text style={styles.settingsHeaderText}>
