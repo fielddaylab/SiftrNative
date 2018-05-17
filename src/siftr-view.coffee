@@ -675,6 +675,7 @@ export SiftrView = createClass
             if tag.tag_id is @state.viewingNote.tag_id
               return tag
         }
+        online={@props.online}
       />
 
   renderMap: ->

@@ -816,7 +816,7 @@ class SiftrNoteView extends React.Component
           <OptionsModal
             onClose={=> @setState noteModal: false}
             options={[
-              if @props.note.user.user_id is @props.auth.authToken?.user_id
+              if @props.note.user.user_id is @props.auth.authToken?.user_id and @props.online
                 text: 'Edit post'
                 onPress: => @props.onEdit @props.note, @state.field_data
               if @props.note.published is 'AUTO' and @props.auth.authToken?.user_id isnt @props.note.user.user_id
