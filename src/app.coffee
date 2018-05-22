@@ -990,7 +990,7 @@ export SiftrNative = createClass
         bounds.max_longitude = parseFloat(bounds.max_longitude)
         @setState {game, bounds}
     else
-      @setState {game}
+      @setState {game, bounds: null}
 
   login: (username, password) ->
     unless @state.online
