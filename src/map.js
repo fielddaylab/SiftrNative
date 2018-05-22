@@ -319,9 +319,12 @@ MapNote.defaultProps = {
 export class SiftrMap extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      isMapReady: false,
+    };
   }
 
-  shouldComponentUpdate(nextProps) {
+  shouldComponentUpdate(nextProps, nextState) {
     // very important optimization. the map takes the longest to rerender
     if (this.props.center.lat !== nextProps.center.lat) return true;
     if (this.props.center.lng !== nextProps.center.lng) return true;
@@ -339,6 +342,8 @@ export class SiftrMap extends React.Component {
     if (this.props.colors !== nextProps.colors) return true;
     if (this.props.thumbHover !== nextProps.thumbHover) return true;
     if (this.props.tags !== nextProps.tags) return true;
+    // the only state
+    if (this.state.isMapReady !== nextState.isMapReady) return true;
     return false;
   }
 
@@ -424,6 +429,7 @@ export class SiftrMap extends React.Component {
   // @endif
 
   renderClusters() {
+    if (!this.state.isMapReady) return null;
     return this.props.map_clusters.map((map_cluster, i) => {
       const lat = (map_cluster.min_latitude + map_cluster.max_latitude) / 2;
       const lng = (map_cluster.min_longitude + map_cluster.max_longitude) / 2;
@@ -442,6 +448,7 @@ export class SiftrMap extends React.Component {
   }
 
   renderNotes() {
+    if (!this.state.isMapReady) return null;
     return this.props.map_notes.map((map_note) =>
       <MapNote
         key={map_note.note_id}
@@ -515,7 +522,12 @@ export class SiftrMap extends React.Component {
   render() {
     return <MapView
       ref="theMapView"
-      onLayout={(...args) => this.props.onLayout(...args)}
+      onLayout={(...args) => {
+        setTimeout(() => {
+          this.setState({isMapReady: true});
+        }, 500);
+        this.props.onLayout(...args);
+      }}
       style={{
         position: 'absolute',
         top: 0,
