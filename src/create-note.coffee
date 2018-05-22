@@ -1017,10 +1017,9 @@ export CreateData = createClass
                   <Text style={
                     paddingLeft: 20
                     paddingRight: 20
-                    paddingTop: 8
-                    paddingBottom: 8
+                    paddingTop: 13
+                    paddingBottom: 13
                     color: 'black'
-                    fontSize: 18
                     flex: 1
                   }>{
                     if @state.geocodeResult? and @state.geocodeResult[0]?
