@@ -671,18 +671,20 @@ NativeHome = createClass
     @choosePage nextProps
 
   choosePage: (props) ->
-    if not @state.discoverPage?
+    if not @props.discoverPage?
+      if not @props.online
+        @props.setScreen discoverPage: 'downloaded'
       if props.followed? and props.followed.length
-        @setState discoverPage: 'followed'
+        @props.setScreen discoverPage: 'followed'
       else if props.followed? and props.mine? and props.mine.length
-        @setState discoverPage: 'mine'
+        @props.setScreen discoverPage: 'mine'
       else if props.followed? and props.mine?
-        @setState discoverPage: 'featured'
+        @props.setScreen discoverPage: 'featured'
 
   render: ->
-    isHome     = @state.discoverPage in ['mine', 'followed', 'downloaded'         ] and not @state.settings
-    isDiscover = @state.discoverPage in ['featured', 'popular', 'nearme', 'search'] and not @state.settings
-    CurrentBrowser = switch @state.discoverPage
+    isHome     = @props.discoverPage in ['mine', 'followed', 'downloaded'         ] and not @props.settings
+    isDiscover = @props.discoverPage in ['featured', 'popular', 'nearme', 'search'] and not @props.settings
+    CurrentBrowser = switch @props.discoverPage
       when 'mine'       then BrowserMine
       when 'followed'   then BrowserFollowed
       when 'downloaded' then BrowserDownloaded
@@ -700,15 +702,15 @@ NativeHome = createClass
       unfollowGame={=> @props.unfollowGame @state.viewingGameInfo}
     >
       {
-        if @state.settings
+        if @props.settings
           <NativeSettings
-            onClose={=> @setState settings: false}
+            onClose={=> @props.setScreen settings: false}
             onLogout={@props.onLogout}
             auth={@props.auth}
             onChangePassword={@props.onChangePassword}
             onEditProfile={@props.onEditProfile}
           />
-        else if not @state.discoverPage?
+        else if not @props.discoverPage?
           <Loading />
         else
           <View style={
@@ -722,7 +724,7 @@ NativeHome = createClass
               justifyContent: 'space-between'
               alignItems: 'center'
             }>
-              <TouchableOpacity style={flex: 1, alignItems: 'flex-start'} onPress={=> @setState discoverPage: 'search'}>
+              <TouchableOpacity style={flex: 1, alignItems: 'flex-start'} onPress={=> @props.setScreen discoverPage: 'search'}>
                 <Image style={resizeMode: 'contain', height: 20, margin: 10} source={require('../web/assets/img/icon-search.png')} />
               </TouchableOpacity>
               <View style={flex: 4, alignItems: 'center'}>
@@ -750,49 +752,49 @@ NativeHome = createClass
             {
               if isHome
                 <View style={flexDirection: 'row'}>
-                  <TouchableOpacity key={1} onPress={=> @setState discoverPage: 'mine'} style={
-                    if @state.discoverPage is 'mine' then styles.exploreTabOn else styles.exploreTabOff
+                  <TouchableOpacity key={1} onPress={=> @props.setScreen discoverPage: 'mine'} style={
+                    if @props.discoverPage is 'mine' then styles.exploreTabOn else styles.exploreTabOff
                   }>
                     <Text style={
-                      color: if @state.discoverPage is 'mine' then 'black' else '#B8B8B8'
+                      color: if @props.discoverPage is 'mine' then 'black' else '#B8B8B8'
                     }>Mine</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity key={2} onPress={=> @setState discoverPage: 'followed'} style={
-                    if @state.discoverPage is 'followed' then styles.exploreTabOn else styles.exploreTabOff
+                  <TouchableOpacity key={2} onPress={=> @props.setScreen discoverPage: 'followed'} style={
+                    if @props.discoverPage is 'followed' then styles.exploreTabOn else styles.exploreTabOff
                   }>
                     <Text style={
-                      color: if @state.discoverPage is 'followed' then 'black' else '#B8B8B8'
+                      color: if @props.discoverPage is 'followed' then 'black' else '#B8B8B8'
                     }>Followed</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity key={3} onPress={=> @setState discoverPage: 'downloaded'} style={
-                    if @state.discoverPage is 'downloaded' then styles.exploreTabOn else styles.exploreTabOff
+                  <TouchableOpacity key={3} onPress={=> @props.setScreen discoverPage: 'downloaded'} style={
+                    if @props.discoverPage is 'downloaded' then styles.exploreTabOn else styles.exploreTabOff
                   }>
                     <Text style={
-                      color: if @state.discoverPage is 'downloaded' then 'black' else '#B8B8B8'
+                      color: if @props.discoverPage is 'downloaded' then 'black' else '#B8B8B8'
                     }>Downloaded</Text>
                   </TouchableOpacity>
                 </View>
               else if isDiscover
                 <View style={flexDirection: 'row'}>
-                  <TouchableOpacity onPress={=> @setState discoverPage: 'featured'} style={
-                    if @state.discoverPage is 'featured' then styles.exploreTabOn else styles.exploreTabOff
+                  <TouchableOpacity onPress={=> @props.setScreen discoverPage: 'featured'} style={
+                    if @props.discoverPage is 'featured' then styles.exploreTabOn else styles.exploreTabOff
                   }>
                     <Text style={
-                      color: if @state.discoverPage is 'featured' then 'black' else '#B8B8B8'
+                      color: if @props.discoverPage is 'featured' then 'black' else '#B8B8B8'
                     }>Featured</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={=> @setState discoverPage: 'popular'} style={
-                    if @state.discoverPage is 'popular' then styles.exploreTabOn else styles.exploreTabOff
+                  <TouchableOpacity onPress={=> @props.setScreen discoverPage: 'popular'} style={
+                    if @props.discoverPage is 'popular' then styles.exploreTabOn else styles.exploreTabOff
                   }>
                     <Text style={
-                      color: if @state.discoverPage is 'popular' then 'black' else '#B8B8B8'
+                      color: if @props.discoverPage is 'popular' then 'black' else '#B8B8B8'
                     }>Popular</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={=> @setState discoverPage: 'nearme'} style={
-                    if @state.discoverPage is 'nearme' then styles.exploreTabOn else styles.exploreTabOff
+                  <TouchableOpacity onPress={=> @props.setScreen discoverPage: 'nearme'} style={
+                    if @props.discoverPage is 'nearme' then styles.exploreTabOn else styles.exploreTabOff
                   }>
                     <Text style={
-                      color: if @state.discoverPage is 'nearme' then 'black' else '#B8B8B8'
+                      color: if @props.discoverPage is 'nearme' then 'black' else '#B8B8B8'
                     }>Near Me</Text>
                   </TouchableOpacity>
                 </View>
@@ -824,7 +826,7 @@ NativeHome = createClass
               alignItems: 'center'
             }>
               <TouchableOpacity style={padding: 10} onPress={=>
-                if not isHome then @setState discoverPage: 'mine', settings: false
+                if not isHome then @props.setScreen discoverPage: 'mine', settings: false
               }>
                 <Image style={resizeMode: 'contain', height: 30} source={
                   if isHome
@@ -834,7 +836,7 @@ NativeHome = createClass
                 } />
               </TouchableOpacity>
               <TouchableOpacity style={padding: 10} onPress={=>
-                if not isDiscover then @setState discoverPage: 'featured', settings: false
+                if not isDiscover then @props.setScreen discoverPage: 'featured', settings: false
               }>
                 <Image style={resizeMode: 'contain', height: 24} source={
                   if isDiscover
@@ -843,9 +845,9 @@ NativeHome = createClass
                     require('../web/assets/img/icon-eye.png')
                 } />
               </TouchableOpacity>
-              <TouchableOpacity style={padding: 10} onPress={=> @setState settings: true}>
+              <TouchableOpacity style={padding: 10} onPress={=> @props.setScreen settings: true}>
                 <Image style={resizeMode: 'contain', height: 28} source={
-                  if @state.settings
+                  if @props.settings
                     require('../web/assets/img/icon-user-selected.png')
                   else
                     require('../web/assets/img/icon-user.png')
@@ -1160,6 +1162,9 @@ export SiftrNative = createClass
                 onChangePassword={@changePassword}
                 onEditProfile={@editProfile}
                 queueMessage={@state.queueMessage}
+                setScreen={(o) => @setState o}
+                discoverPage={@state.discoverPage}
+                settings={@state.settings}
               />
           else if @state.showingTerms
             <Terms
