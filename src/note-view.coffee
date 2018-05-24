@@ -689,32 +689,67 @@ class SiftrNoteView extends React.Component
     if not (@state.field_data? and @props.fields?)
       <Text style={margin: 10}>Loading data...</Text>
     else
+      parts = []
+      if @props.tag?
+        parts.push(
+          <View key={0} style={
+            borderTopWidth: 1
+            borderTopColor: '#F1F5F4'
+            flexDirection: 'row'
+            justifyContent: 'space-between'
+            alignItems: 'flex-start'
+          }>
+            <Text style={margin: 10, fontWeight: 'bold'}>
+              Category
+            </Text>
+            <View style={flexDirection: 'row', alignItems: 'center'}>
+              <View style={
+                backgroundColor: @props.getColor(@props.tag)
+                width: 16
+                height: 16
+                borderRadius: 8
+              } />
+              <Text style={margin: 10}>{@props.tag.tag}</Text>
+            </View>
+          </View>
+        )
       for field in @props.fields
         data =
           d for d in @state.field_data when d.field_id is field.field_id
+        long = false
         switch field.field_type
-          when 'TEXT', 'TEXTAREA'
-            <Text key={field.field_id} style={margin: 10}>
-              [{field.label}] {data[0]?.field_data}
-            </Text>
+          when 'TEXT', 'NOMEN'
+            text = data[0]?.field_data
+          when 'TEXTAREA'
+            text = data[0]?.field_data
+            long = true
           when 'SINGLESELECT', 'MULTISELECT'
-            <Text key={field.field_id} style={margin: 10}>
-              [{field.label}]
-              {
-                opts = []
-                for d in data
-                  for opt in field.options
-                    if opt.field_option_id is d.field_option_id
-                      opts.push opt.option
-                ' ' + opts.join(', ')
-              }
-            </Text>
-          when 'NOMEN'
-            <Text key={field.field_id} style={margin: 10}>
-              [Nomen {field.label}] {data[0]?.field_data}
-            </Text>
+            opts = []
+            for d in data
+              for opt in field.options
+                if opt.field_option_id is d.field_option_id
+                  opts.push opt.option
+            text = opts.join(', ')
           else
             continue
+        continue unless text?.match(/\S/)
+        parts.push(
+          <View key={field.field_id} style={
+            borderTopWidth: 1
+            borderTopColor: '#F1F5F4'
+            flexDirection: if long then 'column' else 'row'
+            justifyContent: 'space-between'
+            alignItems: 'flex-start'
+          }>
+            <Text style={margin: 10, fontWeight: 'bold'}>
+              {field.label}
+            </Text>
+            <Text style={margin: 10}>
+              {text}
+            </Text>
+          </View>
+        )
+      parts
   # @endif
 
   # @ifdef WEB

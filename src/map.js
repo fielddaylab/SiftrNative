@@ -429,7 +429,9 @@ export class SiftrMap extends React.Component {
   // @endif
 
   renderClusters() {
+    // @ifdef NATIVE
     if (!this.state.isMapReady) return null;
+    // @endif
     return this.props.map_clusters.map((map_cluster, i) => {
       const lat = (map_cluster.min_latitude + map_cluster.max_latitude) / 2;
       const lng = (map_cluster.min_longitude + map_cluster.max_longitude) / 2;
@@ -448,7 +450,9 @@ export class SiftrMap extends React.Component {
   }
 
   renderNotes() {
+    // @ifdef NATIVE
     if (!this.state.isMapReady) return null;
+    // @endif
     return this.props.map_notes.map((map_note) =>
       <MapNote
         key={map_note.note_id}
