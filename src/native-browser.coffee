@@ -171,6 +171,7 @@ BrowserList = createClass
               online={@props.online}
             />
         }
+        <View style={height: 12} />
       </ScrollView>
     else
       <View style={flex: 1, alignItems: 'center', justifyContent: 'center'}>
