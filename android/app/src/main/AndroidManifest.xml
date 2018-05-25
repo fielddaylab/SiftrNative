@@ -38,6 +38,18 @@
             <category android:name="android.intent.category.BROWSABLE" />
             <data android:scheme="siftr" />
         </intent-filter>
+        <intent-filter>
+            <data android:scheme="http" android:host="siftr.org"/>
+            <action android:name="android.intent.action.VIEW"/>
+            <category android:name="android.intent.category.BROWSABLE"/>
+            <category android:name="android.intent.category.DEFAULT"/>
+        </intent-filter>
+        <intent-filter>
+            <data android:scheme="https" android:host="siftr.org"/>
+            <action android:name="android.intent.action.VIEW"/>
+            <category android:name="android.intent.category.BROWSABLE"/>
+            <category android:name="android.intent.category.DEFAULT"/>
+        </intent-filter>
       </activity>
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
       <meta-data android:name="com.google.android.geo.API_KEY"

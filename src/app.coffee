@@ -909,16 +909,43 @@ export SiftrNative = createClass
         aris: false
       return
     mapping = {}
-    for kv in parseUri(url).query.split('&')
-      [k, v] = kv.split('=')
-      mapping[k] = v
-    siftr_id = parseInt(mapping.siftr_id)
-    if siftr_id
-      @launchByID
-        aris: if parseInt(mapping.aris) then true else false
-        siftr_id: siftr_id
-        nomen_id: parseInt(mapping.nomen_id)
-        species_id: decodeURIComponent((mapping.species_id+'').replace(/\+/g, '%20'))
+    parsed = parseUri(url)
+    if parsed.protocol is 'siftr'
+
+      for kv in parsed.query.split('&')
+        [k, v] = kv.split('=')
+        mapping[k] = v
+      siftr_id = parseInt(mapping.siftr_id)
+      if siftr_id
+        @launchByID
+          aris: if parseInt(mapping.aris) then true else false
+          siftr_id: siftr_id
+          nomen_id: parseInt(mapping.nomen_id)
+          species_id: decodeURIComponent((mapping.species_id+'').replace(/\+/g, '%20'))
+
+    else if parsed.host is 'siftr.org'
+
+      siftr_id = 0
+      siftr_url = parsed.query
+      if siftr_url.length is 0 or siftr_url.match(/aris=1/)
+        siftr_url = parsed.path.replace(/\//g, '')
+      unless siftr_url.match(/[^0-9]/)
+        siftr_id = parseInt siftr_url
+        siftr_url = null
+
+      auth = (@state.auth ? new Auth)
+      if siftr_url?
+        auth.searchSiftrs
+          siftr_url: siftr_url
+        , withSuccess (games) =>
+          if games.length is 1
+            @setState game: games[0]
+      else if siftr_id
+        auth.getGame
+          game_id: siftr_id
+        , withSuccess (game) =>
+          if game?
+            @setState game: games[0]
 
   launchByID: ({aris, siftr_id, nomen_id, species_id, saved_note}) ->
     return if @state.game?.game_id is siftr_id
