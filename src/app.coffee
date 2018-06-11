@@ -1013,11 +1013,14 @@ export SiftrNative = createClass
       @state.auth.call 'notes.siftrBounds',
         game_id: game.game_id
       , withSuccess (bounds) =>
-        bounds.max_latitude  = parseFloat(bounds.max_latitude)
-        bounds.min_longitude = parseFloat(bounds.min_longitude)
-        bounds.min_latitude  = parseFloat(bounds.min_latitude)
-        bounds.max_longitude = parseFloat(bounds.max_longitude)
-        @setState {game, bounds}
+        if bounds.max_latitude? and bounds.min_longitude? and bounds.min_latitude? and bounds.max_longitude?
+          bounds.max_latitude  = parseFloat(bounds.max_latitude)
+          bounds.min_longitude = parseFloat(bounds.min_longitude)
+          bounds.min_latitude  = parseFloat(bounds.min_latitude)
+          bounds.max_longitude = parseFloat(bounds.max_longitude)
+          @setState {game, bounds}
+        else
+          @setState {game, bounds: null}
     else
       @setState {game, bounds: null}
 
