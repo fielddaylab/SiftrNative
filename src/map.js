@@ -336,6 +336,7 @@ export class SiftrMap extends React.Component {
     if (this.props.zoom !== nextProps.zoom) return true;
     // @endif
     if (this.props.map_notes !== nextProps.map_notes && (this.props.map_notes.length !== 0 || nextProps.map_notes.length !== 0)) return true;
+    if (this.props.pendingNotes !== nextProps.pendingNotes && (this.props.pendingNotes.length !== 0 || nextProps.pendingNotes.length !== 0)) return true;
     if (this.props.map_clusters !== nextProps.map_clusters && (this.props.map_clusters.length !== 0 || nextProps.map_clusters.length !== 0)) return true;
     // NOTE: onMove, onLayout, onSelectNote are all looked up dynamically when they happen
     if (this.props.getColor !== nextProps.getColor) return true;
@@ -465,7 +466,23 @@ export class SiftrMap extends React.Component {
         onMouseLeave={this.props.onMouseLeave}
         thumbHover={this.props.thumbHover}
       />
-    );
+    ).concat(this.props.pendingNotes.map(({dir, json}) => {
+      json = JSON.parse(json);
+      let note = new Note(json);
+      note.pending = true;
+      note.files = json.files;
+      return <MapNote
+        key={dir.name}
+        lat={note.latitude}
+        lng={note.longitude}
+        note={note}
+        getColor={this.props.getColor}
+        onSelect={(...args) => this.props.onSelectNote(...args)}
+        onMouseEnter={this.props.onMouseEnter}
+        onMouseLeave={this.props.onMouseLeave}
+        thumbHover={this.props.thumbHover}
+      />;
+    }));
   }
 
   // @ifdef NATIVE

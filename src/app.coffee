@@ -1143,6 +1143,7 @@ export SiftrNative = createClass
         auth={@state.auth}
         online={@state.online}
         onMessage={(queueMessage) => @setState {queueMessage}}
+        withPendingNotes={(pendingNotes) => @setState {pendingNotes}}
         onUpload={=> @siftrView?.loadResults()}
       >
         {
@@ -1177,6 +1178,7 @@ export SiftrNative = createClass
                 queueMessage={@state.queueMessage}
                 onViolaIdentify={@props.onViolaIdentify}
                 saved_note={@state.saved_note}
+                pendingNotes={@state.pendingNotes}
                 ref={(ref) => @siftrView = ref}
               />
             else

@@ -606,6 +606,12 @@ export SiftrView = createClass
         # @endif
 
   selectNote: (note) ->
+    if note.pending
+      @setState
+        viewingNote: note
+        searchOpen: false
+        createNote: null
+      return
     return if note.note_id is 0
     if @props.online
       @loadNoteByID note.note_id
@@ -706,6 +712,17 @@ export SiftrView = createClass
           [pin]
         else
           @state.map_notes
+        # @endif
+      }
+      pendingNotes={
+        # @ifdef WEB
+        []
+        # @endif
+        # @ifdef NATIVE
+        if @state.createNote? and @state.createStep > 1
+          []
+        else
+          @props.pendingNotes ? []
         # @endif
       }
       map_clusters={

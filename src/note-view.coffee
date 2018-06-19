@@ -582,6 +582,9 @@ class SiftrNoteView extends React.Component
       @loadExtra nextProps.note
 
   loadExtra: (note = @props.note) ->
+    if note.pending
+      console.warn JSON.stringify note
+      return
     # load comments
     @props.auth.getNoteCommentsForNote
       note_id: note.note_id
@@ -686,7 +689,9 @@ class SiftrNoteView extends React.Component
 
   # @ifdef NATIVE
   showFields: ->
-    if not (@state.field_data? and @props.fields?)
+    if @props.note.pending
+      null
+    else if not (@state.field_data? and @props.fields?)
       <Text style={margin: 10}>Loading data...</Text>
     else
       parts = []
@@ -909,7 +914,12 @@ class SiftrNoteView extends React.Component
             null
       }
       <Text style={margin: 10}>
-        { @props.note.created.toLocaleString() }
+        {
+          if @props.note.pending
+            'This note has not yet been uploaded.'
+          else
+            @props.note.created.toLocaleString()
+        }
       </Text>
       {
         <View>
@@ -920,7 +930,9 @@ class SiftrNoteView extends React.Component
         @showFields Text
       }
       {
-        if @state.comments is null
+        if @props.note.pending
+          null
+        else if @state.comments is null
           <Text style={margin: 10}>Loading comments...</Text>
         else
           <SiftrComments

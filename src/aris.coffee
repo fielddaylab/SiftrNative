@@ -143,16 +143,20 @@ class Note
         if 0 in [parseInt(json.media?.data?.media_id), parseInt(json.media_id)]
           null
         else
-          arisHTTPS(json.media?.url ? json.media.data.url)
+          arisHTTPS(json.media?.url ? json.media?.data?.url)
       @thumb_url    =
         if 0 in [parseInt(json.media?.data?.media_id), parseInt(json.media_id)]
           null
         else
-          arisHTTPS(json.media?.big_thumb_url ? json.media.data.big_thumb_url)
-      @latitude     = parseFloat json.latitude
-      @longitude    = parseFloat json.longitude
+          arisHTTPS(json.media?.big_thumb_url ? json.media?.data?.big_thumb_url)
+      @latitude     = parseFloat(json.latitude ? json.trigger?.latitude)
+      @longitude    = parseFloat(json.longitude ? json.trigger?.longitude)
       @tag_id       = parseInt json.tag_id
-      @created      = new Date(json.created.replace(' ', 'T') + 'Z')
+      @created      =
+        if json.created?
+          new Date(json.created.replace(' ', 'T') + 'Z')
+        else
+          null
       @player_liked = json.player_liked? and !!(parseInt json.player_liked)
       @note_likes   = parseInt json.note_likes
       @comments     = for o in (json.comments?.data ? [])

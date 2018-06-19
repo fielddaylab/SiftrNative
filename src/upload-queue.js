@@ -22,6 +22,7 @@ export const UploadQueue = createClass({
       online: true,
       onMessage: function(){},
       onUpload: function(){},
+      withPendingNotes: function(){},
     };
   },
   componentDidMount: function() {
@@ -36,6 +37,7 @@ export const UploadQueue = createClass({
       return;
     }
     return this.loadQueue().then((notes) => {
+      this.props.withPendingNotes(notes);
       if (notes.length === 0) {
         this.props.onMessage(null);
       } else {
