@@ -752,6 +752,7 @@ export SiftrView = createClass
       }
       thumbHover={@state.thumbHover?.note_id}
       tags={@state.tags}
+      game_id={@props.game.game_id}
     />
 
   renderThumbnails: ->

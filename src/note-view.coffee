@@ -20,6 +20,7 @@ T = require 'prop-types'
 , BackHandler
 , Modal
 , TouchableWithoutFeedback
+, Platform
 } = require 'react-native'
 import FitImage from 'react-native-fit-image'
 import Hyperlink from 'react-native-hyperlink'
@@ -582,9 +583,7 @@ class SiftrNoteView extends React.Component
       @loadExtra nextProps.note
 
   loadExtra: (note = @props.note) ->
-    if note.pending
-      console.warn JSON.stringify note
-      return
+    return if note.pending
     # load comments
     @props.auth.getNoteCommentsForNote
       note_id: note.note_id
@@ -817,17 +816,24 @@ class SiftrNoteView extends React.Component
   render: ->
     # TODO move to CacheMedia
 
-    photoIDs = [@props.note.media_id]
-    if (@state.field_data? and @props.fields?)
-      for field in @props.fields
-        if field.field_type is 'MEDIA'
-          data =
-            d for d in @state.field_data when d.field_id is field.field_id
-          if data.length > 0
-            photoIDs.push data[0].media.media_id
-
-    photoURLs =
-      (@state["media#{media_id}"] or '') for media_id in photoIDs
+    if @props.note.pending
+      photoIDs = []
+      photoURLs =
+        for f in @props.note.files
+          if Platform.OS is 'ios'
+            "#{@props.note.dir}/#{f.filename}"
+          else
+            "file://#{@props.note.dir}/#{f.filename}"
+    else
+      photoIDs = [@props.note.media_id]
+      if (@state.field_data? and @props.fields?)
+        for field in @props.fields
+          if field.field_type is 'MEDIA'
+            data =
+              d for d in @state.field_data when d.field_id is field.field_id
+            if data.length > 0
+              photoIDs.push data[0].media.media_id
+      photoURLs = (@state["media#{media_id}"] or '') for media_id in photoIDs
 
     <ScrollView
       ref={(sv) => @scrollView = sv}

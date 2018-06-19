@@ -469,7 +469,9 @@ export class SiftrMap extends React.Component {
     ).concat(this.props.pendingNotes.map(({dir, json}) => {
       json = JSON.parse(json);
       let note = new Note(json);
+      if (note.game_id !== this.props.game_id) return null;
       note.pending = true;
+      note.dir = dir.path;
       note.files = json.files;
       return <MapNote
         key={dir.name}
@@ -482,7 +484,7 @@ export class SiftrMap extends React.Component {
         onMouseLeave={this.props.onMouseLeave}
         thumbHover={this.props.thumbHover}
       />;
-    }));
+    }).filter((x) => x != null));
   }
 
   // @ifdef NATIVE
