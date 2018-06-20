@@ -838,6 +838,7 @@ export SiftrView = createClass
         nomenData: nomenData
       if (note = saved_note?.note)?
         obj.createNote = note
+        obj.createStep = 2
       if (loc = saved_note?.location)?
         obj.resumedNote = true
         obj.center = loc
