@@ -897,11 +897,18 @@ export SiftrNative = createClass
       if appState isnt 'active'
         @setState aris: false
     AppState.addEventListener 'change', @withAppState
+    if @props.viola
+      @hardwareBack = =>
+        @props.backToViola()
+        true
+      BackHandler.addEventListener 'hardwareBackPress', @hardwareBack
 
   componentWillUnmount: ->
     NetInfo.removeEventListener 'connectionChange', @withInfo
     Linking.removeEventListener 'url', @urlHandler
     AppState.removeEventListener 'change', @withAppState
+    if @hardwareBack?
+      BackHandler.removeEventListener 'hardwareBackPress', @hardwareBack
 
   parseURL: (url) ->
     unless url
