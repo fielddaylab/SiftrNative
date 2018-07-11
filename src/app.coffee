@@ -165,6 +165,16 @@ NativeLogin = createClass
             justifyContent: 'space-around'
             alignSelf: 'stretch'
           }>
+            {
+              if @props.viola
+                <TouchableOpacity style={
+                  padding: 16
+                  borderBottomWidth: 7
+                  borderBottomColor: 'rgba(0,0,0,0)'
+                } onPress={@props.backToViola}>
+                  <Text style={color: 'white'}>Back</Text>
+                </TouchableOpacity>
+            }
             <TouchableOpacity style={
               padding: 16
               borderBottomWidth: 7
@@ -1211,7 +1221,12 @@ export SiftrNative = createClass
               onCancel={=> @setState showingTerms: false}
             />
           else
-            <NativeLogin onLogin={@login} onRegister={@showTerms} />
+            <NativeLogin
+              onLogin={@login}
+              onRegister={@showTerms}
+              viola={@props.viola}
+              backToViola={@props.backToViola}
+            />
         }
       </UploadQueue>
     else
