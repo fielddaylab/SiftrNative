@@ -24,6 +24,7 @@ import {StatusSpace} from './status-space'
 {default: SideMenu} = require 'react-native-side-menu'
 {default: Markdown} = require 'react-native-simple-markdown'
 import firebase from 'react-native-firebase'
+import {NativeSettings} from './native-settings'
 # @endif
 
 # @ifdef WEB
@@ -114,6 +115,21 @@ export SiftrInfo = createClass
                 </Text>
               </TouchableOpacity>
             </View>
+            {
+              if @props.viola
+                <View style={alignItems: 'center'}>
+                  <TouchableOpacity onPress={@props.onViolaSettings} style={
+                    paddingHorizontal: 14
+                    paddingVertical: 4
+                    borderColor: 'black'
+                    borderRadius: 20
+                    borderWidth: 2
+                    marginBottom: 10
+                  }>
+                    <Text>Settings</Text>
+                  </TouchableOpacity>
+                </View>
+            }
           </View>
           <ScrollView style={flex: 1} contentContainerStyle={
             backgroundColor: 'white'
@@ -1085,6 +1101,15 @@ export SiftrView = createClass
 
   # @ifdef NATIVE
   render: ->
+    if @state.settingsInViola
+      return <NativeSettings
+        onClose={=> @setState settingsInViola: false}
+        onLogout={@props.onLogout}
+        auth={@props.auth}
+        onChangePassword={@props.onChangePassword}
+        onEditProfile={@props.onEditProfile}
+      />
+
     <KeyboardAwareView style={
       flexDirection: 'column'
       flex: 1
@@ -1100,6 +1125,8 @@ export SiftrView = createClass
         followed={@props.followed}
         followGame={=> @props.followGame @props.game}
         unfollowGame={=> @props.unfollowGame @props.game}
+        viola={@props.viola}
+        onViolaSettings={=> @setState settingsInViola: true}
       >
         <StatusSpace />
         <Blackout isFocused={false} keyboardUp={@state.keyboardUp}>
