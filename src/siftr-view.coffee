@@ -424,6 +424,14 @@ export SiftrView = createClass
         notes: []
     if newAuth? or newGame?
       @loadResults({auth: newAuth ? undefined, game: newGame ? undefined})
+    if @props.queueMessage? and @props.queueMessage isnt nextProps.queueMessage and @props.online
+      # we uploaded a note, refresh tag totals
+      @props.auth.searchNotes
+        game_id: @props.game.game_id
+        order_by: 'recent'
+      , withSuccess (notes) =>
+        return unless @isMounted
+        @setState allNotes: notes
 
   applyNomenData: ({nomenData, saved_note}) ->
     if @state.createNote?
