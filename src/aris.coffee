@@ -105,17 +105,20 @@ class Tag
       @tag_id     = parseInt json.tag_id
       @game_id    = parseInt json.game_id
       @sort_index = parseInt json.sort_index
+      @color      = json.color
     else
       @icon_url   = null
       @tag        = null
       @tag_id     = null
       @game_id    = null
       @sort_index = null
+      @color      = null
 
   createJSON: ->
     tag_id: @tag_id or undefined
     game_id: @game_id
     tag: @tag
+    color: @color or undefined
 
 class Comment
   constructor: (json) ->

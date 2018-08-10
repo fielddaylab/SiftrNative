@@ -472,6 +472,8 @@ export SiftrView = createClass
       tag = (tag for tag in @state.tags when tag.tag_id is parseInt x)[0]
     else
       return 'white'
+    if tag.color
+      return tag.color
     @state.colors["tag_#{@state.tags.indexOf(tag) % 8 + 1}"] ? 'white'
 
   # @ifdef NATIVE
