@@ -833,7 +833,8 @@ class SiftrNoteView extends React.Component
               d for d in @state.field_data when d.field_id is field.field_id
             if data.length > 0
               photoIDs.push data[0].media.media_id
-      photoURLs = (@state["media#{media_id}"] or '') for media_id in photoIDs
+      photoURLs =
+        (@state["media#{media_id}"] or '') for media_id in photoIDs
 
     <ScrollView
       ref={(sv) => @scrollView = sv}
