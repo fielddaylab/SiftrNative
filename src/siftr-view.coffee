@@ -49,7 +49,12 @@ import {markdown} from 'markdown'
 {SiftrMap, makeClusters} = require './map'
 {SiftrThumbnails} = require './thumbnails'
 {SiftrNoteView} = require './note-view'
-{CreateStep1, CreateStep2, CreateStep3, CreateStep4, CreateStep5, CreatePhoto, CreateData, Blackout} = require './create-note'
+# @ifdef WEB
+{CreateStep1, CreateStep2, CreateStep3, CreateStep5} = require './create-note-web'
+# @endif
+# @ifdef NATIVE
+{CreatePhoto, CreateData, Blackout} = require './create-note-native'
+# @endif
 
 {clicker, withSuccess} = require './utils'
 
