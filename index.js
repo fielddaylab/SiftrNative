@@ -3,4 +3,4 @@ import {AppRegistry, Platform} from 'react-native';
 window.platform = Platform.OS;
 
 import {SiftrNative} from './src-native/app';
-AppRegistry.registerComponent('SiftrNative', () => SiftrNative);
+AppRegistry.registerComponent('GMiOS', () => SiftrNative);
