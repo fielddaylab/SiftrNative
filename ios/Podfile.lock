@@ -63,6 +63,8 @@ PODS:
     - Google-Maps-iOS-Utils (= 2.1.0)
     - GoogleMaps (= 2.5.0)
     - React
+  - react-native-image-picker (0.14.3):
+    - React
   - react-native-maps (0.21.0):
     - React
   - react-native-orientation (3.1.3):
@@ -135,6 +137,7 @@ DEPENDENCIES:
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-geocoder (from `../node_modules/react-native-geocoder`)
   - react-native-google-maps (from `../node_modules/react-native-maps`)
+  - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-maps (from `../node_modules/react-native-maps`)
   - react-native-orientation (from `../node_modules/react-native-orientation`)
   - React/Core (from `../node_modules/react-native`)
@@ -184,6 +187,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-geocoder"
   react-native-google-maps:
     :path: "../node_modules/react-native-maps"
+  react-native-image-picker:
+    :path: "../node_modules/react-native-image-picker"
   react-native-maps:
     :path: "../node_modules/react-native-maps"
   react-native-orientation:
@@ -216,6 +221,7 @@ SPEC CHECKSUMS:
   react-native-camera: 68ad5143d2d0636236d46c7de8d2a6455ca52a36
   react-native-geocoder: 33b16a5929aa868fef37acb4f7ee10a428cd5fff
   react-native-google-maps: 2cfe3b01f8422c7dae51d8764139fd70f888cfce
+  react-native-image-picker: b303e31c3c4ada1d7cb1342423d328d2efb07fb3
   react-native-maps: 066c2afcc89e18726377bcc685315f989ca22449
   react-native-orientation: 3d9a0a8273d18260f7528414093a6a36491382b6
   ReactNativePermissions: 9f2d9c45c98800795e6c2ed330e25d11a66a8169
@@ -224,6 +230,6 @@ SPEC CHECKSUMS:
   RNSVG: 6252323c0312735f0af5f58b5adf2965b6a9ffbf
   yoga: b1ce48b6cf950b98deae82838f5173ea7cf89e85
 
-PODFILE CHECKSUM: 79316e5409c3cd9bb3f4899140196e040ad16b0e
+PODFILE CHECKSUM: 5802bd0b87d8a2ef861439e1c115d64872fcf6e4
 
 COCOAPODS: 1.5.0

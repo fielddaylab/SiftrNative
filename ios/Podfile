@@ -47,6 +47,8 @@ target 'GMiOS' do
   pod 'RNSVG', :path => '../node_modules/react-native-svg'
   pod 'ReactNativePermissions', :path => '../node_modules/react-native-permissions'
   pod 'react-native-geocoder', :path => '../node_modules/react-native-geocoder'
+  pod 'react-native-image-picker', :path => '../node_modules/react-native-image-picker'
+
 end
 
 post_install do |installer|
