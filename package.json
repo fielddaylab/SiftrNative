@@ -7,9 +7,31 @@
     "test": "jest"
   },
   "dependencies": {
+    "@ptomasroos/react-native-multi-slider": "^1.0.0",
+    "create-react-class": "^15.6.3",
+    "exif-js": "^2.3.0",
+    "immutability-helper": "^2.7.1",
+    "immutable": "^3.8.2",
+    "prop-types": "^15.6.2",
     "react": "16.4.1",
+    "react-infinite-scroller": "^1.2.0",
     "react-native": "0.56.0",
-    "react-native-maps": "^0.21.0"
+    "react-native-camera": "^1.2.0",
+    "react-native-firebase": "^4.3.8",
+    "react-native-fit-image": "^1.5.4",
+    "react-native-fs": "^2.11.15",
+    "react-native-geocoder": "^0.5.0",
+    "react-native-hyperlink": "^0.0.14",
+    "react-native-image-gallery": "^2.1.5",
+    "react-native-image-picker": "^0.26.10",
+    "react-native-infinite-scroll-view": "^0.4.3",
+    "react-native-keyboard-aware-view": "^0.0.14",
+    "react-native-maps": "^0.21.0",
+    "react-native-orientation": "^3.1.3",
+    "react-native-permissions": "^1.1.1",
+    "react-native-side-menu": "^1.1.3",
+    "react-native-simple-markdown": "CharlesMangwa/react-native-simple-markdown#1b28547f69dc48e0a96fbf668a43d533bbc40fb1",
+    "react-native-svg": "^6.5.2"
   },
   "devDependencies": {
     "babel-jest": "23.4.2",
