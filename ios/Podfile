@@ -13,6 +13,7 @@ target 'GMiOS' do
     'DevSupport',
     'RCTActionSheet',
     'RCTAnimation',
+    'RCTCameraRoll',
     'RCTGeolocation',
     'RCTImage',
     'RCTLinkingIOS',
@@ -44,6 +45,8 @@ target 'GMiOS' do
   pod 'react-native-camera', :path => '../node_modules/react-native-camera'
   pod 'react-native-orientation', :path => '../node_modules/react-native-orientation'
   pod 'RNSVG', :path => '../node_modules/react-native-svg'
+  pod 'ReactNativePermissions', :path => '../node_modules/react-native-permissions'
+  pod 'react-native-geocoder', :path => '../node_modules/react-native-geocoder'
 end
 
 post_install do |installer|
