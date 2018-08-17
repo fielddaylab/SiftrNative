@@ -12,6 +12,7 @@ import T from "prop-types";
 import update from "immutability-helper";
 import createClass from "create-react-class";
 
+// @ifdef NATIVE
 import {
   View,
   TextInput,
@@ -32,7 +33,11 @@ import SideMenu from "react-native-side-menu";
 import Markdown from "react-native-simple-markdown";
 import firebase from "react-native-firebase";
 import { NativeSettings } from "./native-settings";
+// @endif
 
+// @ifdef WEB
+import { markdown } from "markdown";
+// @endif
 
 import { fitBounds } from "google-map-react/utils";
 
@@ -53,7 +58,17 @@ import { SearchNotes } from "./search-notes";
 import { SiftrMap, makeClusters } from "./map";
 import { SiftrThumbnails } from "./thumbnails";
 import { SiftrNoteView } from "./note-view";
+// @ifdef WEB
+import {
+  CreateStep1,
+  CreateStep2,
+  CreateStep3,
+  CreateStep5
+} from "./create-note-web";
+// @endif
+// @ifdef NATIVE
 import { CreatePhoto, CreateData, Blackout } from "./create-note-native";
+// @endif
 
 import { clicker, withSuccess } from "./utils";
 
@@ -65,6 +80,7 @@ function fixLongitude(longitude) {
   return longitude;
 }
 
+// @ifdef NATIVE
 export const SiftrInfo = createClass({
   displayName: "SiftrInfo",
   propTypes: function() {
@@ -300,6 +316,7 @@ export const SiftrInfo = createClass({
     );
   }
 });
+// @endif
 
 export var SiftrView = createClass({
   displayName: "SiftrView",
@@ -315,7 +332,9 @@ export var SiftrView = createClass({
     // nomenData
     clearNomenData: T.func,
     online: T.bool,
+    // @ifdef NATIVE
     aris: T.bool
+    // @endif
   },
   getDefaultProps: function() {
     return {
@@ -333,6 +352,7 @@ export var SiftrView = createClass({
   getInitialState: function() {
     var corners, fitted, h, ref, ref1, ref2, ref3, ref4, ref5, w;
     fitted = null;
+    // @ifdef NATIVE
     if (this.props.bounds != null) {
       fitted = {
         center: {
@@ -356,6 +376,34 @@ export var SiftrView = createClass({
         }
       };
     }
+    // @endif
+    // @ifdef WEB
+    if (this.props.bounds != null) {
+      w =
+        window.innerWidth ||
+        document.documentElement.clientWidth ||
+        document.body.clientWidth;
+      h =
+        window.innerHeight ||
+        document.documentElement.clientHeight ||
+        document.body.clientHeight;
+      h -= 150;
+      corners = {
+        nw: {
+          lat: this.props.bounds.max_latitude,
+          lng: this.props.bounds.min_longitude
+        },
+        se: {
+          lat: this.props.bounds.min_latitude,
+          lng: this.props.bounds.max_longitude
+        }
+      };
+      fitted = fitBounds(corners, {
+        width: w,
+        height: h
+      });
+    }
+    // @endif
     return {
       center: {
         lat:
@@ -377,6 +425,7 @@ export var SiftrView = createClass({
             ? ref2
             : this.props.game.longitude
       },
+      // @ifdef NATIVE
       delta:
         (ref4 = fitted != null ? fitted.delta : void 0) != null
           ? ref4
@@ -390,6 +439,13 @@ export var SiftrView = createClass({
                 lng: delta
               };
             })(),
+      // @endif
+      // @ifdef WEB
+      zoom:
+        (ref5 = fitted != null ? fitted.zoom : void 0) != null
+          ? ref5
+          : this.props.game.zoom,
+      // @endif
       map_notes: [],
       map_clusters: [],
       notes: [],
@@ -412,6 +468,7 @@ export var SiftrView = createClass({
   componentWillMount: function() {
     var hash, n, ref, ref1, siftrDir;
     this.isMounted = true;
+    // @ifdef NATIVE
     firebase.analytics().logEvent("view_siftr", {
       game_id: this.props.game.game_id
     });
@@ -574,6 +631,70 @@ export var SiftrView = createClass({
     };
     Keyboard.addListener("keyboardWillShow", this.keyboardShow);
     Keyboard.addListener("keyboardWillHide", this.keyboardHide);
+    // @endif
+    // @ifdef WEB
+    this.props.auth.getTagsForGame(
+      {
+        game_id: this.props.game.game_id
+      },
+      withSuccess(tags => {
+        if (this.isMounted) {
+          this.setState({ tags });
+        }
+      })
+    );
+    this.props.auth.getColors(
+      {
+        colors_id: (ref1 = this.props.game.colors_id) != null ? ref1 : 1
+      },
+      withSuccess(colors => {
+        if (this.isMounted) {
+          this.setState({ colors });
+        }
+      })
+    );
+    this.props.auth.getFieldsForGame(
+      {
+        game_id: this.props.game.game_id
+      },
+      withSuccess(fields => {
+        if (this.isMounted) {
+          this.setState({ fields });
+        }
+      })
+    );
+    this.handleHistory = event => {
+      if (typeof event.state === "number") {
+        this.loadNoteByID(event.state, true);
+      } else {
+        this.setState({
+          viewingNote: null
+        });
+      }
+    };
+    window.addEventListener("popstate", this.handleHistory);
+    hash = window.location.hash;
+    if (hash[0] === "#") {
+      n = parseInt(hash.slice(1));
+      if (n) {
+        this.loadNoteByID(n, true);
+      }
+    }
+    this.props.auth.searchNotes(
+      {
+        game_id: this.props.game.game_id,
+        order_by: "recent"
+      },
+      withSuccess(notes => {
+        if (!this.isMounted) {
+          return;
+        }
+        this.setState({
+          allNotes: notes
+        });
+      })
+    );
+    // @endif
     if (this.props.nomenData != null) {
       this.applyNomenData({
         nomenData: this.props.nomenData,
@@ -589,9 +710,14 @@ export var SiftrView = createClass({
   componentWillUnmount: function() {
     this.isMounted = false;
     clearInterval(this.nomenTimer);
+    // @ifdef NATIVE
     BackHandler.removeEventListener("hardwareBackPress", this.hardwareBack);
     Keyboard.removeListener("keyboardWillShow", this.keyboardShow);
     Keyboard.removeListener("keyboardWillHide", this.keyboardHide);
+    // @endif
+    // @ifdef WEB
+    window.removeEventListener("popstate", this.handleHistory);
+    // @endif
   },
   componentWillReceiveProps: function(nextProps) {
     var newAuth, newGame, ref, ref1;
@@ -775,6 +901,7 @@ export var SiftrView = createClass({
       ? ref1
       : "white";
   },
+  // @ifdef NATIVE
   getGoogleZoom: function() {
     var h, ref, ref1, ref2, ref3, w;
     if (this.state.bounds == null) {
@@ -793,7 +920,13 @@ export var SiftrView = createClass({
       height: h
     }).zoom;
   },
+  // @endif
 
+  // @ifdef WEB
+  getGoogleZoom: function() {
+    return this.state.zoom;
+  },
+  // @endif
   commonSearchParams: function(
     filterByMap = true,
     { auth = this.props.auth, game = this.props.game } = {}
@@ -1183,6 +1316,11 @@ export var SiftrView = createClass({
             createNote: null
           },
           () => {
+            // @ifdef WEB
+            if (!from_history) {
+              history.pushState(note_id, "", "#" + note_id);
+            }
+            // @endif
           }
         );
       })
@@ -1274,6 +1412,9 @@ export var SiftrView = createClass({
       this.setState({
         viewingNote: null
       });
+      // @ifdef WEB
+      history.pushState(null, "", "#");
+      // @endif
     }
   },
   renderNoteView: function() {
@@ -1319,6 +1460,22 @@ export var SiftrView = createClass({
       <SiftrMap
         map_notes={(() => {
           var pin;
+          // @ifdef WEB
+          if (this.state.createNote != null && this.state.createStep === 5) {
+            pin = new Note();
+            pin.note_id = 0;
+            pin.latitude = this.state.createNote.location.lat;
+            pin.longitude = this.state.createNote.location.lng;
+            pin.description = this.state.createNote.caption;
+            pin.tag_id = this.state.createNote.category.tag_id;
+            return [pin];
+          } else if (this.state.createNote != null) {
+            return []; // pin gets shown by CreateStep3 instead
+          } else {
+            return this.state.map_notes;
+          }
+          // @endif
+          // @ifdef NATIVE
           if (this.state.createNote != null && this.state.createStep > 1) {
             pin = new Note();
             pin.note_id = 0;
@@ -1330,14 +1487,20 @@ export var SiftrView = createClass({
           } else {
             return this.state.map_notes;
           }
+          // @endif
         })()}
         pendingNotes={(() => {
+          // @ifdef WEB
+          return [];
+          // @endif
+          // @ifdef NATIVE
           if (this.state.createNote != null && this.state.createStep > 1) {
             return [];
           } else {
             var ref;
             return (ref = this.props.pendingNotes) != null ? ref : [];
           }
+          // @endif
         })()}
         map_clusters={(() => {
           if (this.state.createNote != null) {
@@ -1428,9 +1591,11 @@ export var SiftrView = createClass({
     goToCenter = center => {
       var ref;
       this.setState({ center });
+      // @ifdef NATIVE
       if ((ref = this.refs.theSiftrMap) != null) {
         ref.moveToPoint(center);
       }
+      // @endif
     };
     // first use existing center
     if ((center = this.state.createNote.location) != null) {
@@ -1554,12 +1719,16 @@ export var SiftrView = createClass({
         primaryMenuOpen: false
       };
       this.setState(obj);
+      // @ifdef WEB
+      history.pushState(null, "", "#");
+      // @endif
     } else {
       this.props.onPromptLogin();
     }
   },
   renderCreateNote: function() {
     var ref, ref1, ref2, ref3;
+    // @ifdef NATIVE
     if (this.state.createNote == null) {
       return null;
     } else if (this.state.createStep === 1) {
@@ -1627,6 +1796,190 @@ export var SiftrView = createClass({
         />
       );
     }
+    // @endif
+    // @ifdef WEB
+    if (this.state.createNote == null) {
+      return null;
+    } else if (this.state.createStep === 1) {
+      return (
+        <CreateStep1
+          auth={this.props.auth}
+          game={this.props.game}
+          onCancel={() => {
+            this.setState({
+              createNote: null
+            });
+          }}
+          onStartUpload={() => {
+            var ref2;
+            this.setState({
+              createNote: {
+                uploading: true,
+                caption: (ref2 = this.props.game.prompt) != null ? ref2 : ""
+              },
+              createStep: 2
+            });
+          }}
+          onProgress={n => {
+            var t;
+            if (!(this.isMounted && this.state.createNote != null)) {
+              return;
+            }
+            t = Date.now();
+            if (
+              this.state.progressTime == null ||
+              t - this.state.progressTime > 300
+            ) {
+              this.setState({
+                progress: n,
+                progressTime: t
+              });
+            }
+          }}
+          onCreateMedia={({ media, exif }, fieldMedia) => {
+            var ref2, ref3, ref4, ref5;
+            if (!(this.isMounted && this.state.createNote != null)) {
+              return;
+            }
+            this.setState({
+              createNote: {
+                media: media,
+                exif: exif,
+                caption:
+                  (ref2 = this.state.createNote) != null
+                    ? ref2.caption
+                    : void 0,
+                location:
+                  (ref3 = this.state.createNote) != null
+                    ? ref3.location
+                    : void 0,
+                category:
+                  (ref4 = this.state.createNote) != null
+                    ? ref4.category
+                    : void 0,
+                field_media: fieldMedia,
+                field_data:
+                  (ref5 = this.state.createNote) != null
+                    ? ref5.field_data
+                    : void 0
+              }
+            });
+          }}
+          fields={(ref2 = this.state.fields) != null ? ref2 : []}
+        />
+      );
+    } else if (this.state.createStep === 2) {
+      return (
+        <CreateStep2
+          categories={(ref3 = this.state.tags) != null ? ref3 : []}
+          note={this.state.createNote}
+          onEnterCaption={({ text, category }) => {
+            this.setState(
+              {
+                createNote: update(this.state.createNote, {
+                  caption: {
+                    $set: text
+                  },
+                  category: {
+                    $set: category
+                  }
+                }),
+                createStep: 3
+              },
+              () => {
+                this.startLocatingNote({
+                  exif: this.state.createNote.exif
+                });
+              }
+            );
+          }}
+          onCancel={() => {
+            this.setState({
+              createNote: null
+            });
+          }}
+          onBack={() => {
+            this.setState({
+              createNote: {},
+              createStep: 1
+            });
+          }}
+          getColor={this.getColor}
+          progress={
+            this.state.createNote.media != null ||
+            this.state.createNote.note_id != null
+              ? null
+              : this.state.progress
+          }
+        />
+      );
+    } else if (this.state.createStep === 3) {
+      return (
+        <CreateStep3
+          onPickLocation={() => {
+            this.setState({
+              createNote: update(this.state.createNote, {
+                location: {
+                  $set: this.state.center
+                }
+              }),
+              createStep: 5
+            });
+          }}
+          onCancel={() => {
+            this.setState({
+              createNote: null
+            });
+          }}
+          onBack={() => {
+            this.setState({
+              createStep: 2
+            });
+          }}
+          progress={
+            this.state.createNote.media != null ||
+            this.state.createNote.note_id != null
+              ? null
+              : this.state.progress
+          }
+        />
+      );
+    } else {
+      return (
+        <CreateStep5
+          onChangeData={field_data => {
+            this.setState({
+              createNote: update(this.state.createNote, {
+                field_data: {
+                  $set: field_data
+                }
+              })
+            });
+          }}
+          onFinish={this.finishNoteCreation}
+          onCancel={() => {
+            this.setState({
+              createNote: null
+            });
+          }}
+          onBack={() => {
+            this.setState({
+              center: this.state.createNote.location,
+              createStep: 3
+            });
+          }}
+          fields={this.state.fields}
+          field_data={this.state.createNote.field_data}
+          progress={
+            this.state.createNote.media != null ||
+            this.state.createNote.note_id != null
+              ? null
+              : this.state.progress
+          }
+        />
+      );
+    }
+    // @endif
   },
   finishNoteCreation: function(
     field_data = (ref =
@@ -1651,7 +2004,12 @@ export var SiftrView = createClass({
       queueDir,
       updateArgs;
     getLocation = () => {
+      // @ifdef WEB
+      return this.state.createNote.location;
+      // @endif
+      // @ifdef NATIVE
       return this.state.center;
+      // @endif
     };
     if (this.state.createNote.note_id != null) {
       // editing an existing note
@@ -1788,6 +2146,7 @@ export var SiftrView = createClass({
       }
     }
   },
+  // @ifdef NATIVE
   render: function() {
     var hasOptions, ref2, ref3, ref4;
     if (this.state.settingsInViola) {
@@ -2099,5 +2458,186 @@ export var SiftrView = createClass({
       </KeyboardAwareView>
     );
   },
+  // @endif
 
+  // @ifdef WEB
+  render: function() {
+    var classes, isFollowing, on_off, ref2;
+    classes = [
+      "siftr-view",
+      this.state.searchOpen ? "search-open" : "search-closed",
+      `main-view-${this.state.createNote != null ? "map" : this.state.mainView}`
+    ];
+    isFollowing =
+      (ref2 = this.props.followed) != null
+        ? ref2.some(game => {
+            return game.game_id === this.props.game.game_id;
+          })
+        : void 0;
+    on_off = function(b) {
+      if (b) {
+        return "on";
+      } else {
+        return "off";
+      }
+    };
+    return (
+      <div className={classes.join(" ")}>
+        {
+          <div className="siftr-view-nav">
+            {
+              <div className="siftr-view-nav-section">
+                {
+                  <div className="siftr-view-nav-vertical">
+                    <h2>{this.props.game.name}</h2>
+                    {
+                      <p className="siftr-view-nav-follow">
+                        {this.props.auth.authToken != null ? (
+                          <a
+                            class="button light_gray"
+                            href="#"
+                            onClick={clicker(() => {
+                              if (isFollowing) {
+                                this.props.unfollowGame(this.props.game);
+                              } else {
+                                this.props.followGame(this.props.game);
+                              }
+                            })}
+                          >
+                            {isFollowing ? "Following" : "Follow this Siftr"}
+                          </a>
+                        ) : (
+                          void 0
+                        )}
+                        {
+                          <a
+                            href="#"
+                            className="button light_gray siftr-instructicon"
+                            onClick={e => {
+                              e.preventDefault();
+                              this.setState({
+                                instructions: !this.state.instructions
+                              });
+                            }}
+                          >
+                            instructions
+                            <img src="assets/img/icon-4dots.png" />
+                            {
+                              <div
+                                className={`siftr-instructions ${
+                                  this.state.instructions
+                                    ? "siftr-instructions-show"
+                                    : void 0
+                                }`}
+                                dangerouslySetInnerHTML={{
+                                  __html: markdown
+                                    .toHTML(this.props.game.description)
+                                    .replace(/<a /g, '<a target="_blank" ')
+                                }}
+                                onClick={e => {
+                                  if (e.target.tagName.toLowerCase() === "a") {
+                                    return e.stopPropagation(); // so the preventDefault() doesn't happen
+                                  }
+                                }}
+                              />
+                            }
+                          </a>
+                        }
+                      </p>
+                    }
+                  </div>
+                }
+              </div>
+            }
+            <div className="siftr-view-nav-section">
+              <a
+                href="#"
+                className={`main-view-option option-${on_off(
+                  this.state.mainView === "hybrid" &&
+                    this.state.createNote == null
+                )}`}
+                onClick={clicker(() => {
+                  this.setState({
+                    mainView: "hybrid"
+                  });
+                })}
+              >
+                <img src={"assets/img/main-view-hybrid-on.png"} />
+              </a>
+              <a
+                href="#"
+                className={`main-view-option option-${on_off(
+                  this.state.mainView === "map" && this.state.createNote == null
+                )}`}
+                onClick={clicker(() => {
+                  this.setState({
+                    mainView: "map"
+                  });
+                })}
+              >
+                <img src={"assets/img/main-view-map-on.png"} />
+              </a>
+              <a
+                href="#"
+                className={`main-view-option option-${on_off(
+                  this.state.mainView === "thumbs" &&
+                    this.state.createNote == null
+                )}`}
+                onClick={clicker(() => {
+                  this.setState({
+                    mainView: "thumbs"
+                  });
+                })}
+              >
+                <img src={"assets/img/main-view-thumbs-on.png"} />
+              </a>
+              <span className="main-view-option-separator" />
+              <a
+                href="#"
+                className="main-view-option"
+                onClick={clicker(() => {
+                  this.setState({
+                    searchOpen: !this.state.searchOpen
+                  });
+                })}
+              >
+                <img
+                  src={`assets/img/${
+                    this.state.searchOpen ? "icon-x-black" : "icon-filter"
+                  }.png`}
+                />
+              </a>
+            </div>
+          </div>
+        }
+        <div className="siftr-view-content">
+          {this.renderMap()}
+          {this.renderThumbnails()}
+          {this.renderNoteView()}
+          <div className="create-step-box">{this.renderCreateNote()}</div>
+          {this.renderSearch()}
+          <a
+            className={
+              this.state.createNote != null
+                ? "start-create-plus cancel-button"
+                : "start-create-plus"
+            }
+            href="#"
+            onClick={clicker(() => {
+              if (this.state.createNote != null) {
+                this.setState({
+                  createNote: null
+                });
+              } else {
+                this.startCreate();
+              }
+            })}
+          >
+            <img src="assets/img/mobile-plus.png" />
+          </a>
+        </div>
+      </div>
+    );
+  }
+  // @endif
 });

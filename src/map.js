@@ -3,19 +3,25 @@
 import React from 'react';
 import T from 'prop-types';
 
+// @ifdef NATIVE
 import {
   Text
 , View
 , Platform
 } from 'react-native';
-import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView from 'react-native-maps';
 import {styles} from './styles';
 import Svg, {
   Path
 , Circle
 , Text as SvgText
 } from 'react-native-svg';
+// @endif
 
+// @ifdef WEB
+import GoogleMap from 'google-map-react';
+import {ConicGradient} from './conic-gradient';
+// @endif
 
 import {fitBounds} from 'google-map-react/utils';
 
@@ -26,6 +32,19 @@ import {
 
 import {clicker} from './utils';
 
+// @ifdef WEB
+// Cache of gradient PNG data URLs
+const allConicGradients = {};
+const getConicGradient = function(opts) {
+  const key = `${opts.stops}_${opts.size}`;
+  let grad = allConicGradients[key];
+  if (grad == null) {
+    grad = new ConicGradient(opts).png;
+    allConicGradients[key] = grad;
+  }
+  return grad;
+};
+// @endif
 
 const toWord8 = function(n) {
   let s = n.toString(16);
@@ -63,6 +82,7 @@ class MapCluster extends React.Component {
     super(props);
   }
 
+  // @ifdef NATIVE
   render() {
     const w = 30;
     const r = w / 2;
@@ -165,7 +185,38 @@ class MapCluster extends React.Component {
       <MapView.Callout tooltip={true} />
     </MapView.Marker>;
   }
+  // @endif
 
+  // @ifdef WEB
+  render() {
+    const width = 30;
+    const stops = [];
+    let percent = 0;
+    let last_color;
+    for (let tag_id in this.props.cluster.tags) {
+      const tag_count = this.props.cluster.tags[tag_id];
+      percent += (tag_count / this.props.cluster.note_count) * 100;
+      const color = this.props.getColor(tag_id);
+      stops.push(`${color} 1 ${percent}%`);
+      last_color = color;
+    }
+    stops.unshift(`${last_color} 1 0%`);
+    const gradient = getConicGradient({stops: stops.join(', '), size: width});
+    let className = 'siftr-map-cluster';
+    if (this.props.thumbHover && this.props.cluster.note_ids.indexOf('' + this.props.thumbHover) !== -1) {
+      className += ' hybrid-hover';
+    }
+    return <div className={className} style={{background: `url(${gradient})`}}
+      onClick={clicker(() => this.props.onSelect(this.props.cluster))}
+      onMouseEnter={() => this.props.onMouseEnter(this.props.cluster)}
+      onMouseLeave={() => this.props.onMouseLeave(this.props.cluster)}
+    >
+      <span className="siftr-map-cluster-number">
+        {this.props.cluster.note_count}
+      </span>
+    </div>
+  }
+  // @endif
 }
 
 MapCluster.propTypes = {
@@ -190,6 +241,7 @@ class MapNote extends React.Component {
     super(props);
   }
 
+  // @ifdef NATIVE
   render() {
     const w = 16;
     const r = w / 2;
@@ -225,7 +277,26 @@ class MapNote extends React.Component {
       <MapView.Callout tooltip={true} />
     </MapView.Marker>
   }
+  // @endif
 
+  // @ifdef WEB
+  render() {
+    let className = 'siftr-map-note';
+    if (this.props.thumbHover && this.props.note.note_id === this.props.thumbHover) {
+      className += ' hybrid-hover';
+    }
+    return <div className={className}>
+      <div className="siftr-map-note-shadow" />
+      <div
+        className="siftr-map-note-pin"
+        style={{backgroundColor: this.props.getColor(this.props.note.tag_id)}}
+        onClick={clicker(() => this.props.onSelect(this.props.note))}
+        onMouseEnter={() => this.props.onMouseEnter(this.props.note)}
+        onMouseLeave={() => this.props.onMouseLeave(this.props.note)}
+      />
+    </div>;
+  }
+  // @endif
 }
 
 MapNote.propTypes = {
@@ -257,8 +328,13 @@ export class SiftrMap extends React.Component {
     // very important optimization. the map takes the longest to rerender
     if (this.props.center.lat !== nextProps.center.lat) return true;
     if (this.props.center.lng !== nextProps.center.lng) return true;
+    // @ifdef NATIVE
     if (this.props.delta.lat !== nextProps.delta.lat) return true;
     if (this.props.delta.lng !== nextProps.delta.lng) return true;
+    // @endif
+    // @ifdef WEB
+    if (this.props.zoom !== nextProps.zoom) return true;
+    // @endif
     if (this.props.map_notes !== nextProps.map_notes && (this.props.map_notes.length !== 0 || nextProps.map_notes.length !== 0)) return true;
     if (this.props.pendingNotes !== nextProps.pendingNotes && (this.props.pendingNotes.length !== 0 || nextProps.pendingNotes.length !== 0)) return true;
     if (this.props.map_clusters !== nextProps.map_clusters && (this.props.map_clusters.length !== 0 || nextProps.map_clusters.length !== 0)) return true;
@@ -272,6 +348,7 @@ export class SiftrMap extends React.Component {
     return false;
   }
 
+  // @ifdef NATIVE
   openCluster(cluster) {
     const coordinates = [
       {latitude: cluster.min_latitude, longitude: cluster.min_longitude},
@@ -288,10 +365,74 @@ export class SiftrMap extends React.Component {
     };
     this.refs.theMapView.fitToCoordinates(coordinates, options);
   }
+  // @endif
 
+  // @ifdef WEB
+  openCluster(cluster) {
+    const close = (x, y) => (Math.abs(x - y) < 0.00005);
+    if (close(cluster.min_latitude, cluster.max_latitude) && close(cluster.min_longitude, cluster.min_longitude)) {
+      // Calling fitBounds on a single point breaks for some reason
+      this.props.onMove({
+        center: {
+          lat: (cluster.min_latitude  + cluster.max_latitude ) / 2,
+          lng: (cluster.min_longitude + cluster.max_longitude) / 2,
+        },
+        zoom: 21,
+      });
+      return;
+    }
+    // adjust bounds if all the points are on a single orthogonal line
+    // (fitBounds also breaks in this case)
+    let bounds;
+    if (close(cluster.min_latitude, cluster.max_latitude)) {
+      bounds = {
+        nw: {
+          lat: cluster.max_latitude + 0.0005,
+          lng: cluster.min_longitude,
+        },
+        se: {
+          lat: cluster.min_latitude - 0.0005,
+          lng: cluster.max_longitude,
+        },
+      };
+    } else if (close(cluster.min_longitude, cluster.max_longitude)) {
+      bounds = {
+        nw: {
+          lat: cluster.max_latitude,
+          lng: cluster.min_longitude - 0.0005,
+        },
+        se: {
+          lat: cluster.min_latitude,
+          lng: cluster.max_longitude + 0.0005,
+        },
+      };
+    } else {
+      bounds = {
+        nw: {
+          lat: cluster.max_latitude,
+          lng: cluster.min_longitude,
+        },
+        se: {
+          lat: cluster.min_latitude,
+          lng: cluster.max_longitude,
+        },
+      };
+    }
+    const size = {
+      width: this.refs.mapContainer.clientWidth * 0.9,
+      height: this.refs.mapContainer.clientHeight * 0.9,
+      // we shrink the stated map size a bit,
+      // to make sure we end up with some buffer around the points
+    };
+    const {center, zoom} = fitBounds(bounds, size);
+    this.props.onMove({center, zoom});
+  }
+  // @endif
 
   renderClusters() {
+    // @ifdef NATIVE
     if (!this.state.isMapReady) return null;
+    // @endif
     return this.props.map_clusters.map((map_cluster, i) => {
       const lat = (map_cluster.min_latitude + map_cluster.max_latitude) / 2;
       const lng = (map_cluster.min_longitude + map_cluster.max_longitude) / 2;
@@ -310,7 +451,9 @@ export class SiftrMap extends React.Component {
   }
 
   renderNotes() {
+    // @ifdef NATIVE
     if (!this.state.isMapReady) return null;
+    // @endif
     return this.props.map_notes.map((map_note) =>
       <MapNote
         key={map_note.note_id}
@@ -344,6 +487,7 @@ export class SiftrMap extends React.Component {
     }).filter((x) => x != null));
   }
 
+  // @ifdef NATIVE
   componentWillMount() {
     this.moveMapNative({
       latitude: this.props.center.lat,
@@ -400,10 +544,6 @@ export class SiftrMap extends React.Component {
 
   render() {
     return <MapView
-      customMapStyle={
-        [{"featureType":"all","stylers":[{"saturation":0},{"hue":"#e7ecf0"}]},{"featureType":"road","stylers":[{"saturation":-70}]},{"featureType":"transit","stylers":[{"visibility":"off"}]},{"featureType":"poi","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"simplified"},{"saturation":-60}]}]
-      }
-      provider={PROVIDER_GOOGLE}
       ref="theMapView"
       onLayout={(...args) => {
         setTimeout(() => {
@@ -431,7 +571,56 @@ export class SiftrMap extends React.Component {
       {this.renderNotes()}
     </MapView>;
   }
+  // @endif
 
+  // @ifdef WEB
+  moveMapWeb({center: {lat, lng}, zoom, bounds: {nw, se}}) {
+    this.props.onMove({
+      center: {lat, lng},
+      zoom: zoom,
+      bounds: {nw, se},
+    });
+  }
+
+  render() {
+    return <div className="siftr-map" ref="mapContainer">
+      <GoogleMap
+        center={this.props.center}
+        zoom={this.props.zoom}
+        bootstrapURLKeys={{
+          key: 'AIzaSyDlMWLh8Ho805A5LxA_8FgPOmnHI0AL9vw'
+        }}
+        onChange={this.moveMapWeb.bind(this)}
+        options={(maps) => {
+          return {
+            fullscreenControl: false,
+            styles:
+              [{"featureType":"all","stylers":[{"saturation":0},{"hue":"#e7ecf0"}]},{"featureType":"road","stylers":[{"saturation":-70}]},{"featureType":"transit","stylers":[{"visibility":"off"}]},{"featureType":"poi","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"simplified"},{"saturation":-60}]}]
+          };
+        }}
+      >
+        {this.renderClusters()}
+        {this.renderNotes()}
+      </GoogleMap>
+      <div className="siftr-map-legend">
+        Legend:
+        {
+          this.props.tags ? (
+            this.props.tags.map((tag) =>
+              <span className="siftr-map-legend-tag" key={tag.tag_id}>
+                <div
+                  className="siftr-thumbnail-dot"
+                  style={{backgroundColor: this.props.getColor(tag)}}
+                />
+                {tag.tag}
+              </span>
+            )
+          ) : null
+        }
+      </div>
+    </div>;
+  }
+  // @endif
 }
 
 SiftrMap.propTypes = {
@@ -439,10 +628,17 @@ SiftrMap.propTypes = {
     lat: T.number.isRequired,
     lng: T.number.isRequired,
   }).isRequired,
+  // @ifdef NATIVE
   delta: T.shape({
     lat: T.number.isRequired,
     lng: T.number.isRequired,
   }).isRequired,
+  // @endif
+  // @ifdef WEB
+  zoom: T.number.isRequired,
+  onMouseEnter: T.func,
+  onMouseLeave: T.func,
+  // @endif
   map_notes: T.arrayOf(T.instanceOf(Note)),
   map_clusters: T.array,
   onMove: T.func,

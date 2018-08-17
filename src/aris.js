@@ -1,6 +1,8 @@
 "use strict";
 
+// @ifdef NATIVE
 import { AsyncStorage, Alert } from "react-native";
+// @endif
 import update from "immutability-helper";
 import { uploadImage } from "./photos";
 
@@ -349,7 +351,19 @@ export const FieldData = class FieldData {
 
 export function displayError(err) {
   if (err.returnCodeDescription != null) {
+    // @ifdef NATIVE
     Alert.alert("Error", err.returnCodeDescription);
+    // @endif
+    // @ifdef WEB
+    alert(err.returnCodeDescription);
+  } else {
+    // @ifdef NATIVE
+    // @endif
+    Alert.alert(err.error, err.errorMore);
+    // @endif
+    // @ifdef WEB
+    alert(`${err.error} - ${err.errorMore}`);
+    // @endif
   }
 }
 
@@ -442,9 +456,14 @@ export const Auth = class Auth {
         cb(null);
       }
     };
+    // @ifdef NATIVE
     AsyncStorage.getItem("aris-auth", (err, result) => {
       useJSON(result);
     });
+    // @endif
+    // @ifdef WEB
+    useJSON((ref = window.localStorage) != null ? ref["aris-auth"] : undefined);
+    // @endif
   }
 
   call(func, json, cb) {
@@ -523,9 +542,21 @@ export const Auth = class Auth {
           }
         });
       }
+      // @ifdef NATIVE
       AsyncStorage.setItem("aris-auth", JSON.stringify(auth.authToken), () => {
         cb(auth);
       });
+      // @endif
+      // @ifdef WEB
+      try {
+        window.localStorage["aris-auth"] = JSON.stringify(auth.authToken);
+      } catch (err) {
+        // Private mode in iOS Safari disables local storage.
+        // just don't bother remembering the auth.
+        null;
+      }
+      cb(auth);
+      // @endif
     } else if (logoutOnFail) {
       this.logout(auth => {
         cb(auth, obj);
@@ -612,9 +643,27 @@ export const Auth = class Auth {
 
   logout(cb = function() {}) {
     var auth;
+    // @ifdef NATIVE
     AsyncStorage.removeItem("aris-auth", () => {
       cb(new Auth());
     });
+    // @endif
+    // @ifdef WEB
+    try {
+      window.localStorage.removeItem("aris-auth");
+    } catch (err) {
+      null;
+    }
+    auth = new Auth();
+    if (this.password != null) {
+      auth = update(auth, {
+        password: {
+          $set: this.password
+        }
+      });
+    }
+    cb(auth);
+    // @endif
   }
 
   // Perform an ARIS call, but then wrap a successful result with a class.
