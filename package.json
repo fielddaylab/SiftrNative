@@ -37,12 +37,12 @@
     "react-native-svg": "^6.5.2"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3",
+    "babel-core": "^7.0.0-beta.3",
     "babel-jest": "23.4.2",
     "babel-loader": "^7.1.5",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-react": "^6.24.1",
-    "babel-preset-react-native": "^3.0.2",
+    "babel-preset-env": "^7.0.0-beta.3",
+    "babel-preset-react": "^7.0.0-beta.3",
+    "babel-preset-react-native": "^5.0.1",
     "gulp": "^3.9.1",
     "gulp-preprocess": "^3.0.1",
     "gulp-sass": "^4.0.1",

@@ -9,7 +9,7 @@ import {
 , View
 , Platform
 } from 'react-native';
-import MapView from 'react-native-maps';
+import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import {styles} from './styles';
 import Svg, {
   Path
@@ -544,6 +544,7 @@ export class SiftrMap extends React.Component {
 
   render() {
     return <MapView
+      provider={PROVIDER_GOOGLE}
       ref="theMapView"
       onLayout={(...args) => {
         setTimeout(() => {
