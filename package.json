@@ -10,6 +10,7 @@
     "@ptomasroos/react-native-multi-slider": "^1.0.0",
     "create-react-class": "^15.6.3",
     "exif-js": "^2.3.0",
+    "google-map-react": "^1.0.6",
     "immutability-helper": "^2.7.1",
     "immutable": "^3.8.2",
     "prop-types": "^15.6.2",

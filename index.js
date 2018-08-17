@@ -1,6 +1,6 @@
 window.isNative = true;
-window.platform = 'android';
+import {AppRegistry, Platform} from 'react-native';
+window.platform = Platform.OS;
 
 import {SiftrNative} from './src-native/app';
-import {AppRegistry} from 'react-native';
 AppRegistry.registerComponent('SiftrNative', () => SiftrNative);
