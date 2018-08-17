@@ -8,7 +8,7 @@ import {
 , View
 , Platform
 } from 'react-native';
-import MapView from 'react-native-maps';
+import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import {styles} from './styles';
 import Svg, {
   Path
@@ -400,6 +400,10 @@ export class SiftrMap extends React.Component {
 
   render() {
     return <MapView
+      customMapStyle={
+        [{"featureType":"all","stylers":[{"saturation":0},{"hue":"#e7ecf0"}]},{"featureType":"road","stylers":[{"saturation":-70}]},{"featureType":"transit","stylers":[{"visibility":"off"}]},{"featureType":"poi","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"simplified"},{"saturation":-60}]}]
+      }
+      provider={PROVIDER_GOOGLE}
       ref="theMapView"
       onLayout={(...args) => {
         setTimeout(() => {

@@ -43,6 +43,7 @@ target 'GMiOS' do
   pod 'RNFirebase', :path => '../node_modules/react-native-firebase/ios'
   pod 'react-native-camera', :path => '../node_modules/react-native-camera'
   pod 'react-native-orientation', :path => '../node_modules/react-native-orientation'
+  pod 'RNSVG', :path => '../node_modules/react-native-svg'
 end
 
 post_install do |installer|

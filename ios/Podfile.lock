@@ -115,6 +115,8 @@ PODS:
     - React
   - RNFS (2.11.15):
     - React
+  - RNSVG (6.5.2):
+    - React
   - yoga (0.56.0.React)
 
 DEPENDENCIES:
@@ -142,6 +144,7 @@ DEPENDENCIES:
   - React/RCTWebSocket (from `../node_modules/react-native`)
   - RNFirebase (from `../node_modules/react-native-firebase/ios`)
   - RNFS (from `../node_modules/react-native-fs`)
+  - RNSVG (from `../node_modules/react-native-svg`)
   - yoga (from `../node_modules/react-native/ReactCommon/yoga/yoga.podspec`)
 
 SPEC REPOS:
@@ -177,6 +180,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-firebase/ios"
   RNFS:
     :path: "../node_modules/react-native-fs"
+  RNSVG:
+    :path: "../node_modules/react-native-svg"
   yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga/yoga.podspec"
 
@@ -200,8 +205,9 @@ SPEC CHECKSUMS:
   react-native-orientation: 3d9a0a8273d18260f7528414093a6a36491382b6
   RNFirebase: 2b25fd2e60269f26bb0a76c71dcc942b35a77df0
   RNFS: bbb1a64eb245763daf34aea86f97c97c4e85f74c
+  RNSVG: 6252323c0312735f0af5f58b5adf2965b6a9ffbf
   yoga: b1ce48b6cf950b98deae82838f5173ea7cf89e85
 
-PODFILE CHECKSUM: b702fcaac7be7cca16260fdae7b251a5c38fe067
+PODFILE CHECKSUM: 45794ca4dc99e1d86cb3bebc3e1ef2c69c1a79e1
 
 COCOAPODS: 1.5.0
