@@ -1,4 +1,4 @@
-package com.gmios;
+package org.siftr.client;
 
 import com.facebook.react.ReactActivity;
 

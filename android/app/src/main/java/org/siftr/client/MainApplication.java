@@ -1,8 +1,17 @@
-package com.gmios;
+package org.siftr.client;
 
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.horcrux.svg.SvgPackage;
+import com.github.yamill.orientation.OrientationPackage;
+import com.airbnb.android.react.maps.MapsPackage;
+import com.imagepicker.ImagePickerPackage;
+import com.devfd.RNGeocoder.RNGeocoderPackage;
+import com.rnfs.RNFSPackage;
+import io.invertase.firebase.RNFirebasePackage;
+import io.invertase.firebase.analytics.RNFirebaseAnalyticsPackage;
+import org.reactnative.camera.RNCameraPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -22,7 +31,16 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
-          new MainReactPackage()
+          new MainReactPackage(),
+            new SvgPackage(),
+            new OrientationPackage(),
+            new MapsPackage(),
+            new ImagePickerPackage(),
+            new RNGeocoderPackage(),
+            new RNFirebasePackage(),
+            new RNFirebaseAnalyticsPackage(),
+            new RNFSPackage(),
+            new RNCameraPackage()
       );
     }
 
