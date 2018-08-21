@@ -1,4 +1,4 @@
-.PHONY: default first-time deploy-beta
+.PHONY: default deploy-beta run-android
 
 default:
 	rm -f src-*/*

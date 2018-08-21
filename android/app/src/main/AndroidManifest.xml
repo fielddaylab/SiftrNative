@@ -12,10 +12,6 @@
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
 
-    <uses-sdk
-        android:minSdkVersion="16"
-        android:targetSdkVersion="22" />
-
     <application
       android:name=".MainApplication"
       android:allowBackup="true"
@@ -24,7 +20,6 @@
       android:theme="@style/AppTheme">
       <activity
         android:name=".MainActivity"
-        android:launchMode="singleTask"
         android:label="@string/app_name"
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
         android:windowSoftInputMode="adjustResize">

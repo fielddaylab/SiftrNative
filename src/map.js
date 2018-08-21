@@ -9,7 +9,7 @@ import {
 , View
 , Platform
 } from 'react-native';
-import MapView from 'react-native-maps';
+import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import {styles} from './styles';
 import Svg, {
   Path
@@ -126,6 +126,7 @@ class MapCluster extends React.Component {
         latitude: this.props.lat,
         longitude: this.props.lng,
       }}
+      anchor={{x: 0.5, y: 0.5}}
       title=""
       description=""
       pinColor="black"
@@ -176,7 +177,7 @@ class MapCluster extends React.Component {
             stroke="black"
             fill="white"
             x={r + 5}
-            y={Platform.OS === 'ios' ? 1 : 4}
+            y={(w + 3) * 0.65}
             fontSize={w * (2/3)}
             fontWeight={Platform.OS === 'ios' ? '900' : 'bold'}
           >{this.props.cluster.note_count}</SvgText>
@@ -544,6 +545,7 @@ export class SiftrMap extends React.Component {
 
   render() {
     return <MapView
+      provider={PROVIDER_GOOGLE}
       ref="theMapView"
       onLayout={(...args) => {
         setTimeout(() => {

@@ -1,6 +1,5 @@
 var gulp = require('gulp');
 var sass = require('gulp-sass');
-var gutil = require('gulp-util');
 var webpackStream = require('webpack-stream');
 var webpack = require('webpack');
 var preprocess = require('gulp-preprocess');
@@ -33,7 +32,7 @@ gulp.task('webpack', ['pre-web'], function() {
             loader: 'babel-loader',
             exclude: /node_modules/,
             query: {
-              presets: ['es2015', 'react']
+              presets: ['env', 'react']
             }
           }
         ]
