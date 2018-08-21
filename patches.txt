@@ -1,0 +1,9 @@
+for now, apply these manually after running `yarn`
+
+https://github.com/expo/react-native-infinite-scroll-view/pull/44/files
+
+patch the following to target api 26 and build-tools 26.0.3:
+react-native-geocoder (https://github.com/devfd/react-native-geocoder/pull/78/files)
+react-native-image-picker (https://github.com/react-community/react-native-image-picker/pull/913/files)
+react-native-orientation
+
