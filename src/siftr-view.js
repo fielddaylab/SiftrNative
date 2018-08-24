@@ -453,6 +453,7 @@ export var SiftrView = createClass({
       loadedAll: true,
       tags: null,
       colors: null,
+      theme: null,
       viewingNote: null,
       createNote: null,
       searchParams: {
@@ -504,6 +505,21 @@ export var SiftrView = createClass({
           return RNFS.writeFile(
             `${siftrDir}/colors.txt`,
             JSON.stringify(colors)
+          );
+        })
+      );
+      this.props.auth.getTheme(
+        {
+          theme_id: (ref = this.props.game.theme_id) != null ? ref : 1
+        },
+        withSuccess(theme => {
+          if (!this.isMounted) {
+            return;
+          }
+          this.setState({ theme });
+          return RNFS.writeFile(
+            `${siftrDir}/theme.txt`,
+            JSON.stringify(theme)
           );
         })
       );
@@ -562,6 +578,14 @@ export var SiftrView = createClass({
         }
         this.setState({
           colors: Object.assign(new Colors(), JSON.parse(colors))
+        });
+      });
+      RNFS.readFile(`${siftrDir}/theme.txt`).then(theme => {
+        if (!this.isMounted) {
+          return;
+        }
+        this.setState({
+          theme: Object.assign(new Theme(), JSON.parse(theme))
         });
       });
       RNFS.readFile(`${siftrDir}/fields.txt`).then(fields => {
@@ -650,6 +674,16 @@ export var SiftrView = createClass({
       withSuccess(colors => {
         if (this.isMounted) {
           this.setState({ colors });
+        }
+      })
+    );
+    this.props.auth.getTheme(
+      {
+        theme_id: (ref1 = this.props.game.theme_id) != null ? ref1 : 1
+      },
+      withSuccess(theme => {
+        if (this.isMounted) {
+          this.setState({ theme });
         }
       })
     );
@@ -1518,6 +1552,7 @@ export var SiftrView = createClass({
         delta={this.state.delta}
         getColor={this.getColor}
         colors={this.state.colors}
+        theme={this.state.theme}
         onSelectNote={this.selectNote}
         key={1}
         ref="theSiftrMap"
@@ -1537,7 +1572,7 @@ export var SiftrView = createClass({
           (ref = this.state.thumbHover) != null ? ref.note_id : void 0
         }
         tags={this.state.tags}
-        game_id={this.props.game.game_id}
+        game={this.props.game}
       />
     );
   },

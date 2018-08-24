@@ -23,11 +23,14 @@ export const Game = class Game {
       this.published = parseInt(json.published) ? true : false;
       this.moderated = parseInt(json.moderated) ? true : false;
       this.colors_id = parseInt(json.colors_id) || null;
+      this.theme_id = parseInt(json.theme_id) || null;
       this.icon_media_id = parseInt(json.icon_media_id);
       this.created = new Date(json.created.replace(" ", "T") + "Z");
       this.prompt = json.prompt;
       this.password = json.password;
       this.type = json.type;
+      this.map_show_labels = parseInt(json.map_show_labels) ? true : false;
+      this.map_show_roads = parseInt(json.map_show_roads) ? true : false;
     } else {
       this.game_id = null;
       this.name = null;
@@ -40,11 +43,14 @@ export const Game = class Game {
       this.published = null;
       this.moderated = null;
       this.colors_id = null;
+      this.theme_id = null;
       this.icon_media_id = null;
       this.created = null;
       this.prompt = null;
       this.password = null;
       this.type = null;
+      this.map_show_labels = null;
+      this.map_show_roads = null;
     }
   }
 
@@ -61,10 +67,13 @@ export const Game = class Game {
       published: this.published,
       moderated: this.moderated,
       colors_id: this.colors_id,
+      theme_id: this.theme_id,
       icon_media_id: this.icon_media_id,
       prompt: this.prompt,
       password: this.password,
-      type: this.type
+      type: this.type,
+      map_show_labels: this.map_show_labels,
+      map_show_roads: this.map_show_roads,
     };
   }
 };
@@ -88,6 +97,16 @@ export const Colors = class Colors {
       this.tag_6 = json.tag_6;
       this.tag_7 = json.tag_7;
       this.tag_8 = json.tag_8;
+    }
+  }
+};
+
+export const Theme = class Theme {
+  constructor(json) {
+    if (json != null) {
+      this.theme_id     = parseInt(json.theme_id);
+      this.name         = json.name;
+      this.gmaps_styles = json.gmaps_styles;
     }
   }
 };
@@ -777,6 +796,12 @@ export const Auth = class Auth {
   getColors(json, cb) {
     this.callWrapped("colors.getColors", json, cb, function(data) {
       return new Colors(data);
+    });
+  }
+
+  getTheme(json, cb) {
+    this.callWrapped("themes.getTheme", json, cb, function(data) {
+      return new Theme(data);
     });
   }
 

@@ -470,7 +470,7 @@ export class SiftrMap extends React.Component {
     ).concat(this.props.pendingNotes.map(({dir, json}) => {
       json = JSON.parse(json);
       let note = new Note(json);
-      if (note.game_id !== this.props.game_id) return null;
+      if (note.game_id !== this.props.game.game_id) return null;
       note.pending = true;
       note.dir = dir.path;
       note.files = json.files;
@@ -543,6 +543,19 @@ export class SiftrMap extends React.Component {
     }, 500);
   }
 
+  componentWillReceiveProps(nextProps) {
+    // attempt to fix map styles when they load after MapView does
+    if (this.props.theme !== nextProps.theme && this.refs.theMapView) {
+      this.refs.theMapView._updateStyle();
+      // ugh this is dumb
+      [50,100,150,200,250].forEach((t) => {
+        setTimeout(() => {
+          this.refs.theMapView._updateStyle();
+        }, t);
+      });
+    }
+  }
+
   render() {
     return <MapView
       provider={PROVIDER_GOOGLE}
@@ -568,12 +581,49 @@ export class SiftrMap extends React.Component {
       }}
       onRegionChangeComplete={this.moveMapNative.bind(this)}
       showsUserLocation={true}
+      customMapStyle={this.getMapStyles()}
     >
       {this.renderClusters()}
       {this.renderNotes()}
     </MapView>;
   }
   // @endif
+
+  getMapStyles(props = this.props) {
+    let styles = [];
+    if (props.theme) {
+      styles = JSON.parse(props.theme.gmaps_styles);
+    }
+    styles.push({
+      featureType: 'transit',
+      stylers: [{visibility: 'off'}],
+    });
+    styles.push({
+      featureType: 'poi',
+      stylers: [{visibility: 'off'}],
+    });
+    if (!props.game.map_show_roads) {
+      styles.push({
+        featureType: 'road',
+        stylers: [{visibility: 'off'}],
+      });
+    }
+    if (!props.game.map_show_labels) {
+      styles.push({
+        elementType: 'labels',
+        stylers: [{visibility: 'off'}],
+      });
+      styles.push({
+        featureType: 'administrative.land_parcel',
+        stylers: [{visibility: 'off'}],
+      });
+      styles.push({
+        featureType: 'administrative.neighborhood',
+        stylers: [{visibility: 'off'}],
+      });
+    }
+    return styles;
+  }
 
   // @ifdef WEB
   moveMapWeb({center: {lat, lng}, zoom, bounds: {nw, se}}) {
@@ -596,8 +646,7 @@ export class SiftrMap extends React.Component {
         options={(maps) => {
           return {
             fullscreenControl: false,
-            styles:
-              [{"featureType":"all","stylers":[{"saturation":0},{"hue":"#e7ecf0"}]},{"featureType":"road","stylers":[{"saturation":-70}]},{"featureType":"transit","stylers":[{"visibility":"off"}]},{"featureType":"poi","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"simplified"},{"saturation":-60}]}]
+            styles: this.getMapStyles(),
           };
         }}
       >
