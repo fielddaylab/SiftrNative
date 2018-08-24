@@ -521,19 +521,6 @@ export class SiftrMap extends React.Component {
     });
   }
 
-  componentDidMount() {
-    // this is a hack, because of a problem with react-native-maps.
-    // see https://github.com/airbnb/react-native-maps/issues/1577
-    if (Platform.OS === 'ios') {
-      this.refs.theMapView.animateToRegion({
-        latitude: this.props.center.lat,
-        longitude: this.props.center.lng,
-        latitudeDelta: this.props.delta.lat,
-        longitudeDelta: this.props.delta.lng,
-      }, 1);
-    }
-  }
-
   moveToPoint(center) {
     this.refs.theMapView.animateToRegion({
       latitude: center.lat,
@@ -543,23 +530,23 @@ export class SiftrMap extends React.Component {
     }, 500);
   }
 
-  componentWillReceiveProps(nextProps) {
-    // attempt to fix map styles when they load after MapView does
-    if (this.props.theme !== nextProps.theme && this.refs.theMapView) {
-      this.refs.theMapView._updateStyle();
-      // ugh this is dumb
-      [50,100,150,200,250].forEach((t) => {
-        setTimeout(() => {
-          this.refs.theMapView._updateStyle();
-        }, t);
-      });
-    }
-  }
-
   render() {
+    if (!this.props.theme) return null; // wait for theme to load
     return <MapView
       provider={PROVIDER_GOOGLE}
       ref="theMapView"
+      onMapReady={() => {
+        // this is a hack, because of a problem with react-native-maps.
+        // see https://github.com/airbnb/react-native-maps/issues/1577
+        if (Platform.OS === 'ios') {
+          this.refs.theMapView.animateToRegion({
+            latitude: this.props.center.lat,
+            longitude: this.props.center.lng,
+            latitudeDelta: this.props.delta.lat,
+            longitudeDelta: this.props.delta.lng,
+          }, 1);
+        }
+      }}
       onLayout={(...args) => {
         setTimeout(() => {
           this.setState({isMapReady: true});
