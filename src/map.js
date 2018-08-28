@@ -569,6 +569,7 @@ export class SiftrMap extends React.Component {
       onRegionChangeComplete={this.moveMapNative.bind(this)}
       showsUserLocation={true}
       customMapStyle={this.getMapStyles()}
+      mapType={this.props.game.map_type === 'STREET' ? 'standard' : 'hybrid'}
     >
       {this.renderClusters()}
       {this.renderNotes()}
@@ -634,6 +635,7 @@ export class SiftrMap extends React.Component {
           return {
             fullscreenControl: false,
             styles: this.getMapStyles(),
+            mapTypeId: this.props.game.map_type === 'STREET' ? maps.MapTypeId.ROADMAP : maps.MapTypeId.HYBRID,
           };
         }}
       >

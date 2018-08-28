@@ -31,6 +31,7 @@ export const Game = class Game {
       this.type = json.type;
       this.map_show_labels = parseInt(json.map_show_labels) ? true : false;
       this.map_show_roads = parseInt(json.map_show_roads) ? true : false;
+      this.map_type = json.map_type;
     } else {
       this.game_id = null;
       this.name = null;
@@ -51,6 +52,7 @@ export const Game = class Game {
       this.type = null;
       this.map_show_labels = null;
       this.map_show_roads = null;
+      this.map_type = null;
     }
   }
 
@@ -74,6 +76,7 @@ export const Game = class Game {
       type: this.type,
       map_show_labels: this.map_show_labels,
       map_show_roads: this.map_show_roads,
+      map_type: this.map_type,
     };
   }
 };
