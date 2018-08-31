@@ -55,7 +55,9 @@ const NativePassword = createClass({
           backgroundColor: "white"
         }}
       >
-        <StatusSpace />
+        <StatusSpace
+          queueMessage={this.props.queueMessage}
+        />
         <View
           style={{
             flexDirection: "row",
@@ -229,7 +231,9 @@ const NativeProfile = createClass({
           backgroundColor: "white"
         }}
       >
-        <StatusSpace />
+        <StatusSpace
+          queueMessage={this.props.queueMessage}
+        />
         <View
           style={{
             flexDirection: "row",
@@ -447,6 +451,7 @@ export const NativeSettings = createClass({
             }}
             auth={this.props.auth}
             onEditProfile={this.props.onEditProfile}
+            queueMessage={this.props.queueMessage}
           />
         );
       case "password":
@@ -459,6 +464,7 @@ export const NativeSettings = createClass({
             }}
             auth={this.props.auth}
             onChangePassword={this.props.onChangePassword}
+            queueMessage={this.props.queueMessage}
           />
         );
       default:
@@ -470,7 +476,9 @@ export const NativeSettings = createClass({
               backgroundColor: "white"
             }}
           >
-            <StatusSpace />
+            <StatusSpace
+              queueMessage={this.props.queueMessage}
+            />
             <View
               style={{
                 flexDirection: "row",

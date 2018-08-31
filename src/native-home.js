@@ -34,7 +34,9 @@ export var Loading = createClass({
           backgroundColor: "rgb(233,240,240)"
         }}
       >
-        <StatusSpace />
+        <StatusSpace
+          queueMessage={this.props.queueMessage}
+        />
         <View
           style={{
             flex: 1,
@@ -164,9 +166,12 @@ export var NativeHome = createClass({
             auth={this.props.auth}
             onChangePassword={this.props.onChangePassword}
             onEditProfile={this.props.onEditProfile}
+            queueMessage={this.props.queueMessage}
           />
         ) : this.props.discoverPage == null ? (
-          <Loading />
+          <Loading
+            queueMessage={this.props.queueMessage}
+          />
         ) : (
           <View
             style={{
@@ -175,7 +180,9 @@ export var NativeHome = createClass({
               backgroundColor: "white"
             }}
           >
-            <StatusSpace />
+            <StatusSpace
+              queueMessage={this.props.queueMessage}
+            />
             <View
               style={{
                 flexDirection: "row",

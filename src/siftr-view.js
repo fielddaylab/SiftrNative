@@ -1684,6 +1684,8 @@ export var SiftrView = createClass({
                 lat: posn.coords.latitude,
                 lng: posn.coords.longitude
               });
+            }, (err) => {
+              // ignore error
             })
           : void 0;
       }
@@ -2196,6 +2198,7 @@ export var SiftrView = createClass({
           auth={this.props.auth}
           onChangePassword={this.props.onChangePassword}
           onEditProfile={this.props.onEditProfile}
+          queueMessage={this.props.queueMessage}
         />
       );
     }
@@ -2233,7 +2236,9 @@ export var SiftrView = createClass({
               });
             }}
           >
-            <StatusSpace />
+            <StatusSpace
+              queueMessage={this.props.queueMessage}
+            />
             {
               <Blackout isFocused={false} keyboardUp={this.state.keyboardUp}>
                 {

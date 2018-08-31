@@ -7,7 +7,6 @@ import
 , TouchableOpacity
 } from 'react-native';
 import {styles, Text} from './styles';
-import {StatusSpace} from './status-space';
 import Hyperlink from 'react-native-hyperlink';
 
 export class Terms extends React.Component {

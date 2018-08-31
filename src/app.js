@@ -21,8 +21,6 @@ import {
 } from "react-native";
 import { UploadQueue } from "./upload-queue";
 import { styles, Text } from "./styles";
-import { StatusSpace } from "./status-space";
-import { CacheMedia } from "./media";
 import { Terms } from "./native-terms";
 import RNFS from "react-native-fs";
 import firebase from "react-native-firebase";
@@ -651,7 +649,7 @@ export var SiftrNative = createClass({
         </UploadQueue>
       );
     } else {
-      return <Loading />;
+      return <Loading queueMessage={this.state.queueMessage} />;
     }
   },
   // @endif
