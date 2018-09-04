@@ -314,7 +314,8 @@ export const CreateStep2 = createClass({
     note: T.any,
     categories: T.arrayOf(T.instanceOf(Tag)).isRequired,
     getColor: T.func,
-    progress: T.number
+    progress: T.number,
+    game: T.instanceOf(Game).isRequired,
   },
   getDefaultProps: function() {
     return {
@@ -393,7 +394,7 @@ export const CreateStep2 = createClass({
                 text: e.target.value
               });
             }}
-            placeholder="Enter a caption…"
+            placeholder={this.props.game.prompt || "Enter a caption…"}
           />
         </div>
         <div className="create-buttons">

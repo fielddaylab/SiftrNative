@@ -587,6 +587,7 @@ export const CreateData = createClass({
     categories: T.arrayOf(T.instanceOf(Tag)).isRequired,
     getColor: T.func,
     fields: T.arrayOf(T.instanceOf(Field)),
+    game: T.instanceOf(Game).isRequired,
     // misc
     onFinish: T.func,
     onBack: T.func,
@@ -784,7 +785,7 @@ export const CreateData = createClass({
                     {
                       ((descBox = (
                         <TextInput
-                          placeholder="Add a description…"
+                          placeholder={this.props.game.prompt || "Enter a caption…"}
                           value={this.props.createNote.caption}
                           onChangeText={text => {
                             this.props.onUpdateNote(

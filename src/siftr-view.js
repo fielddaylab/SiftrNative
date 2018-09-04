@@ -1777,7 +1777,6 @@ export var SiftrView = createClass({
             });
           }}
           onSelectImage={(file, location) => {
-            var ref;
             this.setState({
               createNote: {
                 files: [
@@ -1786,7 +1785,7 @@ export var SiftrView = createClass({
                     file: file
                   }
                 ],
-                caption: (ref = this.props.game.prompt) != null ? ref : "",
+                caption: "",
                 category: this.state.tags[0],
                 field_data: [],
                 online: false,
@@ -1800,6 +1799,7 @@ export var SiftrView = createClass({
     } else {
       return (
         <CreateData
+          game={this.props.game}
           createNote={this.state.createNote}
           onUpdateNote={createNote => {
             this.setState({ createNote });
@@ -1848,11 +1848,10 @@ export var SiftrView = createClass({
             });
           }}
           onStartUpload={() => {
-            var ref2;
             this.setState({
               createNote: {
                 uploading: true,
-                caption: (ref2 = this.props.game.prompt) != null ? ref2 : ""
+                caption: ""
               },
               createStep: 2
             });
@@ -1908,6 +1907,7 @@ export var SiftrView = createClass({
     } else if (this.state.createStep === 2) {
       return (
         <CreateStep2
+          game={this.props.game}
           categories={(ref3 = this.state.tags) != null ? ref3 : []}
           note={this.state.createNote}
           onEnterCaption={({ text, category }) => {
