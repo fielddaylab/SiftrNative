@@ -20,7 +20,8 @@ import {
   ListView,
   TouchableWithoutFeedback,
   Keyboard,
-  Alert
+  Alert,
+  Animated,
 } from "react-native";
 import { styles, Text } from "./styles";
 import Camera from "react-native-camera";
@@ -144,7 +145,8 @@ export const CreatePhoto = createClass({
     return {
       source: "camera",
       camera: "back",
-      flash: false
+      flash: false,
+      shutter: null,
     };
   },
   componentWillMount: function() {
@@ -208,6 +210,21 @@ export const CreatePhoto = createClass({
                           : Camera.constants.FlashMode.off
                       }
                     />
+                    {
+                      this.state.shutter && (
+                        <Animated.View
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            bottom: 0,
+                            right: 0,
+                            backgroundColor: 'white',
+                            opacity: this.state.shutter,
+                          }}
+                        />
+                      )
+                    }
                   </View>
                   <View
                     style={{
@@ -252,6 +269,10 @@ export const CreatePhoto = createClass({
                               response.camera === "authorized" &&
                               response.photo === "authorized"
                             ) {
+                              const shutter = new Animated.Value(1);
+                              this.setState({shutter}, () => {
+                                Animated.timing(shutter, {toValue: 0, duration: 500}).start();
+                              });
                               this.camera
                                 .capture({})
                                 .then(({ path }) => {
