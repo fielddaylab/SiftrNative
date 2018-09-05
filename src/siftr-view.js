@@ -49,6 +49,7 @@ import {
   FieldData,
   Colors,
   Field,
+  Theme,
   deserializeNote
 } from "./aris";
 
@@ -2199,6 +2200,7 @@ export var SiftrView = createClass({
           onChangePassword={this.props.onChangePassword}
           onEditProfile={this.props.onEditProfile}
           queueMessage={this.props.queueMessage}
+          online={this.props.online}
         />
       );
     }
@@ -2391,19 +2393,6 @@ export var SiftrView = createClass({
                 }
               </Blackout>
             }
-            {this.props.queueMessage != null ? (
-              <View
-                style={{
-                  backgroundColor: "rgb(233,240,240)",
-                  padding: 4,
-                  alignSelf: "stretch"
-                }}
-              >
-                <Text>{this.props.queueMessage}</Text>
-              </View>
-            ) : (
-              void 0
-            )}
             <View
               style={{
                 flex: 1
@@ -2423,6 +2412,50 @@ export var SiftrView = createClass({
               {this.renderCreateNote()}
               {this.state.searchOpen ? this.renderSearch() : void 0}
             </View>
+            {(!(this.props.online) || this.props.queueMessage) &&
+              !(this.state.viewingNote) &&
+              !(this.state.createNote) &&
+              this.state.mainView !== 'thumbs' &&
+              !(this.state.searchOpen) && (
+              <View
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: 80,
+                  backgroundColor: 'black',
+                  padding: 4,
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                }}
+              >
+                {
+                  this.props.online ? (
+                    <Image
+                      style={{
+                        resizeMode: "contain",
+                        width: 28 / 2,
+                        height: 28 / 2,
+                        margin: 5,
+                      }}
+                      source={require("../web/assets/img/arrow-up.png")}
+                    />
+                  ) : (
+                    <Image
+                      style={{
+                        resizeMode: "contain",
+                        width: 112 / 4,
+                        height: 82 / 4,
+                        margin: 5,
+                      }}
+                      source={require("../web/assets/img/no-internet.png")}
+                    />
+                  )
+                }
+                <Text style={{color: 'white', margin: 5, marginLeft: 0}}>
+                  Syncing {this.props.queueMessage.notes}
+                </Text>
+              </View>
+            )}
             {!(
               this.state.createNote != null || this.state.viewingNote != null
             ) ? (

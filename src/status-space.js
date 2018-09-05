@@ -60,7 +60,7 @@ export class StatusSpace extends React.Component {
             backgroundColor={this.props.backgroundColor || 'white'}
             barStyle={this.props.barStyle || 'dark-content'}
             networkActivityIndicatorVisible={
-              this.props.queueMessage ? this.props.queueMessage.indexOf('Uploading') >= 0 : false
+              this.props.queueMessage ? this.props.queueMessage.uploading : false
             }
           />
         : undefined

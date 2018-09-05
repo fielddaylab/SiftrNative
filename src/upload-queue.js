@@ -38,15 +38,11 @@ export const UploadQueue = createClass({
     }
     return this.loadQueue().then((notes) => {
       this.props.withPendingNotes(notes);
+      const count = notes.length + ' post' + (notes.length === 1 ? '' : 's');
       if (notes.length === 0) {
         this.props.onMessage(null);
       } else {
-        const count = notes.length + ' note' + (notes.length === 1 ? '' : 's');
-        if (this.props.online) {
-          this.props.onMessage('Uploading ' + count + '...');
-        } else {
-          this.props.onMessage(count + ' in upload queue');
-        }
+        this.props.onMessage({notes: count, uploading: this.props.online});
       }
 
       if (notes.length === 0 || !this.props.online) {

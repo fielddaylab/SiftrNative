@@ -516,6 +516,53 @@ export const NativeSettings = createClass({
                 }}
               />
             </View>
+            {
+              !(this.props.online) && (
+                <View style={{backgroundColor: 'rgb(48,48,48)', flexDirection: 'row', alignItems: 'center'}}>
+                  <View style={{flex: 1}}>
+                    <Text style={{color: 'white', fontWeight: 'bold', margin: 15}}>
+                      Siftr is currently in offline mode.
+                    </Text>
+                    {
+                      (this.props.queueMessage && this.props.queueMessage.notes > 0) && (
+                        <Text style={{color: 'white', margin: 15, marginTop: 0}}>
+                          You have {this.props.queueMessage.notes} queued to sync when you regain connection.
+                        </Text>
+                      )
+                    }
+                  </View>
+                  <Image
+                    style={{
+                      resizeMode: "contain",
+                      width: 112 / 2,
+                      height: 82 / 2,
+                      margin: 25,
+                      marginLeft: 0
+                    }}
+                    source={require("../web/assets/img/no-internet.png")}
+                  />
+                </View>
+              )
+            }
+            {
+              (this.props.online && this.props.queueMessage) && (
+                <View style={{backgroundColor: 'rgb(90,208,173)', flexDirection: 'row', alignItems: 'center'}}>
+                  <Text style={{color: 'white', margin: 15, flex: 1}}>
+                    Syncing {this.props.queueMessage.notes}
+                  </Text>
+                  <Image
+                    style={{
+                      resizeMode: "contain",
+                      width: 28 / 2,
+                      height: 28 / 2,
+                      margin: 25,
+                      marginLeft: 0
+                    }}
+                    source={require("../web/assets/img/arrow-up.png")}
+                  />
+                </View>
+              )
+            }
             <ScrollView
               style={{
                 flex: 1

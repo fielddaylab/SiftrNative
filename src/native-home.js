@@ -167,6 +167,7 @@ export var NativeHome = createClass({
             onChangePassword={this.props.onChangePassword}
             onEditProfile={this.props.onEditProfile}
             queueMessage={this.props.queueMessage}
+            online={this.props.online}
           />
         ) : this.props.discoverPage == null ? (
           <Loading
@@ -395,19 +396,6 @@ export var NativeHome = createClass({
                     Near Me
                   </Text>
                 </TouchableOpacity>
-              </View>
-            ) : (
-              void 0
-            )}
-            {this.props.queueMessage != null ? (
-              <View
-                style={{
-                  backgroundColor: "rgb(233,240,240)",
-                  padding: 4,
-                  alignSelf: "stretch"
-                }}
-              >
-                <Text>{this.props.queueMessage}</Text>
               </View>
             ) : (
               void 0
