@@ -33,6 +33,7 @@ import SideMenu from "react-native-side-menu";
 import Markdown from "react-native-simple-markdown";
 import firebase from "react-native-firebase";
 import { NativeSettings } from "./native-settings";
+import ProgressCircle from 'react-native-progress-circle';
 // @endif
 
 // @ifdef WEB
@@ -2430,15 +2431,29 @@ export var SiftrView = createClass({
               >
                 {
                   this.props.online ? (
-                    <Image
-                      style={{
-                        resizeMode: "contain",
-                        width: 28 / 2,
-                        height: 28 / 2,
-                        margin: 5,
-                      }}
-                      source={require("../web/assets/img/arrow-up.png")}
-                    />
+                    <View style={{margin: 5}}>
+                      <ProgressCircle
+                        percent={this.props.queueMessage.percent}
+                        radius={15}
+                        borderWidth={3}
+                        color="white"
+                        shadowColor="black"
+                        bgColor="black"
+                        containerStyle={{
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Image
+                          style={{
+                            resizeMode: "contain",
+                            width: 28 / 2,
+                            height: 28 / 2,
+                          }}
+                          source={require("../web/assets/img/arrow-up.png")}
+                        />
+                      </ProgressCircle>
+                    </View>
                   ) : (
                     <Image
                       style={{

@@ -27,6 +27,7 @@ import { StatusSpace } from "./status-space";
 import { CacheMedia } from "./media";
 import { requestImage } from "./photos";
 import { withSuccess } from "./utils";
+import ProgressCircle from 'react-native-progress-circle';
 
 const NativePassword = createClass({
   displayName: "NativePassword",
@@ -550,16 +551,29 @@ export const NativeSettings = createClass({
                   <Text style={{color: 'white', margin: 15, flex: 1}}>
                     Syncing {this.props.queueMessage.notes}
                   </Text>
-                  <Image
-                    style={{
-                      resizeMode: "contain",
-                      width: 28 / 2,
-                      height: 28 / 2,
-                      margin: 25,
-                      marginLeft: 0
-                    }}
-                    source={require("../web/assets/img/arrow-up.png")}
-                  />
+                  <View style={{margin: 15}}>
+                    <ProgressCircle
+                      percent={this.props.queueMessage.percent}
+                      radius={22}
+                      borderWidth={4}
+                      color="white"
+                      shadowColor="rgb(90,208,173)"
+                      bgColor="rgb(90,208,173)"
+                      containerStyle={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Image
+                        style={{
+                          resizeMode: "contain",
+                          width: 28 / 2,
+                          height: 28 / 2,
+                        }}
+                        source={require("../web/assets/img/arrow-up.png")}
+                      />
+                    </ProgressCircle>
+                  </View>
                 </View>
               )
             }

@@ -42,7 +42,7 @@ export const UploadQueue = createClass({
       if (notes.length === 0) {
         this.props.onMessage(null);
       } else {
-        this.props.onMessage({notes: count, uploading: this.props.online});
+        this.props.onMessage({notes: count, uploading: this.props.online, percent: 75});
       }
 
       if (notes.length === 0 || !this.props.online) {
