@@ -48,7 +48,7 @@ export const UploadQueue = createClass({
       if (notes.length === 0 || !this.props.online) {
         return null;
       } else {
-        return this.uploadNote(notes[0]);
+        return this.uploadNote(notes[0], count);
       }
     }).then(() => {
       return setTimeout(() => {
@@ -101,16 +101,21 @@ export const UploadQueue = createClass({
       }).call(this));
     });
   },
-  uploadNote: function({dir, json}) {
+  uploadNote: function({dir, json}, count) {
     json = JSON.parse(json);
+    let progress = json.files.map(() => 0);
     return Promise.all(
-      json.files.map((f) => {
+      json.files.map((f, index) => {
         const file = {
           uri: Platform.OS === 'ios' ? `${dir.path}/${f.filename}` : `file://${dir.path}/${f.filename}`,
           type: f.mimetype,
           name: f.filename
         };
-        return this.props.auth.promise('rawUpload', file, (function() {})).then((raw_upload_id) => {
+        return this.props.auth.promise('rawUpload', file, (fileProg) => {
+          progress[index] = fileProg;
+          const percent = (progress.reduce((a, b) => a + b, 0) / progress.length) * 100;
+          this.props.onMessage({notes: count, uploading: true, percent: percent});
+        }).then((raw_upload_id) => {
           return this.props.auth.promise('call', 'media.createMediaFromRawUpload', {
             file_name: f.filename,
             raw_upload_id: raw_upload_id,
