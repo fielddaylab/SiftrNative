@@ -2416,7 +2416,6 @@ export var SiftrView = createClass({
             {(!(this.props.online) || this.props.queueMessage) &&
               !(this.state.viewingNote) &&
               !(this.state.createNote) &&
-              this.state.mainView !== 'thumbs' &&
               !(this.state.searchOpen) && (
               <View
                 style={{
