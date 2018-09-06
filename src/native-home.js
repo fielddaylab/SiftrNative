@@ -436,7 +436,8 @@ export var NativeHome = createClass({
                 <Image
                   style={{
                     resizeMode: "contain",
-                    height: 30
+                    width: 54 * (30 / 50),
+                    height: 50 * (30 / 50),
                   }}
                   source={
                     isHome
@@ -461,7 +462,8 @@ export var NativeHome = createClass({
                 <Image
                   style={{
                     resizeMode: "contain",
-                    height: 24
+                    height: 72 * (24 / 40),
+                    height: 40 * (24 / 40),
                   }}
                   source={
                     isDiscover
@@ -483,12 +485,15 @@ export var NativeHome = createClass({
                 <Image
                   style={{
                     resizeMode: "contain",
-                    height: 28
+                    width: (this.props.queueMessage ? 54 : 42) * (28 / 40),
+                    height: 40 * (28 / 40),
                   }}
                   source={
                     this.props.settings
                       ? require("../web/assets/img/icon-user-selected.png")
-                      : require("../web/assets/img/icon-user.png")
+                      : this.props.queueMessage
+                        ? require("../web/assets/img/icon-user-uploading.png")
+                        : require("../web/assets/img/icon-user.png")
                   }
                 />
               </TouchableOpacity>
