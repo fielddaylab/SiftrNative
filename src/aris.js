@@ -553,10 +553,9 @@ export const Auth = class Auth {
   }
 
   useLoginResult(obj, logoutOnFail, cb = function() {}) {
-    var auth, json, returnCode;
-    ({ data: json, returnCode } = obj);
+    const { data: json, returnCode, error } = obj;
     if (returnCode === 0 && json.user_id !== null) {
-      auth = new Auth(json);
+      let auth = new Auth(json);
       if (this.password != null) {
         auth = update(auth, {
           password: {
@@ -579,7 +578,9 @@ export const Auth = class Auth {
       }
       cb(auth);
       // @endif
-    } else if (logoutOnFail) {
+    } else if (error == null && logoutOnFail) {
+      // should only happen if no 'error' meaning we did connect to aris,
+      // but then password was wrong or changed or something like that
       this.logout(auth => {
         cb(auth, obj);
       });

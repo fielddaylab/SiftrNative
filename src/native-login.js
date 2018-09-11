@@ -271,21 +271,40 @@ export var NativeLogin = createClass({
                     </View>
                   </TouchableWithoutFeedback>
                   <TouchableOpacity
-                    onPress={this.doLogin}
+                    onPress={
+                      this.props.online ? this.doLogin : undefined
+                    }
                     style={{
-                      backgroundColor: "rgb(255,124,107)",
+                      backgroundColor:
+                        this.props.online ? "rgb(255,124,107)" : 'gray',
                       alignItems: "center",
                       justifyContent: "center",
                       paddingTop: 20,
-                      paddingBottom: 20
+                      paddingBottom: 20,
+                      flexDirection: 'row',
                     }}
                   >
+                    {
+                      this.props.online || (
+                        <Image
+                          style={{
+                            resizeMode: "contain",
+                            width: 112 / 4,
+                            height: 82 / 4,
+                            marginRight: 13,
+                          }}
+                          source={require("../web/assets/img/no-internet.png")}
+                        />
+                      )
+                    }
                     <Text
                       style={{
                         color: "white"
                       }}
                     >
-                      Log in
+                      {
+                        this.props.online ? 'Log in' : 'No connection'
+                      }
                     </Text>
                   </TouchableOpacity>
                 </View>

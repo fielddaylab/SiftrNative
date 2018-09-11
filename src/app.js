@@ -644,6 +644,7 @@ export var SiftrNative = createClass({
               onRegister={this.showTerms}
               viola={this.props.viola}
               backToViola={this.props.backToViola}
+              online={this.state.online}
             />
           )}
         </UploadQueue>
