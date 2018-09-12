@@ -318,9 +318,78 @@ export const SiftrInfo = createClass({
     );
   }
 });
+
+export const SiftrViewPW = createClass({
+  displayName: 'SiftrViewPW',
+  getDefaultProps: function() {
+    return {online: true};
+  },
+  getInitialState: function() {
+    return {asking: false, password: '', display: false};
+  },
+  componentWillMount: function() {
+    if (this.props.online) {
+      this.tryPassword();
+    } else {
+      this.setState({display: true});
+    }
+  },
+  tryPassword: function() {
+    this.props.auth.searchNotes({
+      game_id: this.props.game.game_id,
+      note_count: 1,
+      password: this.state.password,
+    }, res => {
+      if (res.returnCode != null && res.returnCode !== 0) {
+        this.setState({asking: true});
+      } else {
+        this.setState({display: true});
+      }
+    });
+  },
+  render: function() {
+    if (this.state.display) {
+      return (
+        <SiftrView
+          {...this.props}
+          auth={
+            this.state.password != null
+            ? update(this.props.auth, {password: {$set: this.state.password}})
+            : this.props.auth
+          }
+        />
+      );
+    } else if (this.state.asking) {
+      return (
+        <View style={{
+          alignItems: 'stretch',
+          justifyContent: 'center',
+          flex: 1,
+        }}>
+          <Text>This Siftr requires a password.</Text>
+          <TextInput
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoFocus={true}
+            value={this.state.password}
+            onChangeText={text => this.setState({password: text})}
+            secureTextEntry={true}
+            style={{padding: 20}}
+            placeholder="Enter password..."
+          />
+          <TouchableOpacity onPress={this.tryPassword.bind(this)}>
+            <Text>Submit</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    } else {
+      return null;
+    }
+  },
+});
 // @endif
 
-export var SiftrView = createClass({
+export const SiftrView = createClass({
   displayName: "SiftrView",
   propTypes: {
     game: T.instanceOf(Game).isRequired,

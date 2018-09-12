@@ -29,8 +29,11 @@ import { NativeHome, Loading } from "./native-home";
 // @endif
 
 import { Auth, displayError } from "./aris";
-import { SiftrView } from "./siftr-view";
+// @ifdef NATIVE
+import { SiftrViewPW } from "./siftr-view";
+// @endif
 // @ifdef WEB
+import { SiftrView } from "./siftr-view";
 import { WebNav } from "./web-nav";
 // @endif
 
@@ -560,7 +563,7 @@ export var SiftrNative = createClass({
         >
           {this.state.auth.authToken != null ? (
             this.state.game != null ? (
-              <SiftrView
+              <SiftrViewPW
                 game={this.state.game}
                 bounds={this.state.bounds}
                 auth={this.state.auth}
