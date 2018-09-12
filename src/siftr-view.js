@@ -334,6 +334,9 @@ export const SiftrViewPW = createClass({
       this.setState({display: true});
     }
   },
+  loadResults: function(...args) {
+    return this.siftrView && this.siftrView.loadResults(...args);
+  },
   tryPassword: function() {
     this.props.auth.searchNotes({
       game_id: this.props.game.game_id,
@@ -357,6 +360,7 @@ export const SiftrViewPW = createClass({
             ? update(this.props.auth, {password: {$set: this.state.password}})
             : this.props.auth
           }
+          ref={(sv) => this.siftrView = sv}
         />
       );
     } else if (this.state.asking) {
