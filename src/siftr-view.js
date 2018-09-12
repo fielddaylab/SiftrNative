@@ -2481,64 +2481,70 @@ export const SiftrView = createClass({
               {this.renderNoteView()}
               {this.renderCreateNote()}
               {this.state.searchOpen ? this.renderSearch() : void 0}
-            </View>
-            {(!(this.props.online) || this.props.queueMessage) &&
-              !(this.state.viewingNote) &&
-              !(this.state.createNote) &&
-              !(this.state.searchOpen) && (
-              <View
-                style={{
+              {(!(this.props.online) || this.props.queueMessage) &&
+                !(this.state.viewingNote) &&
+                !(this.state.createNote) &&
+                !(this.state.searchOpen) && (
+                <View style={{
                   position: 'absolute',
+                  bottom: 0,
+                  left: 0,
                   right: 0,
-                  top: 80,
-                  backgroundColor: 'black',
-                  padding: 4,
                   alignItems: 'center',
-                  flexDirection: 'row',
-                }}
-              >
-                {
-                  this.props.online ? (
-                    <View style={{margin: 5}}>
-                      <ProgressCircle
-                        percent={this.props.queueMessage.percent}
-                        radius={15}
-                        borderWidth={3}
-                        color="white"
-                        shadowColor="black"
-                        bgColor="black"
-                        containerStyle={{
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
+                  justifyContent: 'center',
+                }}>
+                  <View
+                    style={{
+                      backgroundColor: 'black',
+                      padding: 4,
+                      alignItems: 'center',
+                      flexDirection: 'row',
+                    }}
+                  >
+                    {
+                      this.props.online ? (
+                        <View style={{margin: 5}}>
+                          <ProgressCircle
+                            percent={this.props.queueMessage ? this.props.queueMessage.percent : 75}
+                            radius={15}
+                            borderWidth={3}
+                            color="white"
+                            shadowColor="black"
+                            bgColor="black"
+                            containerStyle={{
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <Image
+                              style={{
+                                resizeMode: "contain",
+                                width: 28 / 2,
+                                height: 28 / 2,
+                              }}
+                              source={require("../web/assets/img/arrow-up.png")}
+                            />
+                          </ProgressCircle>
+                        </View>
+                      ) : (
                         <Image
                           style={{
                             resizeMode: "contain",
-                            width: 28 / 2,
-                            height: 28 / 2,
+                            width: 112 / 4,
+                            height: 82 / 4,
+                            margin: 5,
                           }}
-                          source={require("../web/assets/img/arrow-up.png")}
+                          source={require("../web/assets/img/no-internet.png")}
                         />
-                      </ProgressCircle>
-                    </View>
-                  ) : (
-                    <Image
-                      style={{
-                        resizeMode: "contain",
-                        width: 112 / 4,
-                        height: 82 / 4,
-                        margin: 5,
-                      }}
-                      source={require("../web/assets/img/no-internet.png")}
-                    />
-                  )
-                }
-                <Text style={{color: 'white', margin: 5, marginLeft: 0}}>
-                  Syncing {this.props.queueMessage.notes}
-                </Text>
-              </View>
-            )}
+                      )
+                    }
+                    <Text style={{color: 'white', margin: 5, marginLeft: 0}}>
+                      Syncing {this.props.queueMessage ? this.props.queueMessage.notes : 'nothing'}
+                    </Text>
+                  </View>
+                </View>
+              )}
+            </View>
             {!(
               this.state.createNote != null || this.state.viewingNote != null
             ) ? (
