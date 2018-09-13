@@ -463,7 +463,7 @@ export var NativeHome = createClass({
                   style={{
                     resizeMode: "contain",
                     height: 72 * (24 / 40),
-                    height: 40 * (24 / 40),
+                    width: 40 * (24 / 40),
                   }}
                   source={
                     isDiscover
