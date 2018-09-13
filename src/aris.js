@@ -451,7 +451,8 @@ export const Auth = class Auth {
     );
     form = new FormData();
     form.append("raw_upload", file);
-    tries = 3;
+    // don't set timeout, because media upload could take a long time
+    tries = 999;
     handleError = error => {
       if (tries === 0) {
         return cb({ error });
@@ -525,9 +526,13 @@ export const Auth = class Auth {
         }
       };
       req.onerror = () => {
-        return handleError("Could not connect to Siftr");
+        handleError("Could not connect to Siftr");
       };
-      tries = 3;
+      req.ontimeout = () => {
+        handleError("Request timed out");
+      };
+      req.timeout = 5000;
+      tries = 999;
       trySend = () => {
         if (req.readyState === req.OPENED) {
           return req.send(jsonString);

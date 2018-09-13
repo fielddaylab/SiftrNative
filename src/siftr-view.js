@@ -2509,7 +2509,7 @@ export const SiftrView = createClass({
                       this.props.online ? (
                         <View style={{margin: 5}}>
                           <ProgressCircle
-                            percent={this.props.queueMessage ? this.props.queueMessage.percent : 75}
+                            percent={this.props.queueMessage ? this.props.queueMessage.percent : 0}
                             radius={15}
                             borderWidth={3}
                             color="white"
