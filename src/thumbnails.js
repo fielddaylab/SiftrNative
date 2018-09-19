@@ -12,6 +12,7 @@ import
 { View
 , TouchableOpacity
 , ImageBackground
+, Platform
 } from 'react-native';
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
 import {CacheMedia} from './media';
@@ -58,7 +59,39 @@ export class SiftrThumbnails extends React.Component {
         flex: 1,
       }}>
         {
-          this.props.notes.map((note) =>
+          this.props.pendingNotes.map(({dir, json}) => {
+            json = JSON.parse(json);
+            let note = new Note(json);
+            if (note.game_id !== this.props.game.game_id) return null;
+            note.pending = true;
+            note.dir = dir.path;
+            note.files = json.files;
+            let url = '';
+            if (Platform.OS === "ios") {
+              url = `${dir.path}/${json.files[0].filename}`;
+            } else {
+              url = `file://${dir.path}/${json.files[0].filename}`;
+            }
+            return (
+              <TouchableOpacity onPress={() => this.props.onSelectNote(note)} key={dir.name}>
+                <ImageBackground source={{uri: url}} style={{
+                  width: 160,
+                  height: 160,
+                  margin: 5,
+                }}>
+                  <View style={{
+                    position: 'absolute',
+                    top: 5,
+                    right: 5,
+                    width: 15,
+                    height: 15,
+                    borderRadius: 999,
+                    backgroundColor: this.props.getColor(note.tag_id),
+                  }} />
+                </ImageBackground>
+              </TouchableOpacity>
+            );
+          }).concat(this.props.notes.map((note) =>
             <TouchableOpacity onPress={() => this.props.onSelectNote(note)} key={note.note_id}>
               <CacheMedia
                 url={note.thumb_url}
@@ -83,7 +116,7 @@ export class SiftrThumbnails extends React.Component {
                 }
               />
             </TouchableOpacity>
-          )
+          ))
         }
       </View>
     </InfiniteScrollView>;

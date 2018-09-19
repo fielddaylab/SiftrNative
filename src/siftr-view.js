@@ -1660,6 +1660,15 @@ export const SiftrView = createClass({
       <SiftrThumbnails
         ref="thumbs"
         notes={this.state[notesKey]}
+        game={this.props.game}
+        pendingNotes={(() => {
+          // @ifdef WEB
+          return [];
+          // @endif
+          // @ifdef NATIVE
+          return this.props.pendingNotes || [];
+          // @endif
+        })()}
         getColor={this.getColor}
         onSelectNote={this.selectNote}
         key={2}

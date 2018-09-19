@@ -27,7 +27,7 @@ export const UploadQueue = createClass({
   },
   componentDidMount: function() {
     this.mounted = true;
-    return this.checkQueue();
+    this.checkQueue();
   },
   componentWillUnmount: function() {
     return this.mounted = false;
@@ -36,7 +36,7 @@ export const UploadQueue = createClass({
     if (!this.mounted) {
       return;
     }
-    return this.loadQueue().then((notes) => {
+    this.loadQueue().then((notes) => {
       this.props.withPendingNotes(notes);
       const count = notes.length + ' post' + (notes.length === 1 ? '' : 's');
       if (notes.length === 0) {
@@ -46,15 +46,15 @@ export const UploadQueue = createClass({
       }
 
       if (notes.length === 0 || !this.props.online) {
-        return null;
+        setTimeout(() => {
+          this.checkQueue();
+        }, 3000);
       } else {
-        return this.uploadNote(notes[0], count);
+        this.uploadNote(notes[0], count).then(() => {
+          this.checkQueue();
+        });
       }
-    }).then(() => {
-      return setTimeout(() => {
-        return this.checkQueue();
-      }, 3000);
-    });
+    })
   },
   loadQueue: function() {
     const queueDir = `${RNFS.DocumentDirectoryPath}/siftrqueue`;
