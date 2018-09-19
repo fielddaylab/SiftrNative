@@ -125,31 +125,29 @@ function writeParagraphs(text) {
 
 // @ifdef NATIVE
 const SquareImage = class SquareImage extends React.Component {
-  // image box that sets the height equal to the width
+  // horizontally scrolling box of images that sets the height equal to the width
   constructor(props) {
     super(props);
     this.state = {};
   }
 
   render() {
-    var ref;
+    let width = this.state.width;
+    if (width == null) width = undefined;
     return (
-      <View
+      <ScrollView
+        horizontal={true}
         style={{
           alignSelf: "stretch",
-          flexDirection: "row",
-          height: (ref = this.state.width) != null ? ref : void 0,
-          alignItems: "stretch"
         }}
         onLayout={this.resize.bind(this)}
       >
         {this.props.sources.map((source, i) => {
-          var ref1;
-          if ((ref1 = source.uri) === null || ref1 === "") {
+          if (source.uri === null || source.uri === "") {
             source = null;
           }
           return (
-            <TouchableOpacity
+            <TouchableWithoutFeedback
               key={i}
               onPress={() => {
                 this.props.onGallery(source);
@@ -163,13 +161,14 @@ const SquareImage = class SquareImage extends React.Component {
                 source={source}
                 style={{
                   resizeMode: "cover",
-                  flex: 1
+                  width: width,
+                  height: width,
                 }}
               />
-            </TouchableOpacity>
+            </TouchableWithoutFeedback>
           );
         })}
-      </View>
+      </ScrollView>
     );
   }
 
