@@ -566,7 +566,7 @@ export class SiftrMap extends React.Component {
         latitudeDelta: this.props.delta.lat,
         longitudeDelta: this.props.delta.lng,
       }}
-      onRegionChangeComplete={this.moveMapNative.bind(this)}
+      onRegionChange={this.moveMapNative.bind(this)}
       showsUserLocation={true}
       customMapStyle={this.getMapStyles()}
       mapType={this.props.game.map_type === 'STREET' ? 'standard' : 'hybrid'}
