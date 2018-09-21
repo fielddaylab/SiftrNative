@@ -2551,9 +2551,11 @@ export const SiftrView = createClass({
                         />
                       )
                     }
-                    <Text style={{color: 'white', margin: 5, marginLeft: 0}}>
-                      Syncing {this.props.queueMessage ? this.props.queueMessage.notes : 'nothing'}
-                    </Text>
+                    { this.props.queueMessage && (
+                      <Text style={{color: 'white', margin: 5, marginLeft: 0}}>
+                        Syncing {this.props.queueMessage.notes}
+                      </Text>
+                    ) }
                   </View>
                 </View>
               )}
