@@ -1001,6 +1001,7 @@ export const SiftrView = createClass({
     } else {
       return "white";
     }
+    if (!tag) return 'white';
     if (tag.color) {
       return tag.color;
     }
