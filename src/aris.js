@@ -598,7 +598,8 @@ export const Auth = class Auth {
       {
         user_name: username,
         password: password,
-        permission: "read_write"
+        permission: "read_write",
+        siftr_version: 20180925,
       },
       obj => {
         return this.useLoginResult(obj, true, cb);
