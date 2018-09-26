@@ -232,7 +232,7 @@ export var SiftrNative = createClass({
   // @endif
   updateGames: function() {
     this.state.auth.getGamesForUser(
-      {},
+      {order: 'recent'},
       withSuccess(games => {
         this.setState({
           games: games.filter((game) => game.is_siftr)
@@ -242,7 +242,7 @@ export var SiftrNative = createClass({
   },
   updateFollowed: function() {
     this.state.auth.getFollowedGamesForUser(
-      {},
+      {order: 'recent'},
       withSuccess(games => {
         this.setState({
           followed: games.filter((game) => game.is_siftr)
