@@ -23,6 +23,7 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		140ED2AC1D01E1AD002B40FF /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
 		146834051AC3E58100842450 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
+		1A775897AE25B81CA67234BC /* libPods-GMiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C929F73844E1C8763F9BFB5 /* libPods-GMiOS.a */; };
 		2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -38,7 +39,6 @@
 		2DF0FFEE2056DD460020B375 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3DAD3EA31DF850E9000B6D8A /* libReact.a */; };
 		53A9EC5021273BC500371774 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 53A9EC2A21273BC400371774 /* GoogleService-Info.plist */; };
 		53A9ED4F212742B100371774 /* libRCTCameraRoll.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 53A9ED4E212742B100371774 /* libRCTCameraRoll.a */; };
-		566C03ACBE32709F9F0C0AA2 /* libPods-GMiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B7E1BF9B84B2A3786F0CF46E /* libPods-GMiOS.a */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
@@ -355,11 +355,11 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = GMiOS/main.m; sourceTree = "<group>"; };
 		146833FF1AC3E56700842450 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "../node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
 		148DF0D983EB4D7692C7088B /* RNFirebase.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNFirebase.xcodeproj; path = "../node_modules/react-native-firebase/ios/RNFirebase.xcodeproj"; sourceTree = "<group>"; };
+		2C929F73844E1C8763F9BFB5 /* libPods-GMiOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-GMiOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E47B1E0B4A5D006451C7 /* GMiOS-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "GMiOS-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* GMiOS-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "GMiOS-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D16E6891FA4F8E400B85C8A /* libReact.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libReact.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		42018B1790D5B383236C97D7 /* Pods-GMiOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GMiOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-GMiOS/Pods-GMiOS.release.xcconfig"; sourceTree = "<group>"; };
-		4DBFE2C5C72A0779C74B51E4 /* Pods-GMiOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GMiOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-GMiOS/Pods-GMiOS.debug.xcconfig"; sourceTree = "<group>"; };
+		4A88683D6F764763DF90A34E /* Pods-GMiOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GMiOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-GMiOS/Pods-GMiOS.debug.xcconfig"; sourceTree = "<group>"; };
 		53489766214AFE8500AF8566 /* GMiOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = GMiOS.entitlements; path = GMiOS/GMiOS.entitlements; sourceTree = "<group>"; };
 		536CCAE1212CB1BD00D035DC /* RCTCameraRoll.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTCameraRoll.xcodeproj; path = "../node_modules/react-native/Libraries/CameraRoll/RCTCameraRoll.xcodeproj"; sourceTree = "<group>"; };
 		53A9EC2A21273BC400371774 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "GMiOS/GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -367,8 +367,8 @@
 		5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTAnimation.xcodeproj; path = "../node_modules/react-native/Libraries/NativeAnimation/RCTAnimation.xcodeproj"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
+		9A396D80762205745EF14D98 /* Pods-GMiOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GMiOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-GMiOS/Pods-GMiOS.release.xcconfig"; sourceTree = "<group>"; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
-		B7E1BF9B84B2A3786F0CF46E /* libPods-GMiOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-GMiOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CF069766F8184185AD8B7CDC /* libRNFirebase.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNFirebase.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -399,8 +399,8 @@
 				832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */,
 				00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */,
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
-				566C03ACBE32709F9F0C0AA2 /* libPods-GMiOS.a in Frameworks */,
 				0F8148271C3C4A6EBF0D6298 /* libRNFirebase.a in Frameworks */,
+				1A775897AE25B81CA67234BC /* libPods-GMiOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -553,9 +553,18 @@
 			children = (
 				53A9ED4E212742B100371774 /* libRCTCameraRoll.a */,
 				2D16E6891FA4F8E400B85C8A /* libReact.a */,
-				B7E1BF9B84B2A3786F0CF46E /* libPods-GMiOS.a */,
+				2C929F73844E1C8763F9BFB5 /* libPods-GMiOS.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		474B988A14AB96EE25983135 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				4A88683D6F764763DF90A34E /* Pods-GMiOS.debug.xcconfig */,
+				9A396D80762205745EF14D98 /* Pods-GMiOS.release.xcconfig */,
+			);
+			name = Pods;
 			sourceTree = "<group>";
 		};
 		536CCAE2212CB1BD00D035DC /* Products */ = {
@@ -638,8 +647,8 @@
 				00E356EF1AD99517003FC87E /* GMiOSTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				D367770D3B39C70354E22E60 /* Pods */,
 				53AA0EFA21277967000662B7 /* Recovered References */,
+				474B988A14AB96EE25983135 /* Pods */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -664,15 +673,6 @@
 				2D16E6721FA4F8DC00B85C8A /* libRCTBlob-tvOS.a */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		D367770D3B39C70354E22E60 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				4DBFE2C5C72A0779C74B51E4 /* Pods-GMiOS.debug.xcconfig */,
-				42018B1790D5B383236C97D7 /* Pods-GMiOS.release.xcconfig */,
-			);
-			name = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -700,12 +700,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "GMiOS" */;
 			buildPhases = (
-				C488751F70773482D9C5B58A /* [CP] Check Pods Manifest.lock */,
+				6A5E4F972F9796F6602C8E54 /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				704DD43D8E60234E55EB6239 /* [CP] Copy Pods Resources */,
+				CF34A82FFFCD688938559839 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1203,25 +1203,7 @@
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
 		};
-		704DD43D8E60234E55EB6239 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-GMiOS/Pods-GMiOS-resources.sh",
-				"${PODS_ROOT}/GoogleMaps/Maps/Frameworks/GoogleMaps.framework/Resources/GoogleMaps.bundle",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleMaps.bundle",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-GMiOS/Pods-GMiOS-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		C488751F70773482D9C5B58A /* [CP] Check Pods Manifest.lock */ = {
+		6A5E4F972F9796F6602C8E54 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1237,6 +1219,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CF34A82FFFCD688938559839 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-GMiOS/Pods-GMiOS-resources.sh",
+				"${PODS_ROOT}/GoogleMaps/Maps/Frameworks/GoogleMaps.framework/Resources/GoogleMaps.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleMaps.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-GMiOS/Pods-GMiOS-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -1359,7 +1359,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4DBFE2C5C72A0779C74B51E4 /* Pods-GMiOS.debug.xcconfig */;
+			baseConfigurationReference = 4A88683D6F764763DF90A34E /* Pods-GMiOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = GMiOS/GMiOS.entitlements;
@@ -1387,7 +1387,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 42018B1790D5B383236C97D7 /* Pods-GMiOS.release.xcconfig */;
+			baseConfigurationReference = 9A396D80762205745EF14D98 /* Pods-GMiOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = GMiOS/GMiOS.entitlements;

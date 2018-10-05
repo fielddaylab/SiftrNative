@@ -58,7 +58,7 @@ post_install do |installer|
         config.build_settings['CLANG_ENABLE_MODULES'] = 'No'
       end
     end
-    if target.name == "React"
+    if %w{React yoga}.include?(target.name)
       target.remove_from_project
     end
   end
