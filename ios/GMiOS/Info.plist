@@ -17,11 +17,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.23</string>
+	<string>1.0.24</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>55</string>
+	<string>56</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
@@ -49,15 +49,15 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>This permission is not used by Siftr.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Allows Siftr to take photos.</string>
+	<string>Allows you to take photos to upload to a Siftr project.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Allows Siftr to show where you are on the map.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>This permission is not used by Siftr.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Save your Siftr photos to the camera roll.</string>
+	<string>Allows you to save your Siftr photos to the camera roll.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Upload your photos to Siftr.</string>
+	<string>Allows you upload photos from your device to a Siftr project.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>This permission is not used by Siftr.</string>
 	<key>UILaunchStoryboardName</key>
