@@ -30,7 +30,9 @@ import firebase from "react-native-firebase";
 import Geocoder from "react-native-geocoder";
 import Permissions from "react-native-permissions";
 import { Auth, Game, Tag, Field, FieldData } from "./aris";
+import { requestImage } from "./photos";
 
+// Not used currently
 const SiftrRoll = class SiftrRoll extends React.Component {
   constructor(props) {
     super(props);
@@ -225,6 +227,47 @@ export const CreatePhoto = createClass({
                         />
                       )
                     }
+                    <TouchableOpacity
+                      onPress={() => {
+                        this.setState({
+                          flash: !this.state.flash
+                        });
+                      }}
+                      style={{
+                        position: 'absolute',
+                        bottom: 25,
+                        left: 25,
+                      }}
+                    >
+                      <Image
+                        source={require("../web/assets/img/icon-flash.png")}
+                        style={{
+                          width: 32,
+                          height: 32,
+                        }}
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        this.setState({
+                          camera:
+                            this.state.camera === "front" ? "back" : "front"
+                        });
+                      }}
+                      style={{
+                        position: 'absolute',
+                        bottom: 25,
+                        right: 25,
+                      }}
+                    >
+                      <Image
+                        source={require("../web/assets/img/icon-switch-camera.png")}
+                        style={{
+                          width: 32,
+                          height: 32,
+                        }}
+                      />
+                    </TouchableOpacity>
                   </View>
                   <View
                     style={{
@@ -235,19 +278,19 @@ export const CreatePhoto = createClass({
                   >
                     <TouchableOpacity
                       onPress={() => {
-                        this.setState({
-                          camera:
-                            this.state.camera === "front" ? "back" : "front"
+                        requestImage(img => {
+                          if (img != null) {
+                            this.props.onSelectImage(img);
+                          }
                         });
                       }}
                     >
                       <Image
-                        source={require("../web/assets/img/icon-switch-camera.png")}
                         style={{
-                          width: 30,
-                          height: 30,
-                          margin: 10
+                          width: 52 * 0.7,
+                          height: 52 * 0.7
                         }}
+                        source={require("../web/assets/img/icon-from-roll.png")}
                       />
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -300,22 +343,12 @@ export const CreatePhoto = createClass({
                         }}
                       />
                     </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => {
-                        this.setState({
-                          flash: !this.state.flash
-                        });
+                    <View
+                      style={{
+                        width: 52 * 0.7,
+                        height: 52 * 0.7
                       }}
-                    >
-                      <Image
-                        source={require("../web/assets/img/icon-flash.png")}
-                        style={{
-                          width: 32 * 0.7,
-                          height: 46 * 0.7,
-                          margin: 10
-                        }}
-                      />
-                    </TouchableOpacity>
+                    />
                   </View>
                 </View>
               );
@@ -345,70 +378,6 @@ export const CreatePhoto = createClass({
               );
           }
         }.call(this)}
-        <View style={styles.buttonRow}>
-          <TouchableOpacity onPress={this.props.onCancel}>
-            <Text
-              style={[
-                styles.blackViolaButton,
-                {
-                  color: "rgb(188,188,188)"
-                }
-              ]}
-            >
-              cancel
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              this.setState({
-                source: "camera"
-              });
-            }}
-          >
-            <Image
-              style={{
-                width: 52 * 0.7,
-                height: 38 * 0.7
-              }}
-              source={
-                this.state.source === "camera"
-                  ? require("../web/assets/img/icon-from-camera.png")
-                  : require("../web/assets/img/icon-from-camera-gray.png")
-              }
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              this.setState({
-                source: "roll"
-              });
-            }}
-          >
-            <Image
-              style={{
-                width: 52 * 0.7,
-                height: 52 * 0.7
-              }}
-              source={
-                this.state.source === "roll"
-                  ? require("../web/assets/img/icon-from-roll.png")
-                  : require("../web/assets/img/icon-from-roll-gray.png")
-              }
-            />
-          </TouchableOpacity>
-          <View>
-            <Text
-              style={[
-                styles.blackViolaButton,
-                {
-                  opacity: 0
-                }
-              ]}
-            >
-              cancel
-            </Text>
-          </View>
-        </View>
       </View>
     );
   }

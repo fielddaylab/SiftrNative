@@ -2344,18 +2344,11 @@ export const SiftrView = createClass({
                         }}
                         onPress={
                           this.state.viewingNote != null
-                            ? () => {
-                                this.closeNote();
-                              }
-                            : this.state.createNote != null
-                              ? null
-                              : this.state.searchOpen
-                                ? () => {
-                                    // no back button
-                                    this.setState({
-                                      searchOpen: false
-                                    });
-                                  }
+                            ? (() => this.closeNote())
+                            : this.state.searchOpen
+                              ? (() => this.setState({searchOpen: false}))
+                              : this.state.createNote != null
+                                ? (() => this.setState({createNote: null}))
                                 : this.props.onExit
                         }
                       >
@@ -2370,9 +2363,7 @@ export const SiftrView = createClass({
                               this.state.viewingNote == null &&
                               !this.state.searchOpen
                                 ? 0
-                                : this.state.createNote != null
-                                  ? 0
-                                  : 1
+                                : 1
                           }}
                           source={require("../web/assets/img/icon-back.png")}
                         />
