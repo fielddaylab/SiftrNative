@@ -62,18 +62,14 @@ const NativeCard = createClass({
         }),
         posts: notes.length,
         contributors: (() => {
-          var comment, i, j, len, len1, note, ref, user_ids;
-          user_ids = {};
-          for (i = 0, len = notes.length; i < len; i++) {
-            note = notes[i];
-            user_ids[note.user.user_id] = true;
-            ref = note.comments;
-            for (j = 0, len1 = ref.length; j < len1; j++) {
-              comment = ref[j];
-              user_ids[comment.user.user_id] = true;
-            }
-          }
-          return Object.keys(user_ids).length;
+          let user_ids = {};
+          notes.forEach((note) => {
+            user_ids[note.user.user_id] = note.user;
+            note.comments.forEach((comment) => {
+              user_ids[comment.user.user_id] = comment.user;
+            });
+          });
+          return user_ids;
         })()
       });
     };
@@ -115,6 +111,14 @@ const NativeCard = createClass({
     var ref, ref1, ref2, ref3, ref4, ref5;
     switch (this.props.cardMode) {
       case 'full':
+        let contributorIcons = [];
+        if (this.state.contributors) {
+          for (var user_id in this.state.contributors) {
+            const user = this.state.contributors[user_id];
+            if (user.media_id) contributorIcons.push(user.media_id);
+            if (contributorIcons.length == 3) break;
+          }
+        }
         return (
           <TouchableOpacity onPress={(...args) => {
             this.props.onSelect(...args);
@@ -189,8 +193,37 @@ const NativeCard = createClass({
               padding: 10,
               alignItems: 'center'
             }}>
+              <View style={{
+                marginRight: contributorIcons.length === 0 ? 0 : 20,
+                flexDirection: 'row',
+              }}>
+                {
+                  contributorIcons.map((media_id) => (
+                    <CacheMedia
+                      media_id={media_id}
+                      key={media_id}
+                      size="thumb_url"
+                      auth={this.props.auth}
+                      withURL={(url) => (
+                        <Image
+                          source={url == null ? undefined : {uri: url}}
+                          style={{
+                            width: 30,
+                            height: 30,
+                            borderRadius: 15,
+                            marginRight: -10,
+                            resizeMode: 'cover',
+                            borderColor: 'white',
+                            borderWidth: 2,
+                          }}
+                        />
+                      )}
+                    />
+                  ))
+                }
+              </View>
               <View>
-                <Text style={{fontWeight: 'bold'}}>{(ref2 = this.state.contributors) != null ? ref2 : '…'} contributors</Text>
+                <Text style={{fontWeight: 'bold'}}>{(ref2 = this.state.contributors) != null ? Object.keys(ref2).length : '…'} contributors</Text>
                 <Text>{(ref3 = this.state.posts) != null ? ref3 : '…'} posts</Text>
               </View>
             </View>
