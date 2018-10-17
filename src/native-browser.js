@@ -19,6 +19,8 @@ import {
   deserializeNote
 } from './aris';
 import {withSuccess} from './utils';
+import Markdown from "react-native-simple-markdown";
+import removeMarkdown from 'remove-markdown';
 
 const mapMaybe = (xs, f) => {
   return xs.map(f).filter((x) => x != null);
@@ -113,7 +115,8 @@ const NativeCard = createClass({
     var ref, ref1, ref2, ref3, ref4, ref5;
     switch (this.props.cardMode) {
       case 'full':
-        return <TouchableOpacity onPress={(...args) => {
+        return (
+          <TouchableOpacity onPress={(...args) => {
             this.props.onSelect(...args);
           }} style={{
             backgroundColor: 'white',
@@ -121,60 +124,72 @@ const NativeCard = createClass({
             marginBottom: 0,
             borderRadius: 12
           }}>
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            padding: 10,
-            alignItems: 'center'
-          }}>
             <View style={{
-            flex: 1
-          }}>
-              <Text>{this.props.game.name}</Text>
-              <Text>{(ref = (ref1 = this.state.authors) != null ? ref1.join(', ') : void 0) != null ? ref : '…'}</Text>
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              padding: 10,
+              alignItems: 'center'
+            }}>
+              <View>
+                <Text style={{fontWeight: 'bold'}}>{this.props.game.name}</Text>
+                <Text>{(ref = (ref1 = this.state.authors) != null ? ref1.join(', ') : void 0) != null ? ref : '…'}</Text>
+              </View>
+              <TouchableOpacity style={{
+                padding: 10
+              }} onPress={(...args) => {
+                return this.props.onInfo(...args);
+              }}>
+                <Image source={require('../web/assets/img/icon-4dots.png')} style={{
+                  width: 38 * 0.7,
+                  height: 40 * 0.7,
+                  resizeMode: 'contain'
+                }} />
+              </TouchableOpacity>
             </View>
-          </View>
-          <View style={{
-            flexDirection: 'row',
-            overflow: 'hidden'
-          }}>
-            {(this.state.photos != null ? this.state.photos.map(({url, note_id}) => {
-          return <CacheMedia key={note_id} url={url} withURL={(url) => {
-              return <Image source={url != null ? {
-                  uri: url
-                } : void 0} style={{
-                  height: 100,
-                  width: 100
-                }} />;
-            }} />;
-        }) : <View style={{
-            height: 100,
-            width: 100
-          }} />)}
-          </View>
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            padding: 10,
-            alignItems: 'center'
-          }}>
-            <View>
-              <Text>{(ref2 = this.state.contributors) != null ? ref2 : '…'} contributors</Text>
-              <Text>{(ref3 = this.state.posts) != null ? ref3 : '…'} posts</Text>
+            <View style={{
+              flexDirection: 'row',
+              overflow: 'hidden'
+            }}>
+              {
+                this.state.photos != null
+                ? this.state.photos.map(({url, note_id}) => {
+                    return <CacheMedia key={note_id} url={url} withURL={(url) => {
+                      return <Image source={url != null ? {
+                        uri: url
+                      } : void 0} style={{
+                        height: 100,
+                        width: 100
+                      }} />;
+                    }} />;
+                  })
+                : <View style={{
+                    height: 100,
+                    width: 100
+                  }} />
+              }
             </View>
-            <TouchableOpacity style={{
-            padding: 10
-          }} onPress={(...args) => {
-            return this.props.onInfo(...args);
-          }}>
-              <Image source={require('../web/assets/img/icon-4dots.png')} style={{
-            width: 38 * 0.7,
-            height: 40 * 0.7,
-            resizeMode: 'contain'
-          }} />
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>;
+            <View style={{
+              flexDirection: 'row',
+              justifyContent: 'flex-start',
+              padding: 10,
+              alignItems: 'center'
+            }}>
+              <View>
+                <Text style={{fontWeight: 'bold'}}>{(ref2 = this.state.contributors) != null ? ref2 : '…'} contributors</Text>
+                <Text>{(ref3 = this.state.posts) != null ? ref3 : '…'} posts</Text>
+              </View>
+            </View>
+            <View style={{
+              padding: 10,
+              flexDirection: 'row',
+              maxHeight: 75,
+            }}>
+              <Text style={{flex: 1}}>
+                {removeMarkdown(this.props.game.description)}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        );
       case 'compact':
         return <TouchableOpacity onPress={(...args) => {
             this.props.onSelect(...args);
