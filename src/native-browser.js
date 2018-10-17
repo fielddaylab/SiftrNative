@@ -130,7 +130,22 @@ const NativeCard = createClass({
               padding: 10,
               alignItems: 'center'
             }}>
-              <View>
+              <CacheMedia
+                media_id={this.props.game.icon_media_id}
+                size="thumb_url"
+                auth={this.props.auth}
+                withURL={(url) => (
+                  <Image
+                    source={url == null ? undefined : {uri: url}}
+                    style={{
+                      height: 50,
+                      width: 50,
+                      marginRight: 10,
+                    }}
+                  />
+                )}
+              />
+              <View style={{flex: 1}}>
                 <Text style={{fontWeight: 'bold'}}>{this.props.game.name}</Text>
                 <Text>{(ref = (ref1 = this.state.authors) != null ? ref1.join(', ') : void 0) != null ? ref : '…'}</Text>
               </View>
@@ -208,7 +223,7 @@ const NativeCard = createClass({
             <View style={{
             flex: 1
           }}>
-              <Text>{this.props.game.name}</Text>
+              <Text style={{fontWeight: 'bold'}}>{this.props.game.name}</Text>
               <Text>{(ref4 = (ref5 = this.state.authors) != null ? ref5.join(', ') : void 0) != null ? ref4 : '…'}</Text>
             </View>
             <TouchableOpacity style={{

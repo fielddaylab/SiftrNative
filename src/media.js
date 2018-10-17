@@ -84,12 +84,8 @@ export class CacheMedia extends React.Component {
     }
   }
 
-  componentWillMount() {
-    this._isMounted = true;
-    if (this.props.url == null) return;
-    const url = this.props.url.replace('http://', 'https://');
-    const hash = 'img' + djb_hash(url);
-    const ext = url.split('.').pop();
+  loadGeneral(hash, getURL) {
+    if (!this._isMounted) return;
     const info = mediaDir + '/' + hash + '.txt';
     RNFS.exists(info).then((exists) => {
       if (!this._isMounted) return;
@@ -98,21 +94,50 @@ export class CacheMedia extends React.Component {
           this.loadFile(mediaDir + '/' + filename);
         });
       } else {
-        const localURL = mediaDir + '/' + hash + '.' + ext;
-        RNFS.mkdir(mediaDir, {NSURLIsExcludedFromBackupKey: true}).then(() => {
-          if (!this._isMounted) return;
-          return RNFS.downloadFile({
-            fromUrl: url,
-            toFile: localURL,
-          }).promise;
-        }).then((result) => {
-          if (!this._isMounted) return;
-          return RNFS.writeFile(info, hash + '.' + ext, 'utf8');
-        }).then(() => {
-          this.loadFile(localURL);
+        getURL((url) => {
+          url = url.replace('http://', 'https://');
+          const ext = url.split('.').pop();
+          const localURL = mediaDir + '/' + hash + '.' + ext;
+          RNFS.mkdir(mediaDir, {NSURLIsExcludedFromBackupKey: true}).then(() => {
+            if (!this._isMounted) return;
+            return RNFS.downloadFile({
+              fromUrl: url,
+              toFile: localURL,
+            }).promise;
+          }).then((result) => {
+            if (!this._isMounted) return;
+            return RNFS.writeFile(info, hash + '.' + ext, 'utf8');
+          }).then(() => {
+            this.loadFile(localURL);
+          });
         });
       }
     });
+  }
+
+  loadURL(url) {
+    this.loadGeneral('img' + djb_hash(url), () => url);
+  }
+
+  loadMediaID(media_id, size = 'url') {
+    this.loadGeneral(size + media_id, (cb) => {
+      this.props.auth.call('media.getMedia', {
+        media_id: media_id,
+      }, withSuccess((media) => {
+        cb(media[size]);
+      }));
+    });
+  }
+
+  componentWillMount() {
+    this._isMounted = true;
+    if (this.props.url == null) {
+      if (this.props.media_id) {
+        this.loadMediaID(this.props.media_id, this.props.size);
+      }
+    } else {
+      this.loadURL(this.props.url)
+    }
   }
 
   componentWillUnmount() {
