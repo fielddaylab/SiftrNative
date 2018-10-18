@@ -116,7 +116,7 @@ export class CacheMedia extends React.Component {
   }
 
   loadURL(url) {
-    this.loadGeneral('img' + djb_hash(url), () => url);
+    this.loadGeneral('img' + djb_hash(url), (cb) => { cb(url); });
   }
 
   loadMediaID(media_id, size = 'url') {
