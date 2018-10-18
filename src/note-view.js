@@ -25,7 +25,7 @@ import FitImage from "react-native-fit-image";
 import Hyperlink from "react-native-hyperlink";
 import Gallery from "react-native-image-gallery";
 import { styles, Text } from "./styles";
-import { Media, CacheMedia } from "./media";
+import { CacheMedia, CacheMedias } from "./media";
 import firebase from "react-native-firebase";
 // @endif
 
@@ -1382,67 +1382,32 @@ export const SiftrNoteView = function() {
         j,
         len,
         media_id,
-        photoIDs,
-        photoURLs,
+        photos,
         ref,
         ref1,
         ref2,
         ref3,
         ref4,
         uri;
-      // TODO move to CacheMedia
       if (this.props.note.pending) {
-        photoIDs = [];
-        photoURLs = function() {
-          var j, len, ref, results;
-          ref = this.props.note.files;
-          results = [];
-          for (j = 0, len = ref.length; j < len; j++) {
-            f = ref[j];
-            if (Platform.OS === "ios") {
-              results.push(`${this.props.note.dir}/${f.filename}`);
-            } else {
-              results.push(`file://${this.props.note.dir}/${f.filename}`);
-            }
-          }
-          return results;
-        }.call(this);
+        photos = this.props.note.files.map((f) => {
+          return {url: `${this.props.note.dir}/${f.filename}`};
+        });
       } else {
-        photoIDs = [this.props.note.media_id];
+        photos = [{media_id: this.props.note.media_id, auth: this.props.auth}];
         if (this.state.field_data != null && this.props.fields != null) {
-          ref = this.props.fields;
-          for (j = 0, len = ref.length; j < len; j++) {
-            field = ref[j];
-            if (field.field_type === "MEDIA") {
-              data = function() {
-                var k, len1, ref1, results;
-                ref1 = this.state.field_data;
-                results = [];
-                for (k = 0, len1 = ref1.length; k < len1; k++) {
-                  d = ref1[k];
-                  if (d.field_id === field.field_id) {
-                    results.push(d);
-                  }
-                }
-                return results;
-              }.call(this);
+          this.props.fields.forEach((field) => {
+            if (field.field_type === 'MEDIA') {
+              const data = this.state.field_data.filter((d) => d.field_id === field.field_id);
               if (data.length > 0) {
-                photoIDs.push(data[0].media.media_id);
+                photos.push({media_id: data[0].media.media_id, auth: this.props.auth});
               }
             }
-          }
+          });
         }
-        photoURLs = function() {
-          var k, len1, results;
-          results = [];
-          for (k = 0, len1 = photoIDs.length; k < len1; k++) {
-            media_id = photoIDs[k];
-            results.push(this.state[`media${media_id}`] || "");
-          }
-          return results;
-        }.call(this);
       }
       return (
+        <CacheMedias medias={photos} withURLs={(photoURLs) =>
         <ScrollView
           ref={sv => {
             this.scrollView = sv;
@@ -1458,20 +1423,6 @@ export const SiftrNoteView = function() {
           }}
           keyboardShouldPersistTaps="handled"
         >
-          {photoIDs.map(media_id => {
-            return (
-              <Media
-                key={media_id}
-                auth={this.props.auth}
-                media_id={media_id}
-                onLoad={url => {
-                  this.setState({
-                    [`media${media_id}`]: url
-                  });
-                }}
-              />
-            );
-          })}
           {this.state.noteModal ? (
             <OptionsModal
               onClose={() => {
@@ -1674,6 +1625,7 @@ export const SiftrNoteView = function() {
             />
           )}
         </ScrollView>
+        } />
       );
     }
     // @endif
