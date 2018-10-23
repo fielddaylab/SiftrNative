@@ -1856,6 +1856,7 @@ export const SiftrView = createClass({
     } else if (this.state.createStep === 1) {
       return (
         <CreatePhoto
+          game={this.props.game}
           onCancel={() => {
             this.setState({
               createNote: null
@@ -2328,6 +2329,7 @@ export const SiftrView = createClass({
             {
               <Blackout isFocused={false} keyboardUp={this.state.keyboardUp}>
                 {
+                  this.state.createNote ? null :
                   <View
                     style={{
                       flexDirection: "row",

@@ -149,6 +149,7 @@ export const CreatePhoto = createClass({
       camera: "back",
       flash: false,
       shutter: null,
+      pendingPhoto: null,
     };
   },
   componentWillMount: function() {
@@ -168,20 +169,69 @@ export const CreatePhoto = createClass({
       <View style={styles.overlayWhole}>
         <View
           style={{
-            backgroundColor: "white",
-            padding: 3
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            backgroundColor: "white"
           }}
         >
-          <Text
+          {
+            this.state.pendingPhoto
+            ? <TouchableOpacity
+                style={{flex: 1, margin: 10, alignItems: 'flex-start', justifyContent: 'center'}}
+                onPress={() => this.setState({pendingPhoto: null, shutter: null})}
+              >
+                <Image
+                  style={{
+                    resizeMode: "contain",
+                    height: 18,
+                  }}
+                  source={require("../web/assets/img/icon-back.png")}
+                />
+              </TouchableOpacity>
+            : <TouchableOpacity
+                style={{flex: 1, margin: 10, alignItems: 'flex-start'}}
+                onPress={this.props.onCancel}
+              >
+                <Text>cancel</Text>
+              </TouchableOpacity>
+          }
+          <View
             style={{
-              color: "#979797",
-              textAlign: "center"
+              flex: 4,
+              alignItems: "center",
+              margin: 10,
             }}
           >
-            {this.props.instruction != null
-              ? `Add image of: ${this.props.instruction}`.toUpperCase()
-              : "Main image".toUpperCase()}
-          </Text>
+            <Text style={{fontWeight: 'bold'}}>
+              <Text style={{fontStyle: 'italic'}}>Posting to</Text>
+              {' '}
+              {this.props.game.name}
+            </Text>
+            <Text style={{marginTop: 4, color: 'gray'}}>
+              {this.props.instruction != null
+                ? this.props.instruction
+                : 'Main image'}
+            </Text>
+          </View>
+          {
+            this.state.pendingPhoto
+            ? <View style={{flex: 1, margin: 10, alignItems: 'flex-end'}}>
+                <TouchableOpacity onPress={() => {
+                  this.props.onSelectImage({
+                    uri: this.state.pendingPhoto,
+                    isStatic: true,
+                    type: "image/jpeg",
+                    name: "upload.jpg"
+                  });
+                }}>
+                  <Text>next</Text>
+                </TouchableOpacity>
+              </View>
+            : <View style={{flex: 1, margin: 10, alignItems: 'flex-end'}}>
+                <Text style={{color: 'gray'}}>next</Text>
+              </View>
+          }
         </View>
         {function() {
           switch (this.state.source) {
@@ -213,19 +263,28 @@ export const CreatePhoto = createClass({
                       }
                     />
                     {
-                      this.state.shutter && (
-                        <Animated.View
-                          style={{
+                      this.state.pendingPhoto
+                        ? <Image style={{
                             position: 'absolute',
                             top: 0,
                             left: 0,
                             bottom: 0,
                             right: 0,
-                            backgroundColor: 'white',
-                            opacity: this.state.shutter,
-                          }}
-                        />
-                      )
+                            resizeMode: 'contain',
+                          }} source={{uri: this.state.pendingPhoto}} />
+                        : this.state.shutter
+                          ? <Animated.View
+                              style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                bottom: 0,
+                                right: 0,
+                                backgroundColor: 'white',
+                                opacity: this.state.shutter,
+                              }}
+                            />
+                          : null
                     }
                     <TouchableOpacity
                       onPress={() => {
@@ -319,12 +378,7 @@ export const CreatePhoto = createClass({
                               this.camera
                                 .capture({})
                                 .then(({ path }) => {
-                                  this.props.onSelectImage({
-                                    uri: path,
-                                    isStatic: true,
-                                    type: "image/jpeg",
-                                    name: "upload.jpg"
-                                  });
+                                  this.setState({pendingPhoto: path});
                                 })
                                 .catch(cameraError);
                             } else {
@@ -737,6 +791,7 @@ export const CreateData = createClass({
               isTakingPhoto: null
             });
           }}
+          game={this.props.game}
           instruction={field}
         />
       );
@@ -747,6 +802,41 @@ export const CreateData = createClass({
             flex: 1
           }}
         >
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              backgroundColor: "white"
+            }}
+          >
+            <TouchableOpacity
+              style={{flex: 1, margin: 10, alignItems: 'flex-start'}}
+              onPress={this.props.onCancel}
+            >
+              <Image
+                style={{
+                  resizeMode: "contain",
+                  height: 18,
+                }}
+                source={require("../web/assets/img/icon-back.png")}
+              />
+            </TouchableOpacity>
+            <View
+              style={{
+                flex: 4,
+                alignItems: "center",
+                margin: 10,
+              }}
+            >
+              <Text style={{fontWeight: 'bold'}}>
+                <Text style={{fontStyle: 'italic'}}>Posting to</Text>
+                {' '}
+                {this.props.game.name}
+              </Text>
+            </View>
+            <View style={{flex: 1, margin: 10, alignItems: 'flex-end'}} />
+          </View>
           {
             <ScrollView
               style={{
