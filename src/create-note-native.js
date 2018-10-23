@@ -278,7 +278,7 @@ export const CreatePhoto = createClass({
                   >
                     <TouchableOpacity
                       onPress={() => {
-                        requestImage(img => {
+                        requestImage(true, img => {
                           if (img != null) {
                             this.props.onSelectImage(img);
                           }

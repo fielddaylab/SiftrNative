@@ -292,7 +292,7 @@ const NativeProfile = createClass({
                 if (this.state.progress != null) {
                   return;
                 }
-                requestImage(img => {
+                requestImage(false, img => {
                   if (img != null) {
                     this.setState({
                       newPicture: img

@@ -9,8 +9,8 @@ import EXIF from 'exif-js';
 
 // @ifdef NATIVE
 
-export function requestImage(cb) {
-  ImagePicker.showImagePicker({
+export function requestImage(onlyGallery, cb) {
+  ImagePicker[onlyGallery ? 'launchImageLibrary' : 'showImagePicker']({
     mediaType: 'photo',
     noData: true,
     storageOptions: {cameraRoll: true},
