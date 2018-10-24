@@ -51,8 +51,151 @@ export var Loading = createClass({
   }
 });
 
-export var NativeHome = createClass({
-  displayName: "NativeHome",
+class NativeHomeNew extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      search: false,
+    };
+  }
+
+  render() {
+    return (
+      <View style={{
+        flex: 1,
+        backgroundColor: 'rgb(233,240,240)',
+      }}>
+        <StatusSpace
+          backgroundColor="rgba(0,0,0,0)"
+          queueMessage={this.props.queueMessage}
+        />
+        <View style={{
+          alignItems: 'center',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        }}>
+          {
+            this.state.search && (
+              <TouchableOpacity onPress={() => this.setState({search: false})}>
+                <Image
+                  source={require('../web/assets/img/icon-home.png')}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    margin: 10,
+                    resizeMode: 'contain',
+                  }}
+                />
+              </TouchableOpacity>
+            ) || <View />
+          }
+          <Image
+            source={require('../web/assets/img/siftr-logo-black.png')}
+            style={{
+              width: 66 * 0.6,
+              height: 68 * 0.6,
+              margin: 10,
+            }}
+          />
+          {
+            this.state.search && (
+              <View style={{
+                width: 30,
+                height: 30,
+                margin: 10,
+              }} />
+            ) || <View />
+          }
+        </View>
+        {
+          this.state.search
+          ? <View style={{
+              flex: 1,
+            }}>
+              <BrowserSearchPane
+                explorePanes={true}
+                auth={this.props.auth}
+                onSelect={this.props.onSelect}
+                cardMode="full"
+                onInfo={game => {
+                  this.setState({
+                    viewingGameInfo: game
+                  });
+                }}
+                mine={this.props.mine}
+                followed={this.props.followed}
+                online={this.props.online}
+              />
+            </View>
+          : <View style={{
+              flex: 1,
+            }}>
+              <BrowserFollowed
+                auth={this.props.auth}
+                onSelect={this.props.onSelect}
+                cardMode="full"
+                onInfo={game => {
+                  this.setState({
+                    viewingGameInfo: game
+                  });
+                }}
+                mine={this.props.mine}
+                followed={this.props.followed}
+                online={this.props.online}
+              />
+            </View>
+        }
+        <View style={{
+          backgroundColor: 'white',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+          <TouchableOpacity onPress={() => this.setState({search: true})}>
+            <Image
+              source={require('../web/assets/img/icon-search.png')}
+              style={{
+                margin: 10,
+                width: 34 * 0.8,
+                height: 32 * 0.8,
+              }}
+            />
+          </TouchableOpacity>
+          <Image
+            source={require('../web/assets/img/icon-add.png')}
+            style={{
+              margin: 10,
+              width: 82 * 0.6,
+              height: 64 * 0.6,
+            }}
+          />
+          <Image
+            source={require('../web/assets/img/icon-user.png')}
+            style={{
+              margin: 10,
+              width: 42 * 0.75,
+              height: 40 * 0.75,
+            }}
+          />
+        </View>
+      </View>
+    );
+  }
+}
+
+NativeHomeNew.defaultProps = {
+  onLogout: function() {},
+  onSelect: function() {},
+  mine: null,
+  followed: null,
+  followGame: function() {},
+  unfollowGame: function() {},
+  onChangePassword: function() {},
+  onEditProfile: function() {},
+};
+
+const NativeHomeOld = createClass({
+  displayName: "NativeHomeOld",
   getInitialState: function() {
     return {
       discoverPage: this.props.online ? null : "downloaded",
@@ -504,3 +647,5 @@ export var NativeHome = createClass({
     );
   }
 });
+
+export const NativeHome = NativeHomeNew;

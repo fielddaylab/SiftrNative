@@ -425,21 +425,85 @@ export const BrowserSearchPane = createClass({
           height: 40,
           borderWidth: 2,
           borderColor: 'gray',
+          backgroundColor: 'white',
           padding: 10
         }} placeholder="Search…" autoCapitalize="none" autoCorrect={true} autoFocus={false} onChangeText={(search) => {
           this.setState({
             search: search
           });
         }} />
-        <BrowserSearch auth={this.props.auth} onSelect={(...args) => {
-          this.props.onSelect(...args);
-        }} onInfo={(...args) => {
-          this.props.onInfo(...args);
-        }} search={this.state.search} cardMode={this.props.cardMode} online={this.props.online} />
+        {
+          this.state.search.length === 0 && this.props.explorePanes
+          ? <ScrollView style={{flex: 1}}>
+              <ExplorePane
+                title="Near Me"
+                description="These Siftrs are happening near your current location"
+                getGames={(cb) => cb([1, 2, 3, 4]) /* TODO */}
+              />
+              <ExplorePane
+                title="Featured"
+                description="Selected by the Siftr team"
+                getGames={(cb) => cb([1, 2, 3, 4]) /* TODO */}
+              />
+            </ScrollView>
+          : <BrowserSearch auth={this.props.auth} onSelect={(...args) => {
+              this.props.onSelect(...args);
+            }} onInfo={(...args) => {
+              this.props.onInfo(...args);
+            }} search={this.state.search} cardMode={this.props.cardMode} online={this.props.online} />
+        }
       </View>
     );
   }
 });
+
+export class ExplorePane extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      games: [],
+    };
+  }
+
+  componentWillMount() {
+    this.props.getGames((games) => {
+      this.setState({games});
+    });
+  }
+
+  render() {
+    return (
+      <View style={{
+        margin: 8,
+      }}>
+        <Text style={{
+          fontSize: 26,
+          fontWeight: 'bold',
+        }}>
+          {this.props.title}:
+        </Text>
+        <Text>
+          {this.props.description}
+        </Text>
+        <ScrollView horizontal={true}>
+          {
+            this.state.games.map((game, i) => (
+              <TouchableOpacity key={i} style={{
+                margin: 4,
+                height: 140,
+                width: 180,
+                backgroundColor: 'gray',
+                borderColor: 'black',
+                borderWidth: 2,
+              }}>
+              </TouchableOpacity>
+            ))
+          }
+        </ScrollView>
+      </View>
+    );
+  }
+}
 
 export const BrowserMine = makeBrowser(function(props, cb) {
   cb(props.mine);
