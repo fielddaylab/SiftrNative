@@ -23,6 +23,7 @@ import {
 } from "./native-browser";
 import { NativeSettings } from "./native-settings";
 import { SiftrInfo } from "./siftr-view";
+import { withSuccess } from "./utils";
 
 export var Loading = createClass({
   displayName: "Loading",
@@ -57,6 +58,27 @@ class NativeHomeNew extends React.Component {
     this.state = {
       search: false,
     };
+  }
+
+  componentWillMount() {
+    this.getNearby();
+    this.getFeatured();
+  }
+
+  getNearby() {
+    navigator.geolocation.getCurrentPosition((res) => {
+      this.props.auth.getNearbyGamesForPlayer({
+        latitude: res.coords.latitude,
+        longitude: res.coords.longitude,
+        filter: 'siftr'
+      }, withSuccess((nearbyGames) => this.setState({nearbyGames})));
+    });
+  }
+
+  getFeatured() {
+    this.props.auth.getStaffPicks({}, withSuccess((games) => {
+      this.setState({featuredGames: games.filter((game) => game.is_siftr)});
+    }));
   }
 
   render() {
@@ -125,6 +147,8 @@ class NativeHomeNew extends React.Component {
                 mine={this.props.mine}
                 followed={this.props.followed}
                 online={this.props.online}
+                nearbyGames={this.state.nearbyGames}
+                featuredGames={this.state.featuredGames}
               />
             </View>
           : <View style={{
