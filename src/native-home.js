@@ -8,7 +8,8 @@ import {
   TouchableOpacity,
   Image,
   Linking,
-  ActivityIndicator
+  ActivityIndicator,
+  ScrollView
 } from "react-native";
 import { styles, Text } from "./styles";
 import { StatusSpace } from "./status-space";
@@ -19,7 +20,8 @@ import {
   BrowserDownloaded,
   BrowserFeatured,
   BrowserPopular,
-  BrowserNearMe
+  BrowserNearMe,
+  NativeCard
 } from "./native-browser";
 import { NativeSettings } from "./native-settings";
 import { SiftrInfo } from "./siftr-view";
@@ -52,11 +54,104 @@ export var Loading = createClass({
   }
 });
 
+class NativeMe extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      list: 'followed',
+    };
+  }
+
+  render() {
+    return (
+      <View style={{flex: 1}}>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+          <Text style={{
+            margin: 10,
+            fontSize: 32,
+            fontWeight: 'bold',
+          }}>
+            Me:
+          </Text>
+          <TouchableOpacity onPress={() => this.props.setScreen({settings: true})}>
+            <Image
+              source={require('../web/assets/img/icon-gear.png')}
+              style={{
+                width: 32,
+                height: 32,
+                margin: 10,
+              }}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={{margin: 15}}>
+          <Text>User info goes here</Text>
+        </View>
+        <View style={{
+          flexDirection: 'row',
+          borderBottomColor: 'black',
+          borderBottomWidth: 2,
+        }}>
+          <TouchableOpacity
+            onPress={() => this.setState({list: 'followed'})}
+            style={{
+              marginLeft: 30,
+              marginRight: 20,
+              paddingTop: 8,
+              paddingBottom: 8,
+              borderBottomColor: this.state.list === 'followed' ? 'black' : 'rgba(0,0,0,0)',
+              borderBottomWidth: 2,
+            }}
+          >
+            <Text style={{
+              fontWeight: this.state.list === 'followed' ? 'bold' : undefined,
+            }}>
+              Joined
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => this.setState({list: 'mine'})}
+            style={{
+              marginLeft: 20,
+              marginRight: 20,
+              paddingTop: 8,
+              paddingBottom: 8,
+              borderBottomColor: this.state.list === 'mine' ? 'black' : 'rgba(0,0,0,0)',
+              borderBottomWidth: 2,
+            }}
+          >
+            <Text style={{
+              fontWeight: this.state.list === 'mine' ? 'bold' : undefined,
+            }}>
+              Created by Me
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <ScrollView>
+          {
+            (this.props[this.state.list] || []).map((game) =>
+              <NativeCard
+                key={game.game_id}
+                game={game}
+                onSelect={this.props.onSelect}
+                cardMode="compact"
+                auth={this.props.auth}
+                online={this.props.online}
+              />
+            )
+          }
+        </ScrollView>
+      </View>
+    );
+  }
+}
+
 class NativeHomeNew extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       search: false,
+      me: false,
     };
   }
 
@@ -82,6 +177,21 @@ class NativeHomeNew extends React.Component {
   }
 
   render() {
+    if (this.props.settings) {
+      return (
+        <NativeSettings
+          onClose={() => {
+            this.props.setScreen({settings: false});
+          }}
+          onLogout={this.props.onLogout}
+          auth={this.props.auth}
+          onChangePassword={this.props.onChangePassword}
+          onEditProfile={this.props.onEditProfile}
+          queueMessage={this.props.queueMessage}
+          online={this.props.online}
+        />
+      );
+    }
     return (
       <View style={{
         flex: 1,
@@ -91,44 +201,47 @@ class NativeHomeNew extends React.Component {
           backgroundColor="rgba(0,0,0,0)"
           queueMessage={this.props.queueMessage}
         />
-        <View style={{
-          alignItems: 'center',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-        }}>
-          {
-            this.state.search && (
-              <TouchableOpacity onPress={() => this.setState({search: false})}>
-                <Image
-                  source={require('../web/assets/img/icon-home.png')}
-                  style={{
-                    width: 30,
-                    height: 30,
-                    margin: 10,
-                    resizeMode: 'contain',
-                  }}
-                />
-              </TouchableOpacity>
-            ) || <View />
-          }
-          <Image
-            source={require('../web/assets/img/siftr-logo-black.png')}
-            style={{
-              width: 66 * 0.6,
-              height: 68 * 0.6,
-              margin: 10,
-            }}
-          />
-          {
-            this.state.search && (
-              <View style={{
-                width: 30,
-                height: 30,
+        {
+          !(this.state.me) &&
+          <View style={{
+            alignItems: 'center',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}>
+            {
+              this.state.search && (
+                <TouchableOpacity onPress={() => this.setState({search: false})}>
+                  <Image
+                    source={require('../web/assets/img/icon-home.png')}
+                    style={{
+                      width: 30,
+                      height: 30,
+                      margin: 10,
+                      resizeMode: 'contain',
+                    }}
+                  />
+                </TouchableOpacity>
+              ) || <View />
+            }
+            <Image
+              source={require('../web/assets/img/siftr-logo-black.png')}
+              style={{
+                width: 66 * 0.6,
+                height: 68 * 0.6,
                 margin: 10,
-              }} />
-            ) || <View />
-          }
-        </View>
+              }}
+            />
+            {
+              this.state.search && (
+                <View style={{
+                  width: 30,
+                  height: 30,
+                  margin: 10,
+                }} />
+              ) || <View />
+            }
+          </View>
+        }
         {
           this.state.search
           ? <View style={{
@@ -151,23 +264,33 @@ class NativeHomeNew extends React.Component {
                 featuredGames={this.state.featuredGames}
               />
             </View>
-          : <View style={{
-              flex: 1,
-            }}>
-              <BrowserFollowed
+          : this.state.me
+            ? <NativeMe
                 auth={this.props.auth}
                 onSelect={this.props.onSelect}
-                cardMode="full"
-                onInfo={game => {
-                  this.setState({
-                    viewingGameInfo: game
-                  });
-                }}
                 mine={this.props.mine}
                 followed={this.props.followed}
                 online={this.props.online}
+                settings={this.props.settings}
+                setScreen={this.props.setScreen}
               />
-            </View>
+            : <View style={{
+                flex: 1,
+              }}>
+                <BrowserFollowed
+                  auth={this.props.auth}
+                  onSelect={this.props.onSelect}
+                  cardMode="full"
+                  onInfo={game => {
+                    this.setState({
+                      viewingGameInfo: game
+                    });
+                  }}
+                  mine={this.props.mine}
+                  followed={this.props.followed}
+                  online={this.props.online}
+                />
+              </View>
         }
         <View style={{
           backgroundColor: 'white',
@@ -175,7 +298,7 @@ class NativeHomeNew extends React.Component {
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          <TouchableOpacity onPress={() => this.setState({search: true})}>
+          <TouchableOpacity onPress={() => this.setState({search: true, me: false})}>
             <Image
               source={require('../web/assets/img/icon-search.png')}
               style={{
@@ -193,14 +316,16 @@ class NativeHomeNew extends React.Component {
               height: 64 * 0.6,
             }}
           />
-          <Image
-            source={require('../web/assets/img/icon-user.png')}
-            style={{
-              margin: 10,
-              width: 42 * 0.75,
-              height: 40 * 0.75,
-            }}
-          />
+          <TouchableOpacity onPress={() => this.setState({search: false, me: true})}>
+            <Image
+              source={require('../web/assets/img/icon-user.png')}
+              style={{
+                margin: 10,
+                width: 42 * 0.75,
+                height: 40 * 0.75,
+              }}
+            />
+          </TouchableOpacity>
         </View>
       </View>
     );

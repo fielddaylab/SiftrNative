@@ -26,7 +26,7 @@ const mapMaybe = (xs, f) => {
   return xs.map(f).filter((x) => x != null);
 };
 
-class NativeCard extends React.Component {
+export class NativeCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
