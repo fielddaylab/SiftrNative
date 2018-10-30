@@ -27,6 +27,7 @@ import {
 import { NativeSettings } from "./native-settings";
 import { SiftrInfo } from "./siftr-view";
 import { withSuccess } from "./utils";
+import { CacheMedia } from './media';
 
 export var Loading = createClass({
   displayName: "Loading",
@@ -85,8 +86,29 @@ class NativeMe extends React.Component {
             />
           </TouchableOpacity>
         </View>
-        <View style={{margin: 15}}>
-          <Text>User info goes here</Text>
+        <View style={{marginLeft: 30, marginRight: 30, marginTop: 15, flexDirection: 'row', alignItems: 'center'}}>
+          <CacheMedia
+            media_id={this.props.auth.authToken.media_id}
+            size="thumb_url"
+            auth={this.props.auth}
+            withURL={(url) => (
+              <Image
+                source={url == null ? undefined : {uri: url}}
+                style={{
+                  height: 50,
+                  width: 50,
+                  marginRight: 15,
+                  borderRadius: 25,
+                }}
+              />
+            )}
+          />
+          <Text style={{fontWeight: 'bold', fontSize: 18}}>
+            {this.props.auth.authToken.display_name}
+          </Text>
+        </View>
+        <View style={{marginLeft: 30, marginRight: 30, marginTop: 15, marginBottom: 15}}>
+          <Text>{this.props.auth.bio}</Text>
         </View>
         <View style={{
           flexDirection: 'row',
