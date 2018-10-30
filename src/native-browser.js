@@ -521,38 +521,17 @@ export const BrowserSearchPane = createClass({
             search: search
           });
         }} />
-        {
-          this.state.search.length === 0 && this.props.explorePanes
-          ? <ScrollView style={{flex: 1}}>
-              <ExplorePane
-                onSelect={this.props.onSelect}
-                title="Near Me"
-                auth={this.props.auth}
-                description="These Siftrs are happening near your current location"
-                getGames={(cb) => cb(this.props.nearbyGames || [])}
-                online={this.props.online}
-              />
-              <ExplorePane
-                onSelect={this.props.onSelect}
-                title="Featured"
-                auth={this.props.auth}
-                description="Selected by the Siftr team"
-                getGames={(cb) => cb(this.props.featuredGames || [])}
-                online={this.props.online}
-              />
-            </ScrollView>
-          : <BrowserSearch auth={this.props.auth} onSelect={(...args) => {
-              this.props.onSelect(...args);
-            }} onInfo={(...args) => {
-              this.props.onInfo(...args);
-            }} search={this.state.search} cardMode={this.props.cardMode} online={this.props.online} />
-        }
+        <BrowserSearch auth={this.props.auth} onSelect={(...args) => {
+          this.props.onSelect(...args);
+        }} onInfo={(...args) => {
+          this.props.onInfo(...args);
+        }} search={this.state.search} cardMode={this.props.cardMode} online={this.props.online} />
       </View>
     );
   }
 });
 
-class ExplorePane extends React.Component {
+export class ExplorePane extends React.Component {
   constructor(props) {
     super(props);
     this.state = {

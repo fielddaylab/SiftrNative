@@ -21,7 +21,8 @@ import {
   BrowserFeatured,
   BrowserPopular,
   BrowserNearMe,
-  NativeCard
+  NativeCard,
+  ExplorePane
 } from "./native-browser";
 import { NativeSettings } from "./native-settings";
 import { SiftrInfo } from "./siftr-view";
@@ -150,8 +151,7 @@ class NativeHomeNew extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      search: false,
-      me: false,
+      screen: 'home',
     };
   }
 
@@ -202,27 +202,12 @@ class NativeHomeNew extends React.Component {
           queueMessage={this.props.queueMessage}
         />
         {
-          !(this.state.me) &&
+          this.state.screen !== 'me' &&
           <View style={{
             alignItems: 'center',
             flexDirection: 'row',
-            justifyContent: 'space-between',
+            justifyContent: 'center',
           }}>
-            {
-              this.state.search && (
-                <TouchableOpacity onPress={() => this.setState({search: false})}>
-                  <Image
-                    source={require('../web/assets/img/icon-home.png')}
-                    style={{
-                      width: 30,
-                      height: 30,
-                      margin: 10,
-                      resizeMode: 'contain',
-                    }}
-                  />
-                </TouchableOpacity>
-              ) || <View />
-            }
             <Image
               source={require('../web/assets/img/siftr-logo-black.png')}
               style={{
@@ -231,66 +216,87 @@ class NativeHomeNew extends React.Component {
                 margin: 10,
               }}
             />
-            {
-              this.state.search && (
-                <View style={{
-                  width: 30,
-                  height: 30,
-                  margin: 10,
-                }} />
-              ) || <View />
-            }
           </View>
         }
         {
-          this.state.search
-          ? <View style={{
-              flex: 1,
-            }}>
-              <BrowserSearchPane
-                explorePanes={true}
-                auth={this.props.auth}
-                onSelect={this.props.onSelect}
-                cardMode="full"
-                onInfo={game => {
-                  this.setState({
-                    viewingGameInfo: game
-                  });
-                }}
-                mine={this.props.mine}
-                followed={this.props.followed}
-                online={this.props.online}
-                nearbyGames={this.state.nearbyGames}
-                featuredGames={this.state.featuredGames}
-              />
-            </View>
-          : this.state.me
-            ? <NativeMe
-                auth={this.props.auth}
-                onSelect={this.props.onSelect}
-                mine={this.props.mine}
-                followed={this.props.followed}
-                online={this.props.online}
-                settings={this.props.settings}
-                setScreen={this.props.setScreen}
-              />
-            : <View style={{
-                flex: 1,
-              }}>
-                <BrowserFollowed
+          (() => {
+            switch (this.state.screen) {
+              case 'search':
+                return (
+                  <View style={{
+                    flex: 1,
+                  }}>
+                    <BrowserSearchPane
+                      auth={this.props.auth}
+                      onSelect={this.props.onSelect}
+                      cardMode="full"
+                      onInfo={game => {
+                        this.setState({
+                          viewingGameInfo: game
+                        });
+                      }}
+                      mine={this.props.mine}
+                      followed={this.props.followed}
+                      online={this.props.online}
+                      nearbyGames={this.state.nearbyGames}
+                      featuredGames={this.state.featuredGames}
+                    />
+                  </View>
+                );
+              case 'discover':
+                return (
+                  <ScrollView style={{flex: 1}}>
+                    <ExplorePane
+                      onSelect={this.props.onSelect}
+                      title="Near Me"
+                      auth={this.props.auth}
+                      description="These Siftrs are happening near your current location"
+                      getGames={(cb) => cb(this.state.nearbyGames || [])}
+                      online={this.props.online}
+                    />
+                    <ExplorePane
+                      onSelect={this.props.onSelect}
+                      title="Featured"
+                      auth={this.props.auth}
+                      description="Selected by the Siftr team"
+                      getGames={(cb) => cb(this.state.featuredGames || [])}
+                      online={this.props.online}
+                    />
+                  </ScrollView>
+                );
+              case 'me':
+                return <NativeMe
                   auth={this.props.auth}
                   onSelect={this.props.onSelect}
-                  cardMode="full"
-                  onInfo={game => {
-                    this.setState({
-                      viewingGameInfo: game
-                    });
-                  }}
                   mine={this.props.mine}
                   followed={this.props.followed}
                   online={this.props.online}
-                />
-              </View>
+                  settings={this.props.settings}
+                  setScreen={this.props.setScreen}
+                />;
+              case 'home':
+              default:
+                return (
+                  <View style={{
+                    flex: 1,
+                  }}>
+                    <BrowserFollowed
+                      auth={this.props.auth}
+                      onSelect={this.props.onSelect}
+                      cardMode="full"
+                      onInfo={game => {
+                        this.setState({
+                          viewingGameInfo: game
+                        });
+                      }}
+                      mine={this.props.mine}
+                      followed={this.props.followed}
+                      online={this.props.online}
+                    />
+                  </View>
+                );
+            }
+          })()
         }
         <View style={{
           backgroundColor: 'white',
@@ -298,7 +304,18 @@ class NativeHomeNew extends React.Component {
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          <TouchableOpacity onPress={() => this.setState({search: true, me: false})}>
+          <TouchableOpacity onPress={() => this.setState({screen: 'home'})}>
+            <Image
+              source={require('../web/assets/img/icon-home.png')}
+              style={{
+                width: 30,
+                height: 30,
+                margin: 10,
+                resizeMode: 'contain',
+              }}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => this.setState({screen: 'search'})}>
             <Image
               source={require('../web/assets/img/icon-search.png')}
               style={{
@@ -316,7 +333,17 @@ class NativeHomeNew extends React.Component {
               height: 64 * 0.6,
             }}
           />
-          <TouchableOpacity onPress={() => this.setState({search: false, me: true})}>
+          <TouchableOpacity onPress={() => this.setState({screen: 'discover'})}>
+            <Image
+              source={require('../web/assets/img/icon-search.png')}
+              style={{
+                margin: 10,
+                width: 34 * 0.8,
+                height: 32 * 0.8,
+              }}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => this.setState({screen: 'me'})}>
             <Image
               source={require('../web/assets/img/icon-user.png')}
               style={{
