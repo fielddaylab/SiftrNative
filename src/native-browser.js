@@ -566,6 +566,7 @@ export class ExplorePane extends React.Component {
                 key={game.game_id}
                 game={game}
                 onSelect={this.props.onSelect}
+                onInfo={this.props.onInfo}
                 cardMode="square"
                 auth={this.props.auth}
                 online={this.props.online}

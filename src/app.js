@@ -51,7 +51,9 @@ export var SiftrNative = createClass({
       followed: null,
       game: null,
       menuOpen: false,
-      online: true
+      online: true,
+      screen: 'home',
+      settings: false,
     };
   },
 
@@ -628,6 +630,7 @@ export var SiftrNative = createClass({
                 }}
                 discoverPage={this.state.discoverPage}
                 settings={this.state.settings}
+                screen={this.state.screen}
               />
             )
           ) : this.state.showingTerms ? (
