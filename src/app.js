@@ -252,24 +252,26 @@ export var SiftrNative = createClass({
       })
     );
   },
-  followGame: function(game) {
+  followGame: function(game, cb) {
     this.state.auth.call(
       "games.followGame",
       {
         game_id: game.game_id
       },
       withSuccess(() => {
+        if (cb) cb();
         this.updateFollowed();
       })
     );
   },
-  unfollowGame: function(game) {
+  unfollowGame: function(game, cb) {
     this.state.auth.call(
       "games.unfollowGame",
       {
         game_id: game.game_id
       },
       withSuccess(() => {
+        if (cb) cb();
         this.updateFollowed();
       })
     );

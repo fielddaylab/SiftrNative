@@ -6,10 +6,14 @@ import createClass from "create-react-class";
 import {
   View,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Image,
   Linking,
   ActivityIndicator,
-  ScrollView
+  ScrollView,
+  Modal,
+  Share,
+  Clipboard
 } from "react-native";
 import { styles, Text } from "./styles";
 import { StatusSpace } from "./status-space";
@@ -170,6 +174,24 @@ class NativeMe extends React.Component {
   }
 }
 
+const ModalButton = (props) => (
+  <TouchableOpacity
+    onPress={props.onPress}
+    style={{
+      backgroundColor: props.backgroundColor,
+      borderWidth: 1,
+      borderColor: 'rgb(230,230,230)',
+      borderTopLeftRadius: props.top ? 10 : 0,
+      borderTopRightRadius: props.top ? 10 : 0,
+      borderBottomLeftRadius: props.bottom ? 10 : 0,
+      borderBottomRightRadius: props.bottom ? 10 : 0,
+      alignItems: 'center',
+    }}
+  >
+    <Text style={{color: props.color, margin: 15}}>{props.text}</Text>
+  </TouchableOpacity>
+);
+
 class NativeHomeNew extends React.Component {
   constructor(props) {
     super(props);
@@ -219,19 +241,18 @@ class NativeHomeNew extends React.Component {
         />
       );
     }
+    let isFollowing = false;
+    if (this.state.viewingGameInfo != null) {
+      isFollowing = (this.props.followed || []).some(
+        game => game.game_id === this.state.viewingGameInfo.game_id
+      );
+    }
+    const toggleFollow = isFollowing ? this.props.unfollowGame : this.props.followGame;
+    let siftrURL = null;
+    if (this.state.viewingGameInfo != null) {
+      siftrURL = 'https://siftr.org/' + (this.state.viewingGameInfo.siftr_url || this.state.viewingGameInfo.game_id);
+    }
     return (
-    <SiftrInfo
-      game={this.state.viewingGameInfo}
-      isOpen={this.state.viewingGameInfo != null}
-      onChange={b => {
-        if (!b) {
-          this.setState({viewingGameInfo: null});
-        }
-      }}
-      followed={this.props.followed}
-      followGame={() => this.props.followGame(this.state.viewingGameInfo)}
-      unfollowGame={() => this.props.unfollowGame(this.state.viewingGameInfo)}
-    >
       <View style={{
         flex: 1,
         backgroundColor: 'rgb(233,240,240)',
@@ -240,6 +261,69 @@ class NativeHomeNew extends React.Component {
           backgroundColor="rgba(0,0,0,0)"
           queueMessage={this.props.queueMessage}
         />
+        {
+          this.state.viewingGameInfo &&
+          <Modal
+            onRequestClose={() => this.setState({viewingGameInfo: null})}
+            transparent={true}
+          >
+            <TouchableWithoutFeedback
+              onPress={() => this.setState({viewingGameInfo: null})}
+            >
+              <View
+                style={{
+                  flex: 1,
+                  backgroundColor: 'rgba(0,0,0,0.3)',
+                  justifyContent: 'flex-end',
+                  padding: 7,
+                }}
+              >
+                <View style={{margin: 7}}>
+                  <ModalButton
+                    backgroundColor="rgb(242,242,242)"
+                    color="rgb(6,121,255)"
+                    text="Share to…"
+                    top={true}
+                    onPress={() => {
+                      Share.share({
+                        title: this.state.viewingGameInfo.name,
+                        url: siftrURL, /* TODO iOS only */
+                      }).then(() => this.setState({viewingGameInfo: null}));
+                    }}
+                  />
+                  <ModalButton
+                    backgroundColor="rgb(242,242,242)"
+                    color="rgb(6,121,255)"
+                    text="Copy Link"
+                    onPress={() => {
+                      Clipboard.setString(siftrURL);
+                      this.setState({viewingGameInfo: null});
+                    }}
+                  />
+                  <ModalButton
+                    backgroundColor="rgb(242,242,242)"
+                    color={isFollowing ? 'rgb(252,99,99)' : 'rgb(6,121,255)'}
+                    text={isFollowing ? "Unfollow" : 'Follow'}
+                    bottom={true}
+                    onPress={() => toggleFollow(this.state.viewingGameInfo, () => {
+                      this.setState({viewingGameInfo: null});
+                    })}
+                  />
+                </View>
+                <View style={{margin: 7}}>
+                  <ModalButton
+                    backgroundColor="white"
+                    color="rgb(6,121,255)"
+                    text="Cancel"
+                    top={true}
+                    bottom={true}
+                    onPress={() => this.setState({viewingGameInfo: null})}
+                  />
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </Modal>
+        }
         {
           this.props.screen !== 'me' &&
           <View style={{
@@ -388,7 +472,6 @@ class NativeHomeNew extends React.Component {
           </TouchableOpacity>
         </View>
       </View>
-    </SiftrInfo>
     );
   }
 }
