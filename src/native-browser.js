@@ -129,9 +129,12 @@ export class NativeCard extends React.Component {
     return (
       <TouchableOpacity onPress={() => this.props.onSelect(this.props.game)} style={{
         backgroundColor: 'white',
-        margin: 12,
+        margin: 15,
         marginBottom: 0,
-        borderRadius: 12
+        borderRadius: 10,
+        shadowColor: 'black',
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
       }}>
         <View style={{
           flexDirection: 'row',
@@ -280,15 +283,17 @@ export class NativeCard extends React.Component {
   squareView() {
     return (
       <TouchableOpacity onPress={() => this.props.onSelect(this.props.game)} style={{
-        marginRight: 10,
-        marginTop: 10,
+        margin: 9,
+        marginTop: 20,
+        marginBottom: 20,
         width: 220,
         backgroundColor: 'white',
-        borderColor: 'black',
-        borderWidth: 2,
         borderRadius: 4,
+        shadowColor: 'black',
+        shadowOpacity: 0.5,
+        shadowRadius: 5,
       }}>
-        <View style={{borderBottomColor: 'black', borderBottomWidth: 2, alignItems: 'stretch'}}>
+        <View style={{alignItems: 'stretch'}}>
           <CacheMedia
             url={`https://maps.googleapis.com/maps/api/staticmap?center=${this.props.game.latitude},${this.props.game.longitude}&zoom=${this.props.game.zoom}&size=600x300&maptype=roadmap&key=AIzaSyDlMWLh8Ho805A5LxA_8FgPOmnHI0AL9vw`}
             withURL={(url) => (
@@ -331,8 +336,7 @@ export class NativeCard extends React.Component {
                     position: 'absolute',
                     top: -20,
                     right: 5,
-                    borderColor: url == null ? undefined : 'black',
-                    borderWidth: url == null ? undefined : 1,
+                    borderRadius: 4,
                   }}
                 />
               )}
@@ -381,7 +385,6 @@ const BrowserList = createClass({
       return (
         <ScrollView style={{
           flex: 1,
-          backgroundColor: 'rgb(233,240,240)'
         }}>
           {this.props.games.map((game) =>
             <NativeCard
@@ -512,11 +515,11 @@ export const BrowserSearchPane = createClass({
       }}>
         <TextInput style={{
           height: 40,
-          borderWidth: 2,
-          borderColor: 'gray',
-          backgroundColor: 'white',
-          padding: 10
-        }} placeholder="Search…" autoCapitalize="none" autoCorrect={true} autoFocus={false} onChangeText={(search) => {
+          borderRadius: 5,
+          backgroundColor: 'rgb(244,244,244)',
+          padding: 10,
+          margin: 10,
+        }} placeholder="search or enter siftr code:" autoCapitalize="none" autoCorrect={true} autoFocus={false} onChangeText={(search) => {
           this.setState({
             search: search
           });

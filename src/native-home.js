@@ -255,7 +255,7 @@ class NativeHomeNew extends React.Component {
     return (
       <View style={{
         flex: 1,
-        backgroundColor: 'rgb(233,240,240)',
+        backgroundColor: 'white',
       }}>
         <StatusSpace
           backgroundColor="rgba(0,0,0,0)"
