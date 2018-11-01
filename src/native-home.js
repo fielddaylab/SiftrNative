@@ -116,22 +116,21 @@ class NativeMe extends React.Component {
         </View>
         <View style={{
           flexDirection: 'row',
-          borderBottomColor: 'black',
-          borderBottomWidth: 2,
         }}>
           <TouchableOpacity
             onPress={() => this.setState({list: 'followed'})}
             style={{
-              marginLeft: 30,
-              marginRight: 20,
+              flex: 1,
+              alignItems: 'center',
               paddingTop: 8,
               paddingBottom: 8,
-              borderBottomColor: this.state.list === 'followed' ? 'black' : 'rgba(0,0,0,0)',
+              borderBottomColor: this.state.list === 'followed' ? 'black' : 'rgb(238,238,238)',
               borderBottomWidth: 2,
             }}
           >
             <Text style={{
-              fontWeight: this.state.list === 'followed' ? 'bold' : undefined,
+              fontWeight: 'bold',
+              color: this.state.list === 'followed' ? 'black' : 'rgb(170,180,190)',
             }}>
               Joined
             </Text>
@@ -139,16 +138,17 @@ class NativeMe extends React.Component {
           <TouchableOpacity
             onPress={() => this.setState({list: 'mine'})}
             style={{
-              marginLeft: 20,
-              marginRight: 20,
+              flex: 1,
+              alignItems: 'center',
               paddingTop: 8,
               paddingBottom: 8,
-              borderBottomColor: this.state.list === 'mine' ? 'black' : 'rgba(0,0,0,0)',
+              borderBottomColor: this.state.list === 'mine' ? 'black' : 'rgb(238,238,238)',
               borderBottomWidth: 2,
             }}
           >
             <Text style={{
-              fontWeight: this.state.list === 'mine' ? 'bold' : undefined,
+              fontWeight: 'bold',
+              color: this.state.list === 'mine' ? 'black' : 'rgb(170,180,190)',
             }}>
               Created by Me
             </Text>
@@ -353,7 +353,7 @@ class NativeHomeNew extends React.Component {
                       auth={this.props.auth}
                       onSelect={this.props.onSelect}
                       onInfo={this.showInfo.bind(this)}
-                      cardMode="full"
+                      cardMode="compact"
                       mine={this.props.mine}
                       followed={this.props.followed}
                       online={this.props.online}
@@ -398,21 +398,39 @@ class NativeHomeNew extends React.Component {
                 />;
               case 'home':
               default:
-                return (
-                  <View style={{
-                    flex: 1,
-                  }}>
-                    <BrowserFollowed
-                      auth={this.props.auth}
-                      onSelect={this.props.onSelect}
-                      onInfo={this.showInfo.bind(this)}
-                      cardMode="full"
-                      mine={this.props.mine}
-                      followed={this.props.followed}
-                      online={this.props.online}
-                    />
-                  </View>
-                );
+                if (this.props.online) {
+                  return (
+                    <View style={{
+                      flex: 1,
+                    }}>
+                      <BrowserFollowed
+                        auth={this.props.auth}
+                        onSelect={this.props.onSelect}
+                        onInfo={this.showInfo.bind(this)}
+                        cardMode="full"
+                        mine={this.props.mine}
+                        followed={this.props.followed}
+                        online={this.props.online}
+                      />
+                    </View>
+                  );
+                } else {
+                  return (
+                    <View style={{
+                      flex: 1,
+                    }}>
+                      <BrowserDownloaded
+                        auth={this.props.auth}
+                        onSelect={this.props.onSelect}
+                        onInfo={this.showInfo.bind(this)}
+                        cardMode="full"
+                        mine={this.props.mine}
+                        followed={this.props.followed}
+                        online={this.props.online}
+                      />
+                    </View>
+                  );
+                }
             }
           })()
         }

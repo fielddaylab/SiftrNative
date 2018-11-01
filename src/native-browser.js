@@ -162,11 +162,13 @@ export class NativeCard extends React.Component {
             <Text>{this.authorName()}</Text>
           </View>
           <TouchableOpacity style={{
-            padding: 10
+            padding: 10,
+            paddingTop: 20,
+            paddingBottom: 20,
           }} onPress={() => this.props.onInfo(this.props.game)}>
-            <Image source={require('../web/assets/img/icon-4dots.png')} style={{
-              width: 38 * 0.7,
-              height: 40 * 0.7,
+            <Image source={require('../web/assets/img/icon-3dots.png')} style={{
+              width: 34 * 0.8,
+              height: 8 * 0.8,
               resizeMode: 'contain'
             }} />
           </TouchableOpacity>
@@ -250,31 +252,34 @@ export class NativeCard extends React.Component {
     return (
       <TouchableOpacity onPress={() => this.props.onSelect(this.props.game)} style={{
         backgroundColor: 'white',
-        margin: 12,
-        marginBottom: 0,
-        borderRadius: 12
+        padding: 20,
+        borderColor: 'rgb(241,241,241)',
+        borderTopWidth: 1,
+        borderBottomWidth: 1,
+        flexDirection: 'row',
+        alignItems: 'center'
       }}>
+        <CacheMedia
+          media_id={this.props.game.icon_media_id}
+          size="thumb_url"
+          auth={this.props.auth}
+          withURL={(url) => (
+            <Image
+              source={url == null ? undefined : {uri: url}}
+              style={{
+                height: 40,
+                width: 40,
+                borderRadius: 4,
+                marginRight: 20,
+              }}
+            />
+          )}
+        />
         <View style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          padding: 10,
-          alignItems: 'center'
-        }}>
-          <View style={{
           flex: 1
         }}>
-            <Text style={{fontWeight: 'bold'}}>{this.props.game.name}</Text>
-            <Text>{this.authorName()}</Text>
-          </View>
-          <TouchableOpacity style={{
-          padding: 10
-        }} onPress={() => this.props.onInfo(this.props.game)}>
-            <Image source={require('../web/assets/img/icon-4dots.png')} style={{
-          width: 38 * 0.7,
-          height: 40 * 0.7,
-          resizeMode: 'contain'
-        }} />
-          </TouchableOpacity>
+          <Text>{this.props.game.name}</Text>
+          <Text style={{color: 'rgb(140,140,140)', fontSize: 12, marginTop: 3}}>{this.authorName()}</Text>
         </View>
       </TouchableOpacity>
     );
