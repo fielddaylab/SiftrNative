@@ -146,6 +146,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-action-sheet')
     compile project(':react-native-geocoder')
     compile project(':react-native-firebase')
     compile "com.google.android.gms:play-services-base:15.0.1"
