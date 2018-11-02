@@ -812,9 +812,13 @@ export const SiftrView = createClass({
     }
   },
   componentDidMount: function() {
-    return (this.nomenTimer = setInterval(() => {
+    this.nomenTimer = setInterval(() => {
       this.checkNomenFieldData();
-    }, 1000));
+    }, 1000);
+    if (this.props.createOnLaunch) {
+      if (this.props.clearCreate) this.props.clearCreate();
+      this.startCreate();
+    }
   },
   componentWillUnmount: function() {
     this.isMounted = false;

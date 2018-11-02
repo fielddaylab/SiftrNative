@@ -317,7 +317,7 @@ export var SiftrNative = createClass({
     );
   },
   // @endif
-  loadGamePosition: function(game) {
+  loadGamePosition: function(game, create = false) {
     if (game.type === "ANYWHERE" && this.state.online) {
       this.state.auth.call(
         "notes.siftrBounds",
@@ -339,6 +339,7 @@ export var SiftrNative = createClass({
           } else {
             this.setState({
               game,
+              createOnLaunch: create,
               bounds: null
             });
           }
@@ -347,6 +348,7 @@ export var SiftrNative = createClass({
     } else {
       this.setState({
         game,
+        createOnLaunch: create,
         bounds: null
       });
     }
@@ -596,6 +598,8 @@ export var SiftrNative = createClass({
                 }}
                 nomenData={this.state.nomenData}
                 clearNomenData={this.clearNomenData}
+                createOnLaunch={this.state.createOnLaunch}
+                clearCreate={() => this.setState({createOnLaunch: false})}
                 online={this.state.online}
                 followed={this.state.followed}
                 followGame={this.followGame}
@@ -616,8 +620,8 @@ export var SiftrNative = createClass({
               <NativeHome
                 auth={this.state.auth}
                 onLogout={this.logout}
-                onSelect={game => {
-                  this.loadGamePosition(game);
+                onSelect={(game, create = false) => {
+                  this.loadGamePosition(game, create);
                 }}
                 online={this.state.online}
                 mine={this.state.games}

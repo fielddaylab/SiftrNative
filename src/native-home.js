@@ -325,6 +325,52 @@ class NativeHomeNew extends React.Component {
           </Modal>
         }
         {
+          this.state.add &&
+          <Modal animationType="slide">
+            <View style={{backgroundColor: 'white', flex: 1}}>
+              <StatusSpace
+                backgroundColor="rgba(0,0,0,0)"
+                leaveBar={true}
+              />
+              <View style={{alignItems: 'center'}}>
+                <TouchableOpacity onPress={() => this.setState({add: false})}>
+                  <Image
+                    source={require('../web/assets/img/siftr-icon-x.png')}
+                    style={{
+                      width: 33,
+                      height: 33,
+                      margin: 10,
+                    }}
+                  />
+                </TouchableOpacity>
+              </View>
+              <View>
+                <Text style={{
+                  margin: 20,
+                  marginTop: 10,
+                  fontSize: 28,
+                  fontWeight: 'bold',
+                }}>
+                  Post to a Siftr
+                </Text>
+              </View>
+              <View style={{
+                flex: 1,
+              }}>
+                <BrowserFollowed
+                  auth={this.props.auth}
+                  onSelect={(game) => this.props.onSelect(game, true)}
+                  onInfo={this.showInfo.bind(this)}
+                  cardMode="compact"
+                  mine={this.props.mine}
+                  followed={this.props.followed}
+                  online={this.props.online}
+                />
+              </View>
+            </View>
+          </Modal>
+        }
+        {
           this.props.screen !== 'me' &&
           <View style={{
             alignItems: 'center',
@@ -460,14 +506,16 @@ class NativeHomeNew extends React.Component {
               }}
             />
           </TouchableOpacity>
-          <Image
-            source={require('../web/assets/img/siftr-icon-plus.png')}
-            style={{
-              width: 33,
-              height: 33,
-              margin: 10,
-            }}
-          />
+          <TouchableOpacity onPress={() => this.setState({add: true})}>
+            <Image
+              source={require('../web/assets/img/siftr-icon-plus.png')}
+              style={{
+                width: 33,
+                height: 33,
+                margin: 10,
+              }}
+            />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => this.props.setScreen({screen: 'discover'})}>
             <Image
               source={require('../web/assets/img/siftr-icon-explore.png')}
