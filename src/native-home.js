@@ -342,46 +342,82 @@ class NativeHomeNew extends React.Component {
           (() => {
             switch (this.props.screen) {
               case 'search':
-                return (
-                  <View style={{
-                    flex: 1,
-                  }}>
-                    <BrowserSearchPane
-                      auth={this.props.auth}
-                      onSelect={this.props.onSelect}
-                      onInfo={this.showInfo.bind(this)}
-                      cardMode="compact"
-                      mine={this.props.mine}
-                      followed={this.props.followed}
-                      online={this.props.online}
-                      nearbyGames={this.state.nearbyGames}
-                      featuredGames={this.state.featuredGames}
-                    />
-                  </View>
-                );
+                if (this.props.online && false) {
+                  return (
+                    <View style={{
+                      flex: 1,
+                    }}>
+                      <BrowserSearchPane
+                        auth={this.props.auth}
+                        onSelect={this.props.onSelect}
+                        onInfo={this.showInfo.bind(this)}
+                        cardMode="compact"
+                        mine={this.props.mine}
+                        followed={this.props.followed}
+                        online={this.props.online}
+                        nearbyGames={this.state.nearbyGames}
+                        featuredGames={this.state.featuredGames}
+                      />
+                    </View>
+                  );
+                } else {
+                  return (
+                    <View style={{
+                      flex: 1,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                      <Image
+                        source={require('../web/assets/img/no-internet-black.png')}
+                        style={{
+                          width: 112 * 0.6,
+                          height: 82 * 0.6,
+                        }}
+                      />
+                    </View>
+                  );
+                }
               case 'discover':
-                return (
-                  <ScrollView style={{flex: 1}}>
-                    <ExplorePane
-                      onSelect={this.props.onSelect}
-                      onInfo={this.showInfo.bind(this)}
-                      title="Near Me"
-                      auth={this.props.auth}
-                      description="These Siftrs are happening near your current location"
-                      getGames={(cb) => cb(this.state.nearbyGames || [])}
-                      online={this.props.online}
-                    />
-                    <ExplorePane
-                      onSelect={this.props.onSelect}
-                      onInfo={this.showInfo.bind(this)}
-                      title="Featured"
-                      auth={this.props.auth}
-                      description="Selected by the Siftr team"
-                      getGames={(cb) => cb(this.state.featuredGames || [])}
-                      online={this.props.online}
-                    />
-                  </ScrollView>
-                );
+                if (this.props.online && false) {
+                  return (
+                    <ScrollView style={{flex: 1}}>
+                      <ExplorePane
+                        onSelect={this.props.onSelect}
+                        onInfo={this.showInfo.bind(this)}
+                        title="Near Me"
+                        auth={this.props.auth}
+                        description="These Siftrs are happening near your current location"
+                        getGames={(cb) => cb(this.state.nearbyGames || [])}
+                        online={this.props.online}
+                      />
+                      <ExplorePane
+                        onSelect={this.props.onSelect}
+                        onInfo={this.showInfo.bind(this)}
+                        title="Featured"
+                        auth={this.props.auth}
+                        description="Selected by the Siftr team"
+                        getGames={(cb) => cb(this.state.featuredGames || [])}
+                        online={this.props.online}
+                      />
+                    </ScrollView>
+                  );
+                } else {
+                  return (
+                    <View style={{
+                      flex: 1,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                      <Image
+                        source={require('../web/assets/img/no-internet-black.png')}
+                        style={{
+                          width: 112 * 0.6,
+                          height: 82 * 0.6,
+                        }}
+                      />
+                    </View>
+                  );
+                }
               case 'me':
                 return <NativeMe
                   auth={this.props.auth}
