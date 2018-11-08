@@ -116,6 +116,35 @@ export class NativeCard extends React.Component {
     }
   }
 
+  siftrIcon(style = {}) {
+    return (
+      <CacheMedia
+        media_id={this.props.game.icon_media_id}
+        size="thumb_url"
+        auth={this.props.auth}
+        withURL={(url) => (
+          <View style={[{
+            height: 46,
+            width: 46,
+            borderRadius: 6,
+            borderColor: (url == null ? 'rgba(0,0,0,0)' : 'white'),
+            borderWidth: 3,
+            alignItems: 'stretch',
+          }, style]}>
+            <Image
+              source={url == null ? undefined : {uri: url}}
+              style={{
+                flex: 1,
+                resizeMode: 'contain',
+                borderRadius: 3,
+              }}
+            />
+          </View>
+        )}
+      />
+    );
+  }
+
   fullView() {
     var ref2, ref3;
     let contributorIcons = [];
@@ -142,21 +171,11 @@ export class NativeCard extends React.Component {
           padding: 10,
           alignItems: 'center'
         }}>
-          <CacheMedia
-            media_id={this.props.game.icon_media_id}
-            size="thumb_url"
-            auth={this.props.auth}
-            withURL={(url) => (
-              <Image
-                source={url == null ? undefined : {uri: url}}
-                style={{
-                  height: 50,
-                  width: 50,
-                  marginRight: 10,
-                }}
-              />
-            )}
-          />
+          {
+            this.siftrIcon({
+              marginRight: 10,
+            })
+          }
           <View style={{flex: 1}}>
             <Text style={{fontWeight: 'bold'}}>{this.props.game.name}</Text>
             <Text>{this.authorName()}</Text>
@@ -259,22 +278,11 @@ export class NativeCard extends React.Component {
         flexDirection: 'row',
         alignItems: 'center'
       }}>
-        <CacheMedia
-          media_id={this.props.game.icon_media_id}
-          size="thumb_url"
-          auth={this.props.auth}
-          withURL={(url) => (
-            <Image
-              source={url == null ? undefined : {uri: url}}
-              style={{
-                height: 40,
-                width: 40,
-                borderRadius: 4,
-                marginRight: 20,
-              }}
-            />
-          )}
-        />
+        {
+          this.siftrIcon({
+            marginRight: 20,
+          })
+        }
         <View style={{
           flex: 1
         }}>
@@ -328,24 +336,13 @@ export class NativeCard extends React.Component {
             </Text>
           </View>
           <View style={{width: 50}}>
-            <CacheMedia
-              media_id={this.props.game.icon_media_id}
-              size="thumb_url"
-              auth={this.props.auth}
-              withURL={(url) => (
-                <Image
-                  source={url == null ? undefined : {uri: url}}
-                  style={{
-                    height: 40,
-                    width: 40,
-                    position: 'absolute',
-                    top: -20,
-                    right: 5,
-                    borderRadius: 4,
-                  }}
-                />
-              )}
-            />
+            {
+              this.siftrIcon({
+                position: 'absolute',
+                top: -20,
+                right: 5,
+              })
+            }
           </View>
         </View>
       </TouchableOpacity>
