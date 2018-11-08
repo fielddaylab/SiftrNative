@@ -403,6 +403,10 @@ function sortByIndex(key_id) {
   };
 }
 
+let activeCalls = 0;
+const MAX_CALLS = 5;
+const pendingCalls = [];
+
 // Handles Aris v2 authentication and API calls.
 export const Auth = class Auth {
   constructor(json = null) {
@@ -490,6 +494,37 @@ export const Auth = class Auth {
   }
 
   call(func, json, cb) {
+    if (activeCalls >= MAX_CALLS) {
+      var aborted = false;
+      pendingCalls.push([func, json, (x) => {
+        if (!aborted) {
+          cb(x);
+        }
+      }]);
+      // return a fake XHR with just abort method
+      return {
+        abort: () => {
+          aborted = true
+        },
+      };
+    } else {
+      activeCalls++;
+      return this.callUnqueued(func, json, (x) => {
+        activeCalls--;
+        this.popPendingCall();
+        cb(x);
+      });
+    }
+  }
+
+  popPendingCall() {
+    if (activeCalls < MAX_CALLS && pendingCalls.length > 0) {
+      let [func, json, cb] = pendingCalls.shift();
+      this.call(func, json, cb);
+    }
+  }
+
+  callUnqueued(func, json, cb) {
     var req;
     req = new XMLHttpRequest();
     req.open("POST", `${ARIS_URL}/json.php/v2.${func}`, true);
