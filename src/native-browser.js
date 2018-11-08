@@ -146,14 +146,23 @@ export class NativeCard extends React.Component {
   }
 
   fullView() {
-    var ref2, ref3;
-    let contributorIcons = [];
+    const contributorIcons = [];
+    let contributorCount = '…';
+    let contributorPlural = 's';
     if (this.state.contributors) {
       for (var user_id in this.state.contributors) {
         const user = this.state.contributors[user_id];
         if (user.media_id) contributorIcons.push(user.media_id);
         if (contributorIcons.length == 3) break;
       }
+      contributorCount = Object.keys(this.state.contributors).length;
+      if (contributorCount === 1) contributorPlural = '';
+    }
+    let postCount = '…';
+    let postPlural = 's';
+    if (this.state.posts != null) {
+      postCount = this.state.posts;
+      if (postCount === 1) postPlural = '';
     }
     return (
       <TouchableOpacity onPress={() => this.props.onSelect(this.props.game)} style={{
@@ -250,8 +259,12 @@ export class NativeCard extends React.Component {
             }
           </View>
           <View>
-            <Text style={{fontWeight: 'bold'}}>{(ref2 = this.state.contributors) != null ? Object.keys(ref2).length : '…'} contributors</Text>
-            <Text>{(ref3 = this.state.posts) != null ? ref3 : '…'} posts</Text>
+            <Text style={{fontWeight: 'bold'}}>
+              {contributorCount} contributor{contributorPlural}
+            </Text>
+            <Text>
+              {postCount} post{postPlural}
+            </Text>
           </View>
         </View>
         <View style={{
