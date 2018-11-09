@@ -9,7 +9,7 @@ import createClass from 'create-react-class';
 export const Text = createClass({
   displayName: 'Text',
   render: function(){
-    return <RN.Text style={[{letterSpacing: 0.3}, this.props.style]}>
+    return <RN.Text style={[{letterSpacing: 0.3, color: 'black'}, this.props.style]}>
       {this.props.children}
     </RN.Text>;
   },

@@ -77,8 +77,9 @@ class NativeMe extends React.Component {
             margin: 10,
             fontSize: 32,
             fontWeight: 'bold',
+            fontFamily: 'League Spartan',
           }}>
-            Me:
+            Me
           </Text>
           <TouchableOpacity onPress={() => this.props.setScreen({settings: true})}>
             <Image
@@ -108,7 +109,11 @@ class NativeMe extends React.Component {
               />
             )}
           />
-          <Text style={{fontWeight: 'bold', fontSize: 18}}>
+          <Text style={{
+            fontWeight: 'bold',
+            fontFamily: 'League Spartan',
+            fontSize: 18,
+          }}>
             {this.props.auth.authToken.display_name}
           </Text>
         </View>
@@ -131,6 +136,8 @@ class NativeMe extends React.Component {
           >
             <Text style={{
               fontWeight: 'bold',
+              fontFamily: 'League Spartan',
+              fontSize: 12,
               color: this.state.list === 'followed' ? 'black' : 'rgb(170,180,190)',
             }}>
               Joined
@@ -149,6 +156,8 @@ class NativeMe extends React.Component {
           >
             <Text style={{
               fontWeight: 'bold',
+              fontFamily: 'League Spartan',
+              fontSize: 12,
               color: this.state.list === 'mine' ? 'black' : 'rgb(170,180,190)',
             }}>
               Created by Me

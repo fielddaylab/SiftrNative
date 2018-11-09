@@ -171,8 +171,10 @@ export class NativeCard extends React.Component {
         marginBottom: 0,
         borderRadius: 10,
         shadowColor: 'black',
-        shadowOpacity: 0.3,
+        shadowOpacity: 0.2,
         shadowRadius: 10,
+        shadowOffset: {height: 5},
+        elevation: 10,
       }}>
         <View style={{
           flexDirection: 'row',
@@ -187,7 +189,7 @@ export class NativeCard extends React.Component {
           }
           <View style={{flex: 1}}>
             <Text style={{fontWeight: 'bold'}}>{this.props.game.name}</Text>
-            <Text>{this.authorName()}</Text>
+            <Text style={{color: 'rgb(140,140,140)', fontSize: 12}}>{this.authorName()}</Text>
           </View>
           <TouchableOpacity style={{
             padding: 10,
@@ -316,8 +318,10 @@ export class NativeCard extends React.Component {
         backgroundColor: 'white',
         borderRadius: 4,
         shadowColor: 'black',
-        shadowOpacity: 0.5,
-        shadowRadius: 5,
+        shadowOpacity: 0.2,
+        shadowRadius: 6,
+        shadowOffset: {height: 3},
+        elevation: 7,
       }}>
         <View style={{alignItems: 'stretch'}}>
           <CacheMedia
@@ -342,6 +346,7 @@ export class NativeCard extends React.Component {
               {this.props.game.name}
             </Text>
             <Text style={{
+              color: 'rgb(140,140,140)',
               fontSize: 12,
               margin: 4,
             }}>
@@ -412,7 +417,7 @@ const BrowserList = createClass({
               online={this.props.online}
             />
           )}
-          <View style={{height: 12}} />
+          <View style={{height: 40}} />
         </ScrollView>
       );
     } else {

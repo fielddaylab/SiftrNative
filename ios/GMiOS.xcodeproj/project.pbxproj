@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302AC1ABCB8CE00DB3ED1 /* libRCTActionSheet.a */; };
 		00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302BA1ABCB90400DB3ED1 /* libRCTGeolocation.a */; };
@@ -42,6 +41,7 @@
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
+		9EA022A34C2E45EEB308B7F3 /* League Spartan.otf in Resources */ = {isa = PBXBuildFile; fileRef = 96FED87A230C4DFF87A12D52 /* League Spartan.otf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -370,6 +370,7 @@
 		9A396D80762205745EF14D98 /* Pods-GMiOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GMiOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-GMiOS/Pods-GMiOS.release.xcconfig"; sourceTree = "<group>"; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
 		CF069766F8184185AD8B7CDC /* libRNFirebase.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNFirebase.a; sourceTree = "<group>"; };
+		96FED87A230C4DFF87A12D52 /* League Spartan.otf */ = {isa = PBXFileReference; name = "League Spartan.otf"; path = "../assets/fonts/League Spartan.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -649,6 +650,7 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				53AA0EFA21277967000662B7 /* Recovered References */,
 				474B988A14AB96EE25983135 /* Pods */,
+				2761374C435D4A3F95E9FAB8 /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -674,6 +676,15 @@
 			);
 			name = Products;
 			sourceTree = "<group>";
+		};
+		2761374C435D4A3F95E9FAB8 /* Resources */ = {
+			isa = "PBXGroup";
+			children = (
+				96FED87A230C4DFF87A12D52 /* League Spartan.otf */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+			path = "";
 		};
 /* End PBXGroup section */
 
@@ -1154,6 +1165,7 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 				53A9EC5021273BC500371774 /* GoogleService-Info.plist in Resources */,
+				9EA022A34C2E45EEB308B7F3 /* League Spartan.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

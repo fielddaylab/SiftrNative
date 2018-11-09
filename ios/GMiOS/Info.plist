@@ -81,5 +81,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>League Spartan.otf</string>
+	</array>
 </dict>
 </plist>
