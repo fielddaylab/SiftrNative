@@ -95,10 +95,9 @@ export class SiftrThumbnails extends React.Component {
             <TouchableOpacity onPress={() => this.props.onSelectNote(note)} key={note.note_id}>
               <CacheMedia
                 url={note.thumb_url}
+                online={this.props.online}
                 withURL={(url) =>
-                  <ImageBackground source={
-                    url != null ? {uri: url} : null
-                  } style={{
+                  <ImageBackground source={url} style={{
                     width: 160,
                     height: 160,
                     margin: 5,

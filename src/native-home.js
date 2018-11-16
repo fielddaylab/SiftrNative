@@ -97,9 +97,10 @@ class NativeMe extends React.Component {
             media_id={this.props.auth.authToken.media_id}
             size="thumb_url"
             auth={this.props.auth}
+            online={this.props.online}
             withURL={(url) => (
               <Image
-                source={url == null ? undefined : {uri: url}}
+                source={url}
                 style={{
                   height: 50,
                   width: 50,

@@ -377,7 +377,7 @@ OptionsModal = function() {
   return OptionsModal;
 }.call(this);
 
-const GalleryModal = class GalleryModal extends React.Component {
+class GalleryModal extends React.Component {
   render() {
     return (
       <Modal onRequestClose={this.props.onClose}>
@@ -507,16 +507,11 @@ const SiftrComment = function() {
             {this.state.userPicture != null ? (
               <CacheMedia
                 url={this.state.userPicture.thumb_url}
-                withURL={url => {
+                online={this.props.online}
+                withURL={(url) => {
                   return (
                     <Image
-                      source={
-                        url != null
-                          ? {
-                              uri: url
-                            }
-                          : void 0
-                      }
+                      source={uri}
                       style={{
                         width: 26,
                         height: 26,
@@ -754,6 +749,7 @@ const SiftrComments = function() {
             this.props.comments.map(comment => {
               return (
                 <SiftrComment
+                  online={this.props.online}
                   key={comment.comment_id}
                   comment={comment}
                   note={this.props.note}
@@ -806,6 +802,7 @@ const SiftrComments = function() {
             this.props.comments.map(comment => {
               return (
                 <SiftrComment
+                  online={this.props.online}
                   key={comment.comment_id}
                   comment={comment}
                   note={this.props.note}
@@ -1391,16 +1388,16 @@ export const SiftrNoteView = function() {
         uri;
       if (this.props.note.pending) {
         photos = this.props.note.files.map((f) => {
-          return {url: `${this.props.note.dir}/${f.filename}`};
+          return {url: `${this.props.note.dir}/${f.filename}`, online: this.props.online};
         });
       } else {
-        photos = [{media_id: this.props.note.media_id, auth: this.props.auth}];
+        photos = [{media_id: this.props.note.media_id, auth: this.props.auth, online: this.props.online}];
         if (this.state.field_data != null && this.props.fields != null) {
           this.props.fields.forEach((field) => {
             if (field.field_type === 'MEDIA') {
               const data = this.state.field_data.filter((d) => d.field_id === field.field_id);
               if (data.length > 0) {
-                photos.push({media_id: data[0].media.media_id, auth: this.props.auth});
+                photos.push({media_id: data[0].media.media_id, auth: this.props.auth, online: this.props.online});
               }
             }
           });
@@ -1475,31 +1472,13 @@ export const SiftrNoteView = function() {
                 });
               }}
               initialPage={photoURLs.indexOf(this.state.gallery)}
-              images={(function() {
-                var k, len1, results;
-                results = [];
-                for (k = 0, len1 = photoURLs.length; k < len1; k++) {
-                  uri = photoURLs[k];
-                  results.push({
-                    source: { uri }
-                  });
-                }
-                return results;
-              })()}
+              images={photoURLs.map((url) => ({source: url}))}
             />
           ) : (
             void 0
           )}
           <SquareImage
-            sources={(function() {
-              var k, len1, results;
-              results = [];
-              for (k = 0, len1 = photoURLs.length; k < len1; k++) {
-                uri = photoURLs[k];
-                results.push({ uri });
-              }
-              return results;
-            })()}
+            sources={photoURLs}
             onGallery={({ uri }) => {
               this.setState({
                 gallery: uri
@@ -1615,6 +1594,7 @@ export const SiftrNoteView = function() {
             </Text>
           ) : (
             <SiftrComments
+              online={this.props.online}
               note={this.props.note}
               auth={this.props.auth}
               comments={(ref4 = this.state.comments) != null ? ref4 : []}
@@ -1816,6 +1796,7 @@ export const SiftrNoteView = function() {
                   </div>
                 ) : (
                   <SiftrComments
+                    online={this.props.online}
                     note={this.props.note}
                     auth={this.props.auth}
                     comments={(ref4 = this.state.comments) != null ? ref4 : []}

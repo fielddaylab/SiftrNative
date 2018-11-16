@@ -1664,6 +1664,7 @@ export const SiftrView = createClass({
     return (
       <SiftrThumbnails
         ref="thumbs"
+        online={this.props.online}
         notes={this.state[notesKey]}
         game={this.props.game}
         pendingNotes={(() => {

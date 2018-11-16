@@ -309,10 +309,11 @@ const NativeProfile = createClass({
               ) : this.state.currentPicture != null ? (
                 <CacheMedia
                   url={this.state.currentPicture.uri}
-                  withURL={pic => {
+                  online={this.props.online}
+                  withURL={(url) => {
                     return (
                       <Image
-                        source={pic != null ? {uri: pic} : undefined}
+                        source={url}
                         style={styles.editProfilePic}
                       />
                     );
@@ -445,6 +446,7 @@ export const NativeSettings = createClass({
       case "profile":
         return (
           <NativeProfile
+            online={this.props.online}
             onClose={() => {
               this.setState({
                 setting: null

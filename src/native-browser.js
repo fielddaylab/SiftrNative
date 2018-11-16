@@ -122,6 +122,7 @@ export class NativeCard extends React.Component {
         media_id={this.props.game.icon_media_id}
         size="thumb_url"
         auth={this.props.auth}
+        online={this.props.online}
         withURL={(url) => (
           <View style={[{
             height: 46,
@@ -132,7 +133,7 @@ export class NativeCard extends React.Component {
             alignItems: 'stretch',
           }, style]}>
             <Image
-              source={url == null ? undefined : {uri: url}}
+              source={url}
               style={{
                 flex: 1,
                 resizeMode: 'contain',
@@ -210,10 +211,8 @@ export class NativeCard extends React.Component {
           {
             this.state.photos != null
             ? this.state.photos.map(({url, note_id}) => {
-                return <CacheMedia key={note_id} url={url} withURL={(url) => {
-                  return <Image source={url != null ? {
-                    uri: url
-                  } : void 0} style={{
+                return <CacheMedia key={note_id} url={url} online={this.props.online} withURL={(url) => {
+                  return <Image source={url} style={{
                     height: 100,
                     width: 100
                   }} />;
@@ -242,9 +241,10 @@ export class NativeCard extends React.Component {
                   key={media_id}
                   size="thumb_url"
                   auth={this.props.auth}
+                  online={this.props.online}
                   withURL={(url) => (
                     <Image
-                      source={url == null ? undefined : {uri: url}}
+                      source={url}
                       style={{
                         width: 30,
                         height: 30,
@@ -326,9 +326,10 @@ export class NativeCard extends React.Component {
         <View style={{alignItems: 'stretch'}}>
           <CacheMedia
             url={`https://maps.googleapis.com/maps/api/staticmap?center=${this.props.game.latitude},${this.props.game.longitude}&zoom=${this.props.game.zoom}&size=600x300&maptype=roadmap&key=AIzaSyDlMWLh8Ho805A5LxA_8FgPOmnHI0AL9vw`}
+            online={this.props.online}
             withURL={(url) => (
               <Image
-                source={url == null ? undefined : {uri: url}}
+                source={url}
                 style={{
                   height: 120,
                   resizeMode: 'cover',

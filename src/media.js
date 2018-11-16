@@ -20,12 +20,18 @@ function djb_hash(str) {
 }
 
 function loadMedia(props, cb) {
+  const online = (props.online == null ? true : props.online);
+
   function loadFile(file) {
     if (Platform.OS === 'android') {
-      cb('file://' + file);
+      cb({uri: 'file://' + file});
     } else {
-      cb(file);
+      cb({uri: file});
     }
+  }
+
+  function offline() {
+    cb(require('../web/assets/img/no-internet-media.png'));
   }
 
   function loadGeneral(hash, getURL) {
@@ -37,19 +43,23 @@ function loadMedia(props, cb) {
         });
       } else {
         getURL((url) => {
-          url = url.replace('http://', 'https://');
-          const ext = url.split('.').pop();
-          const localURL = mediaDir + '/' + hash + '.' + ext;
-          RNFS.mkdir(mediaDir, {NSURLIsExcludedFromBackupKey: true}).then(() => {
-            return RNFS.downloadFile({
-              fromUrl: url,
-              toFile: localURL,
-            }).promise;
-          }).then((result) => {
-            return RNFS.writeFile(info, hash + '.' + ext, 'utf8');
-          }).then(() => {
-            loadFile(localURL);
-          });
+          if (online) {
+            url = url.replace('http://', 'https://');
+            const ext = url.split('.').pop();
+            const localURL = mediaDir + '/' + hash + '.' + ext;
+            RNFS.mkdir(mediaDir, {NSURLIsExcludedFromBackupKey: true}).then(() => {
+              return RNFS.downloadFile({
+                fromUrl: url,
+                toFile: localURL,
+              }).promise;
+            }).then((result) => {
+              return RNFS.writeFile(info, hash + '.' + ext, 'utf8');
+            }).then(() => {
+              loadFile(localURL);
+            });
+          } else {
+            offline();
+          }
         });
       }
     });
@@ -64,12 +74,16 @@ function loadMedia(props, cb) {
   }
 
   function loadMediaID(media_id, size = 'url') {
-    loadGeneral(size + media_id, (cb) => {
-      props.auth.call('media.getMedia', {
-        media_id: media_id,
-      }, withSuccess((media) => {
-        cb(media[size]);
-      }));
+    loadGeneral(size + media_id, (useURL) => {
+      if (online) {
+        props.auth.call('media.getMedia', {
+          media_id: media_id,
+        }, withSuccess((media) => {
+          useURL(media[size]);
+        }));
+      } else {
+        offline();
+      }
     });
   }
 
@@ -86,7 +100,7 @@ export class CacheMedia extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      localURL: null,
+      localURL: undefined,
     };
   }
 
