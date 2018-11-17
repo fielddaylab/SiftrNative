@@ -467,7 +467,11 @@ class NativeHomeNew extends React.Component {
         }}>
           <TouchableOpacity onPress={() => this.props.setScreen({screen: 'home'})}>
             <Image
-              source={require('../web/assets/img/siftr-icon-house.png')}
+              source={
+                this.props.screen === 'home'
+                  ? require('../web/assets/img/siftr-icon-house-on.png')
+                  : require('../web/assets/img/siftr-icon-house.png')
+              }
               style={{
                 width: 33,
                 height: 33,
@@ -477,7 +481,11 @@ class NativeHomeNew extends React.Component {
           </TouchableOpacity>
           <TouchableOpacity onPress={() => this.props.setScreen({screen: 'search'})}>
             <Image
-              source={require('../web/assets/img/siftr-icon-search.png')}
+              source={
+                this.props.screen === 'search'
+                  ? require('../web/assets/img/siftr-icon-search-on.png')
+                  : require('../web/assets/img/siftr-icon-search.png')
+              }
               style={{
                 width: 33,
                 height: 33,
@@ -497,7 +505,11 @@ class NativeHomeNew extends React.Component {
           </TouchableOpacity>
           <TouchableOpacity onPress={() => this.props.setScreen({screen: 'discover'})}>
             <Image
-              source={require('../web/assets/img/siftr-icon-explore.png')}
+              source={
+                this.props.screen === 'discover'
+                  ? require('../web/assets/img/siftr-icon-explore-on.png')
+                  : require('../web/assets/img/siftr-icon-explore.png')
+              }
               style={{
                 width: 33,
                 height: 33,
@@ -507,7 +519,11 @@ class NativeHomeNew extends React.Component {
           </TouchableOpacity>
           <TouchableOpacity onPress={() => this.props.setScreen({screen: 'me'})}>
             <Image
-              source={require('../web/assets/img/siftr-icon-profile.png')}
+              source={
+                this.props.screen === 'me'
+                  ? require('../web/assets/img/siftr-icon-profile-on.png')
+                  : require('../web/assets/img/siftr-icon-profile.png')
+              }
               style={{
                 width: 33,
                 height: 33,
