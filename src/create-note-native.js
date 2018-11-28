@@ -24,7 +24,7 @@ import {
   Animated,
 } from "react-native";
 import { styles, Text } from "./styles";
-import Camera from "react-native-camera";
+import { RNCamera } from "react-native-camera";
 import InfiniteScrollView from "react-native-infinite-scroll-view";
 import firebase from "react-native-firebase";
 import Geocoder from "react-native-geocoder";
@@ -248,18 +248,22 @@ export const CreatePhoto = createClass({
                       backgroundColor: "black"
                     }}
                   >
-                    <Camera
+                    <RNCamera
                       ref={cam => {
                         this.camera = cam;
                       }}
                       style={{
                         flex: 1
                       }}
-                      type={this.state.camera}
+                      type={
+                        this.state.camera === 'front'
+                        ? RNCamera.Constants.Type.front
+                        : RNCamera.Constants.Type.back
+                      }
                       flashMode={
                         this.state.flash
-                          ? Camera.constants.FlashMode.on
-                          : Camera.constants.FlashMode.off
+                          ? RNCamera.Constants.FlashMode.on
+                          : RNCamera.Constants.FlashMode.off
                       }
                     />
                     {
@@ -376,9 +380,9 @@ export const CreatePhoto = createClass({
                                 Animated.timing(shutter, {toValue: 0, duration: 500}).start();
                               });
                               this.camera
-                                .capture({})
-                                .then(({ path }) => {
-                                  this.setState({pendingPhoto: path});
+                                .takePictureAsync({})
+                                .then(({ uri }) => {
+                                  this.setState({pendingPhoto: uri});
                                 })
                                 .catch(cameraError);
                             } else {
