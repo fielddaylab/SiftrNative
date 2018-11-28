@@ -75,7 +75,7 @@ class NativeMe extends React.Component {
       <View style={{flex: 1}}>
         <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start'}}>
           <Text style={{
-            margin: 10,
+            margin: 20,
             fontSize: 32,
             fontWeight: 'bold',
             fontFamily: 'League Spartan',
@@ -86,14 +86,14 @@ class NativeMe extends React.Component {
             <Image
               source={require('../web/assets/img/icon-gear.png')}
               style={{
-                width: 32,
-                height: 32,
-                margin: 10,
+                width: 22,
+                height: 22,
+                margin: 20,
               }}
             />
           </TouchableOpacity>
         </View>
-        <View style={{marginLeft: 30, marginRight: 30, marginTop: 15, flexDirection: 'row', alignItems: 'center'}}>
+        <View style={{marginLeft: 30, marginRight: 30, flexDirection: 'row', alignItems: 'center'}}>
           <CacheMedia
             media_id={this.props.auth.authToken.media_id}
             size="thumb_url"
@@ -196,6 +196,7 @@ class NativeHomeNew extends React.Component {
 
   componentWillMount() {
     this.getNearby();
+    this.getPopular();
     this.getFeatured();
     this.getThemes();
   }
@@ -208,6 +209,13 @@ class NativeHomeNew extends React.Component {
         filter: 'siftr'
       }, withSuccess((nearbyGames) => this.setState({nearbyGames})));
     });
+  }
+
+  getPopular() {
+    this.props.auth.searchSiftrs({
+      count: 20,
+      order_by: 'popular',
+    }, withSuccess((popularGames) => this.setState({popularGames})));
   }
 
   getFeatured() {
@@ -332,23 +340,6 @@ class NativeHomeNew extends React.Component {
           </Modal>
         }
         {
-          this.props.screen !== 'me' &&
-          <View style={{
-            alignItems: 'center',
-            flexDirection: 'row',
-            justifyContent: 'center',
-          }}>
-            <Image
-              source={require('../web/assets/img/siftr-logo-black.png')}
-              style={{
-                width: 66 * 0.6,
-                height: 68 * 0.6,
-                margin: 10,
-              }}
-            />
-          </View>
-        }
-        {
           (() => {
             switch (this.props.screen) {
               case 'search':
@@ -357,6 +348,16 @@ class NativeHomeNew extends React.Component {
                     <View style={{
                       flex: 1,
                     }}>
+                      <View style={{alignItems: 'flex-start'}}>
+                        <Text style={{
+                          margin: 20,
+                          fontSize: 32,
+                          fontWeight: 'bold',
+                          fontFamily: 'League Spartan',
+                        }}>
+                          Search
+                        </Text>
+                      </View>
                       <BrowserSearchPane
                         auth={this.props.auth}
                         onSelect={this.props.onSelect}
@@ -388,48 +389,71 @@ class NativeHomeNew extends React.Component {
                   );
                 }
               case 'discover':
-                if (this.props.online) {
-                  return (
-                    <ScrollView style={{flex: 1}}>
-                      <ExplorePane
-                        onSelect={this.props.onSelect}
-                        onInfo={this.showInfo.bind(this)}
-                        title="Near Me"
-                        auth={this.props.auth}
-                        description="These Siftrs are happening near your current location"
-                        getGames={(cb) => cb(this.state.nearbyGames || [])}
-                        online={this.props.online}
-                        themes={this.state.themes}
-                      />
-                      <ExplorePane
-                        onSelect={this.props.onSelect}
-                        onInfo={this.showInfo.bind(this)}
-                        title="Featured"
-                        auth={this.props.auth}
-                        description="Selected by the Siftr team"
-                        getGames={(cb) => cb(this.state.featuredGames || [])}
-                        online={this.props.online}
-                        themes={this.state.themes}
-                      />
-                    </ScrollView>
-                  );
-                } else {
-                  return (
-                    <View style={{
-                      flex: 1,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                      <Image
-                        source={require('../web/assets/img/no-internet-black.png')}
-                        style={{
-                          width: 112 * 0.6,
-                          height: 82 * 0.6,
-                        }}
-                      />
+                return (
+                  <View style={{flex: 1}}>
+                    <View style={{alignItems: 'flex-start'}}>
+                      <Text style={{
+                        margin: 20,
+                        marginBottom: 5,
+                        fontSize: 32,
+                        fontWeight: 'bold',
+                        fontFamily: 'League Spartan',
+                      }}>
+                        Explore
+                      </Text>
                     </View>
-                  );
-                }
+                    {
+                      this.props.online ? (
+                        <ScrollView style={{flex: 1}}>
+                          <ExplorePane
+                            onSelect={this.props.onSelect}
+                            onInfo={this.showInfo.bind(this)}
+                            title="Featured"
+                            auth={this.props.auth}
+                            description="Our favorites"
+                            getGames={(cb) => cb(this.state.featuredGames || [])}
+                            online={this.props.online}
+                            themes={this.state.themes}
+                          />
+                          <ExplorePane
+                            onSelect={this.props.onSelect}
+                            onInfo={this.showInfo.bind(this)}
+                            title="Popular"
+                            auth={this.props.auth}
+                            description="These are popular among Siftr users"
+                            getGames={(cb) => cb(this.state.popularGames || [])}
+                            online={this.props.online}
+                            themes={this.state.themes}
+                          />
+                          <ExplorePane
+                            onSelect={this.props.onSelect}
+                            onInfo={this.showInfo.bind(this)}
+                            title="Near Me"
+                            auth={this.props.auth}
+                            description="Happening close to your location"
+                            getGames={(cb) => cb(this.state.nearbyGames || [])}
+                            online={this.props.online}
+                            themes={this.state.themes}
+                          />
+                        </ScrollView>
+                      ) : (
+                        <View style={{
+                          flex: 1,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                          <Image
+                            source={require('../web/assets/img/no-internet-black.png')}
+                            style={{
+                              width: 112 * 0.6,
+                              height: 82 * 0.6,
+                            }}
+                          />
+                        </View>
+                      )
+                    }
+                  </View>
+                );
               case 'me':
                 return <NativeMe
                   auth={this.props.auth}
@@ -448,6 +472,20 @@ class NativeHomeNew extends React.Component {
                     <View style={{
                       flex: 1,
                     }}>
+                      <View style={{
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                      }}>
+                        <Image
+                          source={require('../web/assets/img/siftr-logo-black.png')}
+                          style={{
+                            width: 66 * 0.6,
+                            height: 68 * 0.6,
+                            margin: 10,
+                          }}
+                        />
+                      </View>
                       <BrowserFollowed
                         auth={this.props.auth}
                         onSelect={this.props.onSelect}

@@ -119,7 +119,7 @@ export class NativeCard extends React.Component {
           <View style={[{
             height: 46,
             width: 46,
-            borderRadius: 6,
+            borderRadius: 14,
             borderColor: (url == null ? 'rgba(0,0,0,0)' : 'white'),
             borderWidth: 3,
             alignItems: 'stretch',
@@ -129,7 +129,7 @@ export class NativeCard extends React.Component {
               style={{
                 flex: 1,
                 resizeMode: 'contain',
-                borderRadius: 3,
+                borderRadius: 11,
               }}
             />
           </View>
@@ -550,17 +550,30 @@ export const BrowserSearchPane = createClass({
       <View style={{
         flex: 1
       }}>
-        <TextInput style={{
-          height: 40,
-          borderRadius: 5,
+        <View style={{
           backgroundColor: 'rgb(244,244,244)',
-          padding: 10,
-          margin: 10,
-        }} placeholder="search or enter siftr code:" autoCapitalize="none" autoCorrect={true} autoFocus={false} onChangeText={(search) => {
-          this.setState({
-            search: search
-          });
-        }} />
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginBottom: 10,
+        }}>
+          <TextInput style={{
+            height: 40,
+            padding: 10,
+            flex: 1,
+          }} placeholder="Enter search term or siftr code:" autoCapitalize="none" autoCorrect={true} autoFocus={false} onChangeText={(search) => {
+            this.setState({
+              search: search
+            });
+          }} />
+          <Image
+            source={require('../web/assets/img/icon-search.png')}
+            style={{
+              width: 17,
+              height: 16,
+              margin: 10,
+            }}
+          />
+        </View>
         <BrowserSearch auth={this.props.auth} onSelect={(...args) => {
           this.props.onSelect(...args);
         }} onInfo={(...args) => {
@@ -590,15 +603,22 @@ export class ExplorePane extends React.Component {
       <View style={{
         margin: 8,
       }}>
-        <Text style={{
-          fontSize: 26,
-          fontWeight: 'bold',
-        }}>
-          {this.props.title}:
-        </Text>
-        <Text>
-          {this.props.description}
-        </Text>
+        <View style={{marginLeft: 13}}>
+          <Text style={{
+            fontSize: 18,
+            fontWeight: 'bold',
+            fontFamily: 'League Spartan',
+          }}>
+            {this.props.title}
+          </Text>
+          <Text style={{
+            fontSize: 12,
+            fontWeight: 'bold',
+            color: 'rgb(174,186,196)',
+          }}>
+            {this.props.description}
+          </Text>
+        </View>
         <ScrollView horizontal={true}>
           {
             this.state.games.map((game, i) =>
@@ -610,7 +630,7 @@ export class ExplorePane extends React.Component {
                 cardMode="square"
                 auth={this.props.auth}
                 online={this.props.online}
-                theme={this.props.themes[game.theme_id]}
+                theme={this.props.themes[game.theme_id || 1]}
               />
             )
           }
