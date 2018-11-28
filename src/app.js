@@ -17,7 +17,8 @@ import {
   NetInfo,
   BackHandler,
   Platform,
-  AppState
+  AppState,
+  SafeAreaView
 } from "react-native";
 import { UploadQueue } from "./upload-queue";
 import { styles, Text } from "./styles";
@@ -551,115 +552,117 @@ export var SiftrNative = createClass({
   render: function() {
     if (this.state.auth != null) {
       return (
-        <UploadQueue
-          auth={this.state.auth}
-          online={this.state.online}
-          onMessage={queueMessage => {
-            this.setState({ queueMessage });
-          }}
-          withPendingNotes={pendingNotes => {
-            this.setState({ pendingNotes });
-          }}
-          onUpload={() => {
-            var ref2;
-            return (ref2 = this.siftrView) != null
-              ? ref2.loadResults()
-              : undefined;
-          }}
-        >
-          {this.state.auth.authToken != null ? (
-            this.state.game != null ? (
-              <SiftrViewPW
-                game={this.state.game}
-                bounds={this.state.bounds}
-                auth={this.state.auth}
-                isAdmin={this.gameBelongsToUser(this.state.game)}
-                aris={this.state.aris}
-                onExit={() => {
-                  if (this.state.aris) {
-                    if (Platform.OS === "android") {
-                      BackHandler.exitApp(); // Linking.openURL "ARIS://"
+        <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+          <UploadQueue
+            auth={this.state.auth}
+            online={this.state.online}
+            onMessage={queueMessage => {
+              this.setState({ queueMessage });
+            }}
+            withPendingNotes={pendingNotes => {
+              this.setState({ pendingNotes });
+            }}
+            onUpload={() => {
+              var ref2;
+              return (ref2 = this.siftrView) != null
+                ? ref2.loadResults()
+                : undefined;
+            }}
+          >
+            {this.state.auth.authToken != null ? (
+              this.state.game != null ? (
+                <SiftrViewPW
+                  game={this.state.game}
+                  bounds={this.state.bounds}
+                  auth={this.state.auth}
+                  isAdmin={this.gameBelongsToUser(this.state.game)}
+                  aris={this.state.aris}
+                  onExit={() => {
+                    if (this.state.aris) {
+                      if (Platform.OS === "android") {
+                        BackHandler.exitApp(); // Linking.openURL "ARIS://"
+                      } else {
+                        return;
+                      }
+                    } else if (this.props.viola) {
+                      this.props.backToViola();
                     } else {
-                      return;
+                      this.setState({
+                        game: null,
+                        aris: false
+                      });
                     }
-                  } else if (this.props.viola) {
-                    this.props.backToViola();
-                  } else {
+                  }}
+                  onPromptLogin={() => {
                     this.setState({
-                      game: null,
-                      aris: false
+                      menuOpen: true
                     });
-                  }
+                  }}
+                  nomenData={this.state.nomenData}
+                  clearNomenData={this.clearNomenData}
+                  createOnLaunch={this.state.createOnLaunch}
+                  clearCreate={() => this.setState({createOnLaunch: false})}
+                  online={this.state.online}
+                  followed={this.state.followed}
+                  followGame={this.followGame}
+                  unfollowGame={this.unfollowGame}
+                  queueMessage={this.state.queueMessage}
+                  viola={this.props.viola}
+                  onViolaIdentify={this.props.onViolaIdentify}
+                  onLogout={this.logout}
+                  onChangePassword={this.changePassword}
+                  onEditProfile={this.editProfile}
+                  saved_note={this.state.saved_note}
+                  pendingNotes={this.state.pendingNotes}
+                  ref={ref => {
+                    this.siftrView = ref;
+                  }}
+                />
+              ) : (
+                <NativeHome
+                  auth={this.state.auth}
+                  onLogout={this.logout}
+                  onSelect={(game, create = false) => {
+                    this.loadGamePosition(game, create);
+                  }}
+                  online={this.state.online}
+                  mine={this.state.games}
+                  followed={this.state.followed}
+                  followGame={this.followGame}
+                  unfollowGame={this.unfollowGame}
+                  onChangePassword={this.changePassword}
+                  onEditProfile={this.editProfile}
+                  queueMessage={this.state.queueMessage}
+                  setScreen={o => {
+                    this.setState(o);
+                  }}
+                  discoverPage={this.state.discoverPage}
+                  settings={this.state.settings}
+                  screen={this.state.screen}
+                />
+              )
+            ) : this.state.showingTerms ? (
+              <Terms
+                onAccept={() => {
+                  this.register();
                 }}
-                onPromptLogin={() => {
+                onCancel={() => {
                   this.setState({
-                    menuOpen: true
+                    showingTerms: false
                   });
-                }}
-                nomenData={this.state.nomenData}
-                clearNomenData={this.clearNomenData}
-                createOnLaunch={this.state.createOnLaunch}
-                clearCreate={() => this.setState({createOnLaunch: false})}
-                online={this.state.online}
-                followed={this.state.followed}
-                followGame={this.followGame}
-                unfollowGame={this.unfollowGame}
-                queueMessage={this.state.queueMessage}
-                viola={this.props.viola}
-                onViolaIdentify={this.props.onViolaIdentify}
-                onLogout={this.logout}
-                onChangePassword={this.changePassword}
-                onEditProfile={this.editProfile}
-                saved_note={this.state.saved_note}
-                pendingNotes={this.state.pendingNotes}
-                ref={ref => {
-                  this.siftrView = ref;
                 }}
               />
             ) : (
-              <NativeHome
-                auth={this.state.auth}
-                onLogout={this.logout}
-                onSelect={(game, create = false) => {
-                  this.loadGamePosition(game, create);
-                }}
+              <NativeLogin
+                onLogin={this.login}
+                onRegister={this.showTerms}
+                viola={this.props.viola}
+                backToViola={this.props.backToViola}
                 online={this.state.online}
-                mine={this.state.games}
-                followed={this.state.followed}
-                followGame={this.followGame}
-                unfollowGame={this.unfollowGame}
-                onChangePassword={this.changePassword}
-                onEditProfile={this.editProfile}
-                queueMessage={this.state.queueMessage}
-                setScreen={o => {
-                  this.setState(o);
-                }}
-                discoverPage={this.state.discoverPage}
-                settings={this.state.settings}
-                screen={this.state.screen}
               />
-            )
-          ) : this.state.showingTerms ? (
-            <Terms
-              onAccept={() => {
-                this.register();
-              }}
-              onCancel={() => {
-                this.setState({
-                  showingTerms: false
-                });
-              }}
-            />
-          ) : (
-            <NativeLogin
-              onLogin={this.login}
-              onRegister={this.showTerms}
-              viola={this.props.viola}
-              backToViola={this.props.backToViola}
-              online={this.state.online}
-            />
-          )}
-        </UploadQueue>
+            )}
+          </UploadQueue>
+        </SafeAreaView>
       );
     } else {
       return <Loading queueMessage={this.state.queueMessage} />;
