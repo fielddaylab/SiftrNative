@@ -3,6 +3,7 @@
 import React from "react";
 import T from "prop-types";
 import createClass from "create-react-class";
+import update from "immutability-helper";
 import {
   View,
   TouchableOpacity,
@@ -189,12 +190,14 @@ class NativeHomeNew extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      themes: {}
     };
   }
 
   componentWillMount() {
     this.getNearby();
     this.getFeatured();
+    this.getThemes();
   }
 
   getNearby() {
@@ -211,6 +214,21 @@ class NativeHomeNew extends React.Component {
     this.props.auth.getStaffPicks({}, withSuccess((games) => {
       this.setState({featuredGames: games.filter((game) => game.is_siftr)});
     }));
+  }
+
+  getThemes() {
+    for (let i = 0; i < 10; i++) {
+      let j = i;
+      this.props.auth.getTheme({theme_id: i}, (res) => {
+        if (res.returnCode === 0) {
+          this.setState((prevState) => update(prevState, {
+            themes: {
+              [i]: {$set: res.data}
+            },
+          }));
+        }
+      });
+    }
   }
 
   showInfo(game) {
@@ -381,6 +399,7 @@ class NativeHomeNew extends React.Component {
                         description="These Siftrs are happening near your current location"
                         getGames={(cb) => cb(this.state.nearbyGames || [])}
                         online={this.props.online}
+                        themes={this.state.themes}
                       />
                       <ExplorePane
                         onSelect={this.props.onSelect}
@@ -390,6 +409,7 @@ class NativeHomeNew extends React.Component {
                         description="Selected by the Siftr team"
                         getGames={(cb) => cb(this.state.featuredGames || [])}
                         online={this.props.online}
+                        themes={this.state.themes}
                       />
                     </ScrollView>
                   );

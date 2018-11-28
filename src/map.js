@@ -317,6 +317,42 @@ MapNote.defaultProps = {
   onMouseLeave: function(){},
 };
 
+export function makeMapStyles(game, theme) {
+  let styles = [];
+  if (theme) {
+    styles = JSON.parse(theme.gmaps_styles);
+  }
+  styles.push({
+    featureType: 'transit',
+    stylers: [{visibility: 'off'}],
+  });
+  styles.push({
+    featureType: 'poi',
+    stylers: [{visibility: 'off'}],
+  });
+  if (!game.map_show_roads) {
+    styles.push({
+      featureType: 'road',
+      stylers: [{visibility: 'off'}],
+    });
+  }
+  if (!game.map_show_labels) {
+    styles.push({
+      elementType: 'labels',
+      stylers: [{visibility: 'off'}],
+    });
+    styles.push({
+      featureType: 'administrative.land_parcel',
+      stylers: [{visibility: 'off'}],
+    });
+    styles.push({
+      featureType: 'administrative.neighborhood',
+      stylers: [{visibility: 'off'}],
+    });
+  }
+  return styles;
+}
+
 export class SiftrMap extends React.Component {
   constructor(props) {
     super(props);
@@ -578,39 +614,7 @@ export class SiftrMap extends React.Component {
   // @endif
 
   getMapStyles(props = this.props) {
-    let styles = [];
-    if (props.theme) {
-      styles = JSON.parse(props.theme.gmaps_styles);
-    }
-    styles.push({
-      featureType: 'transit',
-      stylers: [{visibility: 'off'}],
-    });
-    styles.push({
-      featureType: 'poi',
-      stylers: [{visibility: 'off'}],
-    });
-    if (!props.game.map_show_roads) {
-      styles.push({
-        featureType: 'road',
-        stylers: [{visibility: 'off'}],
-      });
-    }
-    if (!props.game.map_show_labels) {
-      styles.push({
-        elementType: 'labels',
-        stylers: [{visibility: 'off'}],
-      });
-      styles.push({
-        featureType: 'administrative.land_parcel',
-        stylers: [{visibility: 'off'}],
-      });
-      styles.push({
-        featureType: 'administrative.neighborhood',
-        stylers: [{visibility: 'off'}],
-      });
-    }
-    return styles;
+    return makeMapStyles(props.game, props.theme);
   }
 
   // @ifdef WEB

@@ -21,6 +21,7 @@ import {
 import {withSuccess} from './utils';
 import Markdown from "react-native-simple-markdown";
 import removeMarkdown from 'remove-markdown';
+import {makeMapStyles} from './map';
 
 const mapMaybe = (xs, f) => {
   return xs.map(f).filter((x) => x != null);
@@ -95,23 +96,14 @@ export class NativeCard extends React.Component {
     this._isMounted = false;
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return this.props.cardMode !== nextProps.cardMode ||
-      this.props.game !== nextProps.game ||
-      this.state.authors !== nextState.authors ||
-      this.state.photos !== nextState.photos ||
-      this.state.contributors !== nextState.contributors ||
-      this.state.posts !== nextState.posts;
-  }
-
   authorName() {
     if (this.state.authors == null) {
       return '…';
     } else {
       let authors = this.state.authors
-      if (authors.length > 2) {
-        authors = authors.slice(0, 2).concat(['…']);
-      }
+      // if (authors.length > 2) {
+      //   authors = authors.slice(0, 2).concat(['…']);
+      // }
       return authors.join(', ');
     }
   }
@@ -309,12 +301,36 @@ export class NativeCard extends React.Component {
   }
 
   squareView() {
+    const mapParams = [];
+    mapParams.push(`center=${this.props.game.latitude},${this.props.game.longitude}`);
+    mapParams.push(`zoom=${this.props.game.zoom}`);
+    mapParams.push('size=600x300');
+    if (this.props.game.map_type === 'STREET') {
+      mapParams.push('maptype=roadmap');
+    } else {
+      mapParams.push('maptype=hybrid');
+    }
+    // translate the javascript style parameters to the GET parameter format
+    makeMapStyles(this.props.game, this.props.theme).forEach((style) => {
+      const styleParams = [];
+      if (style.featureType) styleParams.push(`feature:${style.featureType}`);
+      if (style.elementType) styleParams.push(`element:${style.elementType}`);
+      style.stylers.forEach((styler) => {
+        Object.keys(styler).forEach((k) => {
+          styleParams.push(`${k}:${styler[k]}`);
+        });
+      });
+      mapParams.push(`style=${styleParams.join('%7C')}`); // pipe char
+    });
+    mapParams.push('key=AIzaSyDlMWLh8Ho805A5LxA_8FgPOmnHI0AL9vw');
+    const mapURL = `https://maps.googleapis.com/maps/api/staticmap?${mapParams.join('&')}`.replace(/\#/g, '0x');
+
     return (
       <TouchableOpacity onPress={() => this.props.onSelect(this.props.game)} style={{
         margin: 9,
         marginTop: 20,
         marginBottom: 20,
-        width: 220,
+        width: 260,
         backgroundColor: 'white',
         borderRadius: 4,
         shadowColor: 'black',
@@ -325,7 +341,7 @@ export class NativeCard extends React.Component {
       }}>
         <View style={{alignItems: 'stretch'}}>
           <CacheMedia
-            url={`https://maps.googleapis.com/maps/api/staticmap?center=${this.props.game.latitude},${this.props.game.longitude}&zoom=${this.props.game.zoom}&size=600x300&maptype=roadmap&key=AIzaSyDlMWLh8Ho805A5LxA_8FgPOmnHI0AL9vw`}
+            url={mapURL}
             online={this.props.online}
             withURL={(url) => (
               <Image
@@ -340,13 +356,13 @@ export class NativeCard extends React.Component {
         </View>
         <View style={{flexDirection: 'row', alignItems: 'stretch'}}>
           <View style={{padding: 11, flex: 1}}>
-            <Text style={{
+            <Text numberOfLines={2} style={{
               fontSize: 15,
               margin: 4,
             }}>
               {this.props.game.name}
             </Text>
-            <Text style={{
+            <Text numberOfLines={2} style={{
               color: 'rgb(140,140,140)',
               fontSize: 12,
               margin: 4,
@@ -594,6 +610,7 @@ export class ExplorePane extends React.Component {
                 cardMode="square"
                 auth={this.props.auth}
                 online={this.props.online}
+                theme={this.props.themes[game.theme_id]}
               />
             )
           }

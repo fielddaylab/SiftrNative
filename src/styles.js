@@ -9,9 +9,14 @@ import createClass from 'create-react-class';
 export const Text = createClass({
   displayName: 'Text',
   render: function(){
-    return <RN.Text style={[{letterSpacing: 0.3, color: 'black'}, this.props.style]}>
-      {this.props.children}
-    </RN.Text>;
+    return (
+      <RN.Text
+        numberOfLines={this.props.numberOfLines}
+        style={[{letterSpacing: 0.3, color: 'black'}, this.props.style]}
+      >
+        {this.props.children}
+      </RN.Text>
+    );
   },
 });
 

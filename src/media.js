@@ -45,7 +45,10 @@ function loadMedia(props, cb) {
         getURL((url) => {
           if (online) {
             url = url.replace('http://', 'https://');
-            const ext = url.split('.').pop();
+            let ext = url.split('.').pop().toLowerCase();
+            if (ext.length > 4) {
+              ext = 'png'; // hack for google maps static pngs, should do better
+            }
             const localURL = mediaDir + '/' + hash + '.' + ext;
             RNFS.mkdir(mediaDir, {NSURLIsExcludedFromBackupKey: true}).then(() => {
               return RNFS.downloadFile({
