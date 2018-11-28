@@ -43,7 +43,6 @@ target 'GMiOS' do
   pod 'RNFS', :path => '../node_modules/react-native-fs'
   pod 'RNFirebase', :path => '../node_modules/react-native-firebase/ios'
   pod 'react-native-camera', :path => '../node_modules/react-native-camera'
-  pod 'react-native-orientation', :path => '../node_modules/react-native-orientation'
   pod 'RNSVG', :path => '../node_modules/react-native-svg'
   pod 'ReactNativePermissions', :path => '../node_modules/react-native-permissions'
   pod 'react-native-geocoder', :path => '../node_modules/react-native-geocoder'
