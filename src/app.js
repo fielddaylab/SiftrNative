@@ -552,25 +552,25 @@ export var SiftrNative = createClass({
   render: function() {
     if (this.state.auth != null) {
       return (
-        <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-          <UploadQueue
-            auth={this.state.auth}
-            online={this.state.online}
-            onMessage={queueMessage => {
-              this.setState({ queueMessage });
-            }}
-            withPendingNotes={pendingNotes => {
-              this.setState({ pendingNotes });
-            }}
-            onUpload={() => {
-              var ref2;
-              return (ref2 = this.siftrView) != null
-                ? ref2.loadResults()
-                : undefined;
-            }}
-          >
-            {this.state.auth.authToken != null ? (
-              this.state.game != null ? (
+        <UploadQueue
+          auth={this.state.auth}
+          online={this.state.online}
+          onMessage={queueMessage => {
+            this.setState({ queueMessage });
+          }}
+          withPendingNotes={pendingNotes => {
+            this.setState({ pendingNotes });
+          }}
+          onUpload={() => {
+            var ref2;
+            return (ref2 = this.siftrView) != null
+              ? ref2.loadResults()
+              : undefined;
+          }}
+        >
+          {this.state.auth.authToken != null ? (
+            this.state.game != null ? (
+              <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
                 <SiftrViewPW
                   game={this.state.game}
                   bounds={this.state.bounds}
@@ -618,7 +618,9 @@ export var SiftrNative = createClass({
                     this.siftrView = ref;
                   }}
                 />
-              ) : (
+              </SafeAreaView>
+            ) : (
+              <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
                 <NativeHome
                   auth={this.state.auth}
                   onLogout={this.logout}
@@ -640,29 +642,29 @@ export var SiftrNative = createClass({
                   settings={this.state.settings}
                   screen={this.state.screen}
                 />
-              )
-            ) : this.state.showingTerms ? (
-              <Terms
-                onAccept={() => {
-                  this.register();
-                }}
-                onCancel={() => {
-                  this.setState({
-                    showingTerms: false
-                  });
-                }}
-              />
-            ) : (
-              <NativeLogin
-                onLogin={this.login}
-                onRegister={this.showTerms}
-                viola={this.props.viola}
-                backToViola={this.props.backToViola}
-                online={this.state.online}
-              />
-            )}
-          </UploadQueue>
-        </SafeAreaView>
+              </SafeAreaView>
+            )
+          ) : this.state.showingTerms ? (
+            <Terms
+              onAccept={() => {
+                this.register();
+              }}
+              onCancel={() => {
+                this.setState({
+                  showingTerms: false
+                });
+              }}
+            />
+          ) : (
+            <NativeLogin
+              onLogin={this.login}
+              onRegister={this.showTerms}
+              viola={this.props.viola}
+              backToViola={this.props.backToViola}
+              online={this.state.online}
+            />
+          )}
+        </UploadQueue>
       );
     } else {
       return <Loading queueMessage={this.state.queueMessage} />;

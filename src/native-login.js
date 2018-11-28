@@ -280,7 +280,7 @@ export var NativeLogin = createClass({
                       alignItems: "center",
                       justifyContent: "center",
                       paddingTop: 20,
-                      paddingBottom: 20,
+                      paddingBottom: 35, // for iphone x
                       flexDirection: 'row',
                     }}
                   >
@@ -401,7 +401,7 @@ export var NativeLogin = createClass({
                       alignItems: "center",
                       justifyContent: "center",
                       paddingTop: 20,
-                      paddingBottom: 20
+                      paddingBottom: 35, // for iphone x
                     }}
                   >
                     <Text
