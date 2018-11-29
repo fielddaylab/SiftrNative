@@ -42,6 +42,10 @@ import { withSuccess } from "./utils";
 
 import { parseUri } from "./parse-uri";
 
+// @ifdef NATIVE
+const recentlyOpened = `${RNFS.DocumentDirectoryPath}/recent.json`;
+// @endif
+
 export var SiftrNative = createClass({
   displayName: "SiftrNative",
 
@@ -55,6 +59,7 @@ export var SiftrNative = createClass({
       online: true,
       screen: 'home',
       settings: false,
+      recent: null,
     };
   },
 
@@ -72,6 +77,12 @@ export var SiftrNative = createClass({
 
   // @ifdef NATIVE
   componentDidMount: function() {
+    RNFS.readFile(recentlyOpened, 'utf8').then((str) => {
+      this.setState({recent: JSON.parse(str)});
+    }).catch((err) => {
+      // file probably doesn't exist, no problem
+      this.setState({recent: []});
+    });
     Linking.getInitialURL().then(url => {
       this.parseURL(url);
       this.urlHandler = ({ url }) => {
@@ -231,6 +242,19 @@ export var SiftrNative = createClass({
       nomenData: null,
       saved_note: null
     });
+  },
+  componentDidUpdate: function() {
+    if ( this.state.game != null
+      && this.state.recent != null
+      && this.state.recent[0] !== this.state.game.game_id
+    ) {
+      const newRecent = [this.state.game.game_id].concat(
+        this.state.recent.filter((x) => x !== this.state.game.game_id)
+      );
+      this.setState({recent: newRecent}, () => {
+        RNFS.writeFile(recentlyOpened, JSON.stringify(newRecent), 'utf8');
+      });
+    }
   },
   // @endif
   updateGames: function() {
@@ -641,6 +665,7 @@ export var SiftrNative = createClass({
                   discoverPage={this.state.discoverPage}
                   settings={this.state.settings}
                   screen={this.state.screen}
+                  recent={this.state.recent || []}
                 />
               </SafeAreaView>
             )

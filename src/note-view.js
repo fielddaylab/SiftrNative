@@ -19,7 +19,8 @@ import {
   BackHandler,
   Modal,
   TouchableWithoutFeedback,
-  Platform
+  Platform,
+  SafeAreaView
 } from "react-native";
 import FitImage from "react-native-fit-image";
 import Hyperlink from "react-native-hyperlink";
@@ -381,32 +382,36 @@ class GalleryModal extends React.Component {
   render() {
     return (
       <Modal onRequestClose={this.props.onClose}>
-        <Gallery
-          style={{
-            flex: 1,
-            backgroundColor: "black"
-          }}
-          images={this.props.images}
-          initialPage={this.props.initialPage}
-        />
-        <TouchableOpacity
-          onPress={this.props.onClose}
-          style={{
-            position: "absolute",
-            top: 25,
-            left: 15,
-            backgroundColor: "rgba(255,255,255,0.2)",
-            padding: 2
-          }}
-        >
-          <Image
-            source={require("../web/assets/img/icon-back.png")}
-            style={{
-              width: 36 * 0.75,
-              height: 28 * 0.75
-            }}
-          />
-        </TouchableOpacity>
+        <SafeAreaView style={{flex: 1, backgroundColor: 'black'}}>
+          <View style={{flex: 1}}>
+            <Gallery
+              style={{
+                flex: 1,
+                backgroundColor: "black"
+              }}
+              images={this.props.images}
+              initialPage={this.props.initialPage}
+            />
+            <TouchableOpacity
+              onPress={this.props.onClose}
+              style={{
+                position: "absolute",
+                top: 25,
+                left: 15,
+                backgroundColor: "rgba(255,255,255,0.2)",
+                padding: 2
+              }}
+            >
+              <Image
+                source={require("../web/assets/img/icon-back.png")}
+                style={{
+                  width: 36 * 0.75,
+                  height: 28 * 0.75
+                }}
+              />
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
       </Modal>
     );
   }
@@ -511,7 +516,7 @@ const SiftrComment = function() {
                 withURL={(url) => {
                   return (
                     <Image
-                      source={uri}
+                      source={url}
                       style={{
                         width: 26,
                         height: 26,

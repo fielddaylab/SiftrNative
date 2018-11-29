@@ -646,7 +646,26 @@ export const BrowserMine = makeBrowser(function(props, cb) {
 });
 
 export const BrowserFollowed = makeBrowser(function(props, cb) {
-  cb(props.followed);
+  if (props.followed == null) {
+    cb(props.followed);
+    return;
+  }
+  const recent = props.recent || [];
+  const followed = props.followed.slice(0);
+  followed.sort((x, y) => {
+    const xi = recent.indexOf(x.game_id);
+    const yi = recent.indexOf(y.game_id);
+    if (xi !== -1 && yi !== -1) {
+      return xi - yi;
+    } else if (xi !== -1) {
+      return -1;
+    } else if (yi !== -1) {
+      return 1;
+    } else {
+      return x.game_id - y.game_id;
+    }
+  });
+  cb(followed);
 });
 
 export const BrowserDownloaded = makeBrowser(function(props, cb) {

@@ -14,7 +14,8 @@ import {
   ScrollView,
   Modal,
   Share,
-  Clipboard
+  Clipboard,
+  SafeAreaView
 } from "react-native";
 import ActionSheet from 'react-native-action-sheet';
 import { styles, Text } from "./styles";
@@ -296,7 +297,7 @@ class NativeHomeNew extends React.Component {
         {
           this.state.add &&
           <Modal animationType="slide">
-            <View style={{backgroundColor: 'white', flex: 1}}>
+            <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
               <StatusSpace
                 backgroundColor="rgba(0,0,0,0)"
                 leaveBar={true}
@@ -319,6 +320,7 @@ class NativeHomeNew extends React.Component {
                   marginTop: 10,
                   fontSize: 28,
                   fontWeight: 'bold',
+                  fontFamily: 'League Spartan',
                 }}>
                   Post to a Siftr
                 </Text>
@@ -334,9 +336,10 @@ class NativeHomeNew extends React.Component {
                   mine={this.props.mine}
                   followed={this.props.followed}
                   online={this.props.online}
+                  recent={this.props.recent}
                 />
               </View>
-            </View>
+            </SafeAreaView>
           </Modal>
         }
         {
@@ -494,6 +497,7 @@ class NativeHomeNew extends React.Component {
                         mine={this.props.mine}
                         followed={this.props.followed}
                         online={this.props.online}
+                        recent={this.props.recent}
                       />
                     </View>
                   );
