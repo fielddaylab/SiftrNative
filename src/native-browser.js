@@ -21,6 +21,7 @@ import {
 import {withSuccess} from './utils';
 import Markdown from "react-native-simple-markdown";
 import removeMarkdown from 'remove-markdown';
+import Permissions from "react-native-permissions";
 import {makeMapStyles} from './map';
 
 const mapMaybe = (xs, f) => {
@@ -688,11 +689,15 @@ export const BrowserPopular = makeBrowser(function(props, cb) {
 });
 
 export const BrowserNearMe = makeBrowser(function(props, cb) {
-  navigator.geolocation.getCurrentPosition(function(res) {
-    props.auth.getNearbyGamesForPlayer({
-      latitude: res.coords.latitude,
-      longitude: res.coords.longitude,
-      filter: 'siftr'
-    }, withSuccess(cb));
+  Permissions.request('location').then(response => {
+    if (response === 'authorized') {
+      navigator.geolocation.getCurrentPosition(function(res) {
+        props.auth.getNearbyGamesForPlayer({
+          latitude: res.coords.latitude,
+          longitude: res.coords.longitude,
+          filter: 'siftr'
+        }, withSuccess(cb));
+      });
+    }
   });
 });

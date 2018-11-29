@@ -51,7 +51,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Allows you to take photos to upload to a Siftr project.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Allows Siftr to show where you are on the map.</string>
+	<string>Allows Siftr to show where you are on the map, and find projects located close by.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>This permission is not used by Siftr.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
