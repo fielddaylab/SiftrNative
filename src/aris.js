@@ -404,7 +404,7 @@ function sortByIndex(key_id) {
 }
 
 let activeCalls = 0;
-const MAX_CALLS = 5;
+const MAX_CALLS = 15;
 const pendingCalls = [];
 
 // Handles Aris v2 authentication and API calls.
@@ -731,8 +731,8 @@ export const Auth = class Auth {
   }
 
   // Perform an ARIS call, but then wrap a successful result with a class.
-  callWrapped(func, json, cb, wrap) {
-    return this.call(func, json, result => {
+  callWrapped(func, json, cb, wrap, unqueued = false) {
+    return this[unqueued ? 'callUnqueued' : 'call'](func, json, result => {
       if (result.returnCode === 0 && result.data != null) {
         result.data = wrap(result.data);
       }
@@ -765,14 +765,14 @@ export const Auth = class Auth {
   }
 
   siftrSearch(json, cb) {
-    this.callWrapped("notes.siftrSearch", json, cb, function(data) {
+    return this.callWrapped("notes.siftrSearch", json, cb, function(data) {
       var o;
       return {
         notes: data.notes.map(o => new Note(o)),
         map_notes: data.map_notes.map(o => new Note(o)),
         map_clusters: data.map_clusters
       };
-    });
+    }, true);
   }
 
   getTagsForGame(json, cb) {
