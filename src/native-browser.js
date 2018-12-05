@@ -70,18 +70,20 @@ export class NativeCard extends React.Component {
       });
     };
     if (this.props.online) {
-      this.props.auth.getUsersForGame({
-        game_id: this.props.game.game_id
-      }, withSuccess((authors) => {
-        if (!this._isMounted) return;
-        this.setState({
-          authors: authors.map((author) => author.display_name)
-        });
-      }));
-      this.props.auth.searchNotes({
-        game_id: this.props.game.game_id,
-        order_by: 'recent'
-      }, withSuccess(useNotes));
+      this.xhrs = [
+        this.props.auth.getUsersForGame({
+          game_id: this.props.game.game_id
+        }, withSuccess((authors) => {
+          if (!this._isMounted) return;
+          this.setState({
+            authors: authors.map((author) => author.display_name)
+          });
+        })),
+        this.props.auth.searchNotes({
+          game_id: this.props.game.game_id,
+          order_by: 'recent'
+        }, withSuccess(useNotes)),
+      ];
     } else {
       const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
       return RNFS.readFile(`${siftrDir}/notes.txt`).then((json) => {
@@ -95,6 +97,7 @@ export class NativeCard extends React.Component {
 
   componentWillUnmount() {
     this._isMounted = false;
+    if (this.xhrs) this.xhrs.forEach((xhr) => xhr.abort());
   }
 
   authorName() {

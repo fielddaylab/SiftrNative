@@ -153,7 +153,6 @@ dependencies {
     compile "com.google.firebase:firebase-core:16.0.1"
     compile "com.google.android.gms:play-services-maps:15.0.1"
     compile project(':react-native-svg')
-    compile project(':react-native-orientation')
     compile project(':react-native-maps')
     compile project(':react-native-image-picker')
     compile project(':react-native-fs')

@@ -504,6 +504,12 @@ export const Auth = class Auth {
       // return a fake XHR with just abort method
       return {
         abort: () => {
+          const i = pendingCalls.findIndex((call) =>
+            call[0] === func && call[1] === json
+          );
+          if (i !== -1) {
+            pendingCalls.splice(i, 1);
+          }
           aborted = true
         },
       };
@@ -784,7 +790,7 @@ export const Auth = class Auth {
   }
 
   getUsersForGame(json, cb) {
-    this.callWrapped("users.getUsersForGame", json, cb, function(data) {
+    return this.callWrapped("users.getUsersForGame", json, cb, function(data) {
       return data.map(o => new User(o));
     });
   }
@@ -821,7 +827,7 @@ export const Auth = class Auth {
   }
 
   searchNotes(json, cb) {
-    this.callWrapped("notes.searchNotes", json, cb, function(data) {
+    return this.callWrapped("notes.searchNotes", json, cb, function(data) {
       return data.map(o => new Note(o));
     });
   }
