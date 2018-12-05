@@ -414,7 +414,7 @@ class NativeHomeNew extends React.Component {
                             title="Featured"
                             auth={this.props.auth}
                             description="Our favorites"
-                            getGames={(cb) => cb(this.state.featuredGames || [])}
+                            games={this.state.featuredGames}
                             online={this.props.online}
                             themes={this.state.themes}
                           />
@@ -424,7 +424,7 @@ class NativeHomeNew extends React.Component {
                             title="Popular"
                             auth={this.props.auth}
                             description="These are popular among Siftr users"
-                            getGames={(cb) => cb(this.state.popularGames || [])}
+                            games={this.state.popularGames}
                             online={this.props.online}
                             themes={this.state.themes}
                           />
@@ -434,7 +434,7 @@ class NativeHomeNew extends React.Component {
                             title="Near Me"
                             auth={this.props.auth}
                             description="Happening close to your location"
-                            getGames={(cb) => cb(this.state.nearbyGames || [])}
+                            games={this.state.nearbyGames}
                             online={this.props.online}
                             themes={this.state.themes}
                           />

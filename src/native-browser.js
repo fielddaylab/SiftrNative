@@ -591,15 +591,7 @@ export const BrowserSearchPane = createClass({
 export class ExplorePane extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      games: [],
-    };
-  }
-
-  componentWillMount() {
-    this.props.getGames((games) => {
-      this.setState({games});
-    });
+    this.state = {};
   }
 
   render() {
@@ -625,7 +617,7 @@ export class ExplorePane extends React.Component {
         </View>
         <ScrollView horizontal={true}>
           {
-            this.state.games.map((game, i) =>
+            (this.props.games || []).map((game, i) =>
               <NativeCard
                 key={game.game_id}
                 game={game}
