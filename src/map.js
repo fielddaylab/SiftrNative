@@ -122,6 +122,7 @@ class MapCluster extends React.Component {
     };
     blurStops();
     return <MapView.Marker
+      tracksViewChanges={false}
       coordinate={{
         latitude: this.props.lat,
         longitude: this.props.lng,
@@ -247,6 +248,7 @@ class MapNote extends React.Component {
     const w = 16;
     const r = w / 2;
     return <MapView.Marker
+      tracksViewChanges={false}
       coordinate={{
         latitude: this.props.lat,
         longitude: this.props.lng,
@@ -363,13 +365,9 @@ export class SiftrMap extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     // very important optimization. the map takes the longest to rerender
+    // @ifdef WEB
     if (this.props.center.lat !== nextProps.center.lat) return true;
     if (this.props.center.lng !== nextProps.center.lng) return true;
-    // @ifdef NATIVE
-    if (this.props.delta.lat !== nextProps.delta.lat) return true;
-    if (this.props.delta.lng !== nextProps.delta.lng) return true;
-    // @endif
-    // @ifdef WEB
     if (this.props.zoom !== nextProps.zoom) return true;
     // @endif
     if (this.props.map_notes !== nextProps.map_notes && (this.props.map_notes.length !== 0 || nextProps.map_notes.length !== 0)) return true;
@@ -602,7 +600,7 @@ export class SiftrMap extends React.Component {
         latitudeDelta: this.props.delta.lat,
         longitudeDelta: this.props.delta.lng,
       }}
-      onRegionChange={this.moveMapNative.bind(this)}
+      onRegionChangeComplete={this.moveMapNative.bind(this)}
       showsUserLocation={true}
       customMapStyle={this.getMapStyles()}
       mapType={this.props.game.map_type === 'STREET' ? 'standard' : 'hybrid'}
