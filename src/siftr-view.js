@@ -33,6 +33,7 @@ import SideMenu from "react-native-side-menu";
 import Markdown from "react-native-simple-markdown";
 import firebase from "react-native-firebase";
 import { NativeSettings } from "./native-settings";
+import {CacheMedia} from './media';
 import ProgressCircle from 'react-native-progress-circle';
 // @endif
 
@@ -319,38 +320,44 @@ export const SiftrInfo = createClass({
   }
 });
 
-export const SiftrViewPW = createClass({
-  displayName: 'SiftrViewPW',
-  getDefaultProps: function() {
-    return {online: true};
-  },
-  getInitialState: function() {
-    return {asking: false, password: '', display: false};
-  },
-  componentWillMount: function() {
+export class SiftrViewPW extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      asking: false,
+      password: '',
+      display: false,
+    };
+  }
+
+  componentWillMount() {
     if (this.props.online) {
       this.tryPassword();
     } else {
       this.setState({display: true});
     }
-  },
-  loadResults: function(...args) {
+  }
+
+  loadResults(...args) {
     return this.siftrView && this.siftrView.loadResults(...args);
-  },
-  tryPassword: function() {
+  }
+
+  tryPassword() {
+    const password = this.state.password;
     this.props.auth.searchNotes({
       game_id: this.props.game.game_id,
       note_count: 1,
-      password: this.state.password,
+      password: password,
     }, res => {
       if (res.returnCode != null && res.returnCode !== 0) {
-        this.setState({asking: true});
+        this.setState({asking: true, wrong: password !== ''});
       } else {
         this.setState({display: true});
       }
     });
-  },
-  render: function() {
+  }
+
+  render() {
     if (this.state.display) {
       return (
         <SiftrView
@@ -365,32 +372,136 @@ export const SiftrViewPW = createClass({
       );
     } else if (this.state.asking) {
       return (
-        <View style={{
+        <KeyboardAwareView style={{
           alignItems: 'stretch',
-          justifyContent: 'center',
           flex: 1,
         }}>
-          <Text>This Siftr requires a password.</Text>
-          <TextInput
-            autoCapitalize="none"
-            autoCorrect={false}
-            autoFocus={true}
-            value={this.state.password}
-            onChangeText={text => this.setState({password: text})}
-            secureTextEntry={true}
-            style={{padding: 20}}
-            placeholder="Enter password..."
-          />
-          <TouchableOpacity onPress={this.tryPassword.bind(this)}>
-            <Text>Submit</Text>
-          </TouchableOpacity>
-        </View>
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'flex-start',
+          }}>
+            <TouchableOpacity onPress={this.props.onExit}>
+              <Image
+                source={require('../web/assets/img/disclosure-arrow-left.png')}
+                style={{
+                  width: 69 * 0.25,
+                  height: 112 * 0.25,
+                  margin: 15,
+                }}
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={{
+            flex: 1,
+            alignItems: 'stretch',
+            justifyContent: 'center',
+            padding: 15,
+          }}>
+            <View style={{
+              alignItems: 'center',
+              marginBottom: 25,
+            }}>
+              <CacheMedia
+                media_id={this.props.game.icon_media_id}
+                size="thumb_url"
+                auth={this.props.auth}
+                online={this.props.online}
+                withURL={(url) => (
+                  <View style={{
+                    height: 46 * 2,
+                    width: 46 * 2,
+                    borderRadius: 14 * 2,
+                    alignItems: 'stretch',
+                    marginBottom: 10,
+                  }}>
+                    <Image
+                      source={url}
+                      style={{
+                        flex: 1,
+                        resizeMode: 'contain',
+                        borderRadius: 11,
+                      }}
+                    />
+                    <View style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      bottom: 0,
+                      right: 0,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                      <Image
+                        source={require('../web/assets/img/lock.png')}
+                        style={{
+                          width: 35,
+                          height: 35,
+                        }}
+                      />
+                    </View>
+                  </View>
+                )}
+              />
+              <Text style={{
+                fontSize: 16,
+                fontWeight: 'bold',
+                fontFamily: 'League Spartan',
+                marginBottom: 3,
+              }}>
+                {this.props.game.name}
+              </Text>
+              <Text style={{
+                fontSize: 12,
+                color: 'rgb(171,182,194)',
+                fontWeight: 'bold',
+                letterSpacing: 0.2,
+              }}>
+                This Siftr is locked
+              </Text>
+            </View>
+            <View style={{
+              alignItems: 'center',
+            }}>
+              <Text>Enter password to unlock this Siftr</Text>
+              <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoFocus={true}
+                value={this.state.password}
+                onChangeText={password => this.setState({password, wrong: false})}
+                secureTextEntry={true}
+                style={{
+                  padding: 15,
+                  backgroundColor: 'rgb(244,245,247)',
+                  margin: 8,
+                  borderRadius: 5,
+                  alignSelf: 'stretch',
+                }}
+                placeholder="Enter password..."
+                onSubmitEditing={this.tryPassword.bind(this)}
+              />
+              {
+                <Text style={{
+                  color: 'red',
+                  fontStyle: 'italic',
+                }}>
+                  {this.state.wrong ? 'That password was incorrect' : ' '}
+                </Text>
+              }
+            </View>
+          </View>
+        </KeyboardAwareView>
       );
     } else {
       return null;
     }
-  },
-});
+  }
+}
+
+SiftrViewPW.defaultProps = {
+  online: true,
+};
+
 // @endif
 
 export const SiftrView = createClass({
