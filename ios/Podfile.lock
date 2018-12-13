@@ -67,6 +67,8 @@ PODS:
     - React
   - react-native-maps (0.21.0):
     - React
+  - react-native-orientation-locker (1.0.22):
+    - React
   - React/Core (0.56.0):
     - yoga (= 0.56.0.React)
   - React/CxxBridge (0.56.0):
@@ -137,6 +139,7 @@ DEPENDENCIES:
   - react-native-google-maps (from `../node_modules/react-native-maps`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-maps (from `../node_modules/react-native-maps`)
+  - react-native-orientation-locker (from `../node_modules/react-native-orientation-locker`)
   - React/Core (from `../node_modules/react-native`)
   - React/CxxBridge (from `../node_modules/react-native`)
   - React/DevSupport (from `../node_modules/react-native`)
@@ -188,6 +191,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-picker"
   react-native-maps:
     :path: "../node_modules/react-native-maps"
+  react-native-orientation-locker:
+    :path: "../node_modules/react-native-orientation-locker"
   ReactNativePermissions:
     :path: "../node_modules/react-native-permissions"
   RNFirebase:
@@ -218,12 +223,13 @@ SPEC CHECKSUMS:
   react-native-google-maps: 2cfe3b01f8422c7dae51d8764139fd70f888cfce
   react-native-image-picker: b303e31c3c4ada1d7cb1342423d328d2efb07fb3
   react-native-maps: 066c2afcc89e18726377bcc685315f989ca22449
+  react-native-orientation-locker: 2059d64f64807d710c731439dcd688ec7acc9f8a
   ReactNativePermissions: 9f2d9c45c98800795e6c2ed330e25d11a66a8169
   RNFirebase: 2b25fd2e60269f26bb0a76c71dcc942b35a77df0
   RNFS: bbb1a64eb245763daf34aea86f97c97c4e85f74c
   RNSVG: 6252323c0312735f0af5f58b5adf2965b6a9ffbf
   yoga: b1ce48b6cf950b98deae82838f5173ea7cf89e85
 
-PODFILE CHECKSUM: 63c187ac5999cd5e8071d25db6f742d1a75072ea
+PODFILE CHECKSUM: 47f3b08608e5c15e090d4862e6a57ff1f0c66168
 
 COCOAPODS: 1.5.3

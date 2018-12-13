@@ -31,6 +31,7 @@
     "react-native-infinite-scroll-view": "^0.4.4",
     "react-native-keyboard-aware-view": "^0.0.14",
     "react-native-maps": "^0.21.0",
+    "react-native-orientation-locker": "^1.0.22",
     "react-native-permissions": "^1.1.1",
     "react-native-progress-circle": "^2.0.0",
     "react-native-side-menu": "^1.1.3",

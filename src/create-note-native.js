@@ -31,6 +31,7 @@ import Geocoder from "react-native-geocoder";
 import Permissions from "react-native-permissions";
 import { Auth, Game, Tag, Field, FieldData } from "./aris";
 import { requestImage } from "./photos";
+import Orientation from 'react-native-orientation-locker';
 
 // Not used currently
 const SiftrRoll = class SiftrRoll extends React.Component {
@@ -160,9 +161,11 @@ export const CreatePhoto = createClass({
     BackHandler.addEventListener("hardwareBackPress", this.hardwareBack);
     Permissions.request("camera"); // take photos
     Permissions.request("photo"); // access photos
+    Orientation.lockToPortrait();
   },
   componentWillUnmount: function() {
     BackHandler.removeEventListener("hardwareBackPress", this.hardwareBack);
+    Orientation.unlockAllOrientations();
   },
   render: function() {
     return (
@@ -246,26 +249,30 @@ export const CreatePhoto = createClass({
                       backgroundColor: "black"
                     }}
                   >
-                    <Camera
-                      ref={cam => {
-                        this.camera = cam;
-                      }}
-                      style={{
-                        flex: 1
-                      }}
-                      type={this.state.camera}
-                      flashMode={
-                        this.state.flash
-                          ? Camera.constants.FlashMode.on
-                          : Camera.constants.FlashMode.off
-                      }
-                      onFocusChanged={() => {
-                        // required for tap-to-focus on iOS
-                      }}
-                      onZoomChanged={() => {
-                        // required for pinch-zoom on iOS
-                      }}
-                    />
+                    {
+                      !this.state.pendingPhoto && (
+                        <Camera
+                          ref={cam => {
+                            this.camera = cam;
+                          }}
+                          style={{
+                            flex: 1
+                          }}
+                          type={this.state.camera}
+                          flashMode={
+                            this.state.flash
+                              ? Camera.constants.FlashMode.on
+                              : Camera.constants.FlashMode.off
+                          }
+                          onFocusChanged={() => {
+                            // required for tap-to-focus on iOS
+                          }}
+                          onZoomChanged={() => {
+                            // required for pinch-zoom on iOS
+                          }}
+                        />
+                      )
+                    }
                     {
                       this.state.pendingPhoto
                         ? <View style={{

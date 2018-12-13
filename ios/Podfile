@@ -48,6 +48,8 @@ target 'GMiOS' do
   pod 'react-native-geocoder', :path => '../node_modules/react-native-geocoder'
   pod 'react-native-image-picker', :path => '../node_modules/react-native-image-picker'
 
+  pod 'react-native-orientation-locker', :path => '../node_modules/react-native-orientation-locker'
+
 end
 
 post_install do |installer|
