@@ -24,7 +24,7 @@ import {
   Animated,
 } from "react-native";
 import { styles, Text } from "./styles";
-import { RNCamera } from "react-native-camera";
+import Camera from "react-native-camera";
 import InfiniteScrollView from "react-native-infinite-scroll-view";
 import firebase from "react-native-firebase";
 import Geocoder from "react-native-geocoder";
@@ -246,23 +246,25 @@ export const CreatePhoto = createClass({
                       backgroundColor: "black"
                     }}
                   >
-                    <RNCamera
+                    <Camera
                       ref={cam => {
                         this.camera = cam;
                       }}
                       style={{
                         flex: 1
                       }}
-                      type={
-                        this.state.camera === 'front'
-                        ? RNCamera.Constants.Type.front
-                        : RNCamera.Constants.Type.back
-                      }
+                      type={this.state.camera}
                       flashMode={
                         this.state.flash
-                          ? RNCamera.Constants.FlashMode.on
-                          : RNCamera.Constants.FlashMode.off
+                          ? Camera.constants.FlashMode.on
+                          : Camera.constants.FlashMode.off
                       }
+                      onFocusChanged={() => {
+                        // required for tap-to-focus on iOS
+                      }}
+                      onZoomChanged={() => {
+                        // required for pinch-zoom on iOS
+                      }}
                     />
                     {
                       this.state.pendingPhoto
@@ -314,7 +316,11 @@ export const CreatePhoto = createClass({
                           }}
                         >
                           <Image
-                            source={require("../web/assets/img/icon-flash.png")}
+                            source={
+                              this.state.flash
+                              ? require("../web/assets/img/icon-flash-on.png")
+                              : require("../web/assets/img/icon-flash-off.png")
+                            }
                             style={{
                               width: 32,
                               height: 32,
@@ -397,9 +403,9 @@ export const CreatePhoto = createClass({
                                 Animated.timing(shutter, {toValue: 0, duration: 500}).start();
                               });
                               this.camera
-                                .takePictureAsync({})
-                                .then(({ uri }) => {
-                                  this.setState({pendingPhoto: uri});
+                                .capture({})
+                                .then(({ path }) => {
+                                  this.setState({pendingPhoto: path});
                                 })
                                 .catch(cameraError);
                             } else {
