@@ -178,7 +178,7 @@ export const CreatePhoto = createClass({
           {
             this.state.pendingPhoto
             ? <TouchableOpacity
-                style={{flex: 1, margin: 10, alignItems: 'flex-start', justifyContent: 'center'}}
+                style={{padding: 10, justifyContent: 'center'}}
                 onPress={() => this.setState({pendingPhoto: null, shutter: null})}
               >
                 <Image
@@ -190,7 +190,7 @@ export const CreatePhoto = createClass({
                 />
               </TouchableOpacity>
             : <TouchableOpacity
-                style={{flex: 1, margin: 10, alignItems: 'flex-start'}}
+                style={{padding: 10, justifyContent: 'center'}}
                 onPress={this.props.onCancel}
               >
                 <Text>cancel</Text>
@@ -198,7 +198,7 @@ export const CreatePhoto = createClass({
           }
           <View
             style={{
-              flex: 4,
+              flex: 1,
               alignItems: "center",
               margin: 10,
             }}
@@ -216,19 +216,17 @@ export const CreatePhoto = createClass({
           </View>
           {
             this.state.pendingPhoto
-            ? <View style={{flex: 1, margin: 10, alignItems: 'flex-end'}}>
-                <TouchableOpacity onPress={() => {
-                  this.props.onSelectImage({
-                    uri: this.state.pendingPhoto,
-                    isStatic: true,
-                    type: "image/jpeg",
-                    name: "upload.jpg"
-                  });
-                }}>
-                  <Text>next</Text>
-                </TouchableOpacity>
-              </View>
-            : <View style={{flex: 1, margin: 10, alignItems: 'flex-end'}}>
+            ? <TouchableOpacity style={{padding: 10, justifyContent: 'center'}} onPress={() => {
+                this.props.onSelectImage({
+                  uri: this.state.pendingPhoto,
+                  isStatic: true,
+                  type: "image/jpeg",
+                  name: "upload.jpg"
+                });
+              }}>
+                <Text>next</Text>
+              </TouchableOpacity>
+            : <View style={{padding: 10, justifyContent: 'center'}}>
                 <Text style={{color: 'gray'}}>next</Text>
               </View>
           }
@@ -268,14 +266,25 @@ export const CreatePhoto = createClass({
                     />
                     {
                       this.state.pendingPhoto
-                        ? <Image style={{
+                        ? <View style={{
                             position: 'absolute',
                             top: 0,
                             left: 0,
                             bottom: 0,
                             right: 0,
-                            resizeMode: 'contain',
-                          }} source={{uri: this.state.pendingPhoto}} />
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: 'black',
+                          }}>
+                            <Image style={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              bottom: 0,
+                              right: 0,
+                              resizeMode: 'contain',
+                            }} source={{uri: this.state.pendingPhoto}} />
+                          </View>
                         : this.state.shutter
                           ? <Animated.View
                               style={{
@@ -290,47 +299,55 @@ export const CreatePhoto = createClass({
                             />
                           : null
                     }
-                    <TouchableOpacity
-                      onPress={() => {
-                        this.setState({
-                          flash: !this.state.flash
-                        });
-                      }}
-                      style={{
-                        position: 'absolute',
-                        bottom: 25,
-                        left: 25,
-                      }}
-                    >
-                      <Image
-                        source={require("../web/assets/img/icon-flash.png")}
-                        style={{
-                          width: 32,
-                          height: 32,
-                        }}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => {
-                        this.setState({
-                          camera:
-                            this.state.camera === "front" ? "back" : "front"
-                        });
-                      }}
-                      style={{
-                        position: 'absolute',
-                        bottom: 25,
-                        right: 25,
-                      }}
-                    >
-                      <Image
-                        source={require("../web/assets/img/icon-switch-camera.png")}
-                        style={{
-                          width: 32,
-                          height: 32,
-                        }}
-                      />
-                    </TouchableOpacity>
+                    {
+                      !this.state.pendingPhoto && (
+                        <TouchableOpacity
+                          onPress={() => {
+                            this.setState({
+                              flash: !this.state.flash
+                            });
+                          }}
+                          style={{
+                            position: 'absolute',
+                            bottom: 25,
+                            left: 25,
+                          }}
+                        >
+                          <Image
+                            source={require("../web/assets/img/icon-flash.png")}
+                            style={{
+                              width: 32,
+                              height: 32,
+                            }}
+                          />
+                        </TouchableOpacity>
+                      )
+                    }
+                    {
+                      !this.state.pendingPhoto && (
+                        <TouchableOpacity
+                          onPress={() => {
+                            this.setState({
+                              camera:
+                                this.state.camera === "front" ? "back" : "front"
+                            });
+                          }}
+                          style={{
+                            position: 'absolute',
+                            bottom: 25,
+                            right: 25,
+                          }}
+                        >
+                          <Image
+                            source={require("../web/assets/img/icon-switch-camera.png")}
+                            style={{
+                              width: 32,
+                              height: 32,
+                            }}
+                          />
+                        </TouchableOpacity>
+                      )
+                    }
                   </View>
                   <View
                     style={{
