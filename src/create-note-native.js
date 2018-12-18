@@ -660,8 +660,9 @@ export const CreateData = createClass({
   propTypes: {
     createNote: T.any.isRequired,
     onUpdateNote: T.func,
-    onStartLocation: T.func,
     getLocation: T.func,
+    selectLocation: T.func,
+    onStartLocation: T.func,
     categories: T.arrayOf(T.instanceOf(Tag)).isRequired,
     getColor: T.func,
     fields: T.arrayOf(T.instanceOf(Field)),
@@ -674,8 +675,9 @@ export const CreateData = createClass({
   getDefaultProps: function() {
     return {
       onUpdateNote: function() {},
-      onStartLocation: function() {},
       getLocation: function() {},
+      selectLocation: function() {},
+      onStartLocation: function() {},
       getColor: function() {},
       fields: [],
       onFinish: function() {},
@@ -687,14 +689,12 @@ export const CreateData = createClass({
     return {
       isPickingLocation: false,
       isTakingPhoto: null,
+      noteLocation: null,
       geocodeResult: null
     };
   },
   componentWillMount: function() {
     firebase.analytics().logEvent("entering_note_info", {});
-    if (!this.props.resumedNote) {
-      this.props.onStartLocation();
-    }
     this.hardwareBack = () => {
       if (this.state.isPickingLocation) {
         this.setState({
@@ -706,28 +706,25 @@ export const CreateData = createClass({
       return true;
     };
     BackHandler.addEventListener("hardwareBackPress", this.hardwareBack);
-    setTimeout(() => {
-      Geocoder.geocodePosition(this.props.getLocation()).then(res => {
-        this.setState({
-          geocodeResult: res
-        });
-      });
-    }, 1000);
+    this.props.getLocation(loc => {
+      this.setLocation(loc, false);
+    });
   },
   componentWillUnmount: function() {
     BackHandler.removeEventListener("hardwareBackPress", this.hardwareBack);
   },
+  setLocation: function(loc, overwrite) {
+    if (this.state.noteLocation && !overwrite) return;
+    this.setState({noteLocation: loc}, () => {
+      Geocoder.geocodePosition(loc).then(res => {
+        if (this.state.noteLocation === loc) {
+          this.setState({geocodeResult: res});
+        }
+      });
+    });
+  },
   finishForm: function() {
     var field, field_data, files, i, len, ref, ref1, ref2, ref3;
-    if (
-      !(
-        this.props.createNote.caption != null &&
-        this.props.createNote.caption.match(/\S/)
-      )
-    ) {
-      Alert.alert("Missing data", "Please enter a caption.");
-      return;
-    }
     field_data = (ref = this.props.createNote.field_data) != null ? ref : [];
     files = (ref1 = this.props.createNote.files) != null ? ref1 : [];
     ref2 = this.props.fields;
@@ -767,7 +764,7 @@ export const CreateData = createClass({
     if (this.props.progress != null) {
       return;
     }
-    this.props.onFinish(field_data);
+    this.props.onFinish(field_data, this.state.noteLocation);
   },
   render: function() {
     var descBox, field, field_id, isEditing, ref, ref1, ref2;
@@ -778,11 +775,7 @@ export const CreateData = createClass({
           <View style={styles.buttonRow}>
             <TouchableOpacity
               onPress={() => {
-                Geocoder.geocodePosition(this.props.getLocation()).then(res => {
-                  this.setState({
-                    geocodeResult: res
-                  });
-                });
+                this.setLocation(this.props.selectLocation(), true);
                 this.setState({
                   isPickingLocation: false
                 });
@@ -968,6 +961,7 @@ export const CreateData = createClass({
                           this.setState({
                             isPickingLocation: true
                           });
+                          this.props.onStartLocation(this.state.noteLocation);
                         }}
                         style={{
                           flexDirection: "row",
@@ -1297,7 +1291,7 @@ export const CreateData = createClass({
                                     // Linking.openURL "nomen://?nomen_id=#{field.label}&siftr_id=6234" // TODO actual siftr_id
                                     this.props.onViolaIdentify({
                                       note: this.props.createNote,
-                                      location: this.props.getLocation()
+                                      location: this.props.selectLocation()
                                     });
                                   }}
                                 >

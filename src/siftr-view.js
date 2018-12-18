@@ -1819,33 +1819,20 @@ export const SiftrView = createClass({
       />
     );
   },
-  startLocatingNote: function({ exif }) {
-    var center, goToCenter, lat, lng, readGPS, readRat;
-    if (!this.isMounted) {
-      return;
-    }
-    goToCenter = center => {
-      var ref;
-      this.setState({ center });
-      // @ifdef NATIVE
-      if ((ref = this.refs.theSiftrMap) != null) {
-        ref.moveToPoint(center);
-      }
-      // @endif
-    };
+  locateNote: function(exif, cb) {
     // first use existing center
-    if ((center = this.state.createNote.location) != null) {
-      goToCenter(center);
+    if (this.state.createNote.location != null) {
+      cb(this.state.createNote.location);
       return;
     }
     // then get location from exif. first, complicated form from exif.js
-    lat = exif != null ? exif.GPSLatitude : void 0;
-    lng = exif != null ? exif.GPSLongitude : void 0;
+    let lat = exif != null ? exif.GPSLatitude : void 0;
+    let lng = exif != null ? exif.GPSLongitude : void 0;
     if (lat != null && lng != null) {
-      readRat = function(rat) {
+      const readRat = function(rat) {
         return rat.numerator / rat.denominator;
       };
-      readGPS = function([deg, min, sec]) {
+      const readGPS = function([deg, min, sec]) {
         return readRat(deg) + readRat(min) / 60 + readRat(sec) / 3600;
       };
       lat = readGPS(lat);
@@ -1856,41 +1843,49 @@ export const SiftrView = createClass({
       if (exif.GPSLongitudeRef === "W") {
         lng *= -1;
       }
-      goToCenter({ lat, lng });
+      cb({ lat, lng });
       return;
     }
     // simple form returned by RN CameraRoll
     lat = exif != null ? exif.latitude : void 0;
     lng = exif != null ? exif.longitude : void 0;
     if (lat != null && lng != null) {
-      goToCenter({ lat, lng });
+      cb({ lat, lng });
       return;
     }
-    // then, use game's location, but try to override from browser
-    this.setState(
-      {
-        center: {
+    // try geolocation api for user's current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(posn => {
+        cb({
+          lat: posn.coords.latitude,
+          lng: posn.coords.longitude
+        });
+      }, err => {
+        // geolocation failed, use game's location
+        cb({
           lat: this.props.game.latitude,
           lng: this.props.game.longitude
-        }
-      },
-      () => {
-        var ref;
-        return (ref = navigator.geolocation) != null
-          ? ref.getCurrentPosition(posn => {
-              if (!this.isMounted) {
-                return;
-              }
-              return goToCenter({
-                lat: posn.coords.latitude,
-                lng: posn.coords.longitude
-              });
-            }, (err) => {
-              // ignore error
-            })
-          : void 0;
+        });
+      });
+      return;
+    }
+    // or just use game's location
+    cb({
+      lat: this.props.game.latitude,
+      lng: this.props.game.longitude
+    });
+  },
+  startLocatingNote: function({ exif }) {
+    if (!this.isMounted) return;
+    this.locateNote(exif, center => {
+      if (!this.isMounted) return;
+      this.setState({center});
+      // @ifdef NATIVE
+      if (this.refs.theSiftrMap) {
+        this.refs.theSiftrMap.moveToPoint(center);
       }
-    );
+      // @endif
+    });
   },
   startCreate: function({ nomenData, saved_note } = {}) {
     var loc, note, obj;
@@ -2006,12 +2001,22 @@ export const SiftrView = createClass({
           onUpdateNote={createNote => {
             this.setState({ createNote });
           }}
-          onStartLocation={() => {
-            this.startLocatingNote({
+          getLocation={(cb) => {
+            this.locateNote({
               exif: this.state.createNote.exif
-            });
+            }, cb);
           }}
-          getLocation={() => {
+          onStartLocation={(center) => {
+            if (center) {
+              this.setState({center});
+              // @ifdef NATIVE
+              if (this.refs.theSiftrMap) {
+                this.refs.theSiftrMap.moveToPoint(center);
+              }
+              // @endif
+            }
+          }}
+          selectLocation={() => {
             return this.state.center;
           }}
           categories={(ref = this.state.tags) != null ? ref : []}
@@ -2221,10 +2226,8 @@ export const SiftrView = createClass({
     // @endif
   },
   finishNoteCreation: function(
-    field_data = (ref =
-      (ref1 = this.state.createNote) != null ? ref1.field_data : void 0) != null
-      ? ref
-      : []
+    field_data = (this.state.createNote && this.state.createNote.field_data) || [],
+    location
   ) {
     var caption,
       category,
@@ -2233,27 +2236,24 @@ export const SiftrView = createClass({
       field_media,
       files,
       filesToCopy,
-      getLocation,
       i,
       len,
-      location,
       media,
       name,
       note_id,
       queueDir,
       updateArgs;
-    getLocation = () => {
+    if (!location) {
       // @ifdef WEB
-      return this.state.createNote.location;
+      location = this.state.createNote.location;
       // @endif
       // @ifdef NATIVE
-      return this.state.center;
+      location = this.state.center;
       // @endif
-    };
+    }
     if (this.state.createNote.note_id != null) {
       // editing an existing note
       ({ note_id, caption, category } = this.state.createNote);
-      location = getLocation();
       updateArgs = {
         note_id: note_id,
         game_id: this.props.game.game_id,
@@ -2285,7 +2285,6 @@ export const SiftrView = createClass({
         category,
         field_media
       } = this.state.createNote);
-      location = getLocation();
       if (field_media == null) {
         field_media = [];
       }

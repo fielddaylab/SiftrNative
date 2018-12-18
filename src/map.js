@@ -559,8 +559,8 @@ export class SiftrMap extends React.Component {
     this.refs.theMapView.animateToRegion({
       latitude: center.lat,
       longitude: center.lng,
-      latitudeDelta: this.props.delta.lat,
-      longitudeDelta: this.props.delta.lng,
+      latitudeDelta: Math.min(0.04, this.props.delta.lat),
+      longitudeDelta: Math.min(0.04, this.props.delta.lng),
     }, 500);
   }
 
