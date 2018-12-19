@@ -125,6 +125,14 @@ export var SiftrNative = createClass({
         this.hardwareBack
       );
     }
+    this.watchID = navigator.geolocation.watchPosition((loc) => {
+      this.setState({location: loc});
+    }, {
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      distanceFilter: 0,
+      useSignificantChanges: false,
+    });
   },
   componentWillUnmount: function() {
     NetInfo.removeEventListener("connectionChange", this.withInfo);
@@ -135,6 +143,9 @@ export var SiftrNative = createClass({
         "hardwareBackPress",
         this.hardwareBack
       );
+    }
+    if (this.watchID) {
+      navigator.geolocation.clearWatch(this.watchID);
     }
   },
   parseURL: function(url) {
@@ -601,6 +612,7 @@ export var SiftrNative = createClass({
                   auth={this.state.auth}
                   isAdmin={this.gameBelongsToUser(this.state.game)}
                   aris={this.state.aris}
+                  location={this.state.location}
                   onExit={() => {
                     if (this.state.aris) {
                       if (Platform.OS === "android") {

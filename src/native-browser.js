@@ -306,8 +306,13 @@ export class NativeCard extends React.Component {
 
   squareView() {
     const mapParams = [];
-    mapParams.push(`center=${this.props.game.latitude},${this.props.game.longitude}`);
-    mapParams.push(`zoom=${this.props.game.zoom}`);
+    if (this.props.game.type === 'ANYWHERE') {
+      mapParams.push(`center=0,0`);
+      mapParams.push(`zoom=1`);
+    } else {
+      mapParams.push(`center=${this.props.game.latitude},${this.props.game.longitude}`);
+      mapParams.push(`zoom=${this.props.game.zoom}`);
+    }
     mapParams.push('size=600x300');
     if (this.props.game.map_type === 'STREET') {
       mapParams.push('maptype=roadmap');

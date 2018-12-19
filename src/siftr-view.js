@@ -672,11 +672,9 @@ export const SiftrView = createClass({
           game_id: this.props.game.game_id
         },
         withSuccess(tags => {
-          if (!this.isMounted) {
-            return;
-          }
+          if (!this.isMounted) return;
           this.setState({ tags });
-          return RNFS.writeFile(`${siftrDir}/tags.txt`, JSON.stringify(tags));
+          RNFS.writeFile(`${siftrDir}/tags.txt`, JSON.stringify(tags));
         })
       );
       this.props.auth.getColors(
@@ -684,14 +682,9 @@ export const SiftrView = createClass({
           colors_id: (ref = this.props.game.colors_id) != null ? ref : 1
         },
         withSuccess(colors => {
-          if (!this.isMounted) {
-            return;
-          }
+          if (!this.isMounted) return;
           this.setState({ colors });
-          return RNFS.writeFile(
-            `${siftrDir}/colors.txt`,
-            JSON.stringify(colors)
-          );
+          RNFS.writeFile(`${siftrDir}/colors.txt`, JSON.stringify(colors));
         })
       );
       this.props.auth.getTheme(
@@ -699,14 +692,9 @@ export const SiftrView = createClass({
           theme_id: (ref = this.props.game.theme_id) != null ? ref : 1
         },
         withSuccess(theme => {
-          if (!this.isMounted) {
-            return;
-          }
+          if (!this.isMounted) return;
           this.setState({ theme });
-          return RNFS.writeFile(
-            `${siftrDir}/theme.txt`,
-            JSON.stringify(theme)
-          );
+          RNFS.writeFile(`${siftrDir}/theme.txt`, JSON.stringify(theme));
         })
       );
       this.props.auth.getFieldsForGame(
@@ -714,14 +702,9 @@ export const SiftrView = createClass({
           game_id: this.props.game.game_id
         },
         withSuccess(fields => {
-          if (!this.isMounted) {
-            return;
-          }
+          if (!this.isMounted) return;
           this.setState({ fields });
-          return RNFS.writeFile(
-            `${siftrDir}/fields.txt`,
-            JSON.stringify(fields)
-          );
+          RNFS.writeFile(`${siftrDir}/fields.txt`, JSON.stringify(fields));
         })
       );
       this.props.auth.searchNotes(
@@ -730,15 +713,22 @@ export const SiftrView = createClass({
           order_by: "recent"
         },
         withSuccess(notes => {
-          if (!this.isMounted) {
-            return;
-          }
+          if (!this.isMounted) return;
           this.setState({
             allNotes: notes
           });
-          return RNFS.writeFile(`${siftrDir}/notes.txt`, JSON.stringify(notes));
+          RNFS.writeFile(`${siftrDir}/notes.txt`, JSON.stringify(notes));
         })
       );
+      this.props.auth.getUsersForGame({
+        game_id: this.props.game.game_id
+      }, withSuccess((authors) => {
+        if (!this.isMounted) return;
+        this.setState({
+          authors: authors.map((author) => author.display_name)
+        });
+        RNFS.writeFile(`${siftrDir}/authors.txt`, JSON.stringify(authors));
+      }));
     } else {
       RNFS.readFile(`${siftrDir}/tags.txt`).then(tags => {
         var tag;
@@ -814,6 +804,14 @@ export const SiftrView = createClass({
             this.loadResults();
           }
         );
+      });
+      RNFS.readFile(`${siftrDir}/authors.txt`).then(authors => {
+        if (!this.isMounted) {
+          return;
+        }
+        this.setState({
+          authors: authors.map((author) => Object.assign(new User(), author)),
+        });
       });
     }
     this.hardwareBack = () => {
@@ -1854,18 +1852,10 @@ export const SiftrView = createClass({
       return;
     }
     // try geolocation api for user's current location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(posn => {
-        cb({
-          lat: posn.coords.latitude,
-          lng: posn.coords.longitude
-        });
-      }, err => {
-        // geolocation failed, use game's location
-        cb({
-          lat: this.props.game.latitude,
-          lng: this.props.game.longitude
-        });
+    if (this.props.location) {
+      cb({
+        lat: this.props.location.coords.latitude,
+        lng: this.props.location.coords.longitude,
       });
       return;
     }
@@ -2296,7 +2286,8 @@ export const SiftrView = createClass({
           longitude: fixLongitude(location.lng)
         },
         tag_id: category.tag_id,
-        field_data: field_data.concat(field_media)
+        field_data: field_data.concat(field_media),
+        password: this.props.auth.password,
       };
       if (media != null) {
         // we've already uploaded media, now create note
@@ -2404,6 +2395,10 @@ export const SiftrView = createClass({
         />
       );
     }
+    let authorNames = '…';
+    if (this.state.authors) {
+      authorNames = this.state.authors.join(', ');
+    }
     return (
       <KeyboardAwareView
         style={{
@@ -2455,10 +2450,6 @@ export const SiftrView = createClass({
                   >
                     {
                       <TouchableOpacity
-                        style={{
-                          flex: 1,
-                          alignItems: "flex-start"
-                        }}
                         onPress={
                           this.state.viewingNote != null
                             ? (() => this.closeNote())
@@ -2471,9 +2462,10 @@ export const SiftrView = createClass({
                       >
                         <Image
                           style={{
-                            margin: 10,
+                            margin: 15,
                             resizeMode: "contain",
-                            height: 18,
+                            width: 69 * 0.18,
+                            height: 112 * 0.18,
                             opacity:
                               Platform.OS === "ios" &&
                               this.props.aris &&
@@ -2482,23 +2474,53 @@ export const SiftrView = createClass({
                                 ? 0
                                 : 1
                           }}
-                          source={require("../web/assets/img/icon-back.png")}
+                          source={require("../web/assets/img/disclosure-arrow-left.png")}
                         />
                       </TouchableOpacity>
                     }
                     <View
                       style={{
-                        flex: 4,
-                        alignItems: "center"
+                        flex: 1,
+                        alignItems: "flex-start",
                       }}
                     >
-                      <Text>
-                        {this.state.viewingNote != null
-                          ? this.state.viewingNote.user.display_name
-                          : this.state.createNote != null
-                            ? `Posting to: ${this.props.game.name}`
-                            : this.props.game.name}
-                      </Text>
+                      {
+                        this.state.viewingNote != null
+                        ? [ <Text key={1} style={{
+                              fontWeight: 'bold',
+                            }}>
+                              {this.props.game.name}
+                            </Text>
+                          , <Text key={2} style={{
+                              color: 'rgb(140,140,140)',
+                            }}>
+                              {`Post by: ${this.state.viewingNote.user.display_name}`}
+                            </Text>
+                          ]
+                        : this.state.createNote != null
+                          ? [ <Text key={1} style={{
+                                fontWeight: 'bold',
+                              }}>
+                                {`Posting to: ${this.props.game.name}`}
+                              </Text>
+                            , <Text key={2} numberOfLines={1} style={{
+                                color: 'rgb(140,140,140)',
+                              }}>
+                                {authorNames}
+                              </Text>
+                            ]
+                          : [ <Text key={1} style={{
+                                fontWeight: 'bold',
+                              }}>
+                                {this.props.game.name}
+                              </Text>
+                            , <Text key={2} numberOfLines={1} style={{
+                                color: 'rgb(140,140,140)',
+                              }}>
+                                {authorNames}
+                              </Text>
+                            ]
+                      }
                     </View>
                     {this.state.viewingNote != null ? (
                       ((hasOptions = false),
@@ -2522,10 +2544,6 @@ export const SiftrView = createClass({
                               : void 0) || this.props.isAdmin),
                       hasOptions ? (
                         <TouchableOpacity
-                          style={{
-                            flex: 1,
-                            alignItems: "flex-end"
-                          }}
                           onPress={() => {
                             var ref5;
                             return (ref5 = this.noteView) != null
@@ -2545,7 +2563,6 @@ export const SiftrView = createClass({
                       ) : (
                         <View
                           style={{
-                            flex: 1,
                             opacity: 0
                           }}
                         >
@@ -2561,24 +2578,24 @@ export const SiftrView = createClass({
                       ))
                     ) : (
                       <TouchableOpacity
-                        style={{
-                          flex: 1,
-                          alignItems: "flex-end"
-                        }}
                         onPress={() => {
                           this.setState({
                             infoOpen: !this.state.infoOpen
                           });
                         }}
                       >
-                        <Image
-                          style={{
-                            resizeMode: "contain",
-                            height: 20,
-                            margin: 10
-                          }}
-                          source={require("../web/assets/img/icon-4dots.png")}
-                        />
+                        <View style={{
+                          paddingTop: 3,
+                          paddingBottom: 3,
+                          paddingLeft: 7,
+                          paddingRight: 7,
+                          margin: 10,
+                          borderColor: 'black',
+                          borderWidth: 1,
+                          borderRadius: 5,
+                        }}>
+                          <Text>about</Text>
+                        </View>
                       </TouchableOpacity>
                     )}
                   </View>
