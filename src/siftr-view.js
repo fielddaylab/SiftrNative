@@ -52,6 +52,7 @@ import {
   Colors,
   Field,
   Theme,
+  User,
   deserializeNote
 } from "./aris";
 
@@ -502,6 +503,37 @@ SiftrViewPW.defaultProps = {
   online: true,
 };
 
+export function downloadGame(auth, game, callbacks = {}) {
+  console.log('dec20dl game ' + game.game_id);
+  const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${game.game_id}`;
+  RNFS.mkdir(siftrDir, {NSURLIsExcludedFromBackupKey: true});
+  RNFS.writeFile(`${siftrDir}/game.txt`, JSON.stringify(game));
+  auth.getTagsForGame({game_id: game.game_id}, withSuccess(tags => {
+    if (callbacks.tags) callbacks.tags(tags);
+    RNFS.writeFile(`${siftrDir}/tags.txt`, JSON.stringify(tags));
+  }));
+  auth.getColors({colors_id: game.colors_id || 1}, withSuccess(colors => {
+    if (callbacks.colors) callbacks.colors(colors);
+    RNFS.writeFile(`${siftrDir}/colors.txt`, JSON.stringify(colors));
+  }));
+  auth.getTheme({theme_id: game.theme_id || 1}, withSuccess(theme => {
+    if (callbacks.theme) callbacks.theme(theme);
+    RNFS.writeFile(`${siftrDir}/theme.txt`, JSON.stringify(theme));
+  }));
+  auth.getFieldsForGame({game_id: game.game_id}, withSuccess(fields => {
+    if (callbacks.fields) callbacks.fields(fields);
+    RNFS.writeFile(`${siftrDir}/fields.txt`, JSON.stringify(fields));
+  }));
+  auth.searchNotes({game_id: game.game_id, order_by: "recent"}, withSuccess(notes => {
+    if (callbacks.notes) callbacks.notes(notes);
+    RNFS.writeFile(`${siftrDir}/notes.txt`, JSON.stringify(notes));
+  }));
+  auth.getUsersForGame({game_id: game.game_id}, withSuccess((authors) => {
+    if (callbacks.authors) callbacks.authors(authors);
+    RNFS.writeFile(`${siftrDir}/authors.txt`, JSON.stringify(authors));
+  }));
+}
+
 // @endif
 
 export const SiftrView = createClass({
@@ -653,13 +685,13 @@ export const SiftrView = createClass({
     };
   },
   componentWillMount: function() {
-    var hash, n, ref, ref1, siftrDir;
+    var hash, n, ref, ref1;
     this.isMounted = true;
     // @ifdef NATIVE
     firebase.analytics().logEvent("view_siftr", {
       game_id: this.props.game.game_id
     });
-    siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${
+    const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${
       this.props.game.game_id
     }`;
     RNFS.mkdir(siftrDir, {
@@ -810,7 +842,7 @@ export const SiftrView = createClass({
           return;
         }
         this.setState({
-          authors: authors.map((author) => Object.assign(new User(), author)),
+          authors: JSON.parse(authors).map((author) => author.display_name),
         });
       });
     }

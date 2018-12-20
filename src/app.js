@@ -29,9 +29,9 @@ import { NativeLogin } from "./native-login";
 import { NativeHome, Loading } from "./native-home";
 // @endif
 
-import { Auth, displayError } from "./aris";
+import { Auth, Game, displayError } from "./aris";
 // @ifdef NATIVE
-import { SiftrViewPW } from "./siftr-view";
+import { SiftrViewPW, downloadGame } from "./siftr-view";
 // @endif
 // @ifdef WEB
 import { SiftrView } from "./siftr-view";
@@ -100,6 +100,8 @@ export var SiftrNative = createClass({
           new Auth().loadSavedAuth(authToken => {
             this.setState({
               auth: Object.assign(new Auth(), { authToken })
+            }, () => {
+              this.updateFollowed();
             });
           });
         }
@@ -279,14 +281,33 @@ export var SiftrNative = createClass({
     );
   },
   updateFollowed: function() {
-    this.state.auth.getFollowedGamesForUser(
-      {order: 'recent'},
-      withSuccess(games => {
-        this.setState({
-          followed: games.filter((game) => game.is_siftr)
-        });
-      })
-    );
+    const storeFollowed = `${RNFS.DocumentDirectoryPath}/siftrs/followed.txt`;
+    if (this.state.online) {
+      const thisUpdate = this.lastUpdate = Date.now();
+      const oldSiftrs = this.state.followed || [];
+      this.state.auth.getFollowedGamesForUser(
+        {order: 'recent'},
+        withSuccess(games => {
+          if (this.lastUpdate !== thisUpdate) return;
+          const siftrs = games.filter((game) => game.is_siftr);
+          RNFS.writeFile(
+            `${RNFS.DocumentDirectoryPath}/siftrs/followed.txt`,
+            JSON.stringify(siftrs)
+          );
+          this.setState({followed: siftrs});
+          siftrs.forEach((game) => {
+            if (!oldSiftrs.some((oldGame) => oldGame.game_id === game.game_id)) {
+              downloadGame(this.state.auth, game);
+            }
+          });
+        })
+      );
+    } else {
+      RNFS.readFile(storeFollowed, 'utf8').then((str) => {
+        const siftrs = JSON.parse(str).map(game => Object.assign(new Game(), game));
+        this.setState({followed: siftrs});
+      });
+    }
   },
   followGame: function(game, cb) {
     this.state.auth.call(

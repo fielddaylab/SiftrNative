@@ -470,54 +470,36 @@ class NativeHomeNew extends React.Component {
                 />;
               case 'home':
               default:
-                if (this.props.online) {
-                  return (
+                return (
+                  <View style={{
+                    flex: 1,
+                  }}>
                     <View style={{
-                      flex: 1,
+                      alignItems: 'center',
+                      flexDirection: 'row',
+                      justifyContent: 'center',
                     }}>
-                      <View style={{
-                        alignItems: 'center',
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                      }}>
-                        <Image
-                          source={require('../web/assets/img/siftr-logo-black.png')}
-                          style={{
-                            width: 66 * 0.6,
-                            height: 68 * 0.6,
-                            margin: 10,
-                          }}
-                        />
-                      </View>
-                      <BrowserFollowed
-                        auth={this.props.auth}
-                        onSelect={this.props.onSelect}
-                        onInfo={this.showInfo.bind(this)}
-                        cardMode="full"
-                        mine={this.props.mine}
-                        followed={this.props.followed}
-                        online={this.props.online}
-                        recent={this.props.recent}
+                      <Image
+                        source={require('../web/assets/img/siftr-logo-black.png')}
+                        style={{
+                          width: 66 * 0.6,
+                          height: 68 * 0.6,
+                          margin: 10,
+                        }}
                       />
                     </View>
-                  );
-                } else {
-                  return (
-                    <View style={{
-                      flex: 1,
-                    }}>
-                      <BrowserDownloaded
-                        auth={this.props.auth}
-                        onSelect={this.props.onSelect}
-                        onInfo={this.showInfo.bind(this)}
-                        cardMode="full"
-                        mine={this.props.mine}
-                        followed={this.props.followed}
-                        online={this.props.online}
-                      />
-                    </View>
-                  );
-                }
+                    <BrowserFollowed
+                      auth={this.props.auth}
+                      onSelect={this.props.onSelect}
+                      onInfo={this.showInfo.bind(this)}
+                      cardMode="full"
+                      mine={this.props.mine}
+                      followed={this.props.followed}
+                      online={this.props.online}
+                      recent={this.props.recent}
+                    />
+                  </View>
+                );
             }
           })()
         }
