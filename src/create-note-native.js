@@ -159,8 +159,14 @@ export const CreatePhoto = createClass({
       return true;
     };
     BackHandler.addEventListener("hardwareBackPress", this.hardwareBack);
-    Permissions.request("camera"); // take photos
-    Permissions.request("photo"); // access photos
+    Permissions.request("camera").then(response => {
+      // permission to take photos
+      this.setState({cameraPermisson: response});
+    });
+    Permissions.request("photo").then(response => {
+      // permission to access photos
+      this.setState({photoPermission: response});
+    });
     Orientation.lockToPortrait();
   },
   componentWillUnmount: function() {
@@ -250,7 +256,9 @@ export const CreatePhoto = createClass({
                     }}
                   >
                     {
-                      !this.state.pendingPhoto && (
+                      !this.state.pendingPhoto &&
+                      this.state.cameraPermisson === 'authorized' &&
+                      this.state.photoPermission === 'authorized' && (
                         <Camera
                           ref={cam => {
                             this.camera = cam;
