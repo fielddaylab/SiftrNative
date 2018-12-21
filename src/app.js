@@ -618,10 +618,7 @@ export var SiftrNative = createClass({
             this.setState({ pendingNotes });
           }}
           onUpload={() => {
-            var ref2;
-            return (ref2 = this.siftrView) != null
-              ? ref2.loadResults()
-              : undefined;
+            if (this.siftrView) this.siftrView.loadAfterUpload();
           }}
         >
           {this.state.auth.authToken != null ? (

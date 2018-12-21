@@ -537,16 +537,17 @@ export const Auth = class Auth {
     req.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
     this.loadSavedAuth(auth => {
       var handleError, jsonString, tries, trySend;
-      if (this.password != null) {
+      const password = json.password || this.password;
+      if (password != null) {
         auth =
           auth != null
             ? update(auth, {
                 password: {
-                  $set: this.password
+                  $set: password
                 }
               })
             : {
-                password: this.password
+                password: password
               };
       }
       json =

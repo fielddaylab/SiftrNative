@@ -339,8 +339,8 @@ export class SiftrViewPW extends React.Component {
     }
   }
 
-  loadResults(...args) {
-    return this.siftrView && this.siftrView.loadResults(...args);
+  loadAfterUpload(...args) {
+    return this.siftrView && this.siftrView.loadAfterUpload(...args);
   }
 
   tryPassword() {
@@ -1227,6 +1227,19 @@ export const SiftrView = createClass({
           : void 0;
     }
     return o;
+  },
+  loadAfterUpload: function() {
+    const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${
+      this.props.game.game_id
+    }`;
+    this.loadResults();
+    this.props.auth.searchNotes({
+      game_id: this.props.game.game_id,
+      order_by: "recent",
+    }, withSuccess(notes => {
+      this.setState({allNotes: notes});
+      RNFS.writeFile(`${siftrDir}/notes.txt`, JSON.stringify(notes));
+    }));
   },
   loadResults: function(authGame) {
     this.loadResultsSingle(true, authGame);
@@ -2759,11 +2772,11 @@ export const SiftrView = createClass({
                   onPress={this.startCreate}
                 >
                   <Image
+                    source={require('../web/assets/img/siftr-icon-plus.png')}
                     style={{
-                      resizeMode: "contain",
-                      height: 30
+                      width: 33,
+                      height: 33,
                     }}
-                    source={require("../web/assets/img/icon-add.png")}
                   />
                 </TouchableOpacity>
                 <TouchableOpacity
