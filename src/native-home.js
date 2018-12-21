@@ -85,7 +85,11 @@ class NativeMe extends React.Component {
           </Text>
           <TouchableOpacity onPress={() => this.props.setScreen({settings: true})}>
             <Image
-              source={require('../web/assets/img/icon-gear.png')}
+              source={
+                this.props.queueMessage && this.props.queueMessage.uploading
+                  ? require('../web/assets/img/icon-gear-uploading.png')
+                  : require('../web/assets/img/icon-gear.png')
+              }
               style={{
                 width: 22,
                 height: 22,
@@ -467,6 +471,7 @@ class NativeHomeNew extends React.Component {
                   online={this.props.online}
                   settings={this.props.settings}
                   setScreen={this.props.setScreen}
+                  queueMessage={this.props.queueMessage}
                 />;
               case 'home':
               default:
@@ -564,9 +569,15 @@ class NativeHomeNew extends React.Component {
           <TouchableOpacity onPress={() => this.props.setScreen({screen: 'me'})}>
             <Image
               source={
-                this.props.screen === 'me'
-                  ? require('../web/assets/img/siftr-icon-profile-on.png')
-                  : require('../web/assets/img/siftr-icon-profile.png')
+                this.props.queueMessage && this.props.queueMessage.uploading ? (
+                  this.props.screen === 'me'
+                    ? require('../web/assets/img/siftr-icon-profile-on-uploading.png')
+                    : require('../web/assets/img/siftr-icon-profile-uploading.png')
+                ) : (
+                  this.props.screen === 'me'
+                    ? require('../web/assets/img/siftr-icon-profile-on.png')
+                    : require('../web/assets/img/siftr-icon-profile.png')
+                )
               }
               style={{
                 width: 33,
