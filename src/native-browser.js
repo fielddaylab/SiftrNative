@@ -78,11 +78,11 @@ export class NativeCard extends React.Component {
           this.setState({
             authors: authors.map((author) => author.display_name)
           });
-        })),
+        }, true /* don't warn on error */)),
         this.props.auth.searchNotes({
           game_id: this.props.game.game_id,
           order_by: 'recent'
-        }, withSuccess(useNotes)),
+        }, withSuccess(useNotes, true /* don't warn on error */)),
       ];
     } else {
       const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
