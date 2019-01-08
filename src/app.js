@@ -129,6 +129,9 @@ export var SiftrNative = createClass({
     }
     this.watchID = navigator.geolocation.watchPosition((loc) => {
       this.setState({location: loc});
+    }, (err) => {
+      // do nothing; we need to pass this to avoid
+      // https://github.com/facebook/react-native/issues/9490#issuecomment-271974881
     }, {
       enableHighAccuracy: true,
       maximumAge: 0,
