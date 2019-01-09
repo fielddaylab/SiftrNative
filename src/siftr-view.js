@@ -128,66 +128,21 @@ const SiftrInfo = createClass({
         {
           this.props.isOpen ? (
             <Modal>
-              <SafeAreaView
-                style={{
-                  flex: 1,
-                  backgroundColor: 'white',
-                }}
-              >
-                <StatusSpace leaveBar={true} backgroundColor="rgba(0,0,0,0)" />
-                <View style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  margin: 22,
-                }}>
-                  <Text style={{
-                    fontSize: 24,
-                    fontWeight: 'bold',
-                    fontFamily: 'League Spartan',
-                  }}>
-                    About
-                  </Text>
-                  <TouchableOpacity onPress={() => this.props.onChange(false)}>
-                    <Image
-                      style={{
-                        width: 112 * 0.22,
-                        height: 69 * 0.22
-                      }}
-                      source={require("../web/assets/img/disclosure-arrow-up.png")}
-                    />
-                  </TouchableOpacity>
-                </View>
-                <ScrollView
-                  style={{flex: 1}}
-                  contentContainerStyle={{backgroundColor: "white"}}
+              <SafeAreaView style={{flex: 1, backgroundColor: 'rgba(0,0,0,0.5)'}}>
+                <View
+                  style={{
+                    flex: 1,
+                    backgroundColor: 'white',
+                    margin: 10,
+                    borderRadius: 5,
+                    borderWidth: 2,
+                    borderColor: 'black',
+                  }}
                 >
-                  <NativeCard
-                    cardMode="modal"
-                    game={this.props.game}
-                    auth={this.props.auth}
-                    online={this.props.online}
-                    isFollowing={isFollowing}
-                    followGame={this.props.followGame}
-                    unfollowGame={this.props.unfollowGame}
-                  />
-                  {this.props.viola && (
-                    <View style={{alignItems: "center"}}>
-                      <TouchableOpacity
-                        onPress={this.props.onViolaSettings}
-                        style={{
-                          paddingHorizontal: 14,
-                          paddingVertical: 4,
-                          borderColor: "black",
-                          borderRadius: 20,
-                          borderWidth: 2,
-                          marginBottom: 10
-                        }}
-                      >
-                        <Text>Settings</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
+                  <StatusSpace leaveBar={true} backgroundColor="rgba(0,0,0,0)" />
                   <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
                     margin: 22,
                   }}>
                     <Text style={{
@@ -195,72 +150,123 @@ const SiftrInfo = createClass({
                       fontWeight: 'bold',
                       fontFamily: 'League Spartan',
                     }}>
-                      Categories
+                      About
                     </Text>
-                    {function() {
-                      var i, len, ref4, ref5, results;
-                      ref5 = (ref4 = this.props.tags) != null ? ref4 : [];
-                      results = [];
-                      for (i = 0, len = ref5.length; i < len; i++) {
-                        tag = ref5[i];
-                        results.push(
-                          <View
-                            key={tag.tag_id}
-                            style={{
-                              justifyContent: "space-between",
-                              flexDirection: "row",
-                              alignItems: "center",
-                              paddingTop: 10,
-                            }}
-                          >
-                            <Text
-                              style={{
-                                margin: 5,
-                              }}
-                            >
-                              {tag.tag}
-                            </Text>
+                    <TouchableOpacity onPress={() => this.props.onChange(false)}>
+                      <Image
+                        style={{
+                          width: 112 * 0.22,
+                          height: 69 * 0.22
+                        }}
+                        source={require("../web/assets/img/disclosure-arrow-up.png")}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <ScrollView
+                    style={{flex: 1}}
+                    contentContainerStyle={{backgroundColor: "white"}}
+                  >
+                    <NativeCard
+                      cardMode="modal"
+                      game={this.props.game}
+                      auth={this.props.auth}
+                      online={this.props.online}
+                      isFollowing={isFollowing}
+                      followGame={this.props.followGame}
+                      unfollowGame={this.props.unfollowGame}
+                    />
+                    {this.props.viola && (
+                      <View style={{alignItems: "center"}}>
+                        <TouchableOpacity
+                          onPress={this.props.onViolaSettings}
+                          style={{
+                            paddingHorizontal: 14,
+                            paddingVertical: 4,
+                            borderColor: "black",
+                            borderRadius: 20,
+                            borderWidth: 2,
+                            marginBottom: 10
+                          }}
+                        >
+                          <Text>Settings</Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                    <View style={{
+                      margin: 22,
+                    }}>
+                      <Text style={{
+                        fontSize: 24,
+                        fontWeight: 'bold',
+                        fontFamily: 'League Spartan',
+                      }}>
+                        Categories
+                      </Text>
+                      {function() {
+                        var i, len, ref4, ref5, results;
+                        ref5 = (ref4 = this.props.tags) != null ? ref4 : [];
+                        results = [];
+                        for (i = 0, len = ref5.length; i < len; i++) {
+                          tag = ref5[i];
+                          results.push(
                             <View
+                              key={tag.tag_id}
                               style={{
-                                margin: 5,
-                                backgroundColor: this.props.getColor(tag),
-                                padding: 3,
-                                minWidth: 24,
-                                borderRadius: 999,
-                                alignItems: 'center',
+                                justifyContent: "space-between",
+                                flexDirection: "row",
+                                alignItems: "center",
+                                paddingTop: 10,
                               }}
                             >
                               <Text
                                 style={{
-                                  color: "white",
-                                  fontSize: 15,
+                                  margin: 5,
                                 }}
                               >
-                                {this.props.notes != null
-                                  ? ((matches = function() {
-                                      var j, len1, ref6, results1;
-                                      ref6 = this.props.notes;
-                                      results1 = [];
-                                      for (j = 0, len1 = ref6.length; j < len1; j++) {
-                                        note = ref6[j];
-                                        if (note.tag_id !== tag.tag_id) {
-                                          continue;
-                                        }
-                                        results1.push(note);
-                                      }
-                                      return results1;
-                                    }.call(this)),
-                                    matches.length)
-                                  : "…"}
+                                {tag.tag}
                               </Text>
+                              <View
+                                style={{
+                                  margin: 5,
+                                  backgroundColor: this.props.getColor(tag),
+                                  padding: 3,
+                                  minWidth: 24,
+                                  borderRadius: 999,
+                                  alignItems: 'center',
+                                }}
+                              >
+                                <Text
+                                  style={{
+                                    color: "white",
+                                    fontSize: 15,
+                                  }}
+                                >
+                                  {this.props.notes != null
+                                    ? ((matches = function() {
+                                        var j, len1, ref6, results1;
+                                        ref6 = this.props.notes;
+                                        results1 = [];
+                                        for (j = 0, len1 = ref6.length; j < len1; j++) {
+                                          note = ref6[j];
+                                          if (note.tag_id !== tag.tag_id) {
+                                            continue;
+                                          }
+                                          results1.push(note);
+                                        }
+                                        return results1;
+                                      }.call(this)),
+                                      matches.length)
+                                    : "…"}
+                                </Text>
+                              </View>
                             </View>
-                          </View>
-                        );
-                      }
-                      return results;
-                    }.call(this)}
-                  </View>
-                </ScrollView>
+                          );
+                        }
+                        return results;
+                      }.call(this)}
+                    </View>
+                  </ScrollView>
+                </View>
               </SafeAreaView>
             </Modal>
           ) : null
