@@ -1007,7 +1007,7 @@ export const CreateData = createClass({
                               width: 69 * 0.15,
                               height: 112 * 0.15
                             }}
-                            source={require("../web/assets/img/disclosure-arrow.png")}
+                            source={require("../web/assets/img/disclosure-arrow-right.png")}
                           />
                         </View>
                       </TouchableOpacity>

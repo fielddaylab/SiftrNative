@@ -278,6 +278,129 @@ export class NativeCard extends React.Component {
     );
   }
 
+  modalView() {
+    const contributorIcons = [];
+    let contributorCount = '…';
+    let contributorPlural = 's';
+    if (this.state.contributors) {
+      for (var user_id in this.state.contributors) {
+        const user = this.state.contributors[user_id];
+        if (user.media_id) contributorIcons.push(user.media_id);
+        if (contributorIcons.length == 3) break;
+      }
+      contributorCount = Object.keys(this.state.contributors).length;
+      if (contributorCount === 1) contributorPlural = '';
+    }
+    let postCount = '…';
+    let postPlural = 's';
+    if (this.state.posts != null) {
+      postCount = this.state.posts;
+      if (postCount === 1) postPlural = '';
+    }
+    return (
+      <View>
+        <View style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          padding: 10,
+          alignItems: 'center',
+          marginLeft: 8,
+          marginRight: 8,
+        }}>
+          {
+            this.siftrIcon({
+              marginRight: 10,
+            })
+          }
+          <View style={{flex: 1}}>
+            <Text style={{fontWeight: 'bold'}}>{this.props.game.name}</Text>
+            <Text style={{color: 'rgb(140,140,140)', fontSize: 12}}>{this.authorName()}</Text>
+          </View>
+        </View>
+        <View style={{
+          padding: 10,
+          flexDirection: 'row',
+          marginLeft: 8,
+          marginRight: 8,
+        }}>
+          <Markdown>
+            {this.props.game.description}
+          </Markdown>
+        </View>
+        <View style={{
+          flexDirection: 'row',
+          justifyContent: 'flex-start',
+          padding: 10,
+          alignItems: 'center',
+          backgroundColor: 'rgb(243,243,243)',
+        }}>
+          <View style={{
+            marginRight: contributorIcons.length === 0 ? 0 : 20,
+            flexDirection: 'row',
+          }}>
+            {
+              contributorIcons.map((media_id) => (
+                <CacheMedia
+                  media_id={media_id}
+                  key={media_id}
+                  size="thumb_url"
+                  auth={this.props.auth}
+                  online={this.props.online}
+                  withURL={(url) => (
+                    <Image
+                      source={url}
+                      style={{
+                        width: 30,
+                        height: 30,
+                        borderRadius: 15,
+                        marginRight: -10,
+                        resizeMode: 'cover',
+                        borderColor: 'white',
+                        borderWidth: 2,
+                      }}
+                    />
+                  )}
+                />
+              ))
+            }
+          </View>
+          <View style={{flex: 1}}>
+            <Text style={{fontWeight: 'bold', color: 'rgb(128,128,128)'}}>
+              {contributorCount} contributor{contributorPlural}
+            </Text>
+            <Text style={{color: 'rgb(128,128,128)'}}>
+              {postCount} post{postPlural}
+            </Text>
+          </View>
+          <View>
+            <TouchableOpacity
+              onPress={
+                this.props.isFollowing
+                  ? this.props.unfollowGame
+                  : this.props.followGame
+              }
+              style={{
+                paddingHorizontal: 10,
+                paddingVertical: 4,
+                borderColor: "black",
+                borderRadius: 5,
+                borderWidth: 1,
+              }}
+            >
+              <Text>
+                {this.props.isFollowing == null
+                  ? "..."
+                  : this.props.isFollowing
+                    ? "joined"
+                    : "join"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   compactView() {
     return (
       <TouchableOpacity onPress={() => this.props.onSelect(this.props.game)} style={{
@@ -397,6 +520,8 @@ export class NativeCard extends React.Component {
     switch (this.props.cardMode) {
       case 'full':
         return this.fullView();
+      case 'modal':
+        return this.modalView();
       case 'compact':
         return this.compactView();
       case 'square':

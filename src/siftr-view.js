@@ -23,7 +23,8 @@ import {
   ScrollView,
   TouchableWithoutFeedback,
   Keyboard,
-  Platform
+  Platform,
+  SafeAreaView
 } from "react-native";
 const RNFS = require("react-native-fs");
 import { styles, Text } from "./styles";
@@ -33,6 +34,7 @@ import SideMenu from "react-native-side-menu";
 import Markdown from "react-native-simple-markdown";
 import firebase from "react-native-firebase";
 import { NativeSettings } from "./native-settings";
+import { NativeCard } from "./native-browser";
 import {CacheMedia} from './media';
 import ProgressCircle from 'react-native-progress-circle';
 // @endif
@@ -85,7 +87,7 @@ function fixLongitude(longitude) {
 }
 
 // @ifdef NATIVE
-export const SiftrInfo = createClass({
+const SiftrInfo = createClass({
   displayName: "SiftrInfo",
   propTypes: function() {
     return {
@@ -121,202 +123,149 @@ export const SiftrInfo = createClass({
           : void 0
         : false;
     return (
-      <SideMenu
-        menu={
-          <View
-            style={{
-              flex: 1
-            }}
-          >
-            <View
-              style={{
-                backgroundColor: "rgb(249,249,249)"
-              }}
-            >
-              <StatusSpace leaveBar={true} backgroundColor="rgba(0,0,0,0)" />
-              <Text
+      <View style={{flex: 1}}>
+        {this.props.children}
+        {
+          this.props.isOpen ? (
+            <Modal>
+              <SafeAreaView
                 style={{
-                  margin: 10,
-                  textAlign: "center"
+                  flex: 1,
+                  backgroundColor: 'white',
                 }}
               >
-                {(ref1 = this.props.game) != null ? ref1.name : void 0}
-              </Text>
-              <View
-                style={{
-                  alignItems: "center"
-                }}
-              >
-                <TouchableOpacity
-                  onPress={
-                    isFollowing
-                      ? this.props.unfollowGame
-                      : this.props.followGame
-                  }
-                  style={{
-                    paddingHorizontal: 14,
-                    paddingVertical: 4,
-                    borderColor: "black",
-                    borderRadius: 20,
-                    borderWidth: 2,
-                    marginBottom: 10
-                  }}
-                >
-                  <Text>
-                    {isFollowing == null
-                      ? "..."
-                      : isFollowing
-                        ? "Followed"
-                        : "Follow this Siftr"}
+                <StatusSpace leaveBar={true} backgroundColor="rgba(0,0,0,0)" />
+                <View style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  margin: 22,
+                }}>
+                  <Text style={{
+                    fontSize: 24,
+                    fontWeight: 'bold',
+                    fontFamily: 'League Spartan',
+                  }}>
+                    About
                   </Text>
-                </TouchableOpacity>
-              </View>
-              {this.props.viola ? (
-                <View
-                  style={{
-                    alignItems: "center"
-                  }}
-                >
-                  <TouchableOpacity
-                    onPress={this.props.onViolaSettings}
-                    style={{
-                      paddingHorizontal: 14,
-                      paddingVertical: 4,
-                      borderColor: "black",
-                      borderRadius: 20,
-                      borderWidth: 2,
-                      marginBottom: 10
-                    }}
-                  >
-                    <Text>Settings</Text>
+                  <TouchableOpacity onPress={() => this.props.onChange(false)}>
+                    <Image
+                      style={{
+                        width: 112 * 0.22,
+                        height: 69 * 0.22
+                      }}
+                      source={require("../web/assets/img/disclosure-arrow-up.png")}
+                    />
                   </TouchableOpacity>
                 </View>
-              ) : (
-                void 0
-              )}
-            </View>
-            <ScrollView
-              style={{
-                flex: 1
-              }}
-              contentContainerStyle={{
-                backgroundColor: "white"
-              }}
-            >
-              <Text
-                style={{
-                  margin: 10,
-                  fontWeight: "bold"
-                }}
-              >
-                Instructions:
-              </Text>
-              <View
-                style={{
-                  margin: 10
-                }}
-              >
-                <Markdown>
-                  {(ref2 = this.props.game) != null ? ref2.description : void 0}
-                </Markdown>
-              </View>
-              {((ref3 = this.props.tags) != null ? (
-                ref3.length
-              ) : (
-                void 0
-              )) ? (
-                <Text
-                  style={{
-                    margin: 10,
-                    fontWeight: "bold"
-                  }}
+                <ScrollView
+                  style={{flex: 1}}
+                  contentContainerStyle={{backgroundColor: "white"}}
                 >
-                  Tags:
-                </Text>
-              ) : (
-                void 0
-              )}
-              {function() {
-                var i, len, ref4, ref5, results;
-                ref5 = (ref4 = this.props.tags) != null ? ref4 : [];
-                results = [];
-                for (i = 0, len = ref5.length; i < len; i++) {
-                  tag = ref5[i];
-                  results.push(
-                    <View
-                      key={tag.tag_id}
-                      style={{
-                        justifyContent: "space-between",
-                        flexDirection: "row",
-                        alignItems: "center"
-                      }}
-                    >
-                      <Text
+                  <NativeCard
+                    cardMode="modal"
+                    game={this.props.game}
+                    auth={this.props.auth}
+                    online={this.props.online}
+                    isFollowing={isFollowing}
+                    followGame={this.props.followGame}
+                    unfollowGame={this.props.unfollowGame}
+                  />
+                  {this.props.viola && (
+                    <View style={{alignItems: "center"}}>
+                      <TouchableOpacity
+                        onPress={this.props.onViolaSettings}
                         style={{
-                          margin: 10,
-                          color: "rgb(182,182,182)"
+                          paddingHorizontal: 14,
+                          paddingVertical: 4,
+                          borderColor: "black",
+                          borderRadius: 20,
+                          borderWidth: 2,
+                          marginBottom: 10
                         }}
                       >
-                        {tag.tag}
-                      </Text>
-                      <View
-                        style={{
-                          margin: 10,
-                          backgroundColor: this.props.getColor(tag),
-                          padding: 3,
-                          borderRadius: 999
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: "white"
-                          }}
-                        >
-                          {this.props.notes != null
-                            ? ((matches = function() {
-                                var j, len1, ref6, results1;
-                                ref6 = this.props.notes;
-                                results1 = [];
-                                for (j = 0, len1 = ref6.length; j < len1; j++) {
-                                  note = ref6[j];
-                                  if (note.tag_id !== tag.tag_id) {
-                                    continue;
-                                  }
-                                  results1.push(note);
-                                }
-                                return results1;
-                              }.call(this)),
-                              matches.length)
-                            : "…"}
-                        </Text>
-                      </View>
+                        <Text>Settings</Text>
+                      </TouchableOpacity>
                     </View>
-                  );
-                }
-                return results;
-              }.call(this)}
-              {false ? (
-                <Text
-                  style={{
-                    margin: 10,
-                    fontWeight: "bold"
-                  }}
-                >
-                  Integrations:
-                </Text>
-              ) : (
-                void 0
-              )}
-            </ScrollView>
-          </View>
+                  )}
+                  <View style={{
+                    margin: 22,
+                  }}>
+                    <Text style={{
+                      fontSize: 24,
+                      fontWeight: 'bold',
+                      fontFamily: 'League Spartan',
+                    }}>
+                      Categories
+                    </Text>
+                    {function() {
+                      var i, len, ref4, ref5, results;
+                      ref5 = (ref4 = this.props.tags) != null ? ref4 : [];
+                      results = [];
+                      for (i = 0, len = ref5.length; i < len; i++) {
+                        tag = ref5[i];
+                        results.push(
+                          <View
+                            key={tag.tag_id}
+                            style={{
+                              justifyContent: "space-between",
+                              flexDirection: "row",
+                              alignItems: "center",
+                              paddingTop: 10,
+                            }}
+                          >
+                            <Text
+                              style={{
+                                margin: 5,
+                              }}
+                            >
+                              {tag.tag}
+                            </Text>
+                            <View
+                              style={{
+                                margin: 5,
+                                backgroundColor: this.props.getColor(tag),
+                                padding: 3,
+                                minWidth: 24,
+                                borderRadius: 999,
+                                alignItems: 'center',
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  color: "white",
+                                  fontSize: 15,
+                                }}
+                              >
+                                {this.props.notes != null
+                                  ? ((matches = function() {
+                                      var j, len1, ref6, results1;
+                                      ref6 = this.props.notes;
+                                      results1 = [];
+                                      for (j = 0, len1 = ref6.length; j < len1; j++) {
+                                        note = ref6[j];
+                                        if (note.tag_id !== tag.tag_id) {
+                                          continue;
+                                        }
+                                        results1.push(note);
+                                      }
+                                      return results1;
+                                    }.call(this)),
+                                    matches.length)
+                                  : "…"}
+                              </Text>
+                            </View>
+                          </View>
+                        );
+                      }
+                      return results;
+                    }.call(this)}
+                  </View>
+                </ScrollView>
+              </SafeAreaView>
+            </Modal>
+          ) : null
         }
-        menuPosition="right"
-        isOpen={this.props.isOpen}
-        onChange={this.props.onChange}
-        disableGestures={!this.props.isOpen}
-      >
-        {this.props.children}
-      </SideMenu>
+      </View>
     );
   }
 });
@@ -2477,6 +2426,8 @@ export const SiftrView = createClass({
                 settingsInViola: true
               });
             }}
+            auth={this.props.auth}
+            online={this.props.online}
           >
             <StatusSpace
               queueMessage={this.props.queueMessage}

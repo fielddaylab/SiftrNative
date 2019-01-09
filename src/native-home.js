@@ -32,7 +32,6 @@ import {
   ExplorePane
 } from "./native-browser";
 import { NativeSettings } from "./native-settings";
-import { SiftrInfo } from "./siftr-view";
 import { withSuccess } from "./utils";
 import { CacheMedia } from './media';
 
