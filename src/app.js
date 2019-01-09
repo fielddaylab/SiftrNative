@@ -25,6 +25,7 @@ import { styles, Text } from "./styles";
 import { Terms } from "./native-terms";
 import RNFS from "react-native-fs";
 import firebase from "react-native-firebase";
+import Permissions from "react-native-permissions";
 import { NativeLogin } from "./native-login";
 import { NativeHome, Loading } from "./native-home";
 // @endif
@@ -127,16 +128,20 @@ export var SiftrNative = createClass({
         this.hardwareBack
       );
     }
-    this.watchID = navigator.geolocation.watchPosition((loc) => {
-      this.setState({location: loc});
-    }, (err) => {
-      // do nothing; we need to pass this to avoid
-      // https://github.com/facebook/react-native/issues/9490#issuecomment-271974881
-    }, {
-      enableHighAccuracy: true,
-      maximumAge: 0,
-      distanceFilter: 0,
-      useSignificantChanges: false,
+    Permissions.request('location').then(response => {
+      if (response === 'authorized') {
+        this.watchID = navigator.geolocation.watchPosition((loc) => {
+          this.setState({location: loc});
+        }, (err) => {
+          // do nothing; we need to pass this to avoid
+          // https://github.com/facebook/react-native/issues/9490#issuecomment-271974881
+        }, {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+          distanceFilter: 0,
+          useSignificantChanges: false,
+        });
+      }
     });
   },
   componentWillUnmount: function() {

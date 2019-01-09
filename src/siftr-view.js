@@ -127,7 +127,7 @@ const SiftrInfo = createClass({
         {this.props.children}
         {
           this.props.isOpen ? (
-            <Modal>
+            <Modal onRequestClose={() => this.props.onChange(false)}>
               <SafeAreaView style={{flex: 1, backgroundColor: 'rgba(0,0,0,0.5)'}}>
                 <View
                   style={{
