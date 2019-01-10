@@ -121,17 +121,15 @@ export class NativeCard extends React.Component {
         online={this.props.online}
         withURL={(url) => (
           <View style={[{
-            height: 46,
-            width: 46,
             borderRadius: 14,
             borderColor: (url == null ? 'rgba(0,0,0,0)' : 'white'),
             borderWidth: 3,
-            alignItems: 'stretch',
           }, style]}>
             <Image
               source={url}
               style={{
-                flex: 1,
+                height: 46,
+                width: 46,
                 resizeMode: 'contain',
                 borderRadius: 11,
               }}

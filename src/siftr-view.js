@@ -633,7 +633,12 @@ export const SiftrView = createClass({
         sort: "recent"
       },
       searchOpen: false,
+      // @ifdef WEB
       mainView: "hybrid", // 'hybrid', 'map', 'thumbs'
+      // @endif
+      // @ifdef NATIVE
+      mainView: "map", // 'hybrid', 'map', 'thumbs'
+      // @endif
       fields: null,
       infoOpen: false,
       primaryMenuOpen: false

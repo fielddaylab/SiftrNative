@@ -8,10 +8,11 @@ import {Note} from './aris';
 import {clicker} from './utils';
 
 // @ifdef NATIVE
+import { Text } from "./styles";
 import
 { View
 , TouchableOpacity
-, ImageBackground
+, Image
 , Platform
 } from 'react-native';
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
@@ -24,6 +25,63 @@ import InfiniteScroll from 'react-infinite-scroller';
 
 // TODO: if the initial batch of thumbnails fits on screen,
 // the infinite scroll view isn't attempting to load the next batch
+
+// @ifdef NATIVE
+class NoteCard extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <TouchableOpacity onPress={() => this.props.onSelectNote(this.props.note)} style={{
+        borderRadius: 5,
+        margin: 5,
+        alignItems: 'stretch',
+        backgroundColor: 'white',
+        shadowColor: 'black',
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+        shadowOffset: {height: 2},
+        elevation: 3,
+        width: 180,
+      }}>
+        <View style={{
+          // these can't just be on the Image on iOS, see
+          // https://facebook.github.io/react-native/docs/images#ios-border-radius-styles
+          borderTopLeftRadius: 5,
+          borderTopRightRadius: 5,
+          overflow: 'hidden',
+        }}>
+          <Image source={this.props.source} style={{
+            width: 180,
+            height: 115,
+            resizeMode: 'cover',
+          }} />
+        </View>
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}>
+          <Text style={{flex: 1, margin: 7, fontWeight: 'bold'}}>
+            {this.props.note.user.display_name}
+          </Text>
+          <View style={{
+            width: 12,
+            height: 12,
+            borderRadius: 999,
+            margin: 7,
+            backgroundColor: this.props.getColor(this.props.note.tag_id),
+          }} />
+        </View>
+        <Text style={{margin: 7}} numberOfLines={1}>
+          {this.props.note.description}
+        </Text>
+      </TouchableOpacity>
+    );
+  }
+}
+// @endif
 
 export class SiftrThumbnails extends React.Component {
   constructor(props) {
@@ -41,7 +99,7 @@ export class SiftrThumbnails extends React.Component {
     return <InfiniteScrollView
       ref="scroll"
       style={{
-        backgroundColor: 'white',
+        backgroundColor: 'rgb(246,246,246)',
         position: 'absolute',
         top: 0,
         bottom: 0,
@@ -73,48 +131,28 @@ export class SiftrThumbnails extends React.Component {
               url = `file://${dir.path}/${json.files[0].filename}`;
             }
             return (
-              <TouchableOpacity onPress={() => this.props.onSelectNote(note)} key={dir.name}>
-                <ImageBackground source={{uri: url}} style={{
-                  width: 160,
-                  height: 160,
-                  margin: 5,
-                }}>
-                  <View style={{
-                    position: 'absolute',
-                    top: 5,
-                    right: 5,
-                    width: 15,
-                    height: 15,
-                    borderRadius: 999,
-                    backgroundColor: this.props.getColor(note.tag_id),
-                  }} />
-                </ImageBackground>
-              </TouchableOpacity>
+              <NoteCard
+                key={dir.name}
+                source={{uri: url}}
+                note={note}
+                onSelectNote={this.props.onSelectNote}
+                getColor={this.props.getColor}
+              />
             );
           }).concat(this.props.notes.map((note) =>
-            <TouchableOpacity onPress={() => this.props.onSelectNote(note)} key={note.note_id}>
-              <CacheMedia
-                url={note.thumb_url}
-                online={this.props.online}
-                withURL={(url) =>
-                  <ImageBackground source={url} style={{
-                    width: 160,
-                    height: 160,
-                    margin: 5,
-                  }}>
-                    <View style={{
-                      position: 'absolute',
-                      top: 5,
-                      right: 5,
-                      width: 15,
-                      height: 15,
-                      borderRadius: 999,
-                      backgroundColor: this.props.getColor(note.tag_id),
-                    }} />
-                  </ImageBackground>
-                }
-              />
-            </TouchableOpacity>
+            <CacheMedia
+              key={note.note_id}
+              url={note.thumb_url}
+              online={this.props.online}
+              withURL={(url) =>
+                <NoteCard
+                  source={url}
+                  note={note}
+                  onSelectNote={this.props.onSelectNote}
+                  getColor={this.props.getColor}
+                />
+              }
+            />
           ))
         }
       </View>

@@ -210,7 +210,7 @@ export const Note = class Note {
       } else {
         this.user = new User({
           user_id: json.user_id,
-          display_name: json.display_name
+          display_name: json.display_name || json.user_name,
         });
       }
       this.description = json.description;
