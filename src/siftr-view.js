@@ -1536,7 +1536,8 @@ export const SiftrView = createClass({
         this.setState(
           {
             viewingNote: data[0],
-            createNote: null
+            createNote: null,
+            viewPopup: false,
           },
           () => {
             // @ifdef WEB
@@ -1554,7 +1555,8 @@ export const SiftrView = createClass({
       this.setState({
         viewingNote: note,
         searchOpen: false,
-        createNote: null
+        createNote: null,
+        viewPopup: false,
       });
       return;
     }
@@ -1565,13 +1567,15 @@ export const SiftrView = createClass({
       this.loadNoteByID(note.note_id);
       this.setState({
         searchOpen: false,
-        createNote: null
+        createNote: null,
+        viewPopup: false,
       });
     } else if (this.isMounted) {
       this.setState({
         viewingNote: note,
         searchOpen: false,
-        createNote: null
+        createNote: null,
+        viewPopup: false,
       });
     }
   },
@@ -2620,6 +2624,59 @@ export const SiftrView = createClass({
                 : this.state.mainView === "thumbs" || this.state.mainView === "hybrid"
                   ? [this.renderMap(), this.renderThumbnails()]
                   : [this.renderThumbnails(), this.renderMap()]}
+              {this.state.viewPopup && (
+                <View style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: 'rgb(220,223,225)',
+                  borderTopRightRadius: 5,
+                }}>
+                  <TouchableOpacity
+                    style={{padding: 10}}
+                    onPress={() => this.setState({mainView: 'hybrid', viewPopup: false})}
+                  >
+                    <Image
+                      style={{
+                        resizeMode: "contain",
+                        width: 92 / 3,
+                        height: 92 / 3,
+                      }}
+                      source={require("../web/assets/img/mobile-view-hybrid.png")}
+                    />
+                  </TouchableOpacity>
+                  <View style={{width: 1, height: 92 / 3, backgroundColor: 'white'}} />
+                  <TouchableOpacity
+                    style={{padding: 10}}
+                    onPress={() => this.setState({mainView: 'map', viewPopup: false})}
+                  >
+                    <Image
+                      style={{
+                        resizeMode: "contain",
+                        width: 92 / 3,
+                        height: 92 / 3,
+                      }}
+                      source={require("../web/assets/img/mobile-view-map.png")}
+                    />
+                  </TouchableOpacity>
+                  <View style={{width: 1, height: 92 / 3, backgroundColor: 'white'}} />
+                  <TouchableOpacity
+                    style={{padding: 10}}
+                    onPress={() => this.setState({mainView: 'thumbs', viewPopup: false})}
+                  >
+                    <Image
+                      style={{
+                        resizeMode: "contain",
+                        width: 92 / 3,
+                        height: 92 / 3,
+                      }}
+                      source={require("../web/assets/img/mobile-view-gallery.png")}
+                    />
+                  </TouchableOpacity>
+                </View>
+              )}
               {this.renderNoteView()}
               {this.renderCreateNote()}
               {this.state.searchOpen ? this.renderSearch() : void 0}
@@ -2705,12 +2762,7 @@ export const SiftrView = createClass({
                     padding: 10
                   }}
                   onPress={() => {
-                    this.setState({
-                      mainView:
-                        this.state.mainView === "hybrid" ? "map" :
-                        this.state.mainView === "map" ? "thumbs" :
-                        "hybrid"
-                    });
+                    this.setState({viewPopup: !this.state.viewPopup});
                   }}
                 >
                   <Image
