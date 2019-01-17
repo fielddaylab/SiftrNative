@@ -633,12 +633,7 @@ export const SiftrView = createClass({
         sort: "recent"
       },
       searchOpen: false,
-      // @ifdef WEB
       mainView: "hybrid", // 'hybrid', 'map', 'thumbs'
-      // @endif
-      // @ifdef NATIVE
-      mainView: "map", // 'hybrid', 'map', 'thumbs'
-      // @endif
       fields: null,
       infoOpen: false,
       primaryMenuOpen: false
@@ -1778,6 +1773,7 @@ export const SiftrView = createClass({
     return (
       <SiftrThumbnails
         ref="thumbs"
+        view={this.state.mainView}
         online={this.props.online}
         notes={this.state[notesKey]}
         game={this.props.game}
@@ -2621,7 +2617,7 @@ export const SiftrView = createClass({
                 this.state.createNote.uploading
               )
                 ? this.renderMap()
-                : this.state.mainView === "thumbs"
+                : this.state.mainView === "thumbs" || this.state.mainView === "hybrid"
                   ? [this.renderMap(), this.renderThumbnails()]
                   : [this.renderThumbnails(), this.renderMap()]}
               {this.renderNoteView()}
@@ -2711,19 +2707,22 @@ export const SiftrView = createClass({
                   onPress={() => {
                     this.setState({
                       mainView:
-                        this.state.mainView === "thumbs" ? "map" : "thumbs"
+                        this.state.mainView === "hybrid" ? "map" :
+                        this.state.mainView === "map" ? "thumbs" :
+                        "hybrid"
                     });
                   }}
                 >
                   <Image
                     style={{
                       resizeMode: "contain",
-                      height: 30
+                      width: 92 / 3,
+                      height: 92 / 3,
                     }}
                     source={
-                      this.state.mainView === "thumbs"
-                        ? require("../web/assets/img/icon-map.png")
-                        : require("../web/assets/img/icon-grid.png")
+                      this.state.mainView === "map" ? require("../web/assets/img/mobile-view-map.png")
+                      : this.state.mainView === "hybrid" ? require("../web/assets/img/mobile-view-hybrid.png")
+                      : require("../web/assets/img/mobile-view-gallery.png")
                     }
                   />
                 </TouchableOpacity>

@@ -96,6 +96,47 @@ export class SiftrThumbnails extends React.Component {
   }
 
   render() {
+    if (this.props.view === 'hybrid') {
+      return (
+        <InfiniteScrollView
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+          }}
+          canLoadMore={this.props.hasMore}
+          onLoadMoreAsync={this.props.loadMore}
+          horizontal={true}
+        >
+          <View style={{
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flex: 1,
+          }}>
+            {
+              this.props.notes.map((note) =>
+                <CacheMedia
+                  key={note.note_id}
+                  url={note.thumb_url}
+                  online={this.props.online}
+                  withURL={(url) =>
+                    <NoteCard
+                      source={url}
+                      note={note}
+                      onSelectNote={this.props.onSelectNote}
+                      getColor={this.props.getColor}
+                    />
+                  }
+                />
+              )
+            }
+          </View>
+        </InfiniteScrollView>
+      );
+    }
     return <InfiniteScrollView
       ref="scroll"
       style={{
