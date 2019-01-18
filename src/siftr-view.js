@@ -86,6 +86,8 @@ function fixLongitude(longitude) {
   return longitude;
 }
 
+const viewModeSize = 92 / 3.5;
+
 // @ifdef NATIVE
 const SiftrInfo = createClass({
   displayName: "SiftrInfo",
@@ -2635,42 +2637,42 @@ export const SiftrView = createClass({
                   borderTopRightRadius: 5,
                 }}>
                   <TouchableOpacity
-                    style={{padding: 10}}
+                    style={{padding: 10, marginLeft: 4, marginRight: 4}}
                     onPress={() => this.setState({mainView: 'hybrid', viewPopup: false})}
                   >
                     <Image
                       style={{
                         resizeMode: "contain",
-                        width: 92 / 3,
-                        height: 92 / 3,
+                        width: viewModeSize,
+                        height: viewModeSize,
                       }}
                       source={require("../web/assets/img/mobile-view-hybrid.png")}
                     />
                   </TouchableOpacity>
-                  <View style={{width: 1, height: 92 / 3, backgroundColor: 'white'}} />
+                  <View style={{width: 1, height: viewModeSize, backgroundColor: 'white'}} />
                   <TouchableOpacity
-                    style={{padding: 10}}
+                    style={{padding: 10, marginLeft: 4, marginRight: 4}}
                     onPress={() => this.setState({mainView: 'map', viewPopup: false})}
                   >
                     <Image
                       style={{
                         resizeMode: "contain",
-                        width: 92 / 3,
-                        height: 92 / 3,
+                        width: viewModeSize,
+                        height: viewModeSize,
                       }}
                       source={require("../web/assets/img/mobile-view-map.png")}
                     />
                   </TouchableOpacity>
-                  <View style={{width: 1, height: 92 / 3, backgroundColor: 'white'}} />
+                  <View style={{width: 1, height: viewModeSize, backgroundColor: 'white'}} />
                   <TouchableOpacity
-                    style={{padding: 10}}
+                    style={{padding: 10, marginLeft: 4, marginRight: 4}}
                     onPress={() => this.setState({mainView: 'thumbs', viewPopup: false})}
                   >
                     <Image
                       style={{
                         resizeMode: "contain",
-                        width: 92 / 3,
-                        height: 92 / 3,
+                        width: viewModeSize,
+                        height: viewModeSize,
                       }}
                       source={require("../web/assets/img/mobile-view-gallery.png")}
                     />
@@ -2757,6 +2759,28 @@ export const SiftrView = createClass({
                   backgroundColor: "white"
                 }}
               >
+                {
+                  this.state.viewPopup && (
+                    <View
+                      style={{
+                        // triangle pointing down
+                        position: 'absolute',
+                        top: 0,
+                        left: 5 + viewModeSize / 2,
+                        width: 0,
+                        height: 0,
+                        backgroundColor: 'transparent',
+                        borderStyle: 'solid',
+                        borderLeftWidth: 6,
+                        borderRightWidth: 6,
+                        borderTopWidth: 8,
+                        borderLeftColor: 'transparent',
+                        borderRightColor: 'transparent',
+                        borderTopColor: 'rgb(220,223,225)',
+                      }}
+                    />
+                  )
+                }
                 <TouchableOpacity
                   style={{
                     padding: 10
@@ -2768,8 +2792,8 @@ export const SiftrView = createClass({
                   <Image
                     style={{
                       resizeMode: "contain",
-                      width: 92 / 3,
-                      height: 92 / 3,
+                      width: viewModeSize,
+                      height: viewModeSize,
                     }}
                     source={
                       this.state.mainView === "map" ? require("../web/assets/img/mobile-view-map.png")
