@@ -211,6 +211,7 @@ export const Note = class Note {
         this.user = new User({
           user_id: json.user_id,
           display_name: json.display_name || json.user_name,
+          media_id: json.user_media_id,
         });
       }
       this.description = json.description;

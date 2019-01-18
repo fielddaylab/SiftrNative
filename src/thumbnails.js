@@ -33,6 +33,7 @@ class NoteCard extends React.Component {
   }
 
   render() {
+    // console.log('mtnc: ' + JSON.stringify(this.props.note.user))
     return (
       <TouchableOpacity onPress={() => this.props.onSelectNote(this.props.note)} style={{
         borderRadius: 5,
@@ -63,6 +64,25 @@ class NoteCard extends React.Component {
           flexDirection: 'row',
           alignItems: 'center',
         }}>
+          <CacheMedia
+            media_id={this.props.note.user.media_id}
+            size="thumb_url"
+            auth={this.props.auth}
+            online={this.props.online}
+            withURL={(url) => (
+              <Image
+                source={url}
+                style={{
+                  margin: 7,
+                  marginRight: 0,
+                  width: 16,
+                  height: 16,
+                  borderRadius: 8,
+                  resizeMode: 'cover',
+                }}
+              />
+            )}
+          />
           <Text style={{flex: 1, margin: 7, fontWeight: 'bold'}}>
             {this.props.note.user.display_name}
           </Text>
@@ -124,6 +144,8 @@ export class SiftrThumbnails extends React.Component {
                   online={this.props.online}
                   withURL={(url) =>
                     <NoteCard
+                      auth={this.props.auth}
+                      online={this.props.online}
                       source={url}
                       note={note}
                       onSelectNote={this.props.onSelectNote}
@@ -173,6 +195,8 @@ export class SiftrThumbnails extends React.Component {
             }
             return (
               <NoteCard
+                auth={this.props.auth}
+                online={this.props.online}
                 key={dir.name}
                 source={{uri: url}}
                 note={note}
@@ -187,6 +211,8 @@ export class SiftrThumbnails extends React.Component {
               online={this.props.online}
               withURL={(url) =>
                 <NoteCard
+                  auth={this.props.auth}
+                  online={this.props.online}
                   source={url}
                   note={note}
                   onSelectNote={this.props.onSelectNote}

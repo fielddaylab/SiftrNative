@@ -1781,6 +1781,7 @@ export const SiftrView = createClass({
         ref="thumbs"
         view={this.state.mainView}
         online={this.props.online}
+        auth={this.props.auth}
         notes={this.state[notesKey]}
         game={this.props.game}
         pendingNotes={(() => {
