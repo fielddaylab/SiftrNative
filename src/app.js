@@ -28,6 +28,7 @@ import firebase from "react-native-firebase";
 import Permissions from "react-native-permissions";
 import { NativeLogin } from "./native-login";
 import { NativeHome, Loading } from "./native-home";
+import Orientation from 'react-native-orientation-locker';
 // @endif
 
 import { Auth, Game, displayError } from "./aris";
@@ -143,6 +144,7 @@ export var SiftrNative = createClass({
         });
       }
     });
+    Orientation.lockToPortrait();
   },
   componentWillUnmount: function() {
     NetInfo.removeEventListener("connectionChange", this.withInfo);
@@ -157,6 +159,7 @@ export var SiftrNative = createClass({
     if (this.watchID) {
       navigator.geolocation.clearWatch(this.watchID);
     }
+    Orientation.unlockAllOrientations();
   },
   parseURL: function(url) {
     var auth,

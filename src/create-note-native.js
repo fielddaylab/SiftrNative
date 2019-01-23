@@ -31,7 +31,6 @@ import Geocoder from "react-native-geocoder";
 import Permissions from "react-native-permissions";
 import { Auth, Game, Tag, Field, FieldData } from "./aris";
 import { requestImage } from "./photos";
-import Orientation from 'react-native-orientation-locker';
 
 // Not used currently
 const SiftrRoll = class SiftrRoll extends React.Component {
@@ -167,11 +166,9 @@ export const CreatePhoto = createClass({
       // permission to access photos
       this.setState({photoPermission: response});
     });
-    Orientation.lockToPortrait();
   },
   componentWillUnmount: function() {
     BackHandler.removeEventListener("hardwareBackPress", this.hardwareBack);
-    Orientation.unlockAllOrientations();
   },
   render: function() {
     return (

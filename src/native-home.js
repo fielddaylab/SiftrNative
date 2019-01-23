@@ -305,22 +305,9 @@ class NativeHomeNew extends React.Component {
                 backgroundColor="rgba(0,0,0,0)"
                 leaveBar={true}
               />
-              <View style={{alignItems: 'center'}}>
-                <TouchableOpacity onPress={() => this.setState({add: false})}>
-                  <Image
-                    source={require('../web/assets/img/siftr-icon-x.png')}
-                    style={{
-                      width: 33,
-                      height: 33,
-                      margin: 10,
-                    }}
-                  />
-                </TouchableOpacity>
-              </View>
               <View>
                 <Text style={{
                   margin: 20,
-                  marginTop: 10,
                   fontSize: 28,
                   fontWeight: 'bold',
                   fontFamily: 'League Spartan',
@@ -341,6 +328,18 @@ class NativeHomeNew extends React.Component {
                   online={this.props.online}
                   recent={this.props.recent}
                 />
+              </View>
+              <View style={{alignItems: 'center'}}>
+                <TouchableOpacity onPress={() => this.setState({add: false})}>
+                  <Image
+                    source={require('../web/assets/img/siftr-icon-x.png')}
+                    style={{
+                      width: 33,
+                      height: 33,
+                      margin: 10,
+                    }}
+                  />
+                </TouchableOpacity>
               </View>
             </SafeAreaView>
           </Modal>
