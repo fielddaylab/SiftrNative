@@ -82,7 +82,17 @@ class MapCluster extends React.Component {
     super(props);
   }
 
+  thumbFocused(props = this.props) {
+    return props.thumbHover && props.cluster.note_ids.indexOf('' + props.thumbHover) !== -1;
+  }
+
   // @ifdef NATIVE
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.markerRef && this.thumbFocused() !== this.thumbFocused(prevProps)) {
+      this.markerRef.redraw();
+    }
+  }
+
   render() {
     const w = 30;
     const r = w / 2;
@@ -123,6 +133,7 @@ class MapCluster extends React.Component {
     blurStops();
     return <MapView.Marker
       tracksViewChanges={false}
+      ref={ref => this.markerRef = ref}
       coordinate={{
         latitude: this.props.lat,
         longitude: this.props.lng,
@@ -175,8 +186,8 @@ class MapCluster extends React.Component {
           }
           <SvgText
             textAnchor="middle"
-            stroke="black"
-            fill="white"
+            stroke={this.thumbFocused() ? 'white' : 'black'}
+            fill={this.thumbFocused() ? 'black' : 'white'}
             x={r + 5}
             y={(w + 3) * 0.65}
             fontSize={w * (2/3)}
@@ -205,7 +216,7 @@ class MapCluster extends React.Component {
     stops.unshift(`${last_color} 1 0%`);
     const gradient = getConicGradient({stops: stops.join(', '), size: width});
     let className = 'siftr-map-cluster';
-    if (this.props.thumbHover && this.props.cluster.note_ids.indexOf('' + this.props.thumbHover) !== -1) {
+    if (this.thumbFocused()) {
       className += ' hybrid-hover';
     }
     return <div className={className} style={{background: `url(${gradient})`}}
@@ -243,12 +254,23 @@ class MapNote extends React.Component {
     super(props);
   }
 
+  thumbFocused(props = this.props) {
+    return props.thumbHover && props.thumbHover == this.props.note.note_id;
+  }
+
   // @ifdef NATIVE
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.markerRef && this.thumbFocused() !== this.thumbFocused(prevProps)) {
+      this.markerRef.redraw();
+    }
+  }
+
   render() {
     const w = 16;
     const r = w / 2;
     return <MapView.Marker
       tracksViewChanges={false}
+      ref={ref => this.markerRef = ref}
       coordinate={{
         latitude: this.props.lat,
         longitude: this.props.lng,
@@ -274,6 +296,8 @@ class MapNote extends React.Component {
           width: w,
           height: w,
           borderRadius: r,
+          borderWidth: this.thumbFocused() ? 2 : 0,
+          borderColor: 'white',
           backgroundColor: this.props.getColor(this.props.note.tag_id),
         }} />
       </View>
@@ -285,7 +309,7 @@ class MapNote extends React.Component {
   // @ifdef WEB
   render() {
     let className = 'siftr-map-note';
-    if (this.props.thumbHover && this.props.note.note_id === this.props.thumbHover) {
+    if (this.thumbFocused()) {
       className += ' hybrid-hover';
     }
     return <div className={className}>

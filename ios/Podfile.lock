@@ -59,13 +59,13 @@ PODS:
     - React
   - react-native-geocoder (0.5.0):
     - React
-  - react-native-google-maps (0.21.0):
+  - react-native-google-maps (0.23.0):
     - Google-Maps-iOS-Utils (= 2.1.0)
     - GoogleMaps (= 2.5.0)
     - React
   - react-native-image-picker (0.14.3):
     - React
-  - react-native-maps (0.21.0):
+  - react-native-maps (0.23.0):
     - React
   - react-native-orientation-locker (1.0.22):
     - React
@@ -220,7 +220,7 @@ SPEC CHECKSUMS:
   React: 1fe0eb13d90b625d94c3b117c274dcfd2e760e11
   react-native-camera: 68ad5143d2d0636236d46c7de8d2a6455ca52a36
   react-native-geocoder: 33b16a5929aa868fef37acb4f7ee10a428cd5fff
-  react-native-google-maps: 2cfe3b01f8422c7dae51d8764139fd70f888cfce
+  react-native-google-maps: b946d62e25dc66097921ed82520e45b0b081768a
   react-native-image-picker: b303e31c3c4ada1d7cb1342423d328d2efb07fb3
   react-native-maps: 066c2afcc89e18726377bcc685315f989ca22449
   react-native-orientation-locker: 2059d64f64807d710c731439dcd688ec7acc9f8a

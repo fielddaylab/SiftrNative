@@ -14,6 +14,7 @@ import
 , TouchableOpacity
 , Image
 , Platform
+, Dimensions
 } from 'react-native';
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
 import {CacheMedia} from './media';
@@ -94,7 +95,7 @@ class NoteCard extends React.Component {
             backgroundColor: this.props.getColor(this.props.note.tag_id),
           }} />
         </View>
-        <Text style={{margin: 7}} numberOfLines={1}>
+        <Text style={{margin: 7}} numberOfLines={this.props.expand ? 4 : 1}>
           {this.props.note.description}
         </Text>
       </TouchableOpacity>
@@ -106,6 +107,7 @@ class NoteCard extends React.Component {
 export class SiftrThumbnails extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {};
   }
 
   // @ifdef NATIVE
@@ -128,16 +130,30 @@ export class SiftrThumbnails extends React.Component {
           canLoadMore={this.props.hasMore}
           onLoadMoreAsync={this.props.loadMore}
           horizontal={true}
+          snapToInterval={190 /* NoteCard width 180 + margin 5 * 2 */}
+          snapToAlignment="center"
+          onScroll={(event) => {
+            const x = event.nativeEvent.contentOffset.x;
+            const w = Dimensions.get('window').width;
+            const cardScroll = (x + w / 2) / 190;
+            let cardIndex = Math.floor(cardScroll);
+            const cardPosition = cardScroll - cardIndex;
+            if (!(0.4 < cardPosition && cardPosition < 0.6)) {
+              cardIndex = -1;
+            }
+            this.setState({cardIndex});
+            this.props.onMouseEnter(this.props.notes[cardIndex]);
+          }}
         >
           <View style={{
             flexDirection: 'row',
             flexWrap: 'wrap',
-            alignItems: 'center',
+            alignItems: 'flex-end',
             justifyContent: 'center',
             flex: 1,
           }}>
             {
-              this.props.notes.map((note) =>
+              this.props.notes.map((note, i) =>
                 <CacheMedia
                   key={note.note_id}
                   url={note.thumb_url}
@@ -150,6 +166,7 @@ export class SiftrThumbnails extends React.Component {
                       note={note}
                       onSelectNote={this.props.onSelectNote}
                       getColor={this.props.getColor}
+                      expand={this.state.cardIndex === i}
                     />
                   }
                 />

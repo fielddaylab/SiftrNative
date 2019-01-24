@@ -1763,9 +1763,7 @@ export const SiftrView = createClass({
             });
           }
         }}
-        thumbHover={
-          (ref = this.state.thumbHover) != null ? ref.note_id : void 0
-        }
+        thumbHover={this.state.thumbHover && this.state.thumbHover.note_id}
         tags={this.state.tags}
         game={this.props.game}
       />
