@@ -141,16 +141,20 @@ export class SiftrThumbnails extends React.Component {
             if (!(0.4 < cardPosition && cardPosition < 0.6)) {
               cardIndex = -1;
             }
+            cardIndex -= 1; // remove blank spot at start
             this.setState({cardIndex});
             this.props.onMouseEnter(this.props.notes[cardIndex]);
           }}
         >
           <View style={{
+            width: 190,
+            height: 1,
+          }} />
+          <View style={{
             flexDirection: 'row',
             flexWrap: 'wrap',
             alignItems: 'flex-end',
             justifyContent: 'center',
-            flex: 1,
           }}>
             {
               this.props.notes.map((note, i) =>
@@ -173,6 +177,10 @@ export class SiftrThumbnails extends React.Component {
               )
             }
           </View>
+          <View style={{
+            width: 190,
+            height: 1,
+          }} />
         </InfiniteScrollView>
       );
     }

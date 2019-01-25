@@ -83,7 +83,11 @@ class MapCluster extends React.Component {
   }
 
   thumbFocused(props = this.props) {
-    return props.thumbHover && props.cluster.note_ids.indexOf('' + props.thumbHover) !== -1;
+    if (typeof props.cluster.note_ids[0] === 'string') {
+      return props.thumbHover && props.cluster.note_ids.indexOf('' + props.thumbHover) !== -1;
+    } else {
+      return props.thumbHover && props.cluster.note_ids.indexOf(props.thumbHover) !== -1;
+    }
   }
 
   // @ifdef NATIVE
@@ -94,7 +98,11 @@ class MapCluster extends React.Component {
   }
 
   render() {
-    const w = 30;
+    const smallSize = 30;
+    const bigSize = 45;
+    const focus = this.thumbFocused();
+    const w = focus ? bigSize : smallSize;
+    const margin = focus ? 0 : (bigSize - smallSize) / 2;
     const r = w / 2;
     let stops = [];
     let startRads = 0;
@@ -144,17 +152,17 @@ class MapCluster extends React.Component {
       pinColor="black"
       onPress={() => this.props.onSelect(this.props.cluster)}
     >
-      <View style={{width: w + 13, height: w + 3}}>
+      <View style={{width: bigSize + 13, height: bigSize + 3}}>
         <View style={{
           position: 'absolute',
-          top: 2,
-          left: 6,
+          top: 2 + margin,
+          left: 6 + margin,
           width: w,
           height: w,
           borderRadius: r,
           backgroundColor: 'rgba(0,0,0,0.5)',
         }} />
-        <Svg width={w + 11} height={w + 1}>
+        <Svg width={bigSize + 11} height={bigSize + 1} viewBox={`${-margin} ${-margin} ${bigSize + 11} ${bigSize + 1}`}>
           {
             (function(){
               const results = [];
@@ -186,17 +194,20 @@ class MapCluster extends React.Component {
           }
           <SvgText
             textAnchor="middle"
-            stroke={this.thumbFocused() ? 'white' : 'black'}
-            fill={this.thumbFocused() ? 'black' : 'white'}
+            stroke="black"
+            fill="white"
             x={r + 5}
             y={(w + 3) * 0.65}
-            fontSize={w * (2/3)}
+            fontSize={smallSize * (2/3)}
             fontWeight={Platform.OS === 'ios' ? '900' : 'bold'}
           >{this.props.cluster.note_count}</SvgText>
         </Svg>
       </View>
       <MapView.Callout tooltip={true} />
     </MapView.Marker>;
+    // SvgText above doesn't get position fixed on size change; see
+    // https://github.com/react-native-community/react-native-svg/issues/709
+    // (will be fixed with RNSVG upgrade which requires RN 0.57.4)
   }
   // @endif
 
@@ -266,7 +277,11 @@ class MapNote extends React.Component {
   }
 
   render() {
-    const w = 16;
+    const bigSize = 24;
+    const smallSize = 16;
+    const focus = this.thumbFocused();
+    const margin = focus ? 0 : (bigSize - smallSize) / 2;
+    const w = focus ? bigSize : smallSize;
     const r = w / 2;
     return <MapView.Marker
       tracksViewChanges={false}
@@ -275,6 +290,7 @@ class MapNote extends React.Component {
         latitude: this.props.lat,
         longitude: this.props.lng,
       }}
+      anchor={{x: 0.5, y: 0.5}}
       title=""
       description=""
       pinColor={this.props.getColor(this.props.note.tag_id)}
@@ -282,22 +298,23 @@ class MapNote extends React.Component {
         this.props.onSelect(this.props.note);
       }}
     >
-      <View style={{width: w + 3, height: w + 3}}>
+      <View style={{width: bigSize + 3, height: bigSize + 3}}>
         <View style={{
           position: 'absolute',
-          top: 2,
-          left: 1,
+          top: 2 + margin,
+          left: 1 + margin,
           width: w,
           height: w,
           borderRadius: r,
           backgroundColor: 'rgba(0,0,0,0.5)',
         }} />
         <View style={{
+          position: 'absolute',
+          top: margin,
+          left: margin,
           width: w,
           height: w,
           borderRadius: r,
-          borderWidth: this.thumbFocused() ? 2 : 0,
-          borderColor: 'white',
           backgroundColor: this.props.getColor(this.props.note.tag_id),
         }} />
       </View>
