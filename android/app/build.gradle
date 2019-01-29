@@ -152,7 +152,7 @@ dependencies {
     api project(':react-native-firebase')
     api "com.google.android.gms:play-services-base:15.0.1"
     api "com.google.firebase:firebase-core:16.0.1"
-    api "com.google.android.gms:play-services-maps:15.0.1"
+    api "com.google.android.gms:play-services-maps:16.0.0"
     api project(':react-native-svg')
     api project(':react-native-maps')
     api project(':react-native-image-picker')
