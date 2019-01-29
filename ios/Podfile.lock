@@ -49,13 +49,13 @@ PODS:
   - nanopb/encode (0.3.8)
   - React (0.56.0):
     - React/Core (= 0.56.0)
-  - react-native-camera (1.2.0):
+  - react-native-camera (1.9.2):
     - React
-    - react-native-camera/RCT (= 1.2.0)
-    - react-native-camera/RN (= 1.2.0)
-  - react-native-camera/RCT (1.2.0):
+    - react-native-camera/RCT (= 1.9.2)
+    - react-native-camera/RN (= 1.9.2)
+  - react-native-camera/RCT (1.9.2):
     - React
-  - react-native-camera/RN (1.2.0):
+  - react-native-camera/RN (1.9.2):
     - React
   - react-native-geocoder (0.5.0):
     - React
@@ -67,7 +67,7 @@ PODS:
     - React
   - react-native-maps (0.23.0):
     - React
-  - react-native-orientation-locker (1.0.22):
+  - react-native-orientation-locker (1.1.1):
     - React
   - React/Core (0.56.0):
     - yoga (= 0.56.0.React)
@@ -119,10 +119,10 @@ PODS:
     - React/RCTBlob
   - ReactNativePermissions (1.1.1):
     - React
-  - RNFirebase (4.3.8):
+  - RNFirebase (5.2.1):
     - Firebase/Core
     - React
-  - RNFS (2.11.15):
+  - RNFS (2.13.3):
     - React
   - RNSVG (6.5.2):
     - React
@@ -218,14 +218,14 @@ SPEC CHECKSUMS:
   GoogleToolboxForMac: 2501e2ad72a52eb3dfe7bd9aee7dad11b858bd20
   nanopb: 5601e6bca2dbf1ed831b519092ec110f66982ca3
   React: 1fe0eb13d90b625d94c3b117c274dcfd2e760e11
-  react-native-camera: 68ad5143d2d0636236d46c7de8d2a6455ca52a36
+  react-native-camera: a8d04ef12749def72cae86b0b8d28c2de891a392
   react-native-geocoder: 33b16a5929aa868fef37acb4f7ee10a428cd5fff
   react-native-google-maps: b946d62e25dc66097921ed82520e45b0b081768a
   react-native-image-picker: b303e31c3c4ada1d7cb1342423d328d2efb07fb3
   react-native-maps: 066c2afcc89e18726377bcc685315f989ca22449
   react-native-orientation-locker: 2059d64f64807d710c731439dcd688ec7acc9f8a
   ReactNativePermissions: 9f2d9c45c98800795e6c2ed330e25d11a66a8169
-  RNFirebase: 2b25fd2e60269f26bb0a76c71dcc942b35a77df0
+  RNFirebase: 57f6c2adb24355b4e6211e028a8e97e473432245
   RNFS: bbb1a64eb245763daf34aea86f97c97c4e85f74c
   RNSVG: 6252323c0312735f0af5f58b5adf2965b6a9ffbf
   yoga: b1ce48b6cf950b98deae82838f5173ea7cf89e85
