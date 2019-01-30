@@ -492,12 +492,11 @@ export class NativeCard extends React.Component {
             }}>
               {this.props.game.name}
             </Text>
-            <Text numberOfLines={2} style={{
-              color: 'rgb(140,140,140)',
+            <Text numberOfLines={3} style={{
               fontSize: 12,
               margin: 4,
             }}>
-              {this.authorName()}
+              {removeMarkdown(this.props.game.description)}
             </Text>
           </View>
           <View style={{width: 50}}>
