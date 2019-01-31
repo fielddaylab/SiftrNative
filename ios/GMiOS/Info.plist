@@ -33,8 +33,8 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-    <key>NSAllowsArbitraryLoads</key>
-    <true/>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
 		<key>NSExceptionDomains</key>
 		<dict>
 			<key>localhost</key>
@@ -49,6 +49,8 @@
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>This permission is not used by Siftr.</string>
 	<key>NSCalendarsUsageDescription</key>
+	<string>This permission is not used by Siftr.</string>
+	<key>NSMicrophoneUsageDescription</key>
 	<string>This permission is not used by Siftr.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Allows you to take photos to upload to a Siftr project.</string>
