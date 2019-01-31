@@ -45,7 +45,7 @@ export class NativeCard extends React.Component {
       if (!this._isMounted) {
         return;
       }
-      return this.setState({
+      this.setState({
         photos: mapMaybe(notes.slice(0, 8), (note) => {
           if (note.thumb_url != null) {
             return {
@@ -69,6 +69,18 @@ export class NativeCard extends React.Component {
         })()
       });
     };
+    // first we try to read notes.txt
+    const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
+    let liveNotes = false;
+    RNFS.readFile(`${siftrDir}/notes.txt`).then((json) => {
+      if (!liveNotes) {
+        const notes = JSON.parse(json).map((note) => deserializeNote(note));
+        useNotes(notes);
+      }
+    }).catch((err) => {
+      return null; // whatever
+    });
+    // then if online we try to read the current notes
     if (this.props.online) {
       this.xhrs = [
         this.props.auth.getUsersForGame({
@@ -82,16 +94,12 @@ export class NativeCard extends React.Component {
         this.props.auth.searchNotes({
           game_id: this.props.game.game_id,
           order_by: 'recent'
-        }, withSuccess(useNotes, true /* don't warn on error */)),
+        }, withSuccess((notes) => {
+          liveNotes = true;
+          RNFS.writeFile(`${siftrDir}/notes.txt`, JSON.stringify(notes));
+          useNotes(notes);
+        }, true /* don't warn on error */)),
       ];
-    } else {
-      const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
-      return RNFS.readFile(`${siftrDir}/notes.txt`).then((json) => {
-        const notes = JSON.parse(json).map((note) => deserializeNote(note));
-        useNotes(notes);
-      }).catch((err) => {
-        return null; // whatever
-      });
     }
   }
 
