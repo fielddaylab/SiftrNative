@@ -1396,7 +1396,10 @@ export const SiftrNoteView = function() {
           return {url: `${this.props.note.dir}/${f.filename}`, online: this.props.online};
         });
       } else {
-        photos = [{media_id: this.props.note.media_id, auth: this.props.auth, online: this.props.online}];
+        photos = [];
+        if (this.props.note.media_id) {
+          photos.push({media_id: this.props.note.media_id, auth: this.props.auth, online: this.props.online});
+        }
         if (this.state.field_data != null && this.props.fields != null) {
           this.props.fields.forEach((field) => {
             if (field.field_type === 'MEDIA') {
@@ -1587,7 +1590,13 @@ export const SiftrNoteView = function() {
               ? "This note has not yet been uploaded."
               : this.props.note.created.toLocaleString()}
           </Text>
-          <View>{writeParagraphs(this.props.note.description)}</View>
+          <View>{writeParagraphs((() => {
+            if (this.props.game.newFormat()) {
+              return "";
+            } else {
+              return this.props.note.description;
+            }
+          })())}</View>
           {this.showFields(Text)}
           {this.props.note.pending ? null : this.state.comments === null ? (
             <Text

@@ -1668,6 +1668,7 @@ export const SiftrView = createClass({
           onPromptLogin={this.props.onPromptLogin}
           getColor={this.getColor}
           fields={this.state.fields}
+          game={this.props.game}
           tag={(() => {
             var i, len, ref, ref1, tag;
             ref1 = (ref = this.state.tags) != null ? ref : [];

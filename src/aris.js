@@ -32,6 +32,9 @@ export const Game = class Game {
       this.map_show_labels = parseInt(json.map_show_labels) ? true : false;
       this.map_show_roads = parseInt(json.map_show_roads) ? true : false;
       this.map_type = json.map_type;
+      this.field_id_preview = parseInt(json.field_id_preview) || null;
+      this.field_id_pin = parseInt(json.field_id_pin) || null;
+      this.field_id_caption = parseInt(json.field_id_caption) || null;
     } else {
       this.game_id = null;
       this.name = null;
@@ -53,6 +56,9 @@ export const Game = class Game {
       this.map_show_labels = null;
       this.map_show_roads = null;
       this.map_type = null;
+      this.field_id_preview = null;
+      this.field_id_pin = null;
+      this.field_id_caption = null;
     }
   }
 
@@ -77,7 +83,14 @@ export const Game = class Game {
       map_show_labels: this.map_show_labels,
       map_show_roads: this.map_show_roads,
       map_type: this.map_type,
+      field_id_preview: this.field_id_preview,
+      field_id_pin: this.field_id_pin,
+      field_id_caption: this.field_id_caption,
     };
+  }
+
+  newFormat() {
+    return this.field_id_preview || this.field_id_pin || this.field_id_caption;
   }
 };
 
@@ -559,6 +572,7 @@ export const Auth = class Auth {
               }
             })
           : json;
+      json = update(json, {api: {$set: 2}});
       jsonString = JSON.stringify(json);
       req.onload = () => {
         var ref;
