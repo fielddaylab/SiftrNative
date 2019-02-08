@@ -226,7 +226,8 @@ export var NativeLogin = createClass({
                 <View
                   style={{
                     flex: 1,
-                    flexDirection: "column"
+                    flexDirection: "column",
+                    backgroundColor: "white",
                   }}
                 >
                   <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -314,7 +315,8 @@ export var NativeLogin = createClass({
                 <View
                   style={{
                     flex: 1,
-                    flexDirection: "column"
+                    flexDirection: "column",
+                    backgroundColor: "white",
                   }}
                 >
                   <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

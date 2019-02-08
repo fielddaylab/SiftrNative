@@ -2688,7 +2688,7 @@ export const SiftrView = createClass({
                 !(this.state.searchOpen) && (
                 <View style={{
                   position: 'absolute',
-                  bottom: 0,
+                  top: 0,
                   left: 0,
                   right: 0,
                   alignItems: 'center',
