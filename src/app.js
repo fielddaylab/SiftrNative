@@ -292,6 +292,7 @@ export var SiftrNative = createClass({
     );
   },
   updateFollowed: function() {
+    // @ifdef NATIVE
     const storeFollowed = `${RNFS.DocumentDirectoryPath}/siftrs/followed.txt`;
     if (this.state.online) {
       const thisUpdate = this.lastUpdate = Date.now();
@@ -319,6 +320,7 @@ export var SiftrNative = createClass({
         this.setState({followed: siftrs});
       });
     }
+    // @endif
   },
   followGame: function(game, cb) {
     this.state.auth.call(
