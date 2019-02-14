@@ -96,7 +96,11 @@ class NoteCard extends React.Component {
           }} />
         </View>
         <Text style={{margin: 7}} numberOfLines={this.props.expand ? 4 : 1}>
-          {this.props.note.description}
+          {
+            this.props.game.field_id_caption
+            ? this.props.note.field_data[this.props.game.field_id_caption]
+            : this.props.note.description
+          }
         </Text>
       </TouchableOpacity>
     );
@@ -160,7 +164,10 @@ export class SiftrThumbnails extends React.Component {
               this.props.notes.map((note, i) =>
                 <CacheMedia
                   key={note.note_id}
-                  url={note.thumb_url}
+                  auth={this.props.auth}
+                  media_id={this.props.game.field_id_preview ? note.field_data[this.props.game.field_id_preview] : undefined}
+                  size={this.props.game.field_id_preview ? 'thumb_url' : undefined}
+                  url={this.props.game.field_id_preview ? undefined : note.thumb_url}
                   online={this.props.online}
                   withURL={(url) =>
                     <NoteCard
@@ -171,6 +178,7 @@ export class SiftrThumbnails extends React.Component {
                       onSelectNote={this.props.onSelectNote}
                       getColor={this.props.getColor}
                       expand={this.state.cardIndex === i}
+                      game={this.props.game}
                     />
                   }
                 />
@@ -227,12 +235,16 @@ export class SiftrThumbnails extends React.Component {
                 note={note}
                 onSelectNote={this.props.onSelectNote}
                 getColor={this.props.getColor}
+                game={this.props.game}
               />
             );
           }).concat(this.props.notes.map((note) =>
             <CacheMedia
               key={note.note_id}
-              url={note.thumb_url}
+              auth={this.props.auth}
+              media_id={this.props.game.field_id_preview ? note.field_data[this.props.game.field_id_preview] : undefined}
+              size={this.props.game.field_id_preview ? 'thumb_url' : undefined}
+              url={this.props.game.field_id_preview ? undefined : note.thumb_url}
               online={this.props.online}
               withURL={(url) =>
                 <NoteCard
@@ -242,6 +254,7 @@ export class SiftrThumbnails extends React.Component {
                   note={note}
                   onSelectNote={this.props.onSelectNote}
                   getColor={this.props.getColor}
+                  game={this.props.game}
                 />
               }
             />

@@ -322,6 +322,13 @@ export const Note = class Note {
         return results;
       })();
       this.published = json.published;
+      this.field_data = {};
+      for (const k in json) {
+        if (k.indexOf('field_') === 0) {
+          const n = parseInt(k.slice('field_'.length))
+          this.field_data[n] = json[k];
+        }
+      }
     }
   }
 };
@@ -572,7 +579,7 @@ export const Auth = class Auth {
               }
             })
           : json;
-      // json = update(json, {api: {$set: 2}});
+      json = update(json, {api: {$set: 2}});
       jsonString = JSON.stringify(json);
       req.onload = () => {
         var ref;
