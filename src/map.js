@@ -106,8 +106,9 @@ class MapCluster extends React.Component {
     const r = w / 2;
     let stops = [];
     let startRads = 0;
-    for (let tag_id in this.props.cluster.tags) {
-      const tag_count = this.props.cluster.tags[tag_id];
+    const tags = this.props.game.newFormat() ? this.props.cluster.fields[this.props.game.field_id_pin] : this.props.cluster.tags;
+    for (let tag_id in tags) {
+      const tag_count = tags[tag_id];
       const color = this.props.getColor(tag_id);
       if (tag_count === this.props.cluster.note_count) {
         stops.push(['circle', 'circle', color]);
@@ -293,7 +294,7 @@ class MapNote extends React.Component {
       anchor={{x: 0.5, y: 0.5}}
       title=""
       description=""
-      pinColor={this.props.getColor(this.props.note.tag_id)}
+      pinColor={this.props.getColor(this.props.note)}
       onPress={() => {
         this.props.onSelect(this.props.note);
       }}
@@ -315,7 +316,7 @@ class MapNote extends React.Component {
           width: w,
           height: w,
           borderRadius: r,
-          backgroundColor: this.props.getColor(this.props.note.tag_id),
+          backgroundColor: this.props.getColor(this.props.note),
         }} />
       </View>
       <MapView.Callout tooltip={true} />
@@ -333,7 +334,7 @@ class MapNote extends React.Component {
       <div className="siftr-map-note-shadow" />
       <div
         className="siftr-map-note-pin"
-        style={{backgroundColor: this.props.getColor(this.props.note.tag_id)}}
+        style={{backgroundColor: this.props.getColor(this.props.note)}}
         onClick={clicker(() => this.props.onSelect(this.props.note))}
         onMouseEnter={() => this.props.onMouseEnter(this.props.note)}
         onMouseLeave={() => this.props.onMouseLeave(this.props.note)}
@@ -522,6 +523,7 @@ export class SiftrMap extends React.Component {
         onMouseEnter={this.props.onMouseEnter}
         onMouseLeave={this.props.onMouseLeave}
         thumbHover={this.props.thumbHover}
+        game={this.props.game}
       />;
     });
   }

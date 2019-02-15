@@ -895,6 +895,7 @@ export const CreateData = createClass({
                     isFocused={this.state.focusedBox === "caption"}
                   >
                     {
+                      !(this.props.game.newFormat()) &&
                       ((descBox = (
                         <TextInput
                           placeholder={this.props.game.prompt || "Enter a caption…"}
@@ -1009,31 +1010,37 @@ export const CreateData = createClass({
                         </View>
                       </TouchableOpacity>
                     </View>
-                    <View style={styles.settingsHeader}>
-                      <Text style={styles.settingsHeaderText}>
-                        Pick category
-                      </Text>
-                    </View>
-                    <CreateSingleSelect
-                      current={this.props.createNote.category}
-                      options={this.props.categories}
-                      getColor={this.props.getColor}
-                      getLabel={cat => {
-                        return cat.tag;
-                      }}
-                      getKey={cat => {
-                        return cat.tag_id;
-                      }}
-                      onSelectOption={cat => {
-                        this.props.onUpdateNote(
-                          update(this.props.createNote, {
-                            category: {
-                              $set: cat
-                            }
-                          })
-                        );
-                      }}
-                    />
+                    {
+                      !(this.props.game.newFormat()) &&
+                      <View style={styles.settingsHeader}>
+                        <Text style={styles.settingsHeaderText}>
+                          Pick category
+                        </Text>
+                      </View>
+                    }
+                    {
+                      !(this.props.game.newFormat()) &&
+                      <CreateSingleSelect
+                        current={this.props.createNote.category}
+                        options={this.props.categories}
+                        getColor={this.props.getColor}
+                        getLabel={cat => {
+                          return cat && cat.tag;
+                        }}
+                        getKey={cat => {
+                          return cat && cat.tag_id;
+                        }}
+                        onSelectOption={cat => {
+                          this.props.onUpdateNote(
+                            update(this.props.createNote, {
+                              category: {
+                                $set: cat
+                              }
+                            })
+                          );
+                        }}
+                      />
+                    }
                   </Blackout>
                   {this.props.fields.map(field => {
                     var field_data, getText, onChangeData, setText;

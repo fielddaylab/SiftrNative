@@ -51,6 +51,7 @@ import {
   Tag,
   Note,
   FieldData,
+  FieldOption,
   Colors,
   Field,
   Theme,
@@ -1068,38 +1069,34 @@ export const SiftrView = createClass({
     }
   },
   getColor: function(x) {
-    var ref, ref1, tag;
+    let tag, index;
     if (!(this.state.tags != null && this.state.colors != null && x != null)) {
       return "white";
     }
     if (x instanceof Tag) {
       tag = x;
+      index = this.state.tags.indexOf(tag);
+    } else if (x instanceof FieldOption) {
+      tag = x;
+      const field = this.state.fields.find((field) => field.field_id === this.props.game.field_id_pin);
+      index = field && field.options.indexOf(tag);
+    } else if (this.props.game.newFormat() && x.field_data != null) {
+      const option_id = x.field_data[this.props.game.field_id_pin];
+      const field = this.state.fields.find((field) => field.field_id === this.props.game.field_id_pin);
+      tag = field && field.options.find((opt) => opt.field_option_id === parseInt(option_id));
+      index = field && field.options.indexOf(tag);
     } else if (x.tag_id != null) {
-      tag = function() {
-        var i, len, ref, results;
-        ref = this.state.tags;
-        results = [];
-        for (i = 0, len = ref.length; i < len; i++) {
-          tag = ref[i];
-          if (tag.tag_id === parseInt(x.tag_id)) {
-            results.push(tag);
-          }
-        }
-        return results;
-      }.call(this)[0];
-    } else if ((ref = typeof x) === "number" || ref === "string") {
-      tag = function() {
-        var i, len, ref1, results;
-        ref1 = this.state.tags;
-        results = [];
-        for (i = 0, len = ref1.length; i < len; i++) {
-          tag = ref1[i];
-          if (tag.tag_id === parseInt(x)) {
-            results.push(tag);
-          }
-        }
-        return results;
-      }.call(this)[0];
+      tag = this.state.tags.find((tag) => tag.tag_id === parseInt(x.tag_id));
+      index = this.state.tags.indexOf(tag);
+    } else if (typeof x === "number" || typeof x === "string") {
+      if (this.props.game.newFormat()) {
+        const field = this.state.fields.find((field) => field.field_id === this.props.game.field_id_pin);
+        tag = field && field.options.find((opt) => opt.field_option_id === parseInt(x));
+        index = field && field.options.indexOf(tag);
+      } else {
+        tag = this.state.tags.find((tag) => tag.tag_id === parseInt(x));
+        index = this.state.tags.indexOf(tag);
+      }
     } else {
       return "white";
     }
@@ -1107,8 +1104,9 @@ export const SiftrView = createClass({
     if (tag.color) {
       return tag.color;
     }
+    let ref1;
     return (ref1 = this.state.colors[
-      `tag_${(this.state.tags.indexOf(tag) % 8) + 1}`
+      `tag_${(index % 8) + 1}`
     ]) != null
       ? ref1
       : "white";
@@ -1697,7 +1695,7 @@ export const SiftrView = createClass({
             pin.latitude = this.state.createNote.location.lat;
             pin.longitude = this.state.createNote.location.lng;
             pin.description = this.state.createNote.caption;
-            pin.tag_id = this.state.createNote.category.tag_id;
+            pin.tag_id = this.state.createNote.category ? this.state.createNote.category.tag_id : 0;
             return [pin];
           } else if (this.state.createNote != null) {
             return []; // pin gets shown by CreateStep3 instead
@@ -1712,7 +1710,7 @@ export const SiftrView = createClass({
             pin.latitude = this.state.center.lat;
             pin.longitude = this.state.center.lng;
             pin.description = this.state.createNote.caption;
-            pin.tag_id = this.state.createNote.category.tag_id;
+            pin.tag_id = this.state.createNote.category ? this.state.createNote.category.tag_id : 0;
             return [pin];
           } else {
             return this.state.map_notes;
@@ -1975,7 +1973,7 @@ export const SiftrView = createClass({
               createNote: {
                 files: [
                   {
-                    field_id: null,
+                    field_id: this.props.game.field_id_preview,
                     file: file
                   }
                 ],
@@ -2259,7 +2257,7 @@ export const SiftrView = createClass({
           latitude: location.lat,
           longitude: fixLongitude(location.lng)
         },
-        tag_id: category.tag_id,
+        tag_id: category && category && category.tag_id,
         field_data: field_data
       };
       this.props.auth.call(
@@ -2292,7 +2290,7 @@ export const SiftrView = createClass({
           latitude: location.lat,
           longitude: fixLongitude(location.lng)
         },
-        tag_id: category.tag_id,
+        tag_id: category && category.tag_id,
         field_data: field_data.concat(field_media),
         password: this.props.auth.password,
       };

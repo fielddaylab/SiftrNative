@@ -374,6 +374,7 @@ export const FieldOption = class FieldOption {
       this.option = json.option;
       this.sort_index =
         json.sort_index != null ? parseInt(json.sort_index) : null;
+      this.color = json.color;
     }
   }
 };

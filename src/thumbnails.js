@@ -92,7 +92,7 @@ class NoteCard extends React.Component {
             height: 12,
             borderRadius: 999,
             margin: 7,
-            backgroundColor: this.props.getColor(this.props.note.tag_id),
+            backgroundColor: this.props.getColor(this.props.note),
           }} />
         </View>
         <Text style={{margin: 7}} numberOfLines={this.props.expand ? 4 : 1}>
