@@ -580,7 +580,7 @@ export const Auth = class Auth {
               }
             })
           : json;
-      json = update(json, {api: {$set: 2}});
+      // json = update(json, {api: {$set: 2}});
       jsonString = JSON.stringify(json);
       req.onload = () => {
         var ref;
@@ -664,7 +664,7 @@ export const Auth = class Auth {
         user_name: username,
         password: password,
         permission: "read_write",
-        siftr_version: 20180925,
+        siftr_version: 20190215,
       },
       obj => {
         return this.useLoginResult(obj, true, cb);
