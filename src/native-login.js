@@ -18,6 +18,7 @@ import {
 } from "react-native";
 import { styles, Text } from "./styles";
 import { KeyboardAwareView } from "react-native-keyboard-aware-view";
+import Hyperlink from 'react-native-hyperlink';
 
 export var NativeLogin = createClass({
   displayName: "NativeLogin",
@@ -394,6 +395,17 @@ export var NativeLogin = createClass({
                         onSubmitEditing={this.doRegister}
                         returnKeyType="go"
                       />
+                      <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                        <Hyperlink
+                          linkStyle={{color: '#2980b9'}}
+                          linkText={(url) => 'Terms of Use'}
+                          linkDefault={true}
+                        >
+                          <Text>
+                            https://docs.google.com/document/d/16P8kIfHka-zHXoQcd9mWlUWiOkaTp6I7UcpD_GoB8LY/edit
+                          </Text>
+                        </Hyperlink>
+                      </View>
                     </View>
                   </TouchableWithoutFeedback>
                   <TouchableOpacity

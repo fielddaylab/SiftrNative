@@ -16,7 +16,7 @@ export class Terms extends React.Component {
 
   render() {
     return (
-      <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+      <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white'}}>
         <View style={{margin: 20}}>
           <Hyperlink
             linkStyle={{color: '#2980b9'}}
