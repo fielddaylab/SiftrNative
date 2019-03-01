@@ -35,6 +35,7 @@ export const Game = class Game {
       this.field_id_preview = parseInt(json.field_id_preview) || null;
       this.field_id_pin = parseInt(json.field_id_pin) || null;
       this.field_id_caption = parseInt(json.field_id_caption) || null;
+      this.force_new_format = parseInt(json.force_new_format) ? true : false;
     } else {
       this.game_id = null;
       this.name = null;
@@ -59,6 +60,7 @@ export const Game = class Game {
       this.field_id_preview = null;
       this.field_id_pin = null;
       this.field_id_caption = null;
+      this.force_new_format = null;
     }
   }
 
@@ -90,7 +92,7 @@ export const Game = class Game {
   }
 
   newFormat() {
-    return this.field_id_preview || this.field_id_pin || this.field_id_caption;
+    return this.field_id_preview || this.field_id_pin || this.field_id_caption || this.force_new_format;
   }
 };
 
@@ -580,7 +582,7 @@ export const Auth = class Auth {
               }
             })
           : json;
-      // json = update(json, {api: {$set: 2}});
+      json = update(json, {api: {$set: 2}});
       jsonString = JSON.stringify(json);
       req.onload = () => {
         var ref;
@@ -664,7 +666,7 @@ export const Auth = class Auth {
         user_name: username,
         password: password,
         permission: "read_write",
-        siftr_version: 20190215,
+        siftr_version: 20190301,
       },
       obj => {
         return this.useLoginResult(obj, true, cb);

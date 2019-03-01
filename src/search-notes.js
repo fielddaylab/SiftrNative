@@ -87,15 +87,19 @@ export class SearchNotes extends React.Component {
     }));
   }
 
+  tagID(tag) {
+    return tag.tag_id || tag.field_option_id;
+  }
+
   clickTag(tag) {
     this.props.onSearch(update(this.props.searchParams, {
       tags: {
         $apply: (tag_ids) => {
-          if (tag_ids == null) tag_ids = this.props.tags.map((tag) => tag.tag_id);
-          if (tag_ids.indexOf(tag.tag_id) !== -1) {
-            return tag_ids.filter((tag_id) => tag_id !== tag.tag_id);
+          if (tag_ids == null) tag_ids = this.props.tags.map((tag) => this.tagID(tag));
+          if (tag_ids.indexOf(this.tagID(tag)) !== -1) {
+            return tag_ids.filter((tag_id) => tag_id !== this.tagID(tag));
           } else {
-            return tag_ids.concat(tag.tag_id);
+            return tag_ids.concat(this.tagID(tag));
           }
         }
       }
@@ -123,7 +127,7 @@ export class SearchNotes extends React.Component {
     if (tags == null) {
       return true;
     } else {
-      return tags.indexOf(tag.tag_id) !== -1;
+      return tags.indexOf(this.tagID(tag)) !== -1;
     }
   }
 
@@ -181,7 +185,7 @@ export class SearchNotes extends React.Component {
           this.props.tags.map((tag) => {
             const checked = this.tagChecked(tag);
             const color = this.props.getColor(tag);
-            return <View key={tag.tag_id} style={{
+            return <View key={this.tagID(tag)} style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
               alignItems: 'center',
@@ -195,7 +199,7 @@ export class SearchNotes extends React.Component {
                   backgroundColor: color,
                   marginRight: 7,
                 }} />
-                <Text>{ tag.tag }</Text>
+                <Text>{ tag.tag || tag.option }</Text>
               </View>
               <Switch
                 value={checked}
@@ -267,10 +271,14 @@ export class SearchNotes extends React.Component {
     if (this.cachedCounts == null || this.props.allNotes !== this.cachedCounts.allNotes) {
       this.cachedCounts = {allNotes: this.props.allNotes};
     }
-    if (this.cachedCounts[tag.tag_id] == null) {
-      this.cachedCounts[tag.tag_id] = this.cachedCounts.allNotes.filter((note) => note.tag_id === tag.tag_id).length;
+    if (this.cachedCounts[this.tagID(tag)] == null) {
+      if (tag instanceof Tag) {
+        this.cachedCounts[this.tagID(tag)] = this.cachedCounts.allNotes.filter((note) => note.tag_id === this.tagID(tag)).length;
+      } else {
+        this.cachedCounts[this.tagID(tag)] = this.cachedCounts.allNotes.filter((note) => false).length;
+      }
     }
-    return this.cachedCounts[tag.tag_id];
+    return this.cachedCounts[this.tagID(tag)];
   }
 
   // @ifdef WEB
@@ -338,13 +346,13 @@ export class SearchNotes extends React.Component {
           const checked = this.tagChecked(tag);
           const color = this.props.getColor(tag);
           return (
-            <p className="tag-toggle" key={tag.tag_id}>
+            <p className="tag-toggle" key={this.tagID(tag)}>
               <ToggleSwitch checked={checked} onClick={() => this.clickTag(tag)}>
                 <span className="tag-badge" style={{backgroundColor: color}}>
                   { this.getTagCount(tag) }
                 </span>
                 {' '}
-                {tag.tag}
+                {tag.tag || tag.option}
               </ToggleSwitch>
             </p>
           );
@@ -359,7 +367,7 @@ export class SearchNotes extends React.Component {
 SearchNotes.propTypes = {
   auth: T.instanceOf(Auth).isRequired,
   game: T.instanceOf(Game).isRequired,
-  tags: T.arrayOf(T.instanceOf(Tag)),
+  // tags: T.arrayOf(T.instanceOf(Tag)),
   searchParams: T.any,
   onSearch: T.func,
   getColor: T.func,

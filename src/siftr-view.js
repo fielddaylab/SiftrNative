@@ -1614,12 +1614,24 @@ export const SiftrView = createClass({
     );
   },
   renderSearch: function() {
-    var ref;
+    let tags = [];
+    if (this.props.game.newFormat()) {
+      if (this.state.fields != null) {
+        const field = this.state.fields.find((field) => field.field_id === this.props.game.field_id_pin);
+        if (field) {
+          tags = field.options;
+        }
+      }
+    } else {
+      if (this.state.tags != null) {
+        tags = this.state.tags;
+      }
+    }
     return (
       <SearchNotes
         auth={this.props.auth}
         game={this.props.game}
-        tags={(ref = this.state.tags) != null ? ref : []}
+        tags={tags}
         searchParams={this.state.searchParams}
         onSearch={searchParams => {
           if (!this.isMounted) {
@@ -1889,8 +1901,8 @@ export const SiftrView = createClass({
     }
     if (this.props.auth.authToken != null || !this.props.online) {
       obj = {
-        createNote: {},
-        createStep: 1,
+        createNote: {files: []},
+        createStep: ((!this.props.game.newFormat() || this.props.game.field_id_preview) ? 1 : 2),
         searchOpen: false,
         viewingNote: null,
         primaryMenuOpen: false,

@@ -1059,7 +1059,7 @@ export const CreateData = createClass({
                         <View style={styles.settingsHeader}>
                           <Text style={styles.settingsHeaderText}>
                             {field.field_type === "MEDIA"
-                              ? "Extra photo"
+                              ? "Photo"
                               : `Enter data: ${field.label}`}
                           </Text>
                         </View>

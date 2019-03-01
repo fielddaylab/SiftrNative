@@ -47,13 +47,25 @@ export class NativeCard extends React.Component {
       }
       this.setState({
         photos: mapMaybe(notes.slice(0, 8), (note) => {
-          if (note.thumb_url != null) {
-            return {
-              url: note.thumb_url,
-              note_id: note.note_id
-            };
+          if (this.props.game.field_id_preview) {
+            const media_id = note.field_data[this.props.game.field_id_preview];
+            if (media_id) {
+              return {
+                media_id: media_id,
+                note_id: note.note_id,
+              }
+            } else {
+              return null;
+            }
           } else {
-            return null;
+            if (note.thumb_url != null) {
+              return {
+                url: note.thumb_url,
+                note_id: note.note_id,
+              };
+            } else {
+              return null;
+            }
           }
         }),
         posts: notes.length,
@@ -91,10 +103,11 @@ export class NativeCard extends React.Component {
             authors: authors.map((author) => author.display_name)
           });
         }, true /* don't warn on error */)),
-        this.props.auth.searchNotes({
+        this.props.auth.siftrSearch({
           game_id: this.props.game.game_id,
-          order_by: 'recent'
-        }, withSuccess((notes) => {
+          order: 'recent',
+          map_data: false,
+        }, withSuccess(({notes}) => {
           liveNotes = true;
           RNFS.writeFile(`${siftrDir}/notes.txt`, JSON.stringify(notes));
           useNotes(notes);
@@ -212,8 +225,8 @@ export class NativeCard extends React.Component {
         }}>
           {
             this.state.photos != null
-            ? this.state.photos.map(({url, note_id}) => {
-                return <CacheMedia key={note_id} url={url} online={this.props.online} withURL={(url) => {
+            ? this.state.photos.map(({url, media_id, note_id}) => {
+                return <CacheMedia key={note_id} url={url} media_id={media_id} size={media_id ? 'thumb_url' : undefined} online={this.props.online} withURL={(url) => {
                   return <Image source={url} style={{
                     height: 100,
                     width: 100

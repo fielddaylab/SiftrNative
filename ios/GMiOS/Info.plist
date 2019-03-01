@@ -17,11 +17,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1.13</string>
+	<string>1.2.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>88</string>
+	<string>89</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
@@ -50,12 +50,12 @@
 	<string>This permission is not used by Siftr.</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>This permission is not used by Siftr.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This permission is not used by Siftr.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Allows you to take photos to upload to a Siftr project.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Allows Siftr to show where you are on the map, and find projects located close by.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This permission is not used by Siftr.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>This permission is not used by Siftr.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
