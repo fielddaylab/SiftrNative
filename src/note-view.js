@@ -1639,7 +1639,7 @@ export const SiftrNoteView = function() {
         ref3,
         ref4,
         url;
-      photoURLs = [this.props.note.photo_url];
+      photoURLs = (this.props.game.newFormat() ? [] : [this.props.note.photo_url]);
       if (this.state.field_data != null && this.props.fields != null) {
         ref = this.props.fields;
         for (j = 0, len = ref.length; j < len; j++) {
@@ -1800,7 +1800,13 @@ export const SiftrNoteView = function() {
                 }
               }.call(this)}
               <div className="note-caption">
-                {writeParagraphs(this.props.note.description)}
+                {writeParagraphs((() => {
+                  if (this.props.game.newFormat()) {
+                    return "";
+                  } else {
+                    return this.props.note.description;
+                  }
+                })())}
               </div>
               {this.showFields()}
               <div className="note-comments">

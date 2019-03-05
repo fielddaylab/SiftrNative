@@ -4,7 +4,7 @@ import React from 'react';
 import T from 'prop-types';
 
 import {Note} from './aris';
-
+import {CacheMedia} from './media';
 import {clicker} from './utils';
 
 // @ifdef NATIVE
@@ -17,7 +17,6 @@ import
 , Dimensions
 } from 'react-native';
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
-import {CacheMedia} from './media';
 // @endif
 
 // @ifdef WEB
@@ -293,15 +292,23 @@ export class SiftrThumbnails extends React.Component {
               onMouseEnter={() => this.props.onMouseEnter(note)}
               onMouseLeave={() => this.props.onMouseLeave(note)}
             >
-              <div
-                className="siftr-thumbnail"
-                style={{backgroundImage: note.thumb_url ? `url(${note.thumb_url})` : undefined}}
+              <CacheMedia
+                media_id={this.props.game.field_id_preview ? note.field_data[this.props.game.field_id_preview] : undefined}
+                size={this.props.game.field_id_preview ? 'thumb_url' : undefined}
+                url={this.props.game.newFormat() ? undefined : note.thumb_url}
+                auth={this.props.auth}
+                withURL={(url) => (
+                  <div
+                    className="siftr-thumbnail"
+                    style={{backgroundImage: url ? `url(${url})` : undefined}}
+                  />
+                )}
               />
               <div className="siftr-thumbnail-info">
                 <div className="siftr-thumbnail-username">{note.user.display_name}</div>
                 <div
                   className="siftr-thumbnail-dot"
-                  style={{backgroundColor: this.props.getColor(note.tag_id)}}
+                  style={{backgroundColor: this.props.getColor(note)}}
                 />
               </div>
             </a>

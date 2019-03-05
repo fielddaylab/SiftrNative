@@ -218,8 +218,9 @@ class MapCluster extends React.Component {
     const stops = [];
     let percent = 0;
     let last_color;
-    for (let tag_id in this.props.cluster.tags) {
-      const tag_count = this.props.cluster.tags[tag_id];
+    const tags = this.props.game.newFormat() ? this.props.cluster.fields[this.props.game.field_id_pin] : this.props.cluster.tags;
+    for (let tag_id in tags) {
+      const tag_count = tags[tag_id];
       percent += (tag_count / this.props.cluster.note_count) * 100;
       const color = this.props.getColor(tag_id);
       stops.push(`${color} 1 ${percent}%`);
