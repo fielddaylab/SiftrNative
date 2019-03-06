@@ -2067,7 +2067,7 @@ export const SiftrView = createClass({
                 uploading: true,
                 caption: ""
               },
-              createStep: 2
+              createStep: this.props.game.newFormat() ? 3 : 2,
             });
           }}
           onProgress={n => {
@@ -2184,7 +2184,8 @@ export const SiftrView = createClass({
           }}
           onBack={() => {
             this.setState({
-              createStep: 2
+              createNote: this.props.game.newFormat() ? {} : undefined,
+              createStep: this.props.game.newFormat() ? 1 : 2,
             });
           }}
           progress={
@@ -2306,9 +2307,9 @@ export const SiftrView = createClass({
         field_data: field_data.concat(field_media),
         password: this.props.auth.password,
       };
-      if (media != null) {
+      if (media != null || field_media != null) {
         // we've already uploaded media, now create note
-        createArgs.media_id = media.media_id;
+        createArgs.media_id = (media ? media.media_id : 0);
         this.props.auth.call(
           "notes.createNote",
           createArgs,
@@ -2321,6 +2322,7 @@ export const SiftrView = createClass({
           })
         );
       } else {
+        // @ifdef NATIVE
         // save note for later upload queue
         queueDir = `${RNFS.DocumentDirectoryPath}/siftrqueue/${Date.now()}`;
         filesToCopy = [];
@@ -2389,6 +2391,7 @@ export const SiftrView = createClass({
           .catch(err => {
             return console.warn(JSON.stringify(err));
           });
+        // @endif
       }
     }
   },

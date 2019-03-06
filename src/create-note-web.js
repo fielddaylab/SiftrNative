@@ -135,7 +135,7 @@ export const CreateStep1 = createClass({
   },
   filesReady: function() {
     var field, file, files, j, len, ref;
-    if (this.state.file == null) {
+    if (this.state.file == null && !this.props.game.newFormat()) {
       return;
     }
     files = [];
@@ -190,7 +190,9 @@ export const CreateStep1 = createClass({
             });
           }
         }
-        this.props.onCreateMedia(results[0], fieldMedia);
+        if (results[0]) {
+          this.props.onCreateMedia(results[0], fieldMedia);
+        }
       }
     );
     this.props.onStartUpload();
@@ -213,14 +215,16 @@ export const CreateStep1 = createClass({
     var field, j, len, pictureSlots, ref;
     pictureSlots = [];
     // main picture
-    pictureSlots.push({
-      field_id: null,
-      currentImage: () => {
-        return this.state.file;
-      },
-      header: "Main image",
-      required: true
-    });
+    if (!this.props.game.newFormat()) {
+      pictureSlots.push({
+        field_id: null,
+        currentImage: () => {
+          return this.state.file;
+        },
+        header: "Main image",
+        required: true
+      });
+    }
     ref = this.props.fields.filter(field => {
       return field.field_type === "MEDIA";
     });
@@ -236,6 +240,7 @@ export const CreateStep1 = createClass({
         required: field.required
       });
     }
+    // TODO something is wrong with which slot an image goes in
     return (
       <div className="create-step-1">
         <div className="create-content">
