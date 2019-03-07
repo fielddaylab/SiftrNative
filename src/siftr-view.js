@@ -462,7 +462,6 @@ SiftrViewPW.defaultProps = {
 };
 
 export function downloadGame(auth, game, callbacks = {}) {
-  console.log('dec20dl game ' + game.game_id);
   const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${game.game_id}`;
   RNFS.mkdir(siftrDir, {NSURLIsExcludedFromBackupKey: true});
   RNFS.writeFile(`${siftrDir}/game.txt`, JSON.stringify(game));
@@ -1902,7 +1901,7 @@ export const SiftrView = createClass({
     if (this.props.auth.authToken != null || !this.props.online) {
       obj = {
         createNote: {files: []},
-        createStep: ((!this.props.game.newFormat() || this.props.game.field_id_preview) ? 1 : 2),
+        createStep: ((!this.props.game.newFormat() || this.state.fields.some((field) => field.field_type === 'MEDIA')) ? 1 : 3),
         searchOpen: false,
         viewingNote: null,
         primaryMenuOpen: false,
@@ -2062,13 +2061,16 @@ export const SiftrView = createClass({
             });
           }}
           onStartUpload={() => {
-            this.setState({
+            this.setState((oldState) => update(oldState, {
               createNote: {
-                uploading: true,
-                caption: ""
+                caption: {
+                  $set: "",
+                },
               },
-              createStep: this.props.game.newFormat() ? 3 : 2,
-            });
+              createStep: {
+                $set: this.props.game.newFormat() ? 3 : 2,
+              },
+            }));
           }}
           onProgress={n => {
             var t;
@@ -2091,29 +2093,13 @@ export const SiftrView = createClass({
             if (!(this.isMounted && this.state.createNote != null)) {
               return;
             }
-            this.setState({
+            this.setState((oldState) => update(oldState, {
               createNote: {
-                media: media,
-                exif: exif,
-                caption:
-                  (ref2 = this.state.createNote) != null
-                    ? ref2.caption
-                    : void 0,
-                location:
-                  (ref3 = this.state.createNote) != null
-                    ? ref3.location
-                    : void 0,
-                category:
-                  (ref4 = this.state.createNote) != null
-                    ? ref4.category
-                    : void 0,
-                field_media: fieldMedia,
-                field_data:
-                  (ref5 = this.state.createNote) != null
-                    ? ref5.field_data
-                    : void 0
+                media: {$set: media},
+                exif: {$set: exif},
+                field_media: {$set: fieldMedia},
               }
-            });
+            }));
           }}
           fields={(ref2 = this.state.fields) != null ? ref2 : []}
         />
@@ -2157,7 +2143,7 @@ export const SiftrView = createClass({
           }}
           getColor={this.getColor}
           progress={
-            this.state.createNote.media != null ||
+            (this.state.createNote.media != null || this.state.createNote.field_media != null) ||
             this.state.createNote.note_id != null
               ? null
               : this.state.progress
@@ -2189,7 +2175,7 @@ export const SiftrView = createClass({
             });
           }}
           progress={
-            this.state.createNote.media != null ||
+            (this.state.createNote.media != null || this.state.createNote.field_media != null) ||
             this.state.createNote.note_id != null
               ? null
               : this.state.progress
@@ -2223,7 +2209,7 @@ export const SiftrView = createClass({
           fields={this.state.fields}
           field_data={this.state.createNote.field_data}
           progress={
-            this.state.createNote.media != null ||
+            (this.state.createNote.media != null || this.state.createNote.field_media != null) ||
             this.state.createNote.note_id != null
               ? null
               : this.state.progress

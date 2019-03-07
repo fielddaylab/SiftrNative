@@ -192,6 +192,8 @@ export const CreateStep1 = createClass({
         }
         if (results[0]) {
           this.props.onCreateMedia(results[0], fieldMedia);
+        } else {
+          this.props.onCreateMedia({}, fieldMedia);
         }
       }
     );
@@ -225,12 +227,10 @@ export const CreateStep1 = createClass({
         required: true
       });
     }
-    ref = this.props.fields.filter(field => {
-      return field.field_type === "MEDIA";
-    });
     // other pictures
-    for (j = 0, len = ref.length; j < len; j++) {
-      field = ref[j];
+    this.props.fields.filter(field => {
+      return field.field_type === "MEDIA";
+    }).forEach((field) => {
       pictureSlots.push({
         field_id: field.field_id,
         currentImage: () => {
@@ -239,7 +239,7 @@ export const CreateStep1 = createClass({
         header: field.label,
         required: field.required
       });
-    }
+    });
     // TODO something is wrong with which slot an image goes in
     return (
       <div className="create-step-1">

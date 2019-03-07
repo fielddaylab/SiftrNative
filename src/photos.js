@@ -83,6 +83,7 @@ export function uploadImages(files, auth, game, updateProgress, cb) {
   let results = [];
   let noImage = files.filter((x) => x == null).length;
   let noImageDone = 0;
+  updateProgress(0);
   function uploadIndex(i) {
     if (i === files.length) {
       cb(results);
