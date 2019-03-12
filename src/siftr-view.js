@@ -481,7 +481,7 @@ export function downloadGame(auth, game, callbacks = {}) {
     if (callbacks.fields) callbacks.fields(fields);
     RNFS.writeFile(`${siftrDir}/fields.txt`, JSON.stringify(fields));
   }));
-  auth.searchNotes({game_id: game.game_id, order_by: "recent"}, withSuccess(notes => {
+  auth.siftrSearch({game_id: game.game_id, order: "recent", map_data: false}, withSuccess(({notes}) => {
     if (callbacks.notes) callbacks.notes(notes);
     RNFS.writeFile(`${siftrDir}/notes.txt`, JSON.stringify(notes));
   }));
@@ -696,12 +696,13 @@ export const SiftrView = createClass({
           RNFS.writeFile(`${siftrDir}/fields.txt`, JSON.stringify(fields));
         })
       );
-      this.props.auth.searchNotes(
+      this.props.auth.siftrSearch(
         {
           game_id: this.props.game.game_id,
-          order_by: "recent"
+          order: "recent",
+          map_data: false,
         },
-        withSuccess(notes => {
+        withSuccess(({notes}) => {
           if (!this.isMounted) return;
           this.setState({
             allNotes: notes
@@ -887,12 +888,13 @@ export const SiftrView = createClass({
         this.loadNoteByID(n, true);
       }
     }
-    this.props.auth.searchNotes(
+    this.props.auth.siftrSearch(
       {
         game_id: this.props.game.game_id,
-        order_by: "recent"
+        order: "recent",
+        map_data: false,
       },
-      withSuccess(notes => {
+      withSuccess(({notes}) => {
         if (!this.isMounted) {
           return;
         }
@@ -986,12 +988,13 @@ export const SiftrView = createClass({
       this.props.online
     ) {
       // we uploaded a note, refresh tag totals
-      this.props.auth.searchNotes(
+      this.props.auth.siftrSearch(
         {
           game_id: this.props.game.game_id,
-          order_by: "recent"
+          order: "recent",
+          map_data: false,
         },
-        withSuccess(notes => {
+        withSuccess(({notes}) => {
           if (!this.isMounted) {
             return;
           }
@@ -1187,10 +1190,11 @@ export const SiftrView = createClass({
       this.props.game.game_id
     }`;
     this.loadResults();
-    this.props.auth.searchNotes({
+    this.props.auth.siftrSearch({
       game_id: this.props.game.game_id,
-      order_by: "recent",
-    }, withSuccess(notes => {
+      order: "recent",
+      map_data: false,
+    }, withSuccess(({notes}) => {
       this.setState({allNotes: notes});
       RNFS.writeFile(`${siftrDir}/notes.txt`, JSON.stringify(notes));
     }));

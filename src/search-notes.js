@@ -275,7 +275,14 @@ export class SearchNotes extends React.Component {
       if (tag instanceof Tag) {
         this.cachedCounts[this.tagID(tag)] = this.cachedCounts.allNotes.filter((note) => note.tag_id === this.tagID(tag)).length;
       } else {
-        this.cachedCounts[this.tagID(tag)] = this.cachedCounts.allNotes.filter((note) => false).length;
+        this.cachedCounts[this.tagID(tag)] = this.cachedCounts.allNotes.filter((note) => {
+          const field_data = note.field_data[tag.field_id];
+          if (field_data) {
+            return parseInt(field_data) === tag.field_option_id;
+          } else {
+            return false;
+          }
+        }).length;
       }
     }
     return this.cachedCounts[this.tagID(tag)];
