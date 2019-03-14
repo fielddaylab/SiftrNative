@@ -1142,7 +1142,7 @@ export const SiftrNoteView = function() {
         );
       } else {
         parts = [];
-        if (this.props.tag != null) {
+        if (this.props.tag != null && !this.props.game.newFormat()) {
           parts.push(
             <View
               key={0}
@@ -1203,6 +1203,7 @@ export const SiftrNoteView = function() {
             return results;
           }.call(this);
           long = false;
+          let tag = null;
           switch (field.field_type) {
             case "TEXT":
             case "NOMEN":
@@ -1221,11 +1222,12 @@ export const SiftrNoteView = function() {
                 for (l = 0, len2 = ref3.length; l < len2; l++) {
                   opt = ref3[l];
                   if (opt.field_option_id === d.field_option_id) {
-                    opts.push(opt.option);
+                    opts.push(opt);
                   }
                 }
               }
-              text = opts.join(", ");
+              if (opts.length === 1) tag = opts[0];
+              text = opts.map((o) => o.option).join(", ");
               break;
             default:
               continue;
@@ -1252,13 +1254,28 @@ export const SiftrNoteView = function() {
               >
                 {field.label}
               </Text>
-              <Text
+              <View
                 style={{
-                  margin: 10
+                  flexDirection: "row",
+                  alignItems: "center"
                 }}
               >
-                {text}
-              </Text>
+                <View
+                  style={{
+                    backgroundColor: this.props.getColor(tag),
+                    width: 16,
+                    height: 16,
+                    borderRadius: 8
+                  }}
+                />
+                <Text
+                  style={{
+                    margin: 10
+                  }}
+                >
+                  {text}
+                </Text>
+              </View>
             </View>
           );
         }
