@@ -160,7 +160,7 @@ export const CreatePhoto = createClass({
     BackHandler.addEventListener("hardwareBackPress", this.hardwareBack);
     Permissions.request("camera").then(response => {
       // permission to take photos
-      this.setState({cameraPermisson: response});
+      this.setState({cameraPermission: response});
     });
     Permissions.request("photo").then(response => {
       // permission to access photos
@@ -254,7 +254,7 @@ export const CreatePhoto = createClass({
                   >
                     {
                       !this.state.pendingPhoto &&
-                      this.state.cameraPermisson === 'authorized' &&
+                      this.state.cameraPermission === 'authorized' &&
                       this.state.photoPermission === 'authorized' && (
                         <Camera
                           ref={cam => {
