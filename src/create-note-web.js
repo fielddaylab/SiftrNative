@@ -240,7 +240,6 @@ export const CreateStep1 = createClass({
         required: field.required
       });
     });
-    // TODO something is wrong with which slot an image goes in
     return (
       <div className="create-step-1">
         <div className="create-content">
@@ -455,13 +454,17 @@ export const CreateStep3 = createClass({
               <span>Pick Location</span>
             </div>
             <div className="create-buttons">
-              <a
-                href="#"
-                className="create-button-gray"
-                onClick={clicker(this.props.onBack)}
-              >
-                back
-              </a>
+              {this.props.note.note_id != null ? (
+                <span />
+              ) : (
+                <a
+                  href="#"
+                  className="create-button-gray"
+                  onClick={clicker(this.props.onBack)}
+                >
+                  back
+                </a>
+              )}
               <a
                 href="#"
                 className="create-button-white"

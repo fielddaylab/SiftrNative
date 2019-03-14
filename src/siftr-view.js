@@ -1956,7 +1956,7 @@ export const SiftrView = createClass({
           },
           field_data: field_data
         },
-        createStep: 2,
+        createStep: (this.props.game.newFormat() ? 3 : 2),
         searchOpen: false,
         viewingNote: null,
         primaryMenuOpen: false
@@ -2157,6 +2157,7 @@ export const SiftrView = createClass({
     } else if (this.state.createStep === 3) {
       return (
         <CreateStep3
+          note={this.state.createNote}
           onPickLocation={() => {
             this.setState({
               createNote: update(this.state.createNote, {

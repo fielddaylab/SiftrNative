@@ -1284,7 +1284,7 @@ export const SiftrNoteView = function() {
         ref,
         ref1;
       fields = [];
-      if (this.props.tag != null) {
+      if (this.props.tag != null && !this.props.game.newFormat()) {
         fields.push(
           <div className="note-field-data" key={0}>
             <span className="note-field-data-key">Category</span>
@@ -1354,7 +1354,7 @@ export const SiftrNoteView = function() {
                 for (l = 0, len2 = ref1.length; l < len2; l++) {
                   opt = ref1[l];
                   if (opt.field_option_id === d.field_option_id) {
-                    opts.push(opt.option);
+                    opts.push(opt);
                   }
                 }
               }
@@ -1363,7 +1363,18 @@ export const SiftrNoteView = function() {
                   <div className="note-field-data" key={field.field_id}>
                     <span className="note-field-data-key">{field.label}</span>
                     <span className="note-field-data-value">
-                      {opts.join(", ")}
+                      {
+                        ( opts.length === 1
+                        ) && (
+                          [<div
+                            className="siftr-thumbnail-dot"
+                            style={{
+                              backgroundColor: this.props.getColor(opts[0])
+                            }}
+                          />, ' ']
+                        )
+                      }
+                      {opts.map((o) => o.option).join(", ")}
                     </span>
                   </div>
                 );
