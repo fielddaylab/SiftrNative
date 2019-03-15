@@ -480,7 +480,7 @@ export const Blackout = function() {
   class Blackout extends React.Component {
     render() {
       return (
-        <View style={this.props.style}>
+        <View style={this.props.style} ref={(view) => this.theView = view}>
           {this.props.children}
           {this.props.keyboardUp && !this.props.isFocused ? (
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -500,6 +500,10 @@ export const Blackout = function() {
           )}
         </View>
       );
+    }
+
+    measure(cb) {
+      this.theView && this.theView.measure(cb);
     }
   }
 
@@ -828,6 +832,13 @@ export const CreateData = createClass({
         />
       );
     } else {
+      const scrollToField = (field_id) => {
+        if (this.scrollFields && this.fieldChunks && this.fieldChunks[field_id]) {
+          this.fieldChunks[field_id].measure((fx, fy, width, height, px, py) => {
+            this.scrollFields.scrollTo({x: 0, y: fy, animated: true});
+          });
+        }
+      };
       return (
         <View
           style={{
@@ -871,6 +882,9 @@ export const CreateData = createClass({
           </View>
           {
             <ScrollView
+              ref={(sv) => {
+                this.scrollFields = sv;
+              }}
               style={{
                 flex: 1,
                 backgroundColor:
@@ -1055,6 +1069,10 @@ export const CreateData = createClass({
                         style={{
                           alignSelf: "stretch"
                         }}
+                        ref={(chunk) => {
+                          if (!this.fieldChunks) this.fieldChunks = {};
+                          this.fieldChunks[field.field_id] = chunk;
+                        }}
                       >
                         <View style={styles.settingsHeader}>
                           <Text style={styles.settingsHeaderText}>
@@ -1115,6 +1133,7 @@ export const CreateData = createClass({
                                     style={styles.input}
                                     placeholder={field.label}
                                     onFocus={() => {
+                                      scrollToField(field.field_id);
                                       this.setState({
                                         focusedBox: field.field_id
                                       });
@@ -1145,6 +1164,7 @@ export const CreateData = createClass({
                                     backgroundColor: "white"
                                   }}
                                   onFocus={() => {
+                                    scrollToField(field.field_id);
                                     this.setState({
                                       focusedBox: field.field_id
                                     });
