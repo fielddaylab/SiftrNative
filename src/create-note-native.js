@@ -1221,9 +1221,7 @@ export const CreateData = createClass({
                                     return field.options[0];
                                   })()}
                                   options={field.options}
-                                  getColor={() => {
-                                    return "rgba(0,0,0,0)";
-                                  }}
+                                  getColor={this.props.getColor}
                                   getLabel={opt => {
                                     return opt.option;
                                   }}
