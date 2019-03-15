@@ -689,20 +689,24 @@ export class SiftrMap extends React.Component {
         {this.renderNotes()}
       </GoogleMap>
       <div className="siftr-map-legend">
-        Legend:
-        {
-          this.props.tags ? (
-            this.props.tags.map((tag) =>
-              <span className="siftr-map-legend-tag" key={tag.tag_id}>
-                <div
-                  className="siftr-thumbnail-dot"
-                  style={{backgroundColor: this.props.getColor(tag)}}
-                />
-                {tag.tag}
-              </span>
-            )
-          ) : null
-        }
+        <span className="legendtoggle">
+        Legend
+        </span>
+        <div className="legend-wrap">
+          {
+            this.props.tags ? (
+              this.props.tags.map((tag) =>
+                <span className="siftr-map-legend-tag" key={tag.tag_id}>
+                  <div
+                    className="siftr-thumbnail-dot"
+                    style={{backgroundColor: this.props.getColor(tag)}}
+                  />
+                  {tag.tag}
+                </span>
+              )
+            ) : null
+          }
+        </div>
       </div>
     </div>;
   }
