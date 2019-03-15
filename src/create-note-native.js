@@ -1060,7 +1060,7 @@ export const CreateData = createClass({
                           <Text style={styles.settingsHeaderText}>
                             {field.field_type === "MEDIA"
                               ? "Photo"
-                              : `Enter data: ${field.label}`}
+                              : field.label}
                           </Text>
                         </View>
                         {function() {

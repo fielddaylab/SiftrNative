@@ -51,7 +51,7 @@ export class NativeCard extends React.Component {
             const media_id = note.field_data[this.props.game.field_id_preview];
             if (media_id) {
               return {
-                media_id: media_id,
+                media_id: parseInt(media_id),
                 note_id: note.note_id,
               }
             } else {
@@ -226,7 +226,7 @@ export class NativeCard extends React.Component {
           {
             this.state.photos != null
             ? this.state.photos.map(({url, media_id, note_id}) => {
-                return <CacheMedia key={note_id} url={url} media_id={media_id} size={media_id ? 'thumb_url' : undefined} online={this.props.online} withURL={(url) => {
+                return <CacheMedia key={note_id} auth={this.props.auth} url={url} media_id={media_id} size={media_id ? 'thumb_url' : undefined} online={this.props.online} withURL={(url) => {
                   return <Image source={url} style={{
                     height: 100,
                     width: 100
