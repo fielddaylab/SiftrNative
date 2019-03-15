@@ -7,7 +7,7 @@ import RNFS from 'react-native-fs';
 // @endif
 import update from "immutability-helper";
 
-import {Auth} from './aris';
+import {Auth, arisHTTPS} from './aris';
 import {withSuccess} from './utils';
 
 // @ifdef NATIVE
@@ -112,11 +112,11 @@ function loadMedia(props, cb) {
       props.auth.call('media.getMedia', {
         media_id: props.media_id,
       }, withSuccess((media) => {
-        cb(media[props.size || 'url']);
+        cb(arisHTTPS(media[props.size || 'url']));
       }));
     }
   } else {
-    cb(props.url)
+    cb(arisHTTPS(props.url));
   }
 }
 // @endif
