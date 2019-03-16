@@ -1898,6 +1898,12 @@ export const SiftrView = createClass({
     });
   },
   startCreate: function({ nomenData, saved_note } = {}) {
+    if (this.state.fields == null) {
+      setTimeout(() => {
+        this.startCreate({nomenData, saved_note});
+      }, 500);
+      return;
+    }
     var loc, note, obj;
     if (this.state.createNote != null) {
       return;
