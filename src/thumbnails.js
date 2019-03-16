@@ -165,7 +165,7 @@ export class SiftrThumbnails extends React.Component {
                   key={note.note_id}
                   auth={this.props.auth}
                   media_id={this.props.game.field_id_preview ? note.field_data[this.props.game.field_id_preview] : undefined}
-                  size={this.props.game.field_id_preview ? 'thumb_url' : undefined}
+                  size={this.props.game.field_id_preview ? 'big_thumb_url' : undefined}
                   url={this.props.game.field_id_preview ? undefined : note.thumb_url}
                   online={this.props.online}
                   withURL={(url) =>
@@ -242,7 +242,7 @@ export class SiftrThumbnails extends React.Component {
               key={note.note_id}
               auth={this.props.auth}
               media_id={this.props.game.field_id_preview ? note.field_data[this.props.game.field_id_preview] : undefined}
-              size={this.props.game.field_id_preview ? 'thumb_url' : undefined}
+              size={this.props.game.field_id_preview ? 'big_thumb_url' : undefined}
               url={this.props.game.field_id_preview ? undefined : note.thumb_url}
               online={this.props.online}
               withURL={(url) =>
@@ -294,7 +294,7 @@ export class SiftrThumbnails extends React.Component {
             >
               <CacheMedia
                 media_id={this.props.game.field_id_preview ? note.field_data[this.props.game.field_id_preview] : undefined}
-                size={this.props.game.field_id_preview ? 'thumb_url' : undefined}
+                size={this.props.game.field_id_preview ? 'big_thumb_url' : undefined}
                 url={this.props.game.newFormat() ? undefined : note.thumb_url}
                 auth={this.props.auth}
                 withURL={(url) => (

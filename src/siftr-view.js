@@ -2290,9 +2290,6 @@ export const SiftrView = createClass({
         category,
         field_media
       } = this.state.createNote);
-      if (field_media == null) {
-        field_media = [];
-      }
       createArgs = {
         game_id: this.props.game.game_id,
         description: caption,
@@ -2301,7 +2298,7 @@ export const SiftrView = createClass({
           longitude: fixLongitude(location.lng)
         },
         tag_id: category && category.tag_id,
-        field_data: field_data.concat(field_media),
+        field_data: field_data.concat(field_media || []),
         password: this.props.auth.password,
       };
       if (media != null || field_media != null) {
