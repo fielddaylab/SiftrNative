@@ -46,13 +46,5 @@
       icon: 'assets/img/siftr-app-logo.png',
   });
 </script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script>
-$(window).on('load', function() {
-  $('.legendtoggle').click(function(){
-    $('.siftr-map-legend').toggleClass('selected');
-  });
-});
-</script>
 </body>
 </html>

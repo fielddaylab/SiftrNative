@@ -2,6 +2,7 @@
 
 import React from 'react';
 import T from 'prop-types';
+import update from 'immutability-helper';
 
 // @ifdef NATIVE
 import {
@@ -403,6 +404,7 @@ export class SiftrMap extends React.Component {
     super(props);
     this.state = {
       isMapReady: false,
+      legendOpen: false,
     };
   }
 
@@ -421,8 +423,9 @@ export class SiftrMap extends React.Component {
     if (this.props.colors !== nextProps.colors) return true;
     if (this.props.thumbHover !== nextProps.thumbHover) return true;
     if (this.props.tags !== nextProps.tags) return true;
-    // the only state
+    // state
     if (this.state.isMapReady !== nextState.isMapReady) return true;
+    if (this.state.legendOpen !== nextState.legendOpen) return true;
     return false;
   }
 
@@ -688,10 +691,13 @@ export class SiftrMap extends React.Component {
         {this.renderClusters()}
         {this.renderNotes()}
       </GoogleMap>
-      <div className="siftr-map-legend">
-        <span className="legendtoggle">
-        Legend
-        </span>
+      <div className={`siftr-map-legend ${this.state.legendOpen ? 'selected' : ''}`}>
+        <a href="#" className="legendtoggle" onClick={(e) => {
+          e.preventDefault();
+          this.setState((oldState) => update(oldState, {legendOpen: {$apply: (x) => !x}}));
+        }}>
+          Legend
+        </a>
         <div className="legend-wrap">
           {
             this.props.tags ? (
