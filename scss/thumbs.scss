@@ -8,6 +8,10 @@
     background-color: #000000;
   }
 }
+.siftr-thumbs > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
 .siftr-thumbnail {
   background-size: cover;
   background-position: center;
@@ -24,7 +28,6 @@
   position: relative;
   display: inline-block;
   margin: 0.5vw;
-  width: 30%;
   background-color: white;
   padding: 0px;
   border-radius: 2px;
@@ -51,13 +54,19 @@
     width: 85%;
     overflow:hidden;
   }
+  .siftr-thumbnail-dot {
+    height: 10px;
+    width: 10px;
+    border-radius: 999px;
+    margin: 3px;
+    margin-bottom: 0;
+    display: inline-block;
+  }
 }
 
-.siftr-thumbnail-dot {
-  height: 10px;
-  width: 10px;
-  border-radius: 999px;
-  margin: 3px;
-  margin-bottom: 0;
-  display: inline-block;
+.siftr-thumbnail-caption {
+  margin: 10px;
+  font-size: 12px;
+  max-height: 50px;
+  overflow-y: hidden;
 }

@@ -635,7 +635,7 @@ export const SiftrView = createClass({
         sort: "recent"
       },
       searchOpen: false,
-      mainView: "hybrid", // 'hybrid', 'map', 'thumbs'
+      mainView: this.hasCards() ? "hybrid" : "map", // 'hybrid', 'map', 'thumbs'
       fields: null,
       infoOpen: false,
       primaryMenuOpen: false
@@ -2389,6 +2389,9 @@ export const SiftrView = createClass({
       }
     }
   },
+  hasCards: function() {
+    return this.props.game.field_id_preview || this.props.game.field_id_caption;
+  },
   // @ifdef NATIVE
   render: function() {
     var hasOptions, ref2, ref3, ref4;
@@ -2623,16 +2626,21 @@ export const SiftrView = createClass({
                 flex: 1
               }}
             >
-              {this.state.createNote != null &&
+              {
+              this.state.createNote != null &&
               !(
                 this.state.createNote.media != null ||
                 this.state.createNote.files != null ||
                 this.state.createNote.uploading
               )
                 ? this.renderMap()
-                : this.state.mainView === "thumbs" || this.state.mainView === "hybrid"
-                  ? [this.renderMap(), this.renderThumbnails()]
-                  : [this.renderThumbnails(), this.renderMap()]}
+                : this.hasCards()
+                  ? ( this.state.mainView === "thumbs" || this.state.mainView === "hybrid"
+                      ? [this.renderMap(), this.renderThumbnails()]
+                      : [this.renderThumbnails(), this.renderMap()]
+                    )
+                  : this.renderMap()
+              }
               {this.state.viewPopup && (
                 <View style={{
                   position: 'absolute',
@@ -2643,20 +2651,28 @@ export const SiftrView = createClass({
                   backgroundColor: 'rgb(220,223,225)',
                   borderTopRightRadius: 5,
                 }}>
-                  <TouchableOpacity
-                    style={{padding: 10, marginLeft: 4, marginRight: 4}}
-                    onPress={() => this.setState({mainView: 'hybrid', viewPopup: false})}
-                  >
-                    <Image
-                      style={{
-                        resizeMode: "contain",
-                        width: viewModeSize,
-                        height: viewModeSize,
-                      }}
-                      source={require("../web/assets/img/mobile-view-hybrid.png")}
-                    />
-                  </TouchableOpacity>
-                  <View style={{width: 1, height: viewModeSize, backgroundColor: 'white'}} />
+                  {
+                    this.hasCards() && (
+                      <TouchableOpacity
+                        style={{padding: 10, marginLeft: 4, marginRight: 4}}
+                        onPress={() => this.setState({mainView: 'hybrid', viewPopup: false})}
+                      >
+                        <Image
+                          style={{
+                            resizeMode: "contain",
+                            width: viewModeSize,
+                            height: viewModeSize,
+                          }}
+                          source={require("../web/assets/img/mobile-view-hybrid.png")}
+                        />
+                      </TouchableOpacity>
+                    )
+                  }
+                  {
+                    this.hasCards() && (
+                      <View style={{width: 1, height: viewModeSize, backgroundColor: 'white'}} />
+                    )
+                  }
                   <TouchableOpacity
                     style={{padding: 10, marginLeft: 4, marginRight: 4}}
                     onPress={() => this.setState({mainView: 'map', viewPopup: false})}
@@ -2670,20 +2686,28 @@ export const SiftrView = createClass({
                       source={require("../web/assets/img/mobile-view-map.png")}
                     />
                   </TouchableOpacity>
-                  <View style={{width: 1, height: viewModeSize, backgroundColor: 'white'}} />
-                  <TouchableOpacity
-                    style={{padding: 10, marginLeft: 4, marginRight: 4}}
-                    onPress={() => this.setState({mainView: 'thumbs', viewPopup: false})}
-                  >
-                    <Image
-                      style={{
-                        resizeMode: "contain",
-                        width: viewModeSize,
-                        height: viewModeSize,
-                      }}
-                      source={require("../web/assets/img/mobile-view-gallery.png")}
-                    />
-                  </TouchableOpacity>
+                  {
+                    this.hasCards() && (
+                      <View style={{width: 1, height: viewModeSize, backgroundColor: 'white'}} />
+                    )
+                  }
+                  {
+                    this.hasCards() && (
+                      <TouchableOpacity
+                        style={{padding: 10, marginLeft: 4, marginRight: 4}}
+                        onPress={() => this.setState({mainView: 'thumbs', viewPopup: false})}
+                      >
+                        <Image
+                          style={{
+                            resizeMode: "contain",
+                            width: viewModeSize,
+                            height: viewModeSize,
+                          }}
+                          source={require("../web/assets/img/mobile-view-gallery.png")}
+                        />
+                      </TouchableOpacity>
+                    )
+                  }
                 </View>
               )}
               {this.renderNoteView()}
@@ -2942,20 +2966,24 @@ export const SiftrView = createClass({
               </div>
             }
             <div className="siftr-view-nav-section">
-              <a
-                href="#"
-                className={`main-view-option option-${on_off(
-                  this.state.mainView === "hybrid" &&
-                    this.state.createNote == null
-                )}`}
-                onClick={clicker(() => {
-                  this.setState({
-                    mainView: "hybrid"
-                  });
-                })}
-              >
-                <img src={"assets/img/main-view-hybrid-on.png"} />
-              </a>
+              {
+                this.hasCards() && (
+                  <a
+                    href="#"
+                    className={`main-view-option option-${on_off(
+                      this.state.mainView === "hybrid" &&
+                        this.state.createNote == null
+                    )}`}
+                    onClick={clicker(() => {
+                      this.setState({
+                        mainView: "hybrid"
+                      });
+                    })}
+                  >
+                    <img src={"assets/img/main-view-hybrid-on.png"} />
+                  </a>
+                )
+              }
               <a
                 href="#"
                 className={`main-view-option option-${on_off(
@@ -2969,20 +2997,24 @@ export const SiftrView = createClass({
               >
                 <img src={"assets/img/main-view-map-on.png"} />
               </a>
-              <a
-                href="#"
-                className={`main-view-option option-${on_off(
-                  this.state.mainView === "thumbs" &&
-                    this.state.createNote == null
-                )}`}
-                onClick={clicker(() => {
-                  this.setState({
-                    mainView: "thumbs"
-                  });
-                })}
-              >
-                <img src={"assets/img/main-view-thumbs-on.png"} />
-              </a>
+              {
+                this.hasCards() && (
+                  <a
+                    href="#"
+                    className={`main-view-option option-${on_off(
+                      this.state.mainView === "thumbs" &&
+                        this.state.createNote == null
+                    )}`}
+                    onClick={clicker(() => {
+                      this.setState({
+                        mainView: "thumbs"
+                      });
+                    })}
+                  >
+                    <img src={"assets/img/main-view-thumbs-on.png"} />
+                  </a>
+                )
+              }
               <span className="main-view-option-separator" />
               <a
                 href="#"

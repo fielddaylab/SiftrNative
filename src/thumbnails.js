@@ -56,7 +56,7 @@ class NoteCard extends React.Component {
         }}>
           <Image source={this.props.source} style={{
             width: 180,
-            height: 115,
+            height: this.props.source ? 115 : 0,
             resizeMode: 'cover',
           }} />
         </View>
@@ -94,13 +94,13 @@ class NoteCard extends React.Component {
             backgroundColor: this.props.getColor(this.props.note),
           }} />
         </View>
-        <Text style={{margin: 7}} numberOfLines={this.props.expand ? 4 : 1}>
-          {
-            this.props.game.field_id_caption
-            ? this.props.note.field_data[this.props.game.field_id_caption]
-            : this.props.note.description
-          }
-        </Text>
+        {
+          this.props.game.field_id_caption && (
+            <Text style={{margin: 7}} numberOfLines={this.props.expand ? 4 : 1}>
+              {this.props.note.field_data[this.props.game.field_id_caption]}
+            </Text>
+          )
+        }
       </TouchableOpacity>
     );
   }
@@ -166,7 +166,6 @@ export class SiftrThumbnails extends React.Component {
                   auth={this.props.auth}
                   media_id={this.props.game.field_id_preview ? note.field_data[this.props.game.field_id_preview] : undefined}
                   size={this.props.game.field_id_preview ? 'big_thumb_url' : undefined}
-                  url={this.props.game.field_id_preview ? undefined : note.thumb_url}
                   online={this.props.online}
                   withURL={(url) =>
                     <NoteCard
@@ -220,6 +219,7 @@ export class SiftrThumbnails extends React.Component {
             note.dir = dir.path;
             note.files = json.files;
             let url = '';
+            // TODO get actual correct file for field_id_preview
             if (Platform.OS === "ios") {
               url = `${dir.path}/${json.files[0].filename}`;
             } else {
@@ -243,7 +243,6 @@ export class SiftrThumbnails extends React.Component {
               auth={this.props.auth}
               media_id={this.props.game.field_id_preview ? note.field_data[this.props.game.field_id_preview] : undefined}
               size={this.props.game.field_id_preview ? 'big_thumb_url' : undefined}
-              url={this.props.game.field_id_preview ? undefined : note.thumb_url}
               online={this.props.online}
               withURL={(url) =>
                 <NoteCard
@@ -292,18 +291,21 @@ export class SiftrThumbnails extends React.Component {
               onMouseEnter={() => this.props.onMouseEnter(note)}
               onMouseLeave={() => this.props.onMouseLeave(note)}
             >
-              <CacheMedia
-                media_id={this.props.game.field_id_preview ? note.field_data[this.props.game.field_id_preview] : undefined}
-                size={this.props.game.field_id_preview ? 'big_thumb_url' : undefined}
-                url={this.props.game.newFormat() ? undefined : note.thumb_url}
-                auth={this.props.auth}
-                withURL={(url) => (
-                  <div
-                    className="siftr-thumbnail"
-                    style={{backgroundImage: url ? `url(${url})` : undefined}}
+              {
+                this.props.game.field_id_preview && (
+                  <CacheMedia
+                    media_id={note.field_data[this.props.game.field_id_preview]}
+                    size="big_thumb_url"
+                    auth={this.props.auth}
+                    withURL={(url) => (
+                      <div
+                        className="siftr-thumbnail"
+                        style={{backgroundImage: url ? `url(${url})` : undefined}}
+                      />
+                    )}
                   />
-                )}
-              />
+                )
+              }
               <div className="siftr-thumbnail-info">
                 <div className="siftr-thumbnail-username">{note.user.display_name}</div>
                 <div
@@ -311,6 +313,13 @@ export class SiftrThumbnails extends React.Component {
                   style={{backgroundColor: this.props.getColor(note)}}
                 />
               </div>
+              {
+                this.props.game.field_id_caption && (
+                  <div className="siftr-thumbnail-caption">
+                    {note.field_data[this.props.game.field_id_caption]}
+                  </div>
+                )
+              }
             </a>
           )
         }
