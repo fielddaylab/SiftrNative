@@ -22,6 +22,7 @@ import {
   Keyboard,
   Alert,
   Animated,
+  Slider,
 } from "react-native";
 import { styles, Text } from "./styles";
 import Camera from "react-native-camera";
@@ -1096,7 +1097,7 @@ export const CreateData = createClass({
                               })
                             );
                           };
-                          getText = () => {
+                          getText = (def = '') => {
                             var data, i, len;
                             for (i = 0, len = field_data.length; i < len; i++) {
                               data = field_data[i];
@@ -1104,7 +1105,7 @@ export const CreateData = createClass({
                                 return data.field_data;
                               }
                             }
-                            return "";
+                            return def;
                           };
                           setText = text => {
                             var newData = field_data.filter(
@@ -1147,6 +1148,57 @@ export const CreateData = createClass({
                                         });
                                       }
                                     }}
+                                  />
+                                </View>
+                              );
+                            case 'NUMBER':
+                              const num = getText(field.min);
+                              return (
+                                <View
+                                  style={{
+                                    backgroundColor: "white"
+                                  }}
+                                >
+                                  <TextInput
+                                    multiline={false}
+                                    value={num + ''}
+                                    onChangeText={setText}
+                                    style={styles.input}
+                                    placeholder={field.label}
+                                    keyboardType="numeric"
+                                    onFocus={() => {
+                                      scrollToField(field.field_id);
+                                      this.setState({
+                                        focusedBox: field.field_id
+                                      });
+                                    }}
+                                    onEndEditing={() => {
+                                      if (
+                                        this.state.focusedBox === field.field_id
+                                      ) {
+                                        this.setState({
+                                          focusedBox: null
+                                        });
+                                      }
+                                      let x = parseFloat(num) || 0;
+                                      x -= field.min;
+                                      x /= field.step;
+                                      x = Math.round(x);
+                                      x *= field.step;
+                                      x += field.min;
+                                      if (x < field.min) x = field.min;
+                                      if (x > field.max) x = field.max;
+                                      setText(x);
+                                    }}
+                                  />
+                                  <Slider
+                                    minimumValue={field.min}
+                                    maximumValue={field.max}
+                                    minimumTrackTintColor={field.min_color}
+                                    maximumTrackTintColor={field.max_color}
+                                    step={field.step}
+                                    value={parseFloat(num) || 0}
+                                    onSlidingComplete={setText}
                                   />
                                 </View>
                               );

@@ -573,7 +573,7 @@ export const CreateStep5 = createClass({
                   onChangeData = newData => {
                     this.props.onChangeData(newData);
                   };
-                  getText = () => {
+                  getText = (def = '') => {
                     var data, j, len;
                     for (j = 0, len = field_data.length; j < len; j++) {
                       data = field_data[j];
@@ -581,16 +581,16 @@ export const CreateStep5 = createClass({
                         return data.field_data;
                       }
                     }
-                    return "";
+                    return def;
                   };
-                  setText = event => {
+                  setText = (event) => {
                     var newData = field_data.filter(
                       data => data.field_id !== field.field_id
                     );
                     newData.push(
                       new FieldData({
                         field_id: field.field_id,
-                        field_data: event.target.value
+                        field_data: event.target.value,
                       })
                     );
                     return onChangeData(newData);
@@ -704,6 +704,39 @@ export const CreateStep5 = createClass({
                           </p>
                         );
                       });
+                    case 'NUMBER':
+                      const num = getText(field.min);
+                      return (
+                        <p>
+                          <input
+                            type="number"
+                            min={field.min}
+                            max={field.max}
+                            step={field.step}
+                            value={num}
+                            onChange={setText}
+                            onBlur={() => {
+                              let x = parseFloat(num) || 0;
+                              x -= field.min;
+                              x /= field.step;
+                              x = Math.round(x);
+                              x *= field.step;
+                              x += field.min;
+                              if (x < field.min) x = field.min;
+                              if (x > field.max) x = field.max;
+                              setText({target: {value: x}});
+                            }}
+                          />
+                          <input
+                            type="range"
+                            min={field.min}
+                            max={field.max}
+                            step={field.step}
+                            value={num}
+                            onChange={setText}
+                          />
+                        </p>
+                      );
                     default:
                       return <p>(not implemented yet)</p>;
                   }

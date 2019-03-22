@@ -363,6 +363,11 @@ export const Field = class Field {
       this.required = !!parseInt(json.required);
       this.sort_index =
         json.sort_index != null ? parseInt(json.sort_index) : null;
+      this.min = parseFloat(json.min);
+      this.max = parseFloat(json.max);
+      this.step = parseFloat(json.step);
+      this.min_color = json.min_color;
+      this.max_color = json.max_color;
     }
   }
 };

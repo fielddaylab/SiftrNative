@@ -1207,6 +1207,7 @@ export const SiftrNoteView = function() {
           switch (field.field_type) {
             case "TEXT":
             case "NOMEN":
+            case "NUMBER":
               text = (ref1 = data[0]) != null ? ref1.field_data : void 0;
               break;
             case "TEXTAREA":
@@ -1336,6 +1337,7 @@ export const SiftrNoteView = function() {
           switch (field.field_type) {
             case "TEXT":
             case "NOMEN":
+            case "NUMBER":
               if (data[0] != null && data[0] !== "") {
                 fields.push(
                   <div className="note-field-data" key={field.field_id}>
