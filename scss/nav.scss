@@ -94,6 +94,7 @@ $small-nav: "screen and (max-width: 550px)";
   padding-right: 20px;
   box-shadow: 0px 0px 16px 5px rgba(0,0,0,0.1);
   z-index:20;
+  position: relative; // used for absolute positioning of .siftr-instructions
 
   h2 {
     font-weight: normal;
@@ -106,7 +107,6 @@ $small-nav: "screen and (max-width: 550px)";
   }
   .siftr-instructicon {
     z-index: 1;
-    position: relative;
     overflow: visible;
     // ^ this fixes weird z-index issues with the opacity 0.5 buttons, see
     // https://philipwalton.com/articles/what-no-one-told-you-about-z-index/
@@ -131,8 +131,7 @@ $small-nav: "screen and (max-width: 550px)";
       overflow-x: hidden;
       border-radius: 5px;
       box-shadow: 0px 0px 16px 5px rgba(0, 0, 0, 0.1);
-      top: 51px;
-      left: -110%;
+      top: 100px;
       &.siftr-instructions-show {
         display: block;
       }
