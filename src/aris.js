@@ -487,12 +487,16 @@ export const Auth = class Auth {
     // don't set timeout, because media upload could take a long time
     tries = 999;
     handleError = error => {
-      if (tries === 0) {
-        return cb({ error });
+      if (req.readyState === req.OPENED) {
+        if (tries === 0) {
+          return cb({ error });
+        } else {
+          tries -= 1;
+          return req.send(form);
+        }
       } else {
-        tries -= 1;
-        // TODO: check if req is open. if not, fail out (there is a setup error, not network error)
-        return req.send(form);
+        // this probably means user went into airplane mode or is now offline
+        return cb({ error });
       }
     };
     req.send(form);

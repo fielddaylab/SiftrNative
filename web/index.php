@@ -8,8 +8,8 @@
     (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"
   ?>">
   <meta name="google-play-app" content="app-id=org.siftr.client">
-  <script type="text/javascript" src="dist.js?cb=20190320"></script>
-  <link rel="stylesheet" type="text/css" href="styles.css?cb=20190320">
+  <script type="text/javascript" src="dist.js?cb=20190327"></script>
+  <link rel="stylesheet" type="text/css" href="styles.css?cb=20190327">
   <link rel="stylesheet" href="smart-app-banner.css" type="text/css" media="screen">
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Varela+Round" rel="stylesheet">
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">

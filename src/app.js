@@ -59,7 +59,7 @@ export var SiftrNative = createClass({
       game: null,
       menuOpen: false,
       online: true,
-      screen: 'home',
+      screen: null,
       settings: false,
       recent: null,
     };

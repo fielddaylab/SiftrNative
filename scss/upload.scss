@@ -320,3 +320,16 @@
 .create-multi-toggle {
   margin: 8px;
 }
+
+.create-number {
+  display: flex;
+  flex-direction: row;
+  input[type="number"] {
+    margin: 5px;
+    width: 65px;
+  }
+  input[type="range"] {
+    margin: 5px;
+    flex: 1;
+  }
+}

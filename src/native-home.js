@@ -205,6 +205,16 @@ class NativeHomeNew extends React.Component {
     this.getThemes();
   }
 
+  componentWillReceiveProps(newProps) {
+    if (newProps.screen == null
+        && this.props.followed == null
+        && newProps.followed != null
+        && newProps.followed.length === 0) {
+      // user has empty home screen, go to discover instead
+      this.props.setScreen({screen: 'discover'})
+    }
+  }
+
   getNearby() {
     navigator.geolocation.getCurrentPosition((res) => {
       this.props.auth.getNearbyGamesForPlayer({

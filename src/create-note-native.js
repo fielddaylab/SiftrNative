@@ -664,6 +664,72 @@ const CreateSingleSelect = createClass({
   }
 });
 
+class NumberInput extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tempValue: null,
+    };
+  }
+
+  render() {
+    return (
+      <View
+        style={{
+          backgroundColor: 'white',
+          flexDirection: 'row',
+        }}
+      >
+        <Slider
+          minimumValue={this.props.field.min}
+          maximumValue={this.props.field.max}
+          minimumTrackTintColor={this.props.field.min_color}
+          maximumTrackTintColor={this.props.field.max_color}
+          step={this.props.field.step}
+          value={this.state.tempValue == null ? parseFloat(this.props.number) || 0 : this.state.tempValue}
+          style={{
+            margin: 10,
+            flex: 1,
+          }}
+          onValueChange={(val) => {
+            this.setState({tempValue: val});
+          }}
+          onSlidingComplete={(val) => {
+            this.props.setText(val);
+            this.setState({tempValue: null});
+          }}
+        />
+        <TextInput
+          multiline={false}
+          value={(this.state.tempValue == null ? this.props.number : this.state.tempValue) + ''}
+          onChangeText={this.props.setText}
+          keyboardType="numeric"
+          onFocus={this.props.onFocus}
+          onEndEditing={() => {
+            this.props.onUnfocus();
+            let x = parseFloat(this.props.number) || 0;
+            x -= this.props.field.min;
+            x /= this.props.field.step;
+            x = Math.round(x);
+            x *= this.props.field.step;
+            x += this.props.field.min;
+            if (x < this.props.field.min) x = this.props.field.min;
+            if (x > this.props.field.max) x = this.props.field.max;
+            this.props.setText(x);
+          }}
+          style={{
+            margin: 10,
+            minWidth: 65,
+            borderBottomColor: '#888',
+            borderBottomWidth: 1,
+            textAlign: 'center',
+          }}
+        />
+      </View>
+    );
+  }
+}
+
 // Steps 2-5 (native app), all non-photo data together
 export const CreateData = createClass({
   displayName: "CreateData",
@@ -1152,56 +1218,24 @@ export const CreateData = createClass({
                                 </View>
                               );
                             case 'NUMBER':
-                              const num = getText(field.min);
-                              return (
-                                <View
-                                  style={{
-                                    backgroundColor: "white"
-                                  }}
-                                >
-                                  <TextInput
-                                    multiline={false}
-                                    value={num + ''}
-                                    onChangeText={setText}
-                                    style={styles.input}
-                                    placeholder={field.label}
-                                    keyboardType="numeric"
-                                    onFocus={() => {
-                                      scrollToField(field.field_id);
-                                      this.setState({
-                                        focusedBox: field.field_id
-                                      });
-                                    }}
-                                    onEndEditing={() => {
-                                      if (
-                                        this.state.focusedBox === field.field_id
-                                      ) {
-                                        this.setState({
-                                          focusedBox: null
-                                        });
-                                      }
-                                      let x = parseFloat(num) || 0;
-                                      x -= field.min;
-                                      x /= field.step;
-                                      x = Math.round(x);
-                                      x *= field.step;
-                                      x += field.min;
-                                      if (x < field.min) x = field.min;
-                                      if (x > field.max) x = field.max;
-                                      setText(x);
-                                    }}
-                                  />
-                                  <Slider
-                                    minimumValue={field.min}
-                                    maximumValue={field.max}
-                                    minimumTrackTintColor={field.min_color}
-                                    maximumTrackTintColor={field.max_color}
-                                    step={field.step}
-                                    value={parseFloat(num) || 0}
-                                    onSlidingComplete={setText}
-                                  />
-                                </View>
-                              );
+                              return <NumberInput
+                                field={field}
+                                number={getText(field.min)}
+                                onFocus={() => {
+                                  scrollToField(field.field_id);
+                                  this.setState({
+                                    focusedBox: field.field_id
+                                  });
+                                }}
+                                onUnfocus={() => {
+                                  if (this.state.focusedBox === field.field_id) {
+                                    this.setState({
+                                      focusedBox: null
+                                    });
+                                  }
+                                }}
+                                setText={setText}
+                              />;
                             case "TEXTAREA":
                               return (
                                 <TextInput

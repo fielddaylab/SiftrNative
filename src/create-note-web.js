@@ -707,7 +707,15 @@ export const CreateStep5 = createClass({
                     case 'NUMBER':
                       const num = getText(field.min);
                       return (
-                        <p>
+                        <p className="create-number">
+                          <input
+                            type="range"
+                            min={field.min}
+                            max={field.max}
+                            step={field.step}
+                            value={num}
+                            onChange={setText}
+                          />
                           <input
                             type="number"
                             min={field.min}
@@ -726,14 +734,6 @@ export const CreateStep5 = createClass({
                               if (x > field.max) x = field.max;
                               setText({target: {value: x}});
                             }}
-                          />
-                          <input
-                            type="range"
-                            min={field.min}
-                            max={field.max}
-                            step={field.step}
-                            value={num}
-                            onChange={setText}
                           />
                         </p>
                       );
