@@ -548,18 +548,7 @@ const CreateDataPhotoButton = createClass({
             style={styles.photoSlot}
           />
         </TouchableOpacity>
-        {this.props.blurb != null ? (
-          this.props.blurb
-        ) : (
-          <TouchableOpacity
-            style={{
-              flex: 1
-            }}
-            onPress={this.props.onPress}
-          >
-            <Text>{this.props.label}</Text>
-          </TouchableOpacity>
-        )}
+        <View style={{flex: 1}} />
       </View>
     );
   }
@@ -1143,9 +1132,7 @@ export const CreateData = createClass({
                       >
                         <View style={styles.settingsHeader}>
                           <Text style={styles.settingsHeaderText}>
-                            {field.field_type === "MEDIA"
-                              ? "Photo"
-                              : field.label}
+                            {field.label}
                           </Text>
                         </View>
                         {function() {
