@@ -1911,7 +1911,7 @@ export const SiftrView = createClass({
     if (this.props.auth.authToken != null || !this.props.online) {
       obj = {
         createNote: {files: []},
-        createStep: ((!this.props.game.newFormat() || this.state.fields.some((field) => field.field_type === 'MEDIA')) ? 1 : 3),
+        createStep: 3,
         searchOpen: false,
         viewingNote: null,
         primaryMenuOpen: false,
