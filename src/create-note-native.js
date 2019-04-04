@@ -827,7 +827,7 @@ export const CreateData = createClass({
           );
           return;
         }
-      } else if (field.required && field.field_type === "MEDIA") {
+      } else if (field.required && field.field_type === "MEDIA" && !this.props.createNote.note_id) {
         if (!files.some(file => file.field_id === field.field_id)) {
           Alert.alert(
             "Missing photo",
