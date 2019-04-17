@@ -405,7 +405,11 @@ export var SiftrNative = createClass({
             bounds.min_longitude = parseFloat(bounds.min_longitude);
             bounds.min_latitude = parseFloat(bounds.min_latitude);
             bounds.max_longitude = parseFloat(bounds.max_longitude);
-            this.setState({ game, bounds });
+            this.setState({
+              game,
+              createOnLaunch: create,
+              bounds
+            });
           } else {
             this.setState({
               game,
