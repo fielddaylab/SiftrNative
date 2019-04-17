@@ -322,14 +322,9 @@
 }
 
 .create-number {
-  display: flex;
-  flex-direction: row;
+  text-align: center;
   input[type="number"] {
     margin: 5px;
-    width: 65px;
-  }
-  input[type="range"] {
-    margin: 5px;
-    flex: 1;
+    width: 100px;
   }
 }

@@ -666,28 +666,13 @@ class NumberInput extends React.Component {
       <View
         style={{
           backgroundColor: 'white',
-          flexDirection: 'row',
+          flexDirection: 'column',
+          alignItems: 'stretch',
         }}
       >
-        <Slider
-          minimumValue={this.props.field.min}
-          maximumValue={this.props.field.max}
-          minimumTrackTintColor={this.props.field.min_color}
-          maximumTrackTintColor={this.props.field.max_color}
-          step={this.props.field.step}
-          value={this.state.tempValue == null ? parseFloat(this.props.number) || 0 : this.state.tempValue}
-          style={{
-            margin: 10,
-            flex: 1,
-          }}
-          onValueChange={(val) => {
-            this.setState({tempValue: val});
-          }}
-          onSlidingComplete={(val) => {
-            this.props.setText(val);
-            this.setState({tempValue: null});
-          }}
-        />
+        <Text style={{textAlign: 'center', margin: 15}}>
+          Must be between {this.props.field.min} and {this.props.field.max}
+        </Text>
         <TextInput
           multiline={false}
           value={(this.state.tempValue == null ? this.props.number : this.state.tempValue) + ''}
@@ -707,7 +692,7 @@ class NumberInput extends React.Component {
             this.props.setText(x);
           }}
           style={{
-            margin: 10,
+            margin: 15,
             minWidth: 65,
             borderBottomColor: '#888',
             borderBottomWidth: 1,

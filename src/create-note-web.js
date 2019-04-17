@@ -706,16 +706,11 @@ export const CreateStep5 = createClass({
                       });
                     case 'NUMBER':
                       const num = getText(field.min);
-                      return (
+                      return <div>
+                        <p>
+                          Must be between {field.min} and {field.max}
+                        </p>
                         <p className="create-number">
-                          <input
-                            type="range"
-                            min={field.min}
-                            max={field.max}
-                            step={field.step}
-                            value={num}
-                            onChange={setText}
-                          />
                           <input
                             type="number"
                             min={field.min}
@@ -736,7 +731,7 @@ export const CreateStep5 = createClass({
                             }}
                           />
                         </p>
-                      );
+                      </div>;
                     default:
                       return <p>(not implemented yet)</p>;
                   }
