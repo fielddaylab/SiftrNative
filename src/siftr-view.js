@@ -1917,6 +1917,9 @@ export const SiftrView = createClass({
         primaryMenuOpen: false,
         nomenData: nomenData
       };
+      // @ifdef WEB
+      obj.createStep = 1;
+      // @endif
       if ((note = saved_note != null ? saved_note.note : void 0) != null) {
         obj.createNote = note;
         obj.createStep = 2;
