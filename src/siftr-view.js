@@ -1885,7 +1885,7 @@ export const SiftrView = createClass({
       lng: this.props.game.longitude
     });
   },
-  startLocatingNote: function({ exif }) {
+  startLocatingNote: function({ exif } = {}) {
     if (!this.isMounted) return;
     this.locateNote(exif, center => {
       if (!this.isMounted) return;
@@ -1970,7 +1970,9 @@ export const SiftrView = createClass({
         viewingNote: null,
         primaryMenuOpen: false
       };
-      this.setState(obj);
+      this.setState(obj, () => {
+        this.startLocatingNote();
+      });
       // @ifdef WEB
       history.pushState(null, "", "#");
       // @endif
