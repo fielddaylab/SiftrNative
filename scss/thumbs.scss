@@ -54,14 +54,15 @@
     width: 85%;
     overflow:hidden;
   }
-  .siftr-thumbnail-dot {
-    height: 10px;
-    width: 10px;
-    border-radius: 999px;
-    margin: 3px;
-    margin-bottom: 0;
-    display: inline-block;
-  }
+}
+
+.siftr-thumbnail-dot {
+  height: 10px;
+  width: 10px;
+  border-radius: 999px;
+  margin: 3px;
+  margin-bottom: 0;
+  display: inline-block;
 }
 
 .siftr-thumbnail-caption {
