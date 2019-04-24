@@ -740,7 +740,8 @@ export const CreateData = createClass({
       isPickingLocation: false,
       isTakingPhoto: null,
       noteLocation: null,
-      geocodeResult: null
+      geocodeResult: null,
+      alertFields: [],
     };
   },
   componentWillMount: function() {
@@ -778,6 +779,7 @@ export const CreateData = createClass({
     field_data = (ref = this.props.createNote.field_data) != null ? ref : [];
     files = (ref1 = this.props.createNote.files) != null ? ref1 : [];
     ref2 = this.props.fields;
+    let missingFields = [];
     for (i = 0, len = ref2.length; i < len; i++) {
       field = ref2[i];
       if (field.field_type === "SINGLESELECT") {
@@ -794,27 +796,32 @@ export const CreateData = createClass({
         field.required &&
         ((ref3 = field.field_type) === "TEXT" || ref3 === "TEXTAREA")
       ) {
-        if (!field_data.some(data => data.field_id === field.field_id)) {
-          Alert.alert(
-            "Missing data",
-            `Please fill in the field: ${field.label}`
-          );
-          return;
+        const match = field_data.filter(data => data.field_id === field.field_id);
+        if (match.length === 0 || !(match[0].field_data)) {
+          missingFields.push(field);
         }
       } else if (field.required && field.field_type === "MEDIA" && !this.props.createNote.note_id) {
         if (!files.some(file => file.field_id === field.field_id)) {
-          Alert.alert(
-            "Missing photo",
-            `Please supply a photo for: ${field.label}`
-          );
-          return;
+          missingFields.push(field);
         }
       }
+    }
+    if (missingFields.length > 0) {
+      this.setState({alertFields: missingFields});
+      this.scrollToField(missingFields[0].field_id);
+      return;
     }
     if (this.props.progress != null) {
       return;
     }
     this.props.onFinish(field_data, this.state.noteLocation);
+  },
+  scrollToField: function(field_id) {
+    if (this.scrollFields && this.fieldChunks && this.fieldChunks[field_id]) {
+      this.fieldChunks[field_id].measure((fx, fy, width, height, px, py) => {
+        this.scrollFields.scrollTo({x: 0, y: fy, animated: true});
+      });
+    }
   },
   render: function() {
     var descBox, field, field_id, isEditing, ref, ref1, ref2;
@@ -864,22 +871,16 @@ export const CreateData = createClass({
                 }
               })
             );
-            this.setState({
-              isTakingPhoto: null
-            });
+            this.setState((oldState) => update(oldState, {
+              isTakingPhoto: {$set: null},
+              alertFields: {$apply: (x) => x.filter((fld) => fld.field_id !== field_id)},
+            }));
           }}
           game={this.props.game}
           instruction={field}
         />
       );
     } else {
-      const scrollToField = (field_id) => {
-        if (this.scrollFields && this.fieldChunks && this.fieldChunks[field_id]) {
-          this.fieldChunks[field_id].measure((fx, fy, width, height, px, py) => {
-            this.scrollFields.scrollTo({x: 0, y: fy, animated: true});
-          });
-        }
-      };
       return (
         <View
           style={{
@@ -1098,7 +1099,7 @@ export const CreateData = createClass({
                     }
                   </Blackout>
                   {this.props.fields.map(field => {
-                    var field_data, getText, onChangeData, setText;
+                    var field_data, getText, onChangeData, clearAlert, setText;
                     if (isEditing && field.field_type === "MEDIA") {
                       return null;
                     }
@@ -1116,8 +1117,11 @@ export const CreateData = createClass({
                         }}
                       >
                         <View style={styles.settingsHeader}>
-                          <Text style={styles.settingsHeaderText}>
-                            {field.label}
+                          <Text style={[
+                            styles.settingsHeaderText,
+                            this.state.alertFields.indexOf(field) !== -1 ? {color: 'red'} : {},
+                          ]}>
+                            {field.label}{field.required ? ' *' : ''}
                           </Text>
                         </View>
                         {function() {
@@ -1145,6 +1149,13 @@ export const CreateData = createClass({
                             }
                             return def;
                           };
+                          clearAlert = () => {
+                            if (this.state.alertFields.indexOf(field) !== -1) {
+                              this.setState((oldState) => update(oldState, {
+                                alertFields: {$apply: (x) => x.filter((fld) => fld !== field)},
+                              }));
+                            }
+                          };
                           setText = text => {
                             var newData = field_data.filter(
                               data => data.field_id !== field.field_id
@@ -1156,6 +1167,7 @@ export const CreateData = createClass({
                               })
                             );
                             onChangeData(newData);
+                            clearAlert();
                           };
                           switch (field.field_type) {
                             case "TEXT":
@@ -1172,7 +1184,7 @@ export const CreateData = createClass({
                                     style={styles.input}
                                     placeholder={field.label}
                                     onFocus={() => {
-                                      scrollToField(field.field_id);
+                                      this.scrollToField(field.field_id);
                                       this.setState({
                                         focusedBox: field.field_id
                                       });
@@ -1194,7 +1206,7 @@ export const CreateData = createClass({
                                 field={field}
                                 number={getText(field.min)}
                                 onFocus={() => {
-                                  scrollToField(field.field_id);
+                                  this.scrollToField(field.field_id);
                                   this.setState({
                                     focusedBox: field.field_id
                                   });
@@ -1222,7 +1234,7 @@ export const CreateData = createClass({
                                     backgroundColor: "white"
                                   }}
                                   onFocus={() => {
-                                    scrollToField(field.field_id);
+                                    this.scrollToField(field.field_id);
                                     this.setState({
                                       focusedBox: field.field_id
                                     });
