@@ -377,9 +377,9 @@ export const CreatePhoto = createClass({
                   >
                     <TouchableOpacity
                       onPress={() => {
-                        requestImage(true, img => {
-                          if (img != null) {
-                            this.props.onSelectImage(img);
+                        requestImage(true, result => {
+                          if (result != null) {
+                            this.props.onSelectImage(result, result.location);
                           }
                         });
                       }}
@@ -740,6 +740,7 @@ export const CreateData = createClass({
       isPickingLocation: false,
       isTakingPhoto: null,
       noteLocation: null,
+      userPickedLocation: false,
       geocodeResult: null,
       alertFields: [],
     };
@@ -758,21 +759,37 @@ export const CreateData = createClass({
     };
     BackHandler.addEventListener("hardwareBackPress", this.hardwareBack);
     this.props.getLocation(loc => {
-      this.setLocation(loc, false);
+      this.setLocation(loc, 'gps');
     });
   },
   componentWillUnmount: function() {
     BackHandler.removeEventListener("hardwareBackPress", this.hardwareBack);
   },
-  setLocation: function(loc, overwrite) {
-    if (this.state.noteLocation && !overwrite) return;
-    this.setState({noteLocation: loc}, () => {
-      Geocoder.geocodePosition(loc).then(res => {
-        if (this.state.noteLocation === loc) {
-          this.setState({geocodeResult: res});
-        }
+  setLocation: function(loc, source) {
+    // source should be 'user', 'gps', or 'photo'
+    const setAndGeocode = () => {
+      this.setState({noteLocation: loc, userPickedLocation: source === 'user'}, () => {
+        Geocoder.geocodePosition(loc).then(res => {
+          if (this.state.noteLocation === loc) {
+            this.setState({geocodeResult: res});
+          }
+        });
       });
-    });
+    };
+    if (this.state.noteLocation && source === 'gps') {
+      return;
+    } else if (this.state.userPickedLocation && source === 'photo') {
+      Alert.alert(
+        'Replace location?',
+        'Should the location you chose be replaced with the one found in your photo?',
+        [
+          {text: 'Keep', onPress: (() => null), style: 'cancel'},
+          {text: 'Replace', onPress: setAndGeocode},
+        ],
+      );
+    } else {
+      setAndGeocode();
+    }
   },
   finishForm: function() {
     var field, field_data, files, i, len, ref, ref1, ref2, ref3;
@@ -832,7 +849,7 @@ export const CreateData = createClass({
           <View style={styles.buttonRow}>
             <TouchableOpacity
               onPress={() => {
-                this.setLocation(this.props.selectLocation(), true);
+                this.setLocation(this.props.selectLocation(), 'user');
                 this.setState({
                   isPickingLocation: false
                 });
@@ -858,19 +875,20 @@ export const CreateData = createClass({
               isTakingPhoto: null
             });
           }}
-          onSelectImage={file => {
+          onSelectImage={(file, location) => {
             var newFiles;
             newFiles = this.props.createNote.files.filter(file => {
               return file.field_id !== field_id;
             });
             newFiles.push({ file, field_id });
-            this.props.onUpdateNote(
-              update(this.props.createNote, {
-                files: {
-                  $set: newFiles
-                }
-              })
-            );
+            this.props.onUpdateNote(update(this.props.createNote, {
+              files: {$set: newFiles},
+              exif: {$set: location},
+            }), () => {
+              this.props.getLocation(loc => {
+                this.setLocation(loc, 'photo');
+              });
+            });
             this.setState((oldState) => update(oldState, {
               isTakingPhoto: {$set: null},
               alertFields: {$apply: (x) => x.filter((fld) => fld.field_id !== field_id)},

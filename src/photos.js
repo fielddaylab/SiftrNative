@@ -43,6 +43,10 @@ export function requestImage(onlyGallery, cb) {
         isStatic: true,
         type: mime,
         name: name,
+        location: {
+          latitude: result.latitude,
+          longitude: result.longitude,
+        },
       });
     }
   });

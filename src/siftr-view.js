@@ -2019,13 +2019,11 @@ export const SiftrView = createClass({
         <CreateData
           game={this.props.game}
           createNote={this.state.createNote}
-          onUpdateNote={createNote => {
-            this.setState({ createNote });
+          onUpdateNote={(createNote, cb) => {
+            this.setState({ createNote }, cb);
           }}
           getLocation={(cb) => {
-            this.locateNote({
-              exif: this.state.createNote.exif
-            }, cb);
+            this.locateNote(this.state.createNote.exif, cb);
           }}
           onStartLocation={(center) => {
             if (center) {
