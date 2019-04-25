@@ -141,10 +141,8 @@ export const styles = StyleSheet.create({
 
   settingsHeader: {
     backgroundColor: 'rgb(249,249,249)',
-    borderTopColor: 'rgb(230,230,230)',
     borderBottomColor: 'rgb(230,230,230)',
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
+    borderBottomWidth: 2,
     padding: 10,
     paddingTop: 18,
     paddingBottom: 6,
@@ -155,13 +153,22 @@ export const styles = StyleSheet.create({
     color: 'rgb(172,172,172)',
   },
 
+  settingsSection: {
+    paddingLeft: 25,
+  },
+
   settingsButton: {
     backgroundColor: 'white',
-    borderTopColor: 'rgb(230,230,230)',
-    borderBottomColor: 'rgb(230,230,230)',
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    padding: 14,
+    padding: 17,
+    paddingLeft: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  settingsButtonSeparator: {
+    backgroundColor: 'rgb(230,230,230)',
+    height: 1,
   },
 
   photoSlot: {

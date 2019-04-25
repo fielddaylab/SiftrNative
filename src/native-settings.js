@@ -485,39 +485,28 @@ export const NativeSettings = createClass({
             <View
               style={{
                 flexDirection: "row",
-                justifyContent: "space-between",
+                justifyContent: "flex-start",
                 alignItems: "center"
               }}
             >
-              <TouchableOpacity
-                style={{
-                  flex: 1,
-                  alignItems: "flex-start"
-                }}
-                onPress={this.props.onClose}
-              >
+              <TouchableOpacity onPress={this.props.onClose}>
                 <Image
                   style={{
                     resizeMode: "contain",
-                    height: 20,
-                    margin: 10
+                    width: 69 * 0.2,
+                    height: 112 * 0.2,
+                    margin: 20,
                   }}
-                  source={require("../web/assets/img/icon-back.png")}
+                  source={require("../web/assets/img/disclosure-arrow-left.png")}
                 />
               </TouchableOpacity>
-              <View
-                style={{
-                  flex: 4,
-                  alignItems: "center"
-                }}
-              >
-                <Text>Settings</Text>
-              </View>
-              <View
-                style={{
-                  flex: 1
-                }}
-              />
+              <Text style={{
+                fontSize: 32,
+                fontWeight: 'bold',
+                fontFamily: 'League Spartan',
+              }}>
+                Settings
+              </Text>
             </View>
             {
               !(this.props.online) && (
@@ -587,63 +576,96 @@ export const NativeSettings = createClass({
               <View style={styles.settingsHeader}>
                 <Text style={styles.settingsHeaderText}>Account</Text>
               </View>
-              <TouchableOpacity
-                style={styles.settingsButton}
-                onPress={() => {
-                  this.setState({
-                    setting: "profile"
-                  });
-                }}
-              >
-                <Text>Edit Profile</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.settingsButton}
-                onPress={() => {
-                  this.setState({
-                    setting: "password"
-                  });
-                }}
-              >
-                <Text>Change Password</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.settingsButton}
-                onPress={this.props.onLogout}
-              >
-                <Text>Logout</Text>
-              </TouchableOpacity>
+              <View style={styles.settingsSection}>
+                <TouchableOpacity
+                  style={styles.settingsButton}
+                  onPress={() => {
+                    this.setState({
+                      setting: "profile"
+                    });
+                  }}
+                >
+                  <Text>Edit Profile</Text>
+                  <Image
+                    style={{width: 69 * 0.16, height: 112 * 0.16}}
+                    source={require('../web/assets/img/disclosure-arrow-right.png')}
+                  />
+                </TouchableOpacity>
+                <View style={styles.settingsButtonSeparator} />
+                <TouchableOpacity
+                  style={styles.settingsButton}
+                  onPress={() => {
+                    this.setState({
+                      setting: "password"
+                    });
+                  }}
+                >
+                  <Text>Change Password</Text>
+                  <Image
+                    style={{width: 69 * 0.16, height: 112 * 0.16}}
+                    source={require('../web/assets/img/disclosure-arrow-right.png')}
+                  />
+                </TouchableOpacity>
+                <View style={styles.settingsButtonSeparator} />
+                <TouchableOpacity
+                  style={styles.settingsButton}
+                  onPress={this.props.onLogout}
+                >
+                  <Text>Logout</Text>
+                  <Image
+                    style={{width: 69 * 0.16, height: 112 * 0.16}}
+                    source={require('../web/assets/img/disclosure-arrow-right.png')}
+                  />
+                </TouchableOpacity>
+              </View>
               <View style={styles.settingsHeader}>
                 <Text style={styles.settingsHeaderText}>About</Text>
               </View>
-              <TouchableOpacity
-                style={styles.settingsButton}
-                onPress={() => {
-                  Linking.openURL("https://github.com/fielddaylab/SiftrNative");
-                }}
-              >
-                <Text>Open Source</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.settingsButton}
-                onPress={() => {
-                  Linking.openURL(
-                    "https://docs.google.com/document/d/16P8kIfHka-zHXoQcd9mWlUWiOkaTp6I7UcpD_GoB8LY/edit"
-                  );
-                }}
-              >
-                <Text>Terms of Use</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.settingsButton}
-                onPress={() => {
-                  Linking.openURL(
-                    "https://docs.google.com/document/d/1yLXB67G0NfIgp0AAsRUQYB7-LoyFsrihUydxsL_qrms/edit"
-                  );
-                }}
-              >
-                <Text>Privacy Policy</Text>
-              </TouchableOpacity>
+              <View style={styles.settingsSection}>
+                <TouchableOpacity
+                  style={styles.settingsButton}
+                  onPress={() => {
+                    Linking.openURL("https://github.com/fielddaylab/SiftrNative");
+                  }}
+                >
+                  <Text>Open Source</Text>
+                  <Image
+                    style={{width: 69 * 0.16, height: 112 * 0.16}}
+                    source={require('../web/assets/img/disclosure-arrow-right.png')}
+                  />
+                </TouchableOpacity>
+                <View style={styles.settingsButtonSeparator} />
+                <TouchableOpacity
+                  style={styles.settingsButton}
+                  onPress={() => {
+                    Linking.openURL(
+                      "https://docs.google.com/document/d/16P8kIfHka-zHXoQcd9mWlUWiOkaTp6I7UcpD_GoB8LY/edit"
+                    );
+                  }}
+                >
+                  <Text>Terms of Use</Text>
+                  <Image
+                    style={{width: 69 * 0.16, height: 112 * 0.16}}
+                    source={require('../web/assets/img/disclosure-arrow-right.png')}
+                  />
+                </TouchableOpacity>
+                <View style={styles.settingsButtonSeparator} />
+                <TouchableOpacity
+                  style={styles.settingsButton}
+                  onPress={() => {
+                    Linking.openURL(
+                      "https://docs.google.com/document/d/1yLXB67G0NfIgp0AAsRUQYB7-LoyFsrihUydxsL_qrms/edit"
+                    );
+                  }}
+                >
+                  <Text>Privacy Policy</Text>
+                  <Image
+                    style={{width: 69 * 0.16, height: 112 * 0.16}}
+                    source={require('../web/assets/img/disclosure-arrow-right.png')}
+                  />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.settingsButtonSeparator} />
             </ScrollView>
           </View>
         );
