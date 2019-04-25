@@ -780,11 +780,11 @@ export const CreateData = createClass({
       return;
     } else if (this.state.userPickedLocation && source === 'photo') {
       Alert.alert(
-        'Replace location?',
-        'Should the location you chose be replaced with the one found in your photo?',
+        'Use photo location?',
+        'This photo has location information. Which location do you want to use?',
         [
-          {text: 'Keep', onPress: (() => null), style: 'cancel'},
-          {text: 'Replace', onPress: setAndGeocode},
+          {text: 'Existing', onPress: (() => null), style: 'cancel'},
+          {text: 'Photo', onPress: setAndGeocode},
         ],
       );
     } else {
