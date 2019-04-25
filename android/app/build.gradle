@@ -101,8 +101,8 @@ android {
         applicationId "org.siftr.client"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 99
-        versionName "1.2.10"
+        versionCode 100
+        versionName "1.2.11"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
