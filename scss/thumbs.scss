@@ -35,6 +35,7 @@
   text-decoration: none;
   box-shadow: 0px 0px 8px 4px rgba(0, 0, 0, 0.1);
   transition: all .1s ease-in-out;
+  min-width: 0; // fixes too-wide cards, see https://stackoverflow.com/a/43312314/509936
   &:hover, &.hybrid-hover {
     text-decoration: none;
     transform: scale(1.07);
