@@ -670,7 +670,7 @@ class NumberInput extends React.Component {
           alignItems: 'stretch',
         }}
       >
-        <Text style={{textAlign: 'center', margin: 15}}>
+        <Text style={{textAlign: 'left', margin: 15}}>
           Must be between {this.props.field.min} and {this.props.field.max}
         </Text>
         <TextInput
@@ -696,7 +696,7 @@ class NumberInput extends React.Component {
             minWidth: 65,
             borderBottomColor: '#888',
             borderBottomWidth: 1,
-            textAlign: 'center',
+            textAlign: 'left',
           }}
         />
       </View>
