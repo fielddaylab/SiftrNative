@@ -2630,12 +2630,7 @@ export const SiftrView = createClass({
               }}
             >
               {
-              this.state.createNote != null &&
-              !(
-                this.state.createNote.media != null ||
-                this.state.createNote.files != null ||
-                this.state.createNote.uploading
-              )
+                this.state.createNote != null
                 ? this.renderMap()
                 : this.hasCards()
                   ? ( this.state.mainView === "thumbs" || this.state.mainView === "hybrid"
