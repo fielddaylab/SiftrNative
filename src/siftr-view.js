@@ -89,6 +89,17 @@ function fixLongitude(longitude) {
 
 const viewModeSize = 92 / 3.5;
 
+function hexToRGBA(hex) {
+  if (hex[0] === '#' && hex.length === 7) {
+    const red   = parseInt(hex[1] + hex[2], 16);
+    const green = parseInt(hex[3] + hex[4], 16);
+    const blue  = parseInt(hex[5] + hex[6], 16);
+    return [red, green, blue, 255];
+  } else {
+    return [255, 255, 255, 255];
+  }
+}
+
 // @ifdef NATIVE
 const SiftrInfo = createClass({
   displayName: "SiftrInfo",
@@ -1075,6 +1086,25 @@ export const SiftrView = createClass({
     if (!(this.state.tags != null && this.state.colors != null && x != null)) {
       return "white";
     }
+    function numberField(field, value) {
+      value = parseFloat(value);
+      if (isNaN(value)) {
+        return {color: 'white'};
+      } else {
+        const rgbaMin = hexToRGBA(field.min_color);
+        const rgbaMax = hexToRGBA(field.max_color);
+        const frac = (value - field.min) / (field.max - field.min);
+        const mix = (a, b) => {
+          const n = Math.round(a + (b - a) * frac);
+          let s = n.toString(16);
+          if (n < 16) s = '0' + s;
+          return s;
+        }
+        return {
+          color: '#' + [0, 1, 2].map((i) => mix(rgbaMin[i], rgbaMax[i])).join(''),
+        };
+      }
+    }
     if (x instanceof Tag) {
       tag = x;
       index = this.state.tags.indexOf(tag);
@@ -1085,16 +1115,24 @@ export const SiftrView = createClass({
     } else if (this.props.game.newFormat() && x.field_data != null) {
       const option_id = x.field_data[this.props.game.field_id_pin];
       const field = this.state.fields.find((field) => field.field_id === this.props.game.field_id_pin);
-      tag = field && field.options.find((opt) => opt.field_option_id === parseInt(option_id));
-      index = field && field.options.indexOf(tag);
+      if (field && field.field_type === 'NUMBER') {
+        tag = numberField(field, option_id);
+      } else {
+        tag = field && field.options.find((opt) => opt.field_option_id === parseInt(option_id));
+        index = field && field.options.indexOf(tag);
+      }
     } else if (x.tag_id != null) {
       tag = this.state.tags.find((tag) => tag.tag_id === parseInt(x.tag_id));
       index = this.state.tags.indexOf(tag);
     } else if (typeof x === "number" || typeof x === "string") {
       if (this.props.game.newFormat()) {
         const field = this.state.fields.find((field) => field.field_id === this.props.game.field_id_pin);
-        tag = field && field.options.find((opt) => opt.field_option_id === parseInt(x));
-        index = field && field.options.indexOf(tag);
+        if (field && field.field_type === 'NUMBER') {
+          tag = numberField(field, x);
+        } else {
+          tag = field && field.options.find((opt) => opt.field_option_id === parseInt(x));
+          index = field && field.options.indexOf(tag);
+        }
       } else {
         tag = this.state.tags.find((tag) => tag.tag_id === parseInt(x));
         index = this.state.tags.indexOf(tag);
