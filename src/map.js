@@ -91,6 +91,27 @@ class MapCluster extends React.Component {
     }
   }
 
+  numberColor() {
+    if (!this.props.fields) return;
+    if (!this.props.game.field_id_pin) return;
+    const field = this.props.fields.find((field) => field.field_id === this.props.game.field_id_pin);
+    if (field && field.field_type === 'NUMBER') {
+      let total = 0;
+      let count = 0;
+      const values = this.props.cluster.fields[field.field_id];
+      for (let value in values) {
+        const value_count = parseInt(values[value]);
+        value = parseFloat(value);
+        if (isNaN(value)) continue;
+        total += value * value_count;
+        count += value_count;
+      }
+      return this.props.getColor(total / count);
+    } else {
+      return;
+    }
+  }
+
   // @ifdef NATIVE
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (this.markerRef && this.thumbFocused() !== this.thumbFocused(prevProps)) {
@@ -107,16 +128,21 @@ class MapCluster extends React.Component {
     const r = w / 2;
     let stops = [];
     let startRads = 0;
-    const tags = this.props.game.newFormat() ? this.props.cluster.fields[this.props.game.field_id_pin] : this.props.cluster.tags;
-    for (let tag_id in tags) {
-      const tag_count = tags[tag_id];
-      const color = this.props.getColor(tag_id);
-      if (tag_count === this.props.cluster.note_count) {
-        stops.push(['circle', 'circle', color]);
-      } else {
-        const endRads = startRads + (tag_count / this.props.cluster.note_count) * 2 * Math.PI;
-        stops.push([startRads, endRads, color]);
-        startRads = endRads;
+    const numberColor = this.numberColor();
+    if (numberColor) {
+      stops.push(['circle', 'circle', numberColor]);
+    } else {
+      const tags = this.props.game.newFormat() ? this.props.cluster.fields[this.props.game.field_id_pin] : this.props.cluster.tags;
+      for (let tag_id in tags) {
+        const tag_count = tags[tag_id];
+        const color = this.props.getColor(tag_id);
+        if (tag_count === this.props.cluster.note_count) {
+          stops.push(['circle', 'circle', color]);
+        } else {
+          const endRads = startRads + (tag_count / this.props.cluster.note_count) * 2 * Math.PI;
+          stops.push([startRads, endRads, color]);
+          startRads = endRads;
+        }
       }
     }
     const blurStops = function(){
@@ -219,15 +245,21 @@ class MapCluster extends React.Component {
     const stops = [];
     let percent = 0;
     let last_color;
-    const tags = this.props.game.newFormat() ? this.props.cluster.fields[this.props.game.field_id_pin] : this.props.cluster.tags;
-    for (let tag_id in tags) {
-      const tag_count = tags[tag_id];
-      percent += (tag_count / this.props.cluster.note_count) * 100;
-      const color = this.props.getColor(tag_id);
-      stops.push(`${color} 1 ${percent}%`);
-      last_color = color;
+    const numberColor = this.numberColor();
+    if (numberColor) {
+      stops.push(`${numberColor} 1 0%`);
+      stops.push(`${numberColor} 1 100%`);
+    } else {
+      const tags = this.props.game.newFormat() ? this.props.cluster.fields[this.props.game.field_id_pin] : this.props.cluster.tags;
+      for (let tag_id in tags) {
+        const tag_count = tags[tag_id];
+        percent += (tag_count / this.props.cluster.note_count) * 100;
+        const color = this.props.getColor(tag_id);
+        stops.push(`${color} 1 ${percent}%`);
+        last_color = color;
+      }
+      stops.unshift(`${last_color} 1 0%`);
     }
-    stops.unshift(`${last_color} 1 0%`);
     const gradient = getConicGradient({stops: stops.join(', '), size: width});
     let className = 'siftr-map-cluster';
     if (this.thumbFocused()) {
@@ -528,6 +560,7 @@ export class SiftrMap extends React.Component {
         onMouseLeave={this.props.onMouseLeave}
         thumbHover={this.props.thumbHover}
         game={this.props.game}
+        fields={this.props.fields}
       />;
     });
   }

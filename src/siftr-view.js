@@ -1818,6 +1818,7 @@ export const SiftrView = createClass({
         thumbHover={this.state.thumbHover && this.state.thumbHover.note_id}
         tags={this.state.tags}
         game={this.props.game}
+        fields={this.state.fields}
       />
     );
   },
