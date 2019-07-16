@@ -219,19 +219,19 @@ SPEC CHECKSUMS:
   GoogleMaps: c087b8e5dfe87ca6ebf59adb9b4894a4146bec4f
   GoogleToolboxForMac: 2501e2ad72a52eb3dfe7bd9aee7dad11b858bd20
   nanopb: 5601e6bca2dbf1ed831b519092ec110f66982ca3
-  React: 9b873b38b92ed8012d7cdf3b965477095ed364c4
-  react-native-camera: a8d04ef12749def72cae86b0b8d28c2de891a392
-  react-native-geocoder: 33b16a5929aa868fef37acb4f7ee10a428cd5fff
-  react-native-google-maps: b946d62e25dc66097921ed82520e45b0b081768a
-  react-native-image-picker: f42de90075c5b1af53417af927631d909a1a746e
-  react-native-maps: 066c2afcc89e18726377bcc685315f989ca22449
-  react-native-orientation-locker: 2059d64f64807d710c731439dcd688ec7acc9f8a
-  ReactNativePermissions: 9f2d9c45c98800795e6c2ed330e25d11a66a8169
-  RNFirebase: 57f6c2adb24355b4e6211e028a8e97e473432245
-  RNFS: bbb1a64eb245763daf34aea86f97c97c4e85f74c
-  RNSVG: 4834be1d644eb77f0e3f6de851881b83758a3124
-  yoga: 0885622311729a02c2bc02dca97167787a51488b
+  React: d099597d6ba7001f0219dbc48532b63cfd8d0eca
+  react-native-camera: 046f504650bf9a0a9ec9024107f555feaeca6671
+  react-native-geocoder: 757427682892bb256f3b3745858cc90eba148a8e
+  react-native-google-maps: 544d2208b09a7e2ec2c6112c8a97c4e7f921f74d
+  react-native-image-picker: e6e06d4315e3c85bad17e4b2002cd29f11d202c8
+  react-native-maps: 9469741f77f270c605cafec603ce47327dc5b5f8
+  react-native-orientation-locker: dfd9ee6bb8ecb746e71008ef79fd54b5e6964fdf
+  ReactNativePermissions: b64e084dff6a5cad51587d38c306f09246246384
+  RNFirebase: 24ed56149251c99f6cb7d44100cade4b953fbd08
+  RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
+  RNSVG: 798a867a086016cc4e3e92c4542c8d1d642e8047
+  yoga: 220e7595ec3cfe80c5ce02a0d0881be66b405e81
 
 PODFILE CHECKSUM: 47f3b08608e5c15e090d4862e6a57ff1f0c66168
 
-COCOAPODS: 1.5.3
+COCOAPODS: 1.7.1

@@ -1448,21 +1448,27 @@ export const SiftrView = createClass({
                 }
                 return results1;
               })();
-              tags = {};
-              for (j = 0, len1 = cluster.length; j < len1; j++) {
-                note = cluster[j];
-                if (tags[(name1 = note.tag_id)] == null) {
-                  tags[name1] = 0;
+              let fields = {};
+              cluster.forEach(note => {
+                for (let k in note.field_data) {
+                  let v = note.field_data[k];
+                  if (v != null) {
+                    if (!fields[k]) fields[k] = {};
+                    if (fields[k][v] == null) {
+                      fields[k][v] = 1;
+                    } else {
+                      fields[k][v] += 1;
+                    }
+                  }
                 }
-                tags[note.tag_id] += 1;
-              }
+              });
               results.push({
                 min_latitude: Math.min.apply(Math, lats),
                 max_latitude: Math.max.apply(Math, lats),
                 min_longitude: Math.min.apply(Math, lons),
                 max_longitude: Math.max.apply(Math, lons),
                 note_count: cluster.length,
-                tags: tags,
+                fields: fields,
                 note_ids: (function() {
                   var k, len2, results1;
                   results1 = [];
