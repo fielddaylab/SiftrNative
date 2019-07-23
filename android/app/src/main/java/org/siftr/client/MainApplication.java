@@ -1,4 +1,4 @@
-package org.siftr.client;
+package org.fielddaylab.stemports;
 
 import android.app.Application;
 import android.util.Log;

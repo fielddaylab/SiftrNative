@@ -221,9 +221,9 @@ export class SiftrThumbnails extends React.Component {
             let url = '';
             // TODO get actual correct file for field_id_preview
             if (Platform.OS === "ios") {
-              url = `${dir.path}/${json.files[0].filename}`;
+              url = json.files && json.files.length ? `${dir.path}/${json.files[0].filename}` : '';
             } else {
-              url = `file://${dir.path}/${json.files[0].filename}`;
+              url = json.files && json.files.length ? `file://${dir.path}/${json.files[0].filename}` : '';
             }
             return (
               <NoteCard

@@ -672,7 +672,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.siftr.client;
+				PRODUCT_BUNDLE_IDENTIFIER = org.fielddaylab.stemports;
 				PRODUCT_NAME = Siftr;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -692,7 +692,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.siftr.client;
+				PRODUCT_BUNDLE_IDENTIFIER = org.fielddaylab.stemports;
 				PRODUCT_NAME = Siftr;
 				VERSIONING_SYSTEM = "apple-generic";
 			};

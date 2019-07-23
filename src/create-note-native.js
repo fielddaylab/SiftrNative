@@ -708,7 +708,6 @@ export const CreateData = createClass({
     getLocation: T.func,
     selectLocation: T.func,
     onStartLocation: T.func,
-    categories: T.arrayOf(T.instanceOf(Tag)).isRequired,
     getColor: T.func,
     fields: T.arrayOf(T.instanceOf(Field)),
     game: T.instanceOf(Game).isRequired,
@@ -825,6 +824,13 @@ export const CreateData = createClass({
     }
     if (this.props.progress != null) {
       return;
+    }
+    if (field_data.some(data => data.field_id === 1 && data.field_option_id === 18)) {
+      // tree species, remove end product
+      field_data = field_data.filter(data => data.field_id !== 4);
+    } else if (field_data.some(data => data.field_id === 1 && data.field_option_id === 17)) {
+      // end product, remove tree species
+      field_data = field_data.filter(data => data.field_id !== 2);
     }
     this.props.onFinish(field_data, this.state.noteLocation);
   },
@@ -1079,42 +1085,22 @@ export const CreateData = createClass({
                         </View>
                       </TouchableOpacity>
                     </View>
-                    {
-                      !(this.props.game.newFormat()) &&
-                      <View style={styles.settingsHeader}>
-                        <Text style={styles.settingsHeaderText}>
-                          Pick category
-                        </Text>
-                      </View>
-                    }
-                    {
-                      !(this.props.game.newFormat()) &&
-                      <CreateSingleSelect
-                        current={this.props.createNote.category}
-                        options={this.props.categories}
-                        getColor={this.props.getColor}
-                        getLabel={cat => {
-                          return cat && cat.tag;
-                        }}
-                        getKey={cat => {
-                          return cat && cat.tag_id;
-                        }}
-                        onSelectOption={cat => {
-                          this.props.onUpdateNote(
-                            update(this.props.createNote, {
-                              category: {
-                                $set: cat
-                              }
-                            })
-                          );
-                        }}
-                      />
-                    }
                   </Blackout>
                   {this.props.fields.map(field => {
                     var field_data, getText, onChangeData, clearAlert, setText;
                     if (isEditing && field.field_type === "MEDIA") {
                       return null;
+                    }
+                    let stemportsCategory = 0;
+                    (this.props.createNote.field_data || []).forEach(fdata => {
+                      if (fdata.field_id === 1) {
+                        stemportsCategory = fdata.field_option_id;
+                      }
+                    });
+                    if (field.field_id === 2) {
+                      if (stemportsCategory !== 0 && stemportsCategory !== 18) return;
+                    } else if (field.field_id === 4) {
+                      if (stemportsCategory !== 17) return;
                     }
                     return (
                       <Blackout
@@ -1264,6 +1250,17 @@ export const CreateData = createClass({
                                 />
                               );
                             case "SINGLESELECT":
+                              const filteredOptions = field.options.filter(opt => {
+                                if (opt.field_option_id === 17) {
+                                  // don't show consumer products
+                                  // until "Collect all the Consumer Products Remnants" is done
+                                  if (!this.props.quests) return false;
+                                  return this.props.quests.complete.some(quest =>
+                                    parseInt(quest.quest_id) === 2
+                                  );
+                                }
+                                return true;
+                              });
                               return (
                                 <CreateSingleSelect
                                   current={(() => {
@@ -1287,7 +1284,7 @@ export const CreateData = createClass({
                                         break;
                                       }
                                     }
-                                    ref3 = field.options;
+                                    ref3 = filteredOptions;
                                     for (
                                       j = 0, len1 = ref3.length;
                                       j < len1;
@@ -1301,9 +1298,9 @@ export const CreateData = createClass({
                                         return option;
                                       }
                                     }
-                                    return field.options[0];
+                                    return filteredOptions[0];
                                   })()}
-                                  options={field.options}
+                                  options={filteredOptions}
                                   getColor={this.props.getColor}
                                   getLabel={opt => {
                                     return opt.option;

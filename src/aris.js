@@ -7,8 +7,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import update from "immutability-helper";
 import { uploadImage } from "./photos";
 
-const ARIS_URL = "https://arisgames.org/server/";
-// const ARIS_URL = 'http://localhost:10080/server/';
+const ARIS_URL = "https://fieldday-web.wcer.wisc.edu/stemports/server/";
 
 export const Game = class Game {
   constructor(json) {
@@ -527,7 +526,7 @@ export const Auth = class Auth {
     // @endif
   }
 
-  call(func, json, cb) {
+  call(func, json, cb = (() => {})) {
     if (activeCalls >= MAX_CALLS) {
       var aborted = false;
       pendingCalls.push([func, json, (x) => {
@@ -564,7 +563,7 @@ export const Auth = class Auth {
     }
   }
 
-  callUnqueued(func, json, cb) {
+  callUnqueued(func, json, cb = (() => {})) {
     var req;
     req = new XMLHttpRequest();
     req.open("POST", `${ARIS_URL}/json.php/v2.${func}`, true);

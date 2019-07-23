@@ -200,6 +200,17 @@ class NativeHomeNew extends React.Component {
   }
 
   componentWillMount() {
+    // launch stemports right away
+    /*
+    this.props.auth.getGame({
+      game_id: 2,
+    }, (res) => {
+      if (res.returnCode === 0) {
+        this.props.onSelect(res.data);
+      }
+    });
+    return;
+    */
     this.getNearby();
     this.getPopular();
     this.getFeatured();

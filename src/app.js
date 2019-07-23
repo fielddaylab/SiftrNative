@@ -30,6 +30,7 @@ import { NativeLogin } from "./native-login";
 import { NativeHome, Loading } from "./native-home";
 import Orientation from 'react-native-orientation-locker';
 import Geolocation from '@react-native-community/geolocation';
+import { StemportsPicker } from './stemports-picker';
 // @endif
 
 import { Auth, Game, displayError } from "./aris";
@@ -693,7 +694,7 @@ export var SiftrNative = createClass({
               </SafeAreaView>
             ) : (
               <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-                <NativeHome
+                <StemportsPicker
                   auth={this.state.auth}
                   onLogout={this.logout}
                   onSelect={(game, create = false) => {

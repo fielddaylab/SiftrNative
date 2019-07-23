@@ -24,7 +24,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Platform,
-  SafeAreaView
+  SafeAreaView,
+  Alert
 } from "react-native";
 const RNFS = require("react-native-fs");
 import { styles, Text } from "./styles";
@@ -37,6 +38,9 @@ import { NativeSettings } from "./native-settings";
 import { NativeCard } from "./native-browser";
 import {CacheMedia} from './media';
 import ProgressCircle from 'react-native-progress-circle';
+import {ItemScreen, InventoryScreen} from './items';
+import {PlaqueScreen} from './plaques';
+import {QuestsScreen, QuestDetails} from './quests';
 // @endif
 
 // @ifdef WEB
@@ -504,6 +508,32 @@ export function downloadGame(auth, game, callbacks = {}) {
 
 // @endif
 
+function meterDistance(posn1, posn2) {
+  // Haversine formula code from https://stackoverflow.com/a/14561433/509936
+
+  const toRad = function(n) {
+     return n * Math.PI / 180;
+  }
+
+  var lat2 = parseFloat(posn2.latitude);
+  var lon2 = parseFloat(posn2.longitude);
+  var lat1 = parseFloat(posn1.latitude);
+  var lon1 = parseFloat(posn1.longitude);
+
+  var R = 6371; // km
+  var x1 = lat2-lat1;
+  var dLat = toRad(x1);
+  var x2 = lon2-lon1;
+  var dLon = toRad(x2);
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  var d = R * c;
+
+  return d * 1000;
+}
+
 export const SiftrView = createClass({
   displayName: "SiftrView",
   propTypes: {
@@ -646,10 +676,11 @@ export const SiftrView = createClass({
         sort: "recent"
       },
       searchOpen: false,
-      mainView: this.hasCards() ? "hybrid" : "map", // 'hybrid', 'map', 'thumbs'
+      mainView: "map", // 'hybrid', 'map', 'thumbs'
       fields: null,
       infoOpen: false,
-      primaryMenuOpen: false
+      primaryMenuOpen: false,
+      modals: [],
     };
   },
   componentWillMount: function() {
@@ -921,6 +952,103 @@ export const SiftrView = createClass({
         saved_note: this.props.saved_note
       });
     }
+    this.tickTriggers();
+    this.checkQuests();
+    this.checkObjects();
+  },
+  checkQuests: function() {
+    if (!this.isMounted) return;
+    this.props.auth.call('client.checkForCascadingLogs', {
+      game_id: this.props.game.game_id,
+    }, () => {
+      this.props.auth.call('client.getQuestsForPlayer', {
+        game_id: this.props.game.game_id,
+      }, (res) => {
+        if (res.returnCode === 0) {
+          const oldQuests = this.state.quests;
+          const newQuests = res.data;
+          this.setState({quests: newQuests});
+          if (oldQuests) {
+            newQuests.active.forEach(quest => {
+              if (!oldQuests.active.some(old => old.quest_id === quest.quest_id)) {
+                this.pushModal({type: 'quest-available', quest: quest});
+              }
+            });
+            newQuests.complete.forEach(quest => {
+              if (!oldQuests.complete.some(old => old.quest_id === quest.quest_id)) {
+                this.pushModal({type: 'quest-complete', quest: quest});
+              }
+            });
+          }
+          setTimeout(() => this.checkQuests(), 5000);
+        }
+      });
+    });
+  },
+  checkObjects: function() {
+    if (!this.isMounted) return;
+    this.props.auth.call('plaques.getPlaquesForGame', {
+      game_id: this.props.game.game_id,
+    }, (plaques) => {
+      this.props.auth.call('items.getItemsForGame', {
+        game_id: this.props.game.game_id,
+      }, (items) => {
+        this.props.auth.call('tags.getTagsForGame', {
+          game_id: this.props.game.game_id,
+        }, (tags) => {
+          this.props.auth.call('tags.getObjectTagsForGame', {
+            game_id: this.props.game.game_id,
+          }, (object_tags) => {
+            this.setState({
+              plaques: plaques.returnCode === 0 ? plaques.data : undefined,
+              items: items.returnCode === 0 ? items.data : undefined,
+              tags: tags.returnCode === 0 ? tags.data : undefined,
+              object_tags: object_tags.returnCode === 0 ? object_tags.data : undefined,
+            });
+            setTimeout(() => this.checkObjects(), 5000);
+          });
+        });
+      });
+    });
+  },
+  tickTriggers: function() {
+    if (!this.isMounted) return;
+    this.props.auth.call('client.touchSceneForPlayer', {
+      game_id: this.props.game.game_id,
+    }, () => {
+      const tick = () => {
+        this.props.auth.call('triggers.assignClusters', {
+          game_id: this.props.game.game_id,
+        }, () => {
+          this.props.auth.call('client.getTriggersForPlayer', {
+            game_id: this.props.game.game_id,
+            tick_factories: true,
+          }, (triggers) => {
+            this.props.auth.call('instances.getInstancesForGame', {
+              game_id: this.props.game.game_id,
+            }, (instances) => {
+              this.setState({triggers: triggers.data, instances: instances.data});
+              setTimeout(() => this.tickTriggers(), 5000);
+            });
+          });
+        });
+      };
+      if (this.state && this.state.center) {
+        let lat = this.state.center.lat;
+        let lng = this.state.center.lng;
+        if (this.props.location) {
+          lat = this.props.location.coords.latitude;
+          lng = this.props.location.coords.longitude;
+        }
+        this.props.auth.call('client.logPlayerMoved', {
+          game_id: this.props.game.game_id,
+          latitude: lat,
+          longitude: lng,
+        }, tick);
+      } else {
+        tick();
+      }
+    });
   },
   componentDidMount: function() {
     this.nomenTimer = setInterval(() => {
@@ -930,6 +1058,14 @@ export const SiftrView = createClass({
       if (this.props.clearCreate) this.props.clearCreate();
       this.startCreate();
     }
+    setTimeout(() => {
+      if (this.props.location) {
+        this.refs.theSiftrMap.moveToPoint({
+          lat: this.props.location.coords.latitude,
+          lng: this.props.location.coords.longitude,
+        });
+      }
+    }, 2000);
   },
   componentWillUnmount: function() {
     this.isMounted = false;
@@ -1741,10 +1877,21 @@ export const SiftrView = createClass({
       );
     }
   },
+  pushModal: function(modal) {
+    this.setState(old => update(old, {
+      modals: {$apply: (ary) => [modal].concat(ary)}
+    }));
+  },
+  popModal: function() {
+    this.setState(old => update(old, {
+      modals: {$apply: (ary) => ary.slice(1)}
+    }));
+  },
   renderMap: function() {
     var ref;
     return (
       <SiftrMap
+        location={this.props.location}
         map_notes={(() => {
           var pin;
           // @ifdef WEB
@@ -1776,6 +1923,26 @@ export const SiftrView = createClass({
           }
           // @endif
         })()}
+        triggers={this.state.triggers || []}
+        instances={this.state.instances || []}
+        plaques={this.state.plaques || []}
+        items={this.state.items || []}
+        auth={this.props.auth}
+        onSelectItem={(o) => {
+          if (!this.props.location) return;
+          const distance = Math.ceil(meterDistance(o.trigger, this.props.location.coords));
+          if (distance > 100) {
+            Alert.alert(
+              'Too far',
+              `You are ${distance}m away. Walk ${distance - 100}m closer`,
+              [
+                {text: 'OK'},
+              ],
+            );
+          } else {
+            this.pushModal(update(o, {type: {$set: 'trigger'}}));
+          }
+        }}
         pendingNotes={(() => {
           // @ifdef WEB
           return [];
@@ -2101,6 +2268,7 @@ export const SiftrView = createClass({
           progress={this.state.progress}
           onViolaIdentify={this.props.onViolaIdentify}
           resumedNote={this.state.resumedNote}
+          quests={this.state.quests}
         />
       );
     }
@@ -2504,6 +2672,7 @@ export const SiftrView = createClass({
               queueMessage={this.props.queueMessage}
             />
             {
+              this.state.viewingNote &&
               <Blackout isFocused={false} keyboardUp={this.state.keyboardUp}>
                 {
                   this.state.createNote ? null :
@@ -2644,26 +2813,60 @@ export const SiftrView = createClass({
                         </View>
                       ))
                     ) : (
-                      <TouchableOpacity
-                        onPress={() => {
-                          this.setState({
-                            infoOpen: !this.state.infoOpen
-                          });
-                        }}
-                      >
-                        <View style={{
-                          paddingTop: 3,
-                          paddingBottom: 3,
-                          paddingLeft: 7,
-                          paddingRight: 7,
-                          margin: 10,
-                          borderColor: 'black',
-                          borderWidth: 1,
-                          borderRadius: 5,
-                        }}>
-                          <Text>about</Text>
-                        </View>
-                      </TouchableOpacity>
+                      <View style={{flexDirection: 'row'}}>
+                        <TouchableOpacity
+                          onPress={() => this.pushModal({type: 'quests'})}
+                        >
+                          <View style={{
+                            paddingTop: 3,
+                            paddingBottom: 3,
+                            paddingLeft: 7,
+                            paddingRight: 7,
+                            margin: 10,
+                            borderColor: 'black',
+                            borderWidth: 1,
+                            borderRadius: 5,
+                          }}>
+                            <Text>quests</Text>
+                          </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => this.pushModal({type: 'inventory'})}
+                        >
+                          <View style={{
+                            paddingTop: 3,
+                            paddingBottom: 3,
+                            paddingLeft: 7,
+                            paddingRight: 7,
+                            margin: 10,
+                            borderColor: 'black',
+                            borderWidth: 1,
+                            borderRadius: 5,
+                          }}>
+                            <Text>items</Text>
+                          </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => {
+                            this.props.auth.call('client.logPlayerResetGame', {
+                              game_id: this.props.game.game_id,
+                            });
+                          }}
+                        >
+                          <View style={{
+                            paddingTop: 3,
+                            paddingBottom: 3,
+                            paddingLeft: 7,
+                            paddingRight: 7,
+                            margin: 10,
+                            borderColor: 'black',
+                            borderWidth: 1,
+                            borderRadius: 5,
+                          }}>
+                            <Text style={{color: 'red'}}>reset</Text>
+                          </View>
+                        </TouchableOpacity>
+                      </View>
                     )}
                   </View>
                 }
@@ -2684,77 +2887,250 @@ export const SiftrView = createClass({
                     )
                   : this.renderMap()
               }
-              {this.state.viewPopup && (
-                <View style={{
+              <View
+                style={{
                   position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  backgroundColor: 'rgb(220,223,225)',
-                  borderTopRightRadius: 5,
-                }}>
-                  {
-                    this.hasCards() && (
-                      <TouchableOpacity
-                        style={{padding: 10, marginLeft: 4, marginRight: 4}}
-                        onPress={() => this.setState({mainView: 'hybrid', viewPopup: false})}
-                      >
-                        <Image
-                          style={{
-                            resizeMode: "contain",
-                            width: viewModeSize,
-                            height: viewModeSize,
-                          }}
-                          source={require("../web/assets/img/mobile-view-hybrid.png")}
-                        />
-                      </TouchableOpacity>
-                    )
-                  }
-                  {
-                    this.hasCards() && (
-                      <View style={{width: 1, height: viewModeSize, backgroundColor: 'white'}} />
-                    )
-                  }
-                  <TouchableOpacity
-                    style={{padding: 10, marginLeft: 4, marginRight: 4}}
-                    onPress={() => this.setState({mainView: 'map', viewPopup: false})}
-                  >
-                    <Image
+                  top: 10,
+                  left: 10,
+                  right: 10,
+                  backgroundColor: 'white',
+                  borderRadius: 5,
+                  paddingTop: 3,
+                  paddingBottom: 3,
+                  paddingLeft: 7,
+                  paddingRight: 7,
+                  alignItems: 'flex-start',
+                }}
+              >
+                {
+                  this.state.quests && this.state.quests.active.length > 0 && (
+                    <Text style={{margin: 10}}>
+                      { this.state.quests.active[0].name }
+                    </Text>
+                  )
+                }
+                <TouchableOpacity
+                  onPress={() => this.pushModal({type: 'quests'})}
+                  style={{
+                    margin: 10,
+                    padding: 10,
+                    backgroundColor: 'rgb(114,236,222)',
+                    borderRadius: 10,
+                    fontSize: 20,
+                  }}
+                >
+                  <Text>View Quests</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={{
+                position: 'absolute',
+                bottom: 10,
+                left: 10,
+                right: 10,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+                <TouchableOpacity
+                  onPress={() => this.pushModal({type: 'inventory'})}
+                >
+                  <Image
+                    source={require('../web/assets/img/stemports-codex.png')}
+                    style={{
+                      width: 163 * 0.5,
+                      height: 127 * 0.5,
+                    }}
+                  />
+                </TouchableOpacity>
+                {
+                  this.state.quests && (this.state.quests.active.concat(this.state.quests.complete)).some(quest =>
+                    parseInt(quest.quest_id) === 7
+                  ) && (
+                    <TouchableOpacity
                       style={{
-                        resizeMode: "contain",
-                        width: viewModeSize,
-                        height: viewModeSize,
+                        padding: 10
                       }}
-                      source={require("../web/assets/img/mobile-view-map.png")}
-                    />
-                  </TouchableOpacity>
-                  {
-                    this.hasCards() && (
-                      <View style={{width: 1, height: viewModeSize, backgroundColor: 'white'}} />
-                    )
-                  }
-                  {
-                    this.hasCards() && (
-                      <TouchableOpacity
-                        style={{padding: 10, marginLeft: 4, marginRight: 4}}
-                        onPress={() => this.setState({mainView: 'thumbs', viewPopup: false})}
-                      >
-                        <Image
-                          style={{
-                            resizeMode: "contain",
-                            width: viewModeSize,
-                            height: viewModeSize,
-                          }}
-                          source={require("../web/assets/img/mobile-view-gallery.png")}
-                        />
-                      </TouchableOpacity>
-                    )
-                  }
-                </View>
-              )}
+                      onPress={this.startCreate}
+                    >
+                      <Image
+                        source={require('../web/assets/img/stemports-plus.png')}
+                        style={{
+                          width: 122 * 0.5,
+                          height: 124 * 0.5,
+                        }}
+                      />
+                    </TouchableOpacity>
+                  )
+                }
+                <TouchableOpacity
+                  onPress={() => {
+                    this.pushModal({type: 'menu'});
+                  }}
+                >
+                  <View style={{
+                    padding: 8,
+                    backgroundColor: 'white',
+                    borderColor: 'black',
+                    borderWidth: 1,
+                    borderRadius: 5,
+                  }}>
+                    <Text>menu</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
               {this.renderNoteView()}
               {this.renderCreateNote()}
+              {
+                this.state.modals.length > 0 && (() => {
+                  const modal = this.state.modals[0];
+                  if (modal.type === 'quest-available') {
+                    return (
+                      <QuestDetails
+                        quest={modal.quest}
+                        message="New quest available"
+                        onClose={this.popModal/*.bind(this)*/}
+                        status="active"
+                        auth={this.props.auth}
+                      />
+                    );
+                  } else if (modal.type === 'quest-complete') {
+                    return (
+                      <QuestDetails
+                        quest={modal.quest}
+                        message="Quest complete!"
+                        onClose={this.popModal/*.bind(this)*/}
+                        status="complete"
+                        auth={this.props.auth}
+                      />
+                    );
+                  } else if (modal.type === 'inventory') {
+                    return (
+                      <InventoryScreen
+                        auth={this.props.auth}
+                        game={this.props.game}
+                        onClose={this.popModal/*.bind(this)*/}
+                        items={this.state.items}
+                        tags={this.state.tags}
+                        object_tags={this.state.object_tags}
+                      />
+                    );
+                  } else if (modal.type === 'quests') {
+                    return (
+                      <QuestsScreen
+                        auth={this.props.auth}
+                        game={this.props.game}
+                        onClose={this.popModal/*.bind(this)*/}
+                        quests={this.state.quests}
+                      />
+                    );
+                  } else if (modal.type === 'menu') {
+                    const buttonStyle = {
+                      margin: 10,
+                      backgroundColor: 'white',
+                      borderColor: 'black',
+                      borderRadius: 5,
+                      borderWidth: 2,
+                      padding: 10,
+                    };
+                    return (
+                      <View style={{
+                        flex: 1,
+                        backgroundColor: 'rgba(0,0,0,0.4)',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}>
+                        <TouchableOpacity style={buttonStyle} onPress={this.props.onLogout}>
+                          <Text>Logout</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={buttonStyle} onPress={() => {
+                          this.props.auth.call('client.logPlayerResetGame', {
+                            game_id: this.props.game.game_id,
+                          });
+                          this.popModal();
+                        }}>
+                          <Text style={{color: 'red'}}>Reset Progress</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={buttonStyle} onPress={this.props.onExit}>
+                          <Text>Back to Games</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={buttonStyle} onPress={this.popModal/*.bind(this)*/}>
+                          <Text>Cancel</Text>
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  } else if (modal.type === 'trigger') {
+                    if (modal.instance.object_type === 'PLAQUE') {
+                      return (
+                        <PlaqueScreen
+                          trigger={modal.trigger}
+                          plaque={modal.plaque}
+                          auth={this.props.auth}
+                          onClose={() => {
+                            this.props.auth.call('client.logPlayerViewedContent', {
+                              game_id: this.props.game.game_id,
+                              content_type: 'PLAQUE',
+                              content_id: modal.plaque.plaque_id,
+                            });
+                            this.popModal();
+                          }}
+                        />
+                      );
+                    } else if (modal.instance.object_type === 'ITEM') {
+                      return (
+                        <ItemScreen
+                          type="trigger"
+                          trigger={modal.trigger}
+                          instance={modal.instance}
+                          item={modal.item}
+                          auth={this.props.auth}
+                          onClose={this.popModal/*.bind(this)*/}
+                          onPickUp={(trigger) => {
+                            this.props.auth.call('client.touchItemsForPlayer', {
+                              game_id: this.props.game.game_id,
+                            }, () => {
+                              this.props.auth.call('instances.getInstancesForGame', {
+                                game_id: this.props.game.game_id,
+                                owner_id: this.props.auth.authToken.user_id,
+                              }, (res) => {
+                                if (res.returnCode === 0) {
+                                  const triggerInstance = res.data.find(inst =>
+                                    parseInt(inst.instance_id) === parseInt(trigger.instance_id)
+                                  );
+                                  if (!triggerInstance) return;
+                                  const playerInstance = res.data.find(inst =>
+                                    inst.object_type === 'ITEM'
+                                    && inst.owner_type === 'USER'
+                                    && parseInt(inst.object_id) === parseInt(triggerInstance.object_id)
+                                    && parseInt(inst.owner_id) === this.props.auth.authToken.user_id
+                                  );
+                                  if (!playerInstance) return;
+                                  this.props.auth.call('instances.takeQtyFromInstance', {
+                                    game_id: this.props.game.game_id,
+                                    instance_id: triggerInstance.instance_id,
+                                    qty: 1,
+                                  }, (res) => {
+                                    if (res.returnCode === 0) {
+                                      this.props.auth.call('instances.giveQtyToInstance', {
+                                        game_id: this.props.game.game_id,
+                                        instance_id: playerInstance.instance_id,
+                                        qty: 1,
+                                      }, (res) => {
+                                        if (res.returnCode === 0) {
+                                          // success!
+                                        }
+                                      })
+                                    }
+                                  });
+                                }
+                              });
+                            });
+                          }}
+                        />
+                      );
+                    }
+                  }
+                })()
+              }
               {this.state.searchOpen ? this.renderSearch() : void 0}
               {(!(this.props.online) || this.props.queueMessage) &&
                 !(this.state.viewingNote) &&
@@ -2822,96 +3198,6 @@ export const SiftrView = createClass({
                 </View>
               )}
             </View>
-            {!(
-              this.state.createNote != null || this.state.viewingNote != null
-            ) ? (
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  backgroundColor: "white"
-                }}
-              >
-                {
-                  this.state.viewPopup && (
-                    <View
-                      style={{
-                        // triangle pointing down
-                        position: 'absolute',
-                        top: 0,
-                        left: 5 + viewModeSize / 2,
-                        width: 0,
-                        height: 0,
-                        backgroundColor: 'transparent',
-                        borderStyle: 'solid',
-                        borderLeftWidth: 6,
-                        borderRightWidth: 6,
-                        borderTopWidth: 8,
-                        borderLeftColor: 'transparent',
-                        borderRightColor: 'transparent',
-                        borderTopColor: 'rgb(220,223,225)',
-                      }}
-                    />
-                  )
-                }
-                <TouchableOpacity
-                  style={{
-                    padding: 10
-                  }}
-                  onPress={() => {
-                    this.setState({viewPopup: !this.state.viewPopup});
-                  }}
-                >
-                  <Image
-                    style={{
-                      resizeMode: "contain",
-                      width: viewModeSize,
-                      height: viewModeSize,
-                    }}
-                    source={
-                      this.state.mainView === "map" ? require("../web/assets/img/mobile-view-map.png")
-                      : this.state.mainView === "hybrid" ? require("../web/assets/img/mobile-view-hybrid.png")
-                      : require("../web/assets/img/mobile-view-gallery.png")
-                    }
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    padding: 10
-                  }}
-                  onPress={this.startCreate}
-                >
-                  <Image
-                    source={require('../web/assets/img/siftr-icon-plus.png')}
-                    style={{
-                      width: 33,
-                      height: 33,
-                    }}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    padding: 10
-                  }}
-                  onPress={() => {
-                    this.setState({
-                      searchOpen: !this.state.searchOpen
-                    });
-                  }}
-                >
-                  <Image
-                    style={{
-                      resizeMode: "contain",
-                      height: 30
-                    }}
-                    source={require("../web/assets/img/icon-filter.png")}
-                  />
-                </TouchableOpacity>
-              </View>
-            ) : (
-              void 0
-            )}
           </SiftrInfo>
         }
       </KeyboardAwareView>

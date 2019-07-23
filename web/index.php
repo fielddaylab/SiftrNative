@@ -7,7 +7,7 @@
   <meta name="apple-itunes-app" content="app-id=1169649470, app-argument=<?=
     (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"
   ?>">
-  <meta name="google-play-app" content="app-id=org.siftr.client">
+  <meta name="google-play-app" content="app-id=org.fielddaylab.stemports">
   <script type="text/javascript" src="dist.js?cb=20190425"></script>
   <link rel="stylesheet" type="text/css" href="styles.css?cb=20190425">
   <link rel="stylesheet" href="smart-app-banner.css" type="text/css" media="screen">

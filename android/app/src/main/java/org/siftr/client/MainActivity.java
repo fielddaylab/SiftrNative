@@ -1,4 +1,4 @@
-package org.siftr.client;
+package org.fielddaylab.stemports;
 
 import com.facebook.react.ReactActivity;
 

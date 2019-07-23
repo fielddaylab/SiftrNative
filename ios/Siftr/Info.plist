@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Siftr</string>
+	<string>STEMports</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -17,11 +17,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.2.13</string>
+	<string>1.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>102</string>
+	<string>13</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
@@ -37,6 +37,11 @@
 		<true/>
 		<key>NSExceptionDomains</key>
 		<dict>
+			<key>fieldday-web.wcer.wisc.edu</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
 			<key>localhost</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
@@ -52,6 +57,8 @@
 	<string>This permission is not used by Siftr.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Allows you to take photos to upload to a Siftr project.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Allows Siftr to show where you are on the map, and find projects located close by.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Allows Siftr to show where you are on the map, and find projects located close by.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

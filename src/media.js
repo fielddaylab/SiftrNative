@@ -49,7 +49,7 @@ function loadMedia(props, cb) {
       } else {
         getURL((url) => {
           if (online) {
-            url = url.replace('http://', 'https://');
+            url = arisHTTPS(url);
             let ext = url.split('.').pop().toLowerCase();
             if (ext.length > 4) {
               ext = 'png'; // hack for google maps static pngs, should do better

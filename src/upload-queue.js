@@ -103,6 +103,7 @@ export const UploadQueue = createClass({
   },
   uploadNote: function({dir, json}, count) {
     json = JSON.parse(json);
+    if (!json.files) json.files = [];
     let progress = json.files.map(() => 0);
     return Promise.all(
       json.files.map((f, index) => {

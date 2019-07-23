@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:1046549405758:android:c9853e16d598946c",
         "android_client_info": {
-          "package_name": "org.siftr.client"
+          "package_name": "org.fielddaylab.stemports"
         }
       },
       "oauth_client": [

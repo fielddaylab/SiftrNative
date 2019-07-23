@@ -9,6 +9,8 @@ import {
   Text
 , View
 , Platform
+, Image
+, Dimensions
 } from 'react-native';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import {styles} from './styles';
@@ -17,6 +19,7 @@ import Svg, {
 , Circle
 , Text as SvgText
 } from 'react-native-svg';
+import {CacheMedia} from './media';
 // @endif
 
 // @ifdef WEB
@@ -431,6 +434,53 @@ export function makeMapStyles(game, theme) {
   return styles;
 }
 
+var color_codes = {};
+function stringToColorCode(str) {
+    return (str in color_codes) ? color_codes[str] : (color_codes[str] = '#'+ ('000000' + (Math.random()*0xFFFFFF<<0).toString(16)).slice(-6));
+}
+
+class SmartMarker extends React.Component {
+  constructor(props) {
+    super(props);
+    this.startRedraw(0);
+    this.didUnmount = false;
+  }
+
+  startRedraw(i) {
+    if (this.didUnmount) return;
+    if (this.marker) {
+      this.marker.redraw();
+    }
+    setTimeout(() => this.startRedraw(i + 1), 100 * Math.pow(2, i) + Math.random() * 100);
+    // very hacky but this spaces out the redraws
+  }
+
+  componentWillUnmount() {
+    this.didUnmount = true;
+  }
+
+  render() {
+    return (
+      <MapView.Marker
+        tracksViewChanges={false}
+        coordinate={this.props.coordinate}
+        anchor={{x: 0.5, y: 0.5}}
+        title=""
+        description=""
+        pinColor="blue"
+        onPress={this.props.onPress}
+        ref={marker => this.marker = marker}
+      >
+        <Image
+          style={{width: 32, height: 32}}
+          source={this.props.url}
+        />
+        <MapView.Callout tooltip={true} />
+      </MapView.Marker>
+    );
+  }
+}
+
 export class SiftrMap extends React.Component {
   constructor(props) {
     super(props);
@@ -440,29 +490,9 @@ export class SiftrMap extends React.Component {
     };
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    // very important optimization. the map takes the longest to rerender
-    // @ifdef WEB
-    if (this.props.center.lat !== nextProps.center.lat) return true;
-    if (this.props.center.lng !== nextProps.center.lng) return true;
-    if (this.props.zoom !== nextProps.zoom) return true;
-    // @endif
-    if (this.props.map_notes !== nextProps.map_notes && (this.props.map_notes.length !== 0 || nextProps.map_notes.length !== 0)) return true;
-    if (this.props.pendingNotes !== nextProps.pendingNotes && (this.props.pendingNotes.length !== 0 || nextProps.pendingNotes.length !== 0)) return true;
-    if (this.props.map_clusters !== nextProps.map_clusters && (this.props.map_clusters.length !== 0 || nextProps.map_clusters.length !== 0)) return true;
-    // NOTE: onMove, onLayout, onSelectNote are all looked up dynamically when they happen
-    if (this.props.getColor !== nextProps.getColor) return true;
-    if (this.props.colors !== nextProps.colors) return true;
-    if (this.props.thumbHover !== nextProps.thumbHover) return true;
-    if (this.props.tags !== nextProps.tags) return true;
-    // state
-    if (this.state.isMapReady !== nextState.isMapReady) return true;
-    if (this.state.legendOpen !== nextState.legendOpen) return true;
-    return false;
-  }
-
   // @ifdef NATIVE
   openCluster(cluster) {
+    return; // disable cluster zoom in stemports
     const coordinates = [
       {latitude: cluster.min_latitude, longitude: cluster.min_longitude},
       {latitude: cluster.max_latitude, longitude: cluster.max_longitude},
@@ -636,23 +666,24 @@ export class SiftrMap extends React.Component {
   }
 
   moveToPoint(center) {
-    this.refs.theMapView.animateToRegion({
-      latitude: center.lat,
-      longitude: center.lng,
-      latitudeDelta: Math.min(0.04, this.props.delta.lat),
-      longitudeDelta: Math.min(0.04, this.props.delta.lng),
-    }, 500);
+    // this.refs.theMapView.animateToRegion({
+    //   latitude: center.lat,
+    //   longitude: center.lng,
+    //   latitudeDelta: Math.min(0.007, this.props.delta.lat),
+    //   longitudeDelta: Math.min(0.007, this.props.delta.lng),
+    // }, 500);
   }
 
   render() {
     if (!this.props.theme) return null; // wait for theme to load
+    const {height, width} = Dimensions.get('window');
     return <MapView
       provider={PROVIDER_GOOGLE}
       ref="theMapView"
       onMapReady={() => {
         // this is a hack, because of a problem with react-native-maps.
         // see https://github.com/airbnb/react-native-maps/issues/1577
-        if (Platform.OS === 'ios') {
+        if (Platform.OS === 'ios' && false) {
           this.refs.theMapView.animateToRegion({
             latitude: this.props.center.lat,
             longitude: this.props.center.lng,
@@ -674,19 +705,96 @@ export class SiftrMap extends React.Component {
         left: 0,
         right: 0,
       }}
-      initialRegion={{
-        latitude: this.props.center.lat,
-        longitude: this.props.center.lng,
-        latitudeDelta: this.props.delta.lat,
-        longitudeDelta: this.props.delta.lng,
+      scrollEnabled={false}
+      pitchEnabled={false}
+      zoomEnabled={false}
+      mapPadding={{
+        top: height * 0.45,
+      }}
+      camera={{
+        center: this.props.location ? this.props.location.coords : {
+          latitude: 0,
+          longitude: 0,
+        },
+        heading: 0,
+        pitch: 360,
+        zoom: 18,
+        altitude: 0, // not used
       }}
       onRegionChangeComplete={this.moveMapNative.bind(this)}
       showsUserLocation={true}
       customMapStyle={this.getMapStyles()}
       mapType={this.props.game.map_type === 'STREET' ? 'standard' : 'hybrid'}
     >
+      {
+        this.props.location && (
+          <MapView.Circle
+            center={this.props.location.coords}
+            radius={100}
+            fillColor="rgba(0,100,255,0.2)"
+          />
+        )
+      }
       {this.renderClusters()}
       {this.renderNotes()}
+      {
+        this.props.triggers && this.props.instances && this.props.triggers.map((trigger) => {
+          const inst = this.props.instances.find(inst => parseInt(inst.instance_id) === parseInt(trigger.instance_id));
+          if (!inst) return;
+          const size = 30;
+          let icon = parseInt(trigger.icon_media_id);
+          let plaque;
+          let item;
+          if (inst.object_type === 'PLAQUE') {
+            if (!icon) {
+              plaque = this.props.plaques.find(p => parseInt(p.plaque_id) === parseInt(inst.object_id));
+              if (plaque) icon = parseInt(plaque.icon_media_id);
+            }
+          } else if (inst.object_type === 'ITEM') {
+            if (!icon) {
+              item = this.props.items.find(p => parseInt(p.item_id) === parseInt(inst.object_id));
+              if (item) icon = parseInt(item.icon_media_id);
+            }
+          } else {
+            return;
+          }
+          const select = {trigger: trigger, instance: inst, plaque: plaque, item: item};
+
+          return (
+            icon ? (
+              <CacheMedia
+                key={trigger.trigger_id}
+                media_id={icon}
+                size={'url' /* needed for alpha */}
+                auth={this.props.auth}
+                online={true}
+                withURL={(url) => (
+                  <SmartMarker
+                    coordinate={{
+                      latitude: parseFloat(trigger.latitude),
+                      longitude: parseFloat(trigger.longitude),
+                    }}
+                    onPress={() => this.props.onSelectItem(select)}
+                    url={url}
+                    size={size}
+                  />
+                )}
+              />
+            ) : (
+              <SmartMarker
+                key={trigger.trigger_id}
+                coordinate={{
+                  latitude: parseFloat(trigger.latitude),
+                  longitude: parseFloat(trigger.longitude),
+                }}
+                onPress={() => this.props.onSelectItem(select)}
+                url={null}
+                size={size}
+              />
+            )
+          );
+        })
+      }
     </MapView>;
   }
   // @endif
