@@ -34,6 +34,7 @@ import {
 import { NativeSettings } from "./native-settings";
 import { withSuccess } from "./utils";
 import { CacheMedia } from './media';
+import Geolocation from '@react-native-community/geolocation';
 
 export var Loading = createClass({
   displayName: "Loading",
@@ -216,7 +217,7 @@ class NativeHomeNew extends React.Component {
   }
 
   getNearby() {
-    navigator.geolocation.getCurrentPosition((res) => {
+    Geolocation.getCurrentPosition((res) => {
       this.props.auth.getNearbyGamesForPlayer({
         latitude: res.coords.latitude,
         longitude: res.coords.longitude,

@@ -1,7 +1,8 @@
 "use strict";
 
 // @ifdef NATIVE
-import { AsyncStorage, Alert } from "react-native";
+import { Alert } from "react-native";
+import AsyncStorage from '@react-native-community/async-storage';
 // @endif
 import update from "immutability-helper";
 import { uploadImage } from "./photos";

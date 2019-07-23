@@ -11,7 +11,6 @@ import {
   Image,
   ImageBackground,
   Linking,
-  NetInfo,
   ActivityIndicator,
   StatusBar,
   BackHandler,

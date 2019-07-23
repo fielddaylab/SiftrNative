@@ -25,7 +25,7 @@ import {
   Slider,
 } from "react-native";
 import { styles, Text } from "./styles";
-import Camera from "react-native-camera";
+import { RNCamera } from "react-native-camera";
 import InfiniteScrollView from "react-native-infinite-scroll-view";
 import firebase from "react-native-firebase";
 import Geocoder from "react-native-geocoder";
@@ -257,7 +257,7 @@ export const CreatePhoto = createClass({
                       !this.state.pendingPhoto &&
                       this.state.cameraPermission === 'authorized' &&
                       this.state.photoPermission === 'authorized' && (
-                        <Camera
+                        <RNCamera
                           ref={cam => {
                             this.camera = cam;
                           }}
@@ -265,17 +265,12 @@ export const CreatePhoto = createClass({
                             flex: 1
                           }}
                           type={this.state.camera}
+                          captureAudio={false}
                           flashMode={
                             this.state.flash
-                              ? Camera.constants.FlashMode.on
-                              : Camera.constants.FlashMode.off
+                              ? RNCamera.Constants.FlashMode.torch
+                              : RNCamera.Constants.FlashMode.off
                           }
-                          onFocusChanged={() => {
-                            // required for tap-to-focus on iOS
-                          }}
-                          onZoomChanged={() => {
-                            // required for pinch-zoom on iOS
-                          }}
                         />
                       )
                     }
@@ -416,9 +411,9 @@ export const CreatePhoto = createClass({
                                 Animated.timing(shutter, {toValue: 0, duration: 500}).start();
                               });
                               this.camera
-                                .capture({})
-                                .then(({ path }) => {
-                                  this.setState({pendingPhoto: path});
+                                .takePictureAsync({})
+                                .then(({ uri }) => {
+                                  this.setState({pendingPhoto: uri});
                                 })
                                 .catch(cameraError);
                             } else {

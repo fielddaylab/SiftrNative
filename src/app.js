@@ -14,12 +14,12 @@ import {
   TouchableOpacity,
   ScrollView,
   Linking,
-  NetInfo,
   BackHandler,
   Platform,
   AppState,
   SafeAreaView
 } from "react-native";
+import NetInfo from "@react-native-community/netinfo";
 import { UploadQueue } from "./upload-queue";
 import { styles, Text } from "./styles";
 import { Terms } from "./native-terms";
@@ -29,6 +29,7 @@ import Permissions from "react-native-permissions";
 import { NativeLogin } from "./native-login";
 import { NativeHome, Loading } from "./native-home";
 import Orientation from 'react-native-orientation-locker';
+import Geolocation from '@react-native-community/geolocation';
 // @endif
 
 import { Auth, Game, displayError } from "./aris";
@@ -131,7 +132,7 @@ export var SiftrNative = createClass({
     }
     Permissions.request('location').then(response => {
       if (response === 'authorized') {
-        this.watchID = navigator.geolocation.watchPosition((loc) => {
+        this.watchID = Geolocation.watchPosition((loc) => {
           this.setState({location: loc});
         }, (err) => {
           // do nothing; we need to pass this to avoid

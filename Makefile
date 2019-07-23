@@ -1,9 +1,15 @@
 .PHONY: default deploy-beta run-android
 
-default:
+update:
+	ruby preprocess.rb
+	sass scss/styles.scss > web/styles.css
+	yarn run build
+
+install:
 	rm -f src-*/*
 	yarn
-	gulp
+	cd ios && pod install && cd ..
+	make update
 
 deploy-beta:
 	rsync -vrc web/* mli-sft@mli.doit.wisc.edu:/httpdocs/beta --exclude-from rsync-exclude
