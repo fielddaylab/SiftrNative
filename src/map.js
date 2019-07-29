@@ -717,7 +717,7 @@ export class SiftrMap extends React.Component {
           longitude: 0,
         },
         heading: 0,
-        pitch: 360,
+        pitch: 90,
         zoom: 18,
         altitude: 0, // not used
       }}
