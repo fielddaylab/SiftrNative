@@ -681,6 +681,8 @@ export const SiftrView = createClass({
       infoOpen: false,
       primaryMenuOpen: false,
       modals: [],
+      logsServer: [],
+      logsClient: [],
     };
   },
   componentWillMount: function() {
@@ -845,6 +847,22 @@ export const SiftrView = createClass({
           authors: JSON.parse(authors).map((author) => author.display_name),
         });
       });
+      RNFS.readFile(`${siftrDir}/logs_server.txt`).then(logs => {
+        if (!this.isMounted) {
+          return;
+        }
+        this.setState({
+          logsServer: JSON.parse(logs),
+        });
+      });
+      RNFS.readFile(`${siftrDir}/logs_client.txt`).then(logs => {
+        if (!this.isMounted) {
+          return;
+        }
+        this.setState({
+          logsClient: JSON.parse(logs),
+        });
+      });
     }
     this.hardwareBack = () => {
       if (this.state.searchOpen) {
@@ -956,6 +974,26 @@ export const SiftrView = createClass({
     this.checkQuests();
     this.checkObjects();
   },
+  addLog: function(options) {
+  },
+  checkinLogs: function() {
+    this.props.auth.call('client.getLogsForPlayer', {
+      game_id: this.props.game.game_id,
+    }, (resLogs) => {
+      if (resLogs.returnCode === 0) {
+        const serverLastLog = resLogs[resLogs.length - 1];
+        const expectedLastLog = this.state.logsServer[this.state.logsServer.length - 1];
+        if (serverLastLog.user_log_id === expectedLastLog.user_log_id) {
+          // all good, report our logs and sync everything up
+        } else {
+          // progress diverged between the server and the client!
+          // popup a dialog asking which to keep
+        }
+      } else {
+        // popup an error
+      }
+    });
+  },
   checkQuests: function() {
     if (!this.isMounted) return;
     this.props.auth.call('client.checkForCascadingLogs', {
@@ -963,10 +1001,10 @@ export const SiftrView = createClass({
     }, () => {
       this.props.auth.call('client.getQuestsForPlayer', {
         game_id: this.props.game.game_id,
-      }, (res) => {
-        if (res.returnCode === 0) {
+      }, (resQuests) => {
+        if (resQuests.returnCode === 0) {
           const oldQuests = this.state.quests;
-          const newQuests = res.data;
+          const newQuests = resQuests.data;
           this.setState({quests: newQuests});
           if (oldQuests) {
             newQuests.active.forEach(quest => {
