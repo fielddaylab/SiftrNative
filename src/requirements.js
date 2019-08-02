@@ -1,6 +1,6 @@
 'use strict';
 
-function evalReqPackage(req, log, instances) {
+export function evalReqPackage(req, log, instances) {
   for (var i = 0; i < req.ands.length; i++) {
     if (evalReqAndPackage(req.ands[i], log, instances)) return true;
   }

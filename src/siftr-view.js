@@ -41,6 +41,7 @@ import ProgressCircle from 'react-native-progress-circle';
 import {ItemScreen, InventoryScreen} from './items';
 import {PlaqueScreen} from './plaques';
 import {QuestsScreen, QuestDetails} from './quests';
+import {evalReqPackage} from './requirements';
 // @endif
 
 // @ifdef WEB
@@ -971,10 +972,15 @@ export const SiftrView = createClass({
       });
     }
     this.tickTriggers();
-    this.checkQuests();
+    this.checkQuestsOffline();
     this.checkObjects();
   },
-  addLog: function(options) {
+  addLog: function(logEntry) {
+    this.setState(oldState => update(oldState, {
+      logsClient: {
+        $push: [logEntry],
+      },
+    }));
   },
   checkinLogs: function() {
     this.props.auth.call('client.getLogsForPlayer', {
@@ -993,6 +999,69 @@ export const SiftrView = createClass({
         // popup an error
       }
     });
+  },
+  evalReqPackage: function(id) {
+    const root = this.getReqRoot(id);
+    if (!root) {
+      if (parseInt(id) === 0) {
+        return true;
+      } else {
+        console.warn(`Requirement root package ${id} not found`);
+        return false;
+      }
+    }
+    return evalReqPackage(
+      root,
+      this.state.logsServer.concat(this.state.logsClient),
+      this.state.instances.filter(inst =>
+        inst.owner_type === 'USER' && parseInt(inst.owner_id) === this.props.auth.authToken.user_id
+      ),
+    );
+  },
+  getReqRoot: function(id) {
+    if (!this.state.req_roots || !this.state.req_ands || !this.state.req_atoms) return null;
+    const root = this.state.req_roots.find(root => root.requirement_root_package_id === id);
+    if (!root) return null;
+    const ands = this.state.req_ands.filter(and => and.requirement_root_package_id === id).map(and => {
+      const atoms = this.state.req_atoms.filter(atom => atom.requirement_and_package_id === and.requirement_and_package_id);
+      return update(and, {atoms: {$set: atoms}});
+    });
+    return update(root, {ands: {$set: ands}});
+  },
+  checkQuestsOffline: function() {
+    if (!this.isMounted || !this.state.all_quests || !this.state.req_roots || !this.state.req_ands || !this.state.req_atoms) {
+      // do nothing
+    } else {
+      let active = [];
+      let complete = [];
+      this.state.all_quests.forEach(quest => {
+        const is_active = this.evalReqPackage(quest.active_requirement_root_package_id);
+        const is_complete = this.evalReqPackage(quest.complete_requirement_root_package_id);
+        if (is_active) {
+          if (is_complete) {
+            complete.push(quest);
+          } else {
+            active.push(quest);
+          }
+        }
+      });
+      const oldQuests = this.state.quests;
+      const newQuests = {active: active, complete: complete};
+      this.setState({quests: newQuests});
+      if (oldQuests) {
+        newQuests.active.forEach(quest => {
+          if (!oldQuests.active.some(old => old.quest_id === quest.quest_id)) {
+            this.pushModal({type: 'quest-available', quest: quest});
+          }
+        });
+        newQuests.complete.forEach(quest => {
+          if (!oldQuests.complete.some(old => old.quest_id === quest.quest_id)) {
+            this.pushModal({type: 'quest-complete', quest: quest});
+          }
+        });
+      }
+    }
+    setTimeout(() => this.checkQuestsOffline(), 5000);
   },
   checkQuests: function() {
     if (!this.isMounted) return;
@@ -1025,28 +1094,65 @@ export const SiftrView = createClass({
   },
   checkObjects: function() {
     if (!this.isMounted) return;
-    this.props.auth.call('plaques.getPlaquesForGame', {
-      game_id: this.props.game.game_id,
-    }, (plaques) => {
-      this.props.auth.call('items.getItemsForGame', {
-        game_id: this.props.game.game_id,
-      }, (items) => {
+    Promise.all([
+      new Promise((resolve, reject) => {
+        this.props.auth.call('plaques.getPlaquesForGame', {
+          game_id: this.props.game.game_id,
+        }, (res) => {
+          if (res.returnCode === 0) this.setState({plaques: res.data});
+        });
+      }),
+      new Promise((resolve, reject) => {
+        this.props.auth.call('items.getItemsForGame', {
+          game_id: this.props.game.game_id,
+        }, (res) => {
+          if (res.returnCode === 0) this.setState({items: res.data});
+        });
+      }),
+      new Promise((resolve, reject) => {
         this.props.auth.call('tags.getTagsForGame', {
           game_id: this.props.game.game_id,
-        }, (tags) => {
-          this.props.auth.call('tags.getObjectTagsForGame', {
-            game_id: this.props.game.game_id,
-          }, (object_tags) => {
-            this.setState({
-              plaques: plaques.returnCode === 0 ? plaques.data : undefined,
-              items: items.returnCode === 0 ? items.data : undefined,
-              tags: tags.returnCode === 0 ? tags.data : undefined,
-              object_tags: object_tags.returnCode === 0 ? object_tags.data : undefined,
-            });
-            setTimeout(() => this.checkObjects(), 5000);
-          });
+        }, (res) => {
+          if (res.returnCode === 0) this.setState({tags: res.data});
         });
-      });
+      }),
+      new Promise((resolve, reject) => {
+        this.props.auth.call('tags.getObjectTagsForGame', {
+          game_id: this.props.game.game_id,
+        }, (res) => {
+          if (res.returnCode === 0) this.setState({object_tags: res.data});
+        });
+      }),
+      new Promise((resolve, reject) => {
+        this.props.auth.call('quests.getQuestsForGame', {
+          game_id: this.props.game.game_id,
+        }, (res) => {
+          if (res.returnCode === 0) this.setState({all_quests: res.data});
+        });
+      }),
+      new Promise((resolve, reject) => {
+        this.props.auth.call('requirements.getRequirementRootPackagesForGame', {
+          game_id: this.props.game.game_id,
+        }, (res) => {
+          if (res.returnCode === 0) this.setState({req_roots: res.data});
+        });
+      }),
+      new Promise((resolve, reject) => {
+        this.props.auth.call('requirements.getRequirementAndPackagesForGame', {
+          game_id: this.props.game.game_id,
+        }, (res) => {
+          if (res.returnCode === 0) this.setState({req_ands: res.data});
+        });
+      }),
+      new Promise((resolve, reject) => {
+        this.props.auth.call('requirements.getRequirementAtomsForGame', {
+          game_id: this.props.game.game_id,
+        }, (res) => {
+          if (res.returnCode === 0) this.setState({req_atoms: res.data});
+        });
+      }),
+    ]).finally(() => {
+      setTimeout(() => this.checkObjects(), 5000);
     });
   },
   tickTriggers: function() {
@@ -3104,11 +3210,18 @@ export const SiftrView = createClass({
                           plaque={modal.plaque}
                           auth={this.props.auth}
                           onClose={() => {
+                            this.addLog({
+                              event_type: 'VIEW_PLAQUE',
+                              game_id: this.props.game.game_id,
+                              content_id: modal.plaque.plaque_id,
+                            });
+                            /*
                             this.props.auth.call('client.logPlayerViewedContent', {
                               game_id: this.props.game.game_id,
                               content_type: 'PLAQUE',
                               content_id: modal.plaque.plaque_id,
                             });
+                            */
                             this.popModal();
                           }}
                         />
