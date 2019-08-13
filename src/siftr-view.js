@@ -295,6 +295,51 @@ const SiftrInfo = createClass({
   }
 });
 
+const LOAD_OBJECTS = [
+  'quests',
+  'plaques',
+  'items',
+  'object_tags',
+  'tags',
+  'requirement_root_packages',
+  'requirement_and_packages',
+  'requirement_atoms',
+  'logs',
+  'inventory',
+];
+
+class SiftrViewLoader extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
+  componentWillMount() {
+    const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
+    LOAD_OBJECTS.forEach(obj => {
+      RNFS.readFile(`${siftrDir}/${obj}.txt`).then(str => {
+        this.setState({[obj]: JSON.parse(str)});
+      });
+    });
+  }
+
+  loadAfterUpload(...args) {
+    return this.siftrView && this.siftrView.loadAfterUpload(...args);
+  }
+
+  render() {
+    if (LOAD_OBJECTS.some(obj => this.state[obj] == null)) {
+      return null;
+    } else {
+      return <SiftrView
+        {...this.props}
+        {...this.state}
+        ref={(sv) => this.siftrView = sv}
+      />;
+    }
+  }
+}
+
 export class SiftrViewPW extends React.Component {
   constructor(props) {
     super(props);
@@ -335,7 +380,7 @@ export class SiftrViewPW extends React.Component {
   render() {
     if (this.state.display) {
       return (
-        <SiftrView
+        <SiftrViewLoader
           {...this.props}
           auth={
             this.state.password != null
@@ -682,8 +727,8 @@ export const SiftrView = createClass({
       infoOpen: false,
       primaryMenuOpen: false,
       modals: [],
-      logsServer: [],
-      logsClient: [],
+      logs: this.props.logs,
+      inventory: this.props.inventory,
     };
   },
   componentWillMount: function() {
@@ -971,9 +1016,8 @@ export const SiftrView = createClass({
         saved_note: this.props.saved_note
       });
     }
-    this.tickTriggers();
+    // this.tickTriggers();
     this.checkQuestsOffline();
-    this.checkObjects();
   },
   addLog: function(logEntry) {
     this.setState(oldState => update(oldState, {
@@ -1013,28 +1057,28 @@ export const SiftrView = createClass({
     return evalReqPackage(
       root,
       this.state.logsServer.concat(this.state.logsClient),
-      this.state.instances.filter(inst =>
-        inst.owner_type === 'USER' && parseInt(inst.owner_id) === this.props.auth.authToken.user_id
-      ),
+      this.state.inventory,
+      // this.state.instances.filter(inst =>
+      //   inst.owner_type === 'USER' && parseInt(inst.owner_id) === this.props.auth.authToken.user_id
+      // ),
     );
   },
   getReqRoot: function(id) {
-    if (!this.state.req_roots || !this.state.req_ands || !this.state.req_atoms) return null;
-    const root = this.state.req_roots.find(root => root.requirement_root_package_id === id);
+    const root = this.props.requirement_root_packages.find(root => root.requirement_root_package_id === id);
     if (!root) return null;
-    const ands = this.state.req_ands.filter(and => and.requirement_root_package_id === id).map(and => {
-      const atoms = this.state.req_atoms.filter(atom => atom.requirement_and_package_id === and.requirement_and_package_id);
+    const ands = this.props.requirement_and_packages.filter(and => and.requirement_root_package_id === id).map(and => {
+      const atoms = this.props.requirement_atoms.filter(atom => atom.requirement_and_package_id === and.requirement_and_package_id);
       return update(and, {atoms: {$set: atoms}});
     });
     return update(root, {ands: {$set: ands}});
   },
   checkQuestsOffline: function() {
-    if (!this.isMounted || !this.state.all_quests || !this.state.req_roots || !this.state.req_ands || !this.state.req_atoms) {
+    if (!this.isMounted) {
       // do nothing
     } else {
       let active = [];
       let complete = [];
-      this.state.all_quests.forEach(quest => {
+      this.props.quests.forEach(quest => {
         const is_active = this.evalReqPackage(quest.active_requirement_root_package_id);
         const is_complete = this.evalReqPackage(quest.complete_requirement_root_package_id);
         if (is_active) {
@@ -1090,69 +1134,6 @@ export const SiftrView = createClass({
           setTimeout(() => this.checkQuests(), 5000);
         }
       });
-    });
-  },
-  checkObjects: function() {
-    if (!this.isMounted) return;
-    Promise.all([
-      new Promise((resolve, reject) => {
-        this.props.auth.call('plaques.getPlaquesForGame', {
-          game_id: this.props.game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) this.setState({plaques: res.data});
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('items.getItemsForGame', {
-          game_id: this.props.game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) this.setState({items: res.data});
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('tags.getTagsForGame', {
-          game_id: this.props.game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) this.setState({tags: res.data});
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('tags.getObjectTagsForGame', {
-          game_id: this.props.game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) this.setState({object_tags: res.data});
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('quests.getQuestsForGame', {
-          game_id: this.props.game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) this.setState({all_quests: res.data});
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('requirements.getRequirementRootPackagesForGame', {
-          game_id: this.props.game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) this.setState({req_roots: res.data});
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('requirements.getRequirementAndPackagesForGame', {
-          game_id: this.props.game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) this.setState({req_ands: res.data});
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('requirements.getRequirementAtomsForGame', {
-          game_id: this.props.game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) this.setState({req_atoms: res.data});
-        });
-      }),
-    ]).finally(() => {
-      setTimeout(() => this.checkObjects(), 5000);
     });
   },
   tickTriggers: function() {
