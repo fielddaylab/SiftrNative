@@ -306,6 +306,7 @@ const LOAD_OBJECTS = [
   'requirement_atoms',
   'logs',
   'inventory',
+  'factories',
 ];
 
 class SiftrViewLoader extends React.Component {
@@ -1056,7 +1057,7 @@ export const SiftrView = createClass({
     }
     return evalReqPackage(
       root,
-      this.state.logsServer.concat(this.state.logsClient),
+      this.state.logs,
       this.state.inventory,
       // this.state.instances.filter(inst =>
       //   inst.owner_type === 'USER' && parseInt(inst.owner_id) === this.props.auth.authToken.user_id
@@ -3134,9 +3135,10 @@ export const SiftrView = createClass({
                         auth={this.props.auth}
                         game={this.props.game}
                         onClose={this.popModal/*.bind(this)*/}
-                        items={this.state.items}
-                        tags={this.state.tags}
-                        object_tags={this.state.object_tags}
+                        items={this.props.items}
+                        tags={this.props.tags}
+                        inventory={this.state.inventory}
+                        object_tags={this.props.object_tags}
                       />
                     );
                   } else if (modal.type === 'quests') {

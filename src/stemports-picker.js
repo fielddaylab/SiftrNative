@@ -151,6 +151,16 @@ export class StemportsPicker extends React.Component {
           }
         });
       }),
+      new Promise((resolve, reject) => {
+        this.props.auth.call('factories.getFactoriesForGame', {
+          game_id: game.game_id,
+        }, (res) => {
+          if (res.returnCode === 0) {
+            RNFS.writeFile(`${siftrDir}/factories.txt`, JSON.stringify(res.data));
+            resolve();
+          }
+        });
+      }),
     ]);
   }
 

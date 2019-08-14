@@ -162,20 +162,8 @@ export class InventoryScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      instances: null,
       viewing: null,
     };
-  }
-
-  componentWillMount() {
-    this.props.auth.call('instances.getInstancesForGame', {
-      game_id: this.props.game.game_id,
-      owner_id: this.props.auth.authToken.user_id,
-    }, (res) => {
-      if (res.returnCode === 0) {
-        this.setState({instances: res.data});
-      }
-    });
   }
 
   render() {
@@ -190,7 +178,7 @@ export class InventoryScreen extends React.Component {
       );
     }
 
-    const itemInstances = this.state.instances == null ? [] : this.state.instances.filter(inst =>
+    const itemInstances = this.props.inventory.filter(inst =>
       inst.object_type === 'ITEM'
       && inst.owner_type === 'USER'
       && parseInt(inst.qty) > 0
