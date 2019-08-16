@@ -306,7 +306,9 @@ const LOAD_OBJECTS = [
   'requirement_atoms',
   'logs',
   'inventory',
+  'instances',
   'factories',
+  'triggers',
 ];
 
 class SiftrViewLoader extends React.Component {
@@ -730,6 +732,8 @@ export const SiftrView = createClass({
       modals: [],
       logs: this.props.logs,
       inventory: this.props.inventory,
+      factoryObjects: [],
+      factoryProductionTimestamps: {},
     };
   },
   componentWillMount: function() {
@@ -1017,7 +1021,7 @@ export const SiftrView = createClass({
         saved_note: this.props.saved_note
       });
     }
-    // this.tickTriggers();
+    this.tickTriggersOffline();
     this.checkQuestsOffline();
   },
   addLog: function(logEntry) {
@@ -1135,6 +1139,102 @@ export const SiftrView = createClass({
           setTimeout(() => this.checkQuests(), 5000);
         }
       });
+    });
+  },
+  getTriggers: function() {
+    return this.props.triggers.concat(this.state.factoryObjects.map(x => x.trigger));
+  },
+  getInstances: function() {
+    return this.props.instances.concat(this.state.factoryObjects.map(x => x.instance));
+  },
+  tickTriggersOffline: function() {
+    this.setState(oldState => {
+      const now = Date.now();
+      let nextFactoryObjects = [];
+      let nextFactoryProductionTimestamps = {};
+      this.props.factories.forEach(factory => {
+        let objects = oldState.factoryObjects.filter(o => o.instance.factory_id === factory.factory_id);
+        // delete any expired
+        objects = objects.filter(o =>
+          now - new Date(o.instance.created).getTime() < parseInt(factory.produce_expiration_time)
+        );
+        // create any new
+        // TODO need to use actual factory instances with their requirements
+        let updated = oldState.factoryProductionTimestamps[factory.factory_id] || 0;
+        if (   now - updated >= parseInt(factory.seconds_per_production)
+            && objects.length < parseInt(factory.max_production)
+            ) {
+          if (Math.random() < parseFloat(factory.production_probability)) {
+            // make a new object
+            let lat = 0;
+            let lon = 0;
+            if (factory.location_bound_type === 'PLAYER') {
+              if (this.props.location) {
+                lat = this.props.location.coords.latitude;
+                lon = this.props.location.coords.longitude;
+              }
+            } else if (factory.location_bound_type === 'LOCATION') {
+              lat = factory.trigger_latitude;
+              lon = factory.trigger_longitude;
+            }
+
+            const dist = (Math.random() * (factory.max_production_distance-factory.min_production_distance)) + factory.min_production_distance;
+            const theta = (Math.random() * 360) / (2 * Math.PI);
+            let latdelta = dist * Math.sin(theta);
+            let londelta = dist * Math.cos(theta);
+
+            latdelta /= 111111;
+            londelta /= 111111 * Math.cos(lat + latdelta);
+
+            lat += latdelta;
+            lon += londelta;
+
+            const instance_id = Math.random() * 100000000000; // TODO do this better
+            const trigger_id = Math.random() * 100000000000; // TODO do this better
+            objects.push({
+              instance: {
+                instance_id: instance_id,
+                game_id: this.props.game.game_id,
+                object_id: factory.object_id,
+                object_type: factory.object_type,
+                qty: 1,
+                infinite_qty: 0,
+                factory_id: factory.factory_id,
+                created: new Date(), // TODO make actual string
+              },
+              trigger: {
+                trigger_id: trigger_id,
+                game_id: this.props.game.game_id,
+                instance_id: instance_id,
+                scene_id: 0, // doesn't matter currently
+                requirement_root_package_id: factory.trigger_requirement_root_package_id,
+                type: 'LOCATION',
+                name: factory.trigger_title,
+                title: factory.trigger_title,
+                latitude: lat,
+                longitude: lon,
+                distance: factory.trigger_distance,
+                infinite_distance: factory.trigger_infinite_distance,
+                wiggle: factory.trigger_wiggle,
+                show_title: factory.trigger_show_title,
+                hidden: factory.trigger_hidden,
+                trigger_on_enter: factory.trigger_on_enter,
+                icon_media_id: factory.trigger_icon_media_id,
+                created: new Date(), // TODO make actual string
+              },
+            });
+          }
+          updated = now;
+        }
+        nextFactoryObjects = nextFactoryObjects.concat(objects);
+        nextFactoryProductionTimestamps[factory.factory_id] = updated;
+      });
+      return update(oldState, {
+        factoryObjects: {$set: nextFactoryObjects},
+        factoryProductionTimestamps: {$set: nextFactoryProductionTimestamps},
+      });
+    }, () => {
+      setTimeout(this.tickTriggersOffline.bind(this), 5000);
     });
   },
   tickTriggers: function() {
@@ -2049,10 +2149,10 @@ export const SiftrView = createClass({
           }
           // @endif
         })()}
-        triggers={this.state.triggers || []}
-        instances={this.state.instances || []}
-        plaques={this.state.plaques || []}
-        items={this.state.items || []}
+        triggers={this.getTriggers()}
+        instances={this.getInstances()}
+        plaques={this.props.plaques}
+        items={this.props.items}
         auth={this.props.auth}
         onSelectItem={(o) => {
           if (!this.props.location) return;

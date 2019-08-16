@@ -142,6 +142,16 @@ export class StemportsPicker extends React.Component {
         });
       }),
       new Promise((resolve, reject) => {
+        this.props.auth.call('instances.getInstancesForGame', {
+          game_id: game.game_id,
+        }, (res) => {
+          if (res.returnCode === 0) {
+            RNFS.writeFile(`${siftrDir}/instances.txt`, JSON.stringify(res.data));
+            resolve();
+          }
+        });
+      }),
+      new Promise((resolve, reject) => {
         this.props.auth.call('client.getLogsForPlayer', {
           game_id: game.game_id,
         }, (res) => {
@@ -157,6 +167,16 @@ export class StemportsPicker extends React.Component {
         }, (res) => {
           if (res.returnCode === 0) {
             RNFS.writeFile(`${siftrDir}/factories.txt`, JSON.stringify(res.data));
+            resolve();
+          }
+        });
+      }),
+      new Promise((resolve, reject) => {
+        this.props.auth.call('triggers.getTriggersForGame', {
+          game_id: game.game_id,
+        }, (res) => {
+          if (res.returnCode === 0) {
+            RNFS.writeFile(`${siftrDir}/triggers.txt`, JSON.stringify(res.data));
             resolve();
           }
         });
