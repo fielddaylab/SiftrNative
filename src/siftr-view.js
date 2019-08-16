@@ -317,7 +317,7 @@ class SiftrViewLoader extends React.Component {
     this.state = {};
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
     LOAD_OBJECTS.forEach(obj => {
       RNFS.readFile(`${siftrDir}/${obj}.txt`).then(str => {
@@ -353,7 +353,7 @@ export class SiftrViewPW extends React.Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     if (this.props.online) {
       this.tryPassword();
     } else {
@@ -898,22 +898,6 @@ export const SiftrView = createClass({
           authors: JSON.parse(authors).map((author) => author.display_name),
         });
       });
-      RNFS.readFile(`${siftrDir}/logs_server.txt`).then(logs => {
-        if (!this.isMounted) {
-          return;
-        }
-        this.setState({
-          logsServer: JSON.parse(logs),
-        });
-      });
-      RNFS.readFile(`${siftrDir}/logs_client.txt`).then(logs => {
-        if (!this.isMounted) {
-          return;
-        }
-        this.setState({
-          logsClient: JSON.parse(logs),
-        });
-      });
     }
     this.hardwareBack = () => {
       if (this.state.searchOpen) {
@@ -1026,11 +1010,12 @@ export const SiftrView = createClass({
   },
   addLog: function(logEntry) {
     this.setState(oldState => update(oldState, {
-      logsClient: {
+      logs: {
         $push: [logEntry],
       },
     }));
   },
+  /*
   checkinLogs: function() {
     this.props.auth.call('client.getLogsForPlayer', {
       game_id: this.props.game.game_id,
@@ -1049,6 +1034,7 @@ export const SiftrView = createClass({
       }
     });
   },
+  */
   evalReqPackage: function(id) {
     const root = this.getReqRoot(id);
     if (!root) {
@@ -1147,6 +1133,18 @@ export const SiftrView = createClass({
   getInstances: function() {
     return this.props.instances.concat(this.state.factoryObjects.map(x => x.instance));
   },
+  getTrigger: function(trigger_id) {
+    return this.getTriggers().find(trig => trig.trigger_id === trigger_id);
+  },
+  getTriggersForInstance: function(instance) {
+    return this.getTriggers().filter(trig => trig.instance_id === instance.instance_id);
+  },
+  getInstance: function(instance_id) {
+    return this.getInstances().find(inst => inst.instance_id === instance_id);
+  },
+  getObjectInstances: function(object_type, object_id) {
+    return this.getInstances().filter(inst => inst.object_type === object_type && inst.object_id === object_id);
+  },
   tickTriggersOffline: function() {
     this.setState(oldState => {
       const now = Date.now();
@@ -1156,12 +1154,18 @@ export const SiftrView = createClass({
         let objects = oldState.factoryObjects.filter(o => o.instance.factory_id === factory.factory_id);
         // delete any expired
         objects = objects.filter(o =>
-          now - new Date(o.instance.created).getTime() < parseInt(factory.produce_expiration_time)
+          now - new Date(o.instance.created).getTime() < parseInt(factory.produce_expiration_time) * 1000
         );
         // create any new
-        // TODO need to use actual factory instances with their requirements
+        // this doesn't actually use scenes but named to match the PHP code
+        const inValidScene = this.getObjectInstances('FACTORY', factory.factory_id).some(inst =>
+          this.getTriggersForInstance(inst).some(trig =>
+            this.evalReqPackage(trig.requirement_root_package_id)
+          )
+        );
         let updated = oldState.factoryProductionTimestamps[factory.factory_id] || 0;
-        if (   now - updated >= parseInt(factory.seconds_per_production)
+        if (   inValidScene
+            && now - updated >= parseInt(factory.seconds_per_production) * 1000
             && objects.length < parseInt(factory.max_production)
             ) {
           if (Math.random() < parseFloat(factory.production_probability)) {
@@ -3319,43 +3323,24 @@ export const SiftrView = createClass({
                           auth={this.props.auth}
                           onClose={this.popModal/*.bind(this)*/}
                           onPickUp={(trigger) => {
-                            this.props.auth.call('client.touchItemsForPlayer', {
-                              game_id: this.props.game.game_id,
-                            }, () => {
-                              this.props.auth.call('instances.getInstancesForGame', {
-                                game_id: this.props.game.game_id,
-                                owner_id: this.props.auth.authToken.user_id,
-                              }, (res) => {
-                                if (res.returnCode === 0) {
-                                  const triggerInstance = res.data.find(inst =>
-                                    parseInt(inst.instance_id) === parseInt(trigger.instance_id)
-                                  );
-                                  if (!triggerInstance) return;
-                                  const playerInstance = res.data.find(inst =>
-                                    inst.object_type === 'ITEM'
-                                    && inst.owner_type === 'USER'
-                                    && parseInt(inst.object_id) === parseInt(triggerInstance.object_id)
-                                    && parseInt(inst.owner_id) === this.props.auth.authToken.user_id
-                                  );
-                                  if (!playerInstance) return;
-                                  this.props.auth.call('instances.takeQtyFromInstance', {
-                                    game_id: this.props.game.game_id,
-                                    instance_id: triggerInstance.instance_id,
-                                    qty: 1,
-                                  }, (res) => {
-                                    if (res.returnCode === 0) {
-                                      this.props.auth.call('instances.giveQtyToInstance', {
-                                        game_id: this.props.game.game_id,
-                                        instance_id: playerInstance.instance_id,
-                                        qty: 1,
-                                      }, (res) => {
-                                        if (res.returnCode === 0) {
-                                          // success!
-                                        }
-                                      })
+                            this.setState(state => {
+                              return update(state, {
+                                inventory: {
+                                  $apply: inv => inv.map(inst => {
+                                    if (parseInt(inst.object_id) === parseInt(modal.instance.object_id)) {
+                                      return update(inst, {
+                                        qty: {$apply: n => n + 1},
+                                      });
+                                    } else {
+                                      return inst;
                                     }
-                                  });
-                                }
+                                  }),
+                                },
+                                factoryObjects: {
+                                  $apply: objs => objs.filter(obj =>
+                                    parseInt(obj.trigger.trigger_id) != parseInt(modal.trigger.trigger_id)
+                                  ),
+                                },
                               });
                             });
                           }}

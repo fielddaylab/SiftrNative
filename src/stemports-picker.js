@@ -131,14 +131,18 @@ export class StemportsPicker extends React.Component {
         });
       }),
       new Promise((resolve, reject) => {
-        this.props.auth.call('instances.getInstancesForGame', {
+        this.props.auth.call('client.touchItemsForPlayer', {
           game_id: game.game_id,
-          owner_id: this.props.auth.authToken.user_id,
-        }, (res) => {
-          if (res.returnCode === 0) {
-            RNFS.writeFile(`${siftrDir}/inventory.txt`, JSON.stringify(res.data));
-            resolve();
-          }
+        }, () => {
+          this.props.auth.call('instances.getInstancesForGame', {
+            game_id: game.game_id,
+            owner_id: this.props.auth.authToken.user_id,
+          }, (res) => {
+            if (res.returnCode === 0) {
+              RNFS.writeFile(`${siftrDir}/inventory.txt`, JSON.stringify(res.data));
+              resolve();
+            }
+          });
         });
       }),
       new Promise((resolve, reject) => {
