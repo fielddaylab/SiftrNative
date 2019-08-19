@@ -24,6 +24,13 @@ function playerViewed(atom, type, log) {
   );
 }
 
+function playerCompletedQuest(atom, log) {
+  return log.some(logEntry =>
+       logEntry.event_type === 'COMPLETE_QUEST'
+    && logEntry.content_id === atom.content_id
+  );
+}
+
 function playerHasItem(atom, instances) {
   return instances.some(instance =>
        instance.owner_type === 'USER'
@@ -74,7 +81,7 @@ function evalReqAtom(atom, log, instances) {
     case 'PLAYER_HAS_UPLOADED_MEDIA_ITEM_VIDEO':
       return !bool_operator; // TODO
     case 'PLAYER_HAS_COMPLETED_QUEST':
-      return !bool_operator; // TODO
+      return bool_operator == playerCompletedQuest(atom, log);
     case 'PLAYER_HAS_QUEST_STARS':
       return !bool_operator; // TODO
     case 'PLAYER_HAS_RECEIVED_INCOMING_WEB_HOOK':

@@ -1092,6 +1092,11 @@ export const SiftrView = createClass({
         newQuests.complete.forEach(quest => {
           if (!oldQuests.complete.some(old => old.quest_id === quest.quest_id)) {
             this.pushModal({type: 'quest-complete', quest: quest});
+            this.addLog({
+              event_type: 'COMPLETE_QUEST',
+              game_id: this.props.game.game_id,
+              content_id: quest.quest_id,
+            });
           }
         });
       }
