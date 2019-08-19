@@ -1,6 +1,9 @@
 'use strict';
 
 export function evalReqPackage(req, log, instances) {
+  if (req.ands.length === 0) {
+    return true;
+  }
   for (var i = 0; i < req.ands.length; i++) {
     if (evalReqAndPackage(req.ands[i], log, instances)) return true;
   }
@@ -26,8 +29,8 @@ function playerHasItem(atom, instances) {
        instance.owner_type === 'USER'
     // && instance.owner_id === (player's user id)
     && instance.object_type === 'ITEM'
-    && instance.object_id === atom.content_id
-    && instance.qty >= atom.qty
+    && parseInt(instance.object_id) === parseInt(atom.content_id)
+    && parseInt(instance.qty) >= parseInt(atom.qty)
   );
 }
 

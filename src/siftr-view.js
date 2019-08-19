@@ -1238,7 +1238,7 @@ export const SiftrView = createClass({
         factoryProductionTimestamps: {$set: nextFactoryProductionTimestamps},
       });
     }, () => {
-      setTimeout(this.tickTriggersOffline.bind(this), 5000);
+      setTimeout(this.tickTriggersOffline/*.bind(this)*/, 5000);
     });
   },
   tickTriggers: function() {
@@ -3329,7 +3329,7 @@ export const SiftrView = createClass({
                                   $apply: inv => inv.map(inst => {
                                     if (parseInt(inst.object_id) === parseInt(modal.instance.object_id)) {
                                       return update(inst, {
-                                        qty: {$apply: n => n + 1},
+                                        qty: {$apply: n => parseInt(n) + 1},
                                       });
                                     } else {
                                       return inst;
