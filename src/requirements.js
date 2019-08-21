@@ -1,18 +1,18 @@
 'use strict';
 
-export function evalReqPackage(req, log, instances) {
+export function evalReqPackage(req, env) {
   if (req.ands.length === 0) {
     return true;
   }
   for (var i = 0; i < req.ands.length; i++) {
-    if (evalReqAndPackage(req.ands[i], log, instances)) return true;
+    if (evalReqAndPackage(req.ands[i], env)) return true;
   }
   return false;
 }
 
-function evalReqAndPackage(and, log, instances) {
+function evalReqAndPackage(and, env) {
   for (var i = 0; i < and.atoms.length; i++) {
-    if (!evalReqAtom(and.atoms[i], log, instances)) return false;
+    if (!evalReqAtom(and.atoms[i], env)) return false;
   }
   return true;
 }
@@ -41,8 +41,27 @@ function playerHasItem(atom, instances) {
   );
 }
 
-function evalReqAtom(atom, log, instances) {
+function playerHasNoteWithTag(atom, env) {
+  const user_id = parseInt(env.auth.authToken.user_id);
+  const tag_id = parseInt(atom.content_id);
+  const hasTag = (tag_id > 10000000) ? (note =>
+    note.field_data.some(field_data =>
+      parseInt(field_data.field_id) === parseInt(env.game.field_id_pin)
+      && parseInt(field_data.field_option_id) === tag_id - 10000000
+    )
+  ) : (note =>
+    false // not implemented
+  );
+  const qty = env.notes.filter(note =>
+    parseInt(note.user.user_id) === user_id
+    && hasTag(note)
+  ).length;
+  return qty >= parseInt(atom.qty);
+}
+
+function evalReqAtom(atom, env) {
   const bool_operator = !!(atom.bool_operator);
+  const {log, instances, notes} = env;
   switch (atom.requirement) {
     case 'ALWAYS_TRUE':
       return bool_operator;
@@ -89,7 +108,7 @@ function evalReqAtom(atom, log, instances) {
     case 'PLAYER_HAS_NOTE':
       return !bool_operator; // TODO
     case 'PLAYER_HAS_NOTE_WITH_TAG':
-      return !bool_operator; // TODO
+      return bool_operator == playerHasNoteWithTag(atom, env);
     case 'PLAYER_HAS_NOTE_WITH_LIKES':
       return !bool_operator; // TODO
     case 'PLAYER_HAS_NOTE_WITH_COMMENTS':

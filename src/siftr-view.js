@@ -61,7 +61,8 @@ import {
   Field,
   Theme,
   User,
-  deserializeNote
+  deserializeNote,
+  arisPromise
 } from "./aris";
 
 import { timeToARIS } from "./time-slider";
@@ -736,6 +737,29 @@ export const SiftrView = createClass({
       factoryProductionTimestamps: {},
     };
   },
+  getAllNotes: function(cb) {
+    this.props.auth.siftrSearch(
+      {
+        game_id: this.props.game.game_id,
+        order: "recent",
+        map_data: false,
+      },
+      withSuccess(({notes}) => {
+        if (!this.isMounted) return;
+        Promise.all(notes.map(note => arisPromise(cb => {
+          this.props.auth.getFieldDataForNote({
+            note_id: note.note_id,
+          }, cb);
+        }))).then(field_data => {
+          notes = notes.map((note, i) =>
+            update(note, {field_data: {$set: field_data[i]}})
+          );
+          this.setState({allNotes: notes});
+          cb && cb(notes);
+        });
+      })
+    );
+  },
   componentWillMount: function() {
     var hash, n, ref, ref1;
     this.isMounted = true;
@@ -791,20 +815,9 @@ export const SiftrView = createClass({
           RNFS.writeFile(`${siftrDir}/fields.txt`, JSON.stringify(fields));
         })
       );
-      this.props.auth.siftrSearch(
-        {
-          game_id: this.props.game.game_id,
-          order: "recent",
-          map_data: false,
-        },
-        withSuccess(({notes}) => {
-          if (!this.isMounted) return;
-          this.setState({
-            allNotes: notes
-          });
-          RNFS.writeFile(`${siftrDir}/notes.txt`, JSON.stringify(notes));
-        })
-      );
+      this.getAllNotes(notes => {
+        RNFS.writeFile(`${siftrDir}/notes.txt`, JSON.stringify(notes));
+      });
       this.props.auth.getUsersForGame({
         game_id: this.props.game.game_id
       }, withSuccess((authors) => {
@@ -983,21 +996,7 @@ export const SiftrView = createClass({
         this.loadNoteByID(n, true);
       }
     }
-    this.props.auth.siftrSearch(
-      {
-        game_id: this.props.game.game_id,
-        order: "recent",
-        map_data: false,
-      },
-      withSuccess(({notes}) => {
-        if (!this.isMounted) {
-          return;
-        }
-        this.setState({
-          allNotes: notes
-        });
-      })
-    );
+    this.getAllNotes();
     // @endif
     if (this.props.nomenData != null) {
       this.applyNomenData({
@@ -1045,14 +1044,13 @@ export const SiftrView = createClass({
         return false;
       }
     }
-    return evalReqPackage(
-      root,
-      this.state.logs,
-      this.state.inventory,
-      // this.state.instances.filter(inst =>
-      //   inst.owner_type === 'USER' && parseInt(inst.owner_id) === this.props.auth.authToken.user_id
-      // ),
-    );
+    return evalReqPackage(root, {
+      log: this.state.logs,
+      instances: this.state.inventory,
+      notes: (this.state.allNotes || []).concat(this.props.pendingNotes || []),
+      game: this.props.game,
+      auth: this.props.auth,
+    });
   },
   getReqRoot: function(id) {
     const root = this.props.requirement_root_packages.find(root => root.requirement_root_package_id === id);
@@ -1370,21 +1368,7 @@ export const SiftrView = createClass({
       this.props.online
     ) {
       // we uploaded a note, refresh tag totals
-      this.props.auth.siftrSearch(
-        {
-          game_id: this.props.game.game_id,
-          order: "recent",
-          map_data: false,
-        },
-        withSuccess(({notes}) => {
-          if (!this.isMounted) {
-            return;
-          }
-          this.setState({
-            allNotes: notes
-          });
-        })
-      );
+      this.getAllNotes();
     }
   },
   applyNomenData: function({ nomenData, saved_note }) {

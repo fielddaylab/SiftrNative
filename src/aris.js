@@ -953,3 +953,15 @@ export const Auth = class Auth {
     });
   }
 };
+
+export const arisPromise = (fn) => {
+  return new Promise((resolve, reject) => {
+    fn(res => {
+      if (res.returnCode === 0) {
+        resolve(res.data);
+      } else {
+        reject(res.returnCodeDescription);
+      }
+    });
+  });
+};
