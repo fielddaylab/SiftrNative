@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { styles, Text } from "./styles";
 import { NativeCard } from './native-browser';
+import {deserializeGame} from "./aris";
 const RNFS = require("react-native-fs");
 
 export class StemportsPicker extends React.Component {
@@ -16,11 +17,13 @@ export class StemportsPicker extends React.Component {
     super(props);
     this.state = {
       games: [],
+      downloadedGames: [],
     };
   }
 
   componentWillMount() {
     this.getGames(1, 0);
+    this.loadDownloadedGames();
   }
 
   getGames(game_id, missed) {
@@ -34,6 +37,23 @@ export class StemportsPicker extends React.Component {
       } else {
         this.getGames(game_id + 1, missed + 1);
       }
+    });
+  }
+
+  loadDownloadedGames() {
+    this.setState({downloadedGames: []}, () => {
+      RNFS.readDir(`${RNFS.DocumentDirectoryPath}/siftrs`).then(items => {
+        items.forEach(item => {
+          RNFS.exists(`${item.path}/download_timestamp.txt`).then(exist => {
+            if (exist) {
+              RNFS.readFile(`${item.path}/game.txt`).then(json => {
+                const game = deserializeGame(JSON.parse(json));
+                this.setState(state => update(state, {downloadedGames: {$push: [game]}}));
+              });
+            }
+          });
+        });
+      });
     });
   }
 
@@ -185,23 +205,33 @@ export class StemportsPicker extends React.Component {
           }
         });
       }),
-    ]);
-  }
-
-  onSelect(game) {
-    // TODO split initialize into a separate download step
-    this.initializeGame(game).then(() => this.props.onSelect(game));
+      RNFS.writeFile(`${siftrDir}/game.txt`, JSON.stringify(game)),
+    ]).then(RNFS.writeFile(`${siftrDir}/download_timestamp.txt`, Date.now()));
   }
 
   render() {
     return (
       <ScrollView>
+        <Text>Downloaded Games</Text>
+        {
+          this.state.downloadedGames.map(game => (
+            <NativeCard
+              key={game.game_id}
+              game={game}
+              onSelect={() => this.props.onSelect(game)}
+              cardMode="compact"
+              auth={this.props.auth}
+              online={this.props.online}
+            />
+          ))
+        }
+        <Text>Available Games</Text>
         {
           this.state.games.map(game => (
             <NativeCard
               key={game.game_id}
               game={game}
-              onSelect={this.onSelect.bind(this)}
+              onSelect={() => this.initializeGame(game).then(() => this.loadDownloadedGames())}
               cardMode="compact"
               auth={this.props.auth}
               online={this.props.online}
