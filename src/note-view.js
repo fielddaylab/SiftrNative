@@ -879,10 +879,12 @@ export const SiftrNoteView = function() {
     componentWillMount() {
       this.loadExtra();
       // @ifdef NATIVE
-      firebase.analytics().logEvent("view_note", {
-        note_id: this.props.note.note_id,
-        game_id: this.props.note.game_id
-      });
+      if (this.props.note.note_id) {
+        firebase.analytics().logEvent("view_note", {
+          note_id: this.props.note.note_id,
+          game_id: this.props.note.game_id
+        });
+      }
       this.hardwareBack = () => {
         this.props.onClose();
         return true;
@@ -1422,7 +1424,7 @@ export const SiftrNoteView = function() {
         ref4,
         uri;
       if (this.props.note.pending) {
-        photos = this.props.note.files.map((f) => {
+        photos = (this.props.note.files || []).map((f) => {
           return {url: `${this.props.note.dir}/${f.filename}`, online: this.props.online};
         });
       } else {

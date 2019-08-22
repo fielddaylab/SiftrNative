@@ -297,19 +297,24 @@ const SiftrInfo = createClass({
 });
 
 const LOAD_OBJECTS = [
-  'quests',
-  'plaques',
-  'items',
-  'object_tags',
-  'tags',
-  'requirement_root_packages',
-  'requirement_and_packages',
-  'requirement_atoms',
-  'logs',
-  'inventory',
-  'instances',
-  'factories',
-  'triggers',
+  {name: 'quests'},
+  {name: 'plaques'},
+  {name: 'items'},
+  {name: 'object_tags'},
+  {name: 'tags', load: obj => obj.map(tag => Object.assign(new Tag(), tag))},
+  {name: 'requirement_root_packages'},
+  {name: 'requirement_and_packages'},
+  {name: 'requirement_atoms'},
+  {name: 'logs'},
+  {name: 'inventory'},
+  {name: 'instances'},
+  {name: 'factories'},
+  {name: 'triggers'},
+  {name: 'fields', load: obj => obj.map(field => Object.assign(new Field(), field))},
+  {name: 'authors', load: obj => obj.map(author => author.display_name)},
+  {name: 'theme', load: obj => Object.assign(new Theme(), obj)},
+  {name: 'colors', load: obj => Object.assign(new Colors(), obj)},
+  {name: 'notes', load: obj => obj.map(deserializeNote)},
 ];
 
 class SiftrViewLoader extends React.Component {
@@ -320,9 +325,12 @@ class SiftrViewLoader extends React.Component {
 
   componentDidMount() {
     const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
-    LOAD_OBJECTS.forEach(obj => {
-      RNFS.readFile(`${siftrDir}/${obj}.txt`).then(str => {
-        this.setState({[obj]: JSON.parse(str)});
+    LOAD_OBJECTS.forEach(({name, load}) => {
+      if (!load) {
+        load = (x) => x;
+      }
+      RNFS.readFile(`${siftrDir}/${name}.txt`).then(str => {
+        this.setState({[name]: load(JSON.parse(str))});
       });
     });
   }
@@ -332,7 +340,7 @@ class SiftrViewLoader extends React.Component {
   }
 
   render() {
-    if (LOAD_OBJECTS.some(obj => this.state[obj] == null)) {
+    if (LOAD_OBJECTS.some(({name}) => this.state[name] == null)) {
       return null;
     } else {
       return <SiftrView
@@ -528,32 +536,33 @@ SiftrViewPW.defaultProps = {
 
 export function downloadGame(auth, game, callbacks = {}) {
   const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${game.game_id}`;
-  RNFS.mkdir(siftrDir, {NSURLIsExcludedFromBackupKey: true});
-  RNFS.writeFile(`${siftrDir}/game.txt`, JSON.stringify(game));
-  auth.getTagsForGame({game_id: game.game_id}, withSuccess(tags => {
-    if (callbacks.tags) callbacks.tags(tags);
-    RNFS.writeFile(`${siftrDir}/tags.txt`, JSON.stringify(tags));
-  }));
-  auth.getColors({colors_id: game.colors_id || 1}, withSuccess(colors => {
-    if (callbacks.colors) callbacks.colors(colors);
-    RNFS.writeFile(`${siftrDir}/colors.txt`, JSON.stringify(colors));
-  }));
-  auth.getTheme({theme_id: game.theme_id || 1}, withSuccess(theme => {
-    if (callbacks.theme) callbacks.theme(theme);
-    RNFS.writeFile(`${siftrDir}/theme.txt`, JSON.stringify(theme));
-  }));
-  auth.getFieldsForGame({game_id: game.game_id}, withSuccess(fields => {
-    if (callbacks.fields) callbacks.fields(fields);
-    RNFS.writeFile(`${siftrDir}/fields.txt`, JSON.stringify(fields));
-  }));
-  auth.siftrSearch({game_id: game.game_id, order: "recent", map_data: false}, withSuccess(({notes}) => {
-    if (callbacks.notes) callbacks.notes(notes);
-    RNFS.writeFile(`${siftrDir}/notes.txt`, JSON.stringify(notes));
-  }));
-  auth.getUsersForGame({game_id: game.game_id}, withSuccess((authors) => {
-    if (callbacks.authors) callbacks.authors(authors);
-    RNFS.writeFile(`${siftrDir}/authors.txt`, JSON.stringify(authors));
-  }));
+  RNFS.mkdir(siftrDir, {NSURLIsExcludedFromBackupKey: true}).then(() => {
+    RNFS.writeFile(`${siftrDir}/game.txt`, JSON.stringify(game));
+    auth.getTagsForGame({game_id: game.game_id}, withSuccess(tags => {
+      if (callbacks.tags) callbacks.tags(tags);
+      RNFS.writeFile(`${siftrDir}/tags.txt`, JSON.stringify(tags));
+    }));
+    auth.getColors({colors_id: game.colors_id || 1}, withSuccess(colors => {
+      if (callbacks.colors) callbacks.colors(colors);
+      RNFS.writeFile(`${siftrDir}/colors.txt`, JSON.stringify(colors));
+    }));
+    auth.getTheme({theme_id: game.theme_id || 1}, withSuccess(theme => {
+      if (callbacks.theme) callbacks.theme(theme);
+      RNFS.writeFile(`${siftrDir}/theme.txt`, JSON.stringify(theme));
+    }));
+    auth.getFieldsForGame({game_id: game.game_id}, withSuccess(fields => {
+      if (callbacks.fields) callbacks.fields(fields);
+      RNFS.writeFile(`${siftrDir}/fields.txt`, JSON.stringify(fields));
+    }));
+    auth.siftrSearch({game_id: game.game_id, order: "recent", map_data: false}, withSuccess(({notes}) => {
+      if (callbacks.notes) callbacks.notes(notes);
+      RNFS.writeFile(`${siftrDir}/notes.txt`, JSON.stringify(notes));
+    }));
+    auth.getUsersForGame({game_id: game.game_id}, withSuccess((authors) => {
+      if (callbacks.authors) callbacks.authors(authors);
+      RNFS.writeFile(`${siftrDir}/authors.txt`, JSON.stringify(authors));
+    }));
+  });
 }
 
 // @endif
@@ -717,9 +726,6 @@ export const SiftrView = createClass({
       notes: [],
       allNotes: null,
       loadedAll: true,
-      tags: null,
-      colors: null,
-      theme: null,
       viewingNote: null,
       createNote: null,
       searchParams: {
@@ -727,7 +733,6 @@ export const SiftrView = createClass({
       },
       searchOpen: false,
       mainView: "map", // 'hybrid', 'map', 'thumbs'
-      fields: null,
       infoOpen: false,
       primaryMenuOpen: false,
       modals: [],
@@ -773,145 +778,6 @@ export const SiftrView = createClass({
     RNFS.mkdir(siftrDir, {
       NSURLIsExcludedFromBackupKey: true
     });
-    RNFS.writeFile(`${siftrDir}/game.txt`, JSON.stringify(this.props.game));
-    if (this.props.online) {
-      this.props.auth.getTagsForGame(
-        {
-          game_id: this.props.game.game_id
-        },
-        withSuccess(tags => {
-          if (!this.isMounted) return;
-          this.setState({ tags });
-          RNFS.writeFile(`${siftrDir}/tags.txt`, JSON.stringify(tags));
-        })
-      );
-      this.props.auth.getColors(
-        {
-          colors_id: (ref = this.props.game.colors_id) != null ? ref : 1
-        },
-        withSuccess(colors => {
-          if (!this.isMounted) return;
-          this.setState({ colors });
-          RNFS.writeFile(`${siftrDir}/colors.txt`, JSON.stringify(colors));
-        })
-      );
-      this.props.auth.getTheme(
-        {
-          theme_id: (ref = this.props.game.theme_id) != null ? ref : 1
-        },
-        withSuccess(theme => {
-          if (!this.isMounted) return;
-          this.setState({ theme });
-          RNFS.writeFile(`${siftrDir}/theme.txt`, JSON.stringify(theme));
-        })
-      );
-      this.props.auth.getFieldsForGame(
-        {
-          game_id: this.props.game.game_id
-        },
-        withSuccess(fields => {
-          if (!this.isMounted) return;
-          this.setState({ fields });
-          RNFS.writeFile(`${siftrDir}/fields.txt`, JSON.stringify(fields));
-        })
-      );
-      this.getAllNotes(notes => {
-        RNFS.writeFile(`${siftrDir}/notes.txt`, JSON.stringify(notes));
-      });
-      this.props.auth.getUsersForGame({
-        game_id: this.props.game.game_id
-      }, withSuccess((authors) => {
-        if (!this.isMounted) return;
-        this.setState({
-          authors: authors.map((author) => author.display_name)
-        });
-        RNFS.writeFile(`${siftrDir}/authors.txt`, JSON.stringify(authors));
-      }));
-    } else {
-      RNFS.readFile(`${siftrDir}/tags.txt`).then(tags => {
-        var tag;
-        if (!this.isMounted) {
-          return;
-        }
-        this.setState({
-          tags: (function() {
-            var i, len, ref1, results;
-            ref1 = JSON.parse(tags);
-            results = [];
-            for (i = 0, len = ref1.length; i < len; i++) {
-              tag = ref1[i];
-              results.push(Object.assign(new Tag(), tag));
-            }
-            return results;
-          })()
-        });
-      });
-      RNFS.readFile(`${siftrDir}/colors.txt`).then(colors => {
-        if (!this.isMounted) {
-          return;
-        }
-        this.setState({
-          colors: Object.assign(new Colors(), JSON.parse(colors))
-        });
-      });
-      RNFS.readFile(`${siftrDir}/theme.txt`).then(theme => {
-        if (!this.isMounted) {
-          return;
-        }
-        this.setState({
-          theme: Object.assign(new Theme(), JSON.parse(theme))
-        });
-      });
-      RNFS.readFile(`${siftrDir}/fields.txt`).then(fields => {
-        var field;
-        if (!this.isMounted) {
-          return;
-        }
-        this.setState({
-          fields: (function() {
-            var i, len, ref1, results;
-            ref1 = JSON.parse(fields);
-            results = [];
-            for (i = 0, len = ref1.length; i < len; i++) {
-              field = ref1[i];
-              results.push(Object.assign(new Field(), field));
-            }
-            return results;
-          })()
-        });
-      });
-      RNFS.readFile(`${siftrDir}/notes.txt`).then(notes => {
-        var note;
-        if (!this.isMounted) {
-          return;
-        }
-        this.setState(
-          {
-            allNotes: (function() {
-              var i, len, ref1, results;
-              ref1 = JSON.parse(notes);
-              results = [];
-              for (i = 0, len = ref1.length; i < len; i++) {
-                note = ref1[i];
-                results.push(deserializeNote(note));
-              }
-              return results;
-            })()
-          },
-          () => {
-            this.loadResults();
-          }
-        );
-      });
-      RNFS.readFile(`${siftrDir}/authors.txt`).then(authors => {
-        if (!this.isMounted) {
-          return;
-        }
-        this.setState({
-          authors: JSON.parse(authors).map((author) => author.display_name),
-        });
-      });
-    }
     this.hardwareBack = () => {
       if (this.state.searchOpen) {
         if (this.isMounted) {
@@ -939,64 +805,7 @@ export const SiftrView = createClass({
     Keyboard.addListener("keyboardWillHide", this.keyboardHide);
     // @endif
     // @ifdef WEB
-    this.props.auth.getTagsForGame(
-      {
-        game_id: this.props.game.game_id
-      },
-      withSuccess(tags => {
-        if (this.isMounted) {
-          this.setState({ tags });
-        }
-      })
-    );
-    this.props.auth.getColors(
-      {
-        colors_id: (ref1 = this.props.game.colors_id) != null ? ref1 : 1
-      },
-      withSuccess(colors => {
-        if (this.isMounted) {
-          this.setState({ colors });
-        }
-      })
-    );
-    this.props.auth.getTheme(
-      {
-        theme_id: (ref1 = this.props.game.theme_id) != null ? ref1 : 1
-      },
-      withSuccess(theme => {
-        if (this.isMounted) {
-          this.setState({ theme });
-        }
-      })
-    );
-    this.props.auth.getFieldsForGame(
-      {
-        game_id: this.props.game.game_id
-      },
-      withSuccess(fields => {
-        if (this.isMounted) {
-          this.setState({ fields });
-        }
-      })
-    );
-    this.handleHistory = event => {
-      if (typeof event.state === "number") {
-        this.loadNoteByID(event.state, true);
-      } else {
-        this.setState({
-          viewingNote: null
-        });
-      }
-    };
-    window.addEventListener("popstate", this.handleHistory);
-    hash = window.location.hash;
-    if (hash[0] === "#") {
-      n = parseInt(hash.slice(1));
-      if (n) {
-        this.loadNoteByID(n, true);
-      }
-    }
-    this.getAllNotes();
+    // web code removed
     // @endif
     if (this.props.nomenData != null) {
       this.applyNomenData({
@@ -1047,7 +856,7 @@ export const SiftrView = createClass({
     return evalReqPackage(root, {
       log: this.state.logs,
       instances: this.state.inventory,
-      notes: (this.state.allNotes || []).concat(this.props.pendingNotes || []),
+      notes: (this.props.notes || []).concat(this.props.pendingNotes || []),
       game: this.props.game,
       auth: this.props.auth,
     });
@@ -1390,7 +1199,7 @@ export const SiftrView = createClass({
         if (this.state.createNote.field_data != null) {
           matchingFields = function() {
             var i, len, ref, results;
-            ref = this.state.fields;
+            ref = this.props.fields;
             results = [];
             for (i = 0, len = ref.length; i < len; i++) {
               field = ref[i];
@@ -1438,7 +1247,7 @@ export const SiftrView = createClass({
   },
   getColor: function(x) {
     let tag, index;
-    if (!(this.state.tags != null && this.state.colors != null && x != null)) {
+    if (!(this.props.tags != null && this.props.colors != null && x != null)) {
       return "white";
     }
     function numberField(field, value) {
@@ -1462,14 +1271,14 @@ export const SiftrView = createClass({
     }
     if (x instanceof Tag) {
       tag = x;
-      index = this.state.tags.indexOf(tag);
+      index = this.props.tags.indexOf(tag);
     } else if (x instanceof FieldOption) {
       tag = x;
-      const field = this.state.fields.find((field) => field.field_id === this.props.game.field_id_pin);
+      const field = this.props.fields.find((field) => field.field_id === this.props.game.field_id_pin);
       index = field && field.options.indexOf(tag);
     } else if (this.props.game.newFormat() && x.field_data != null) {
       const option_id = x.field_data[this.props.game.field_id_pin];
-      const field = this.state.fields.find((field) => field.field_id === this.props.game.field_id_pin);
+      const field = this.props.fields.find((field) => field.field_id === this.props.game.field_id_pin);
       if (field && field.field_type === 'NUMBER') {
         tag = numberField(field, option_id);
       } else {
@@ -1477,11 +1286,11 @@ export const SiftrView = createClass({
         index = field && field.options.indexOf(tag);
       }
     } else if (x.tag_id != null) {
-      tag = this.state.tags.find((tag) => tag.tag_id === parseInt(x.tag_id));
-      index = this.state.tags.indexOf(tag);
+      tag = this.props.tags.find((tag) => tag.tag_id === parseInt(x.tag_id));
+      index = this.props.tags.indexOf(tag);
     } else if (typeof x === "number" || typeof x === "string") {
       if (this.props.game.newFormat()) {
-        const field = this.state.fields.find((field) => field.field_id === this.props.game.field_id_pin);
+        const field = this.props.fields.find((field) => field.field_id === this.props.game.field_id_pin);
         if (field && field.field_type === 'NUMBER') {
           tag = numberField(field, x);
         } else {
@@ -1489,8 +1298,8 @@ export const SiftrView = createClass({
           index = field && field.options.indexOf(tag);
         }
       } else {
-        tag = this.state.tags.find((tag) => tag.tag_id === parseInt(x));
-        index = this.state.tags.indexOf(tag);
+        tag = this.props.tags.find((tag) => tag.tag_id === parseInt(x));
+        index = this.props.tags.indexOf(tag);
       }
     } else {
       return "white";
@@ -1500,7 +1309,7 @@ export const SiftrView = createClass({
       return tag.color;
     }
     let ref1;
-    return (ref1 = this.state.colors[
+    return (ref1 = this.props.colors[
       `tag_${(index % 8) + 1}`
     ]) != null
       ? ref1
@@ -2018,15 +1827,15 @@ export const SiftrView = createClass({
   renderSearch: function() {
     let tags = [];
     if (this.props.game.newFormat()) {
-      if (this.state.fields != null) {
-        const field = this.state.fields.find((field) => field.field_id === this.props.game.field_id_pin);
+      if (this.props.fields != null) {
+        const field = this.props.fields.find((field) => field.field_id === this.props.game.field_id_pin);
         if (field) {
           tags = field.options;
         }
       }
     } else {
-      if (this.state.tags != null) {
-        tags = this.state.tags;
+      if (this.props.tags != null) {
+        tags = this.props.tags;
       }
     }
     return (
@@ -2079,11 +1888,11 @@ export const SiftrView = createClass({
           isAdmin={this.props.isAdmin}
           onPromptLogin={this.props.onPromptLogin}
           getColor={this.getColor}
-          fields={this.state.fields}
+          fields={this.props.fields}
           game={this.props.game}
           tag={(() => {
             var i, len, ref, ref1, tag;
-            ref1 = (ref = this.state.tags) != null ? ref : [];
+            ref1 = (ref = this.props.tags) != null ? ref : [];
             for (i = 0, len = ref1.length; i < len; i++) {
               tag = ref1[i];
               if (tag.tag_id === this.state.viewingNote.tag_id) {
@@ -2150,7 +1959,7 @@ export const SiftrView = createClass({
         onSelectItem={(o) => {
           if (!this.props.location) return;
           const distance = Math.ceil(meterDistance(o.trigger, this.props.location.coords));
-          if (distance > 100) {
+          if (distance > 100 && false) {
             Alert.alert(
               'Too far',
               `You are ${distance}m away. Walk ${distance - 100}m closer`,
@@ -2190,8 +1999,8 @@ export const SiftrView = createClass({
         zoom={this.state.zoom}
         delta={this.state.delta}
         getColor={this.getColor}
-        colors={this.state.colors}
-        theme={this.state.theme}
+        colors={this.props.colors}
+        theme={this.props.theme}
         onSelectNote={this.selectNote}
         key={1}
         ref="theSiftrMap"
@@ -2208,9 +2017,9 @@ export const SiftrView = createClass({
           }
         }}
         thumbHover={this.state.thumbHover && this.state.thumbHover.note_id}
-        tags={this.state.tags}
+        tags={this.props.tags}
         game={this.props.game}
-        fields={this.state.fields}
+        fields={this.props.fields}
       />
     );
   },
@@ -2329,7 +2138,7 @@ export const SiftrView = createClass({
     });
   },
   startCreate: function({ nomenData, saved_note } = {}) {
-    if (this.state.fields == null) {
+    if (this.props.fields == null) {
       setTimeout(() => {
         this.startCreate({nomenData, saved_note});
       }, 500);
@@ -2382,7 +2191,7 @@ export const SiftrView = createClass({
           caption: note.description,
           category: (() => {
             var i, len, ref, tag;
-            ref = this.state.tags;
+            ref = this.props.tags;
             for (i = 0, len = ref.length; i < len; i++) {
               tag = ref[i];
               if (tag.tag_id === note.tag_id) {
@@ -2435,7 +2244,7 @@ export const SiftrView = createClass({
                   }
                 ],
                 caption: "",
-                category: this.state.tags[0],
+                category: this.props.tags[0],
                 field_data: [],
                 online: false,
                 exif: location
@@ -2469,8 +2278,8 @@ export const SiftrView = createClass({
           selectLocation={() => {
             return this.state.center;
           }}
-          categories={(ref = this.state.tags) != null ? ref : []}
-          fields={(ref1 = this.state.fields) != null ? ref1 : []}
+          categories={(ref = this.props.tags) != null ? ref : []}
+          fields={(ref1 = this.props.fields) != null ? ref1 : []}
           onFinish={this.finishNoteCreation}
           onCancel={() => {
             this.setState({
@@ -2546,14 +2355,14 @@ export const SiftrView = createClass({
               }
             }));
           }}
-          fields={(ref2 = this.state.fields) != null ? ref2 : []}
+          fields={(ref2 = this.props.fields) != null ? ref2 : []}
         />
       );
     } else if (this.state.createStep === 2) {
       return (
         <CreateStep2
           game={this.props.game}
-          categories={(ref3 = this.state.tags) != null ? ref3 : []}
+          categories={(ref3 = this.props.tags) != null ? ref3 : []}
           note={this.state.createNote}
           onEnterCaption={({ text, category }) => {
             this.setState(
@@ -2652,7 +2461,7 @@ export const SiftrView = createClass({
               createStep: 3
             });
           }}
-          fields={this.state.fields}
+          fields={this.props.fields}
           field_data={this.state.createNote.field_data}
           progress={
             (this.state.createNote.media != null || this.state.createNote.field_media != null) ||
@@ -2848,8 +2657,8 @@ export const SiftrView = createClass({
       );
     }
     let authorNames = '…';
-    if (this.state.authors) {
-      authorNames = this.state.authors.join(', ');
+    if (this.props.authors) {
+      authorNames = this.props.authors.join(', ');
     }
     return (
       <KeyboardAwareView
@@ -2868,7 +2677,7 @@ export const SiftrView = createClass({
                 infoOpen: b
               });
             }}
-            tags={this.state.tags}
+            tags={this.props.tags}
             getColor={this.getColor}
             notes={this.state.allNotes}
             followed={this.props.followed}

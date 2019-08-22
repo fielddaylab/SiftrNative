@@ -230,7 +230,7 @@ export class SiftrThumbnails extends React.Component {
                 auth={this.props.auth}
                 online={this.props.online}
                 key={dir.name}
-                source={{uri: url}}
+                source={url.length !== 0 ? {uri: url} : null}
                 note={note}
                 onSelectNote={this.props.onSelectNote}
                 getColor={this.props.getColor}

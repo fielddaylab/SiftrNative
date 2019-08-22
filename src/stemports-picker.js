@@ -21,9 +21,11 @@ export class StemportsPicker extends React.Component {
     };
   }
 
-  componentWillMount() {
-    this.getGames(1, 0);
-    this.loadDownloadedGames();
+  componentDidMount() {
+    RNFS.mkdir(`${RNFS.DocumentDirectoryPath}/siftrs`, {NSURLIsExcludedFromBackupKey: true}).then(() => {
+      this.getGames(1, 0);
+      this.loadDownloadedGames();
+    });
   }
 
   getGames(game_id, missed) {
@@ -59,154 +61,103 @@ export class StemportsPicker extends React.Component {
 
   initializeGame(game) {
     const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${game.game_id}`;
-    return Promise.all([
-      new Promise((resolve, reject) => {
-        this.props.auth.call('plaques.getPlaquesForGame', {
+    return RNFS.mkdir(siftrDir, {NSURLIsExcludedFromBackupKey: true}).then(() => {
+      const writeJSON = (name) => {
+        return (data) => RNFS.writeFile(`${siftrDir}/${name}.txt`, JSON.stringify(data));
+      }
+      return Promise.all([
+
+        this.props.auth.promise('call', 'plaques.getPlaquesForGame', {
           game_id: game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) {
-            RNFS.writeFile(`${siftrDir}/plaques.txt`, JSON.stringify(res.data));
-            resolve();
-          }
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('items.getItemsForGame', {
+        }).then(writeJSON('plaques')),
+
+        this.props.auth.promise('call', 'items.getItemsForGame', {
           game_id: game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) {
-            RNFS.writeFile(`${siftrDir}/items.txt`, JSON.stringify(res.data));
-            resolve();
-          }
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('tags.getTagsForGame', {
+        }).then(writeJSON('items')),
+
+        this.props.auth.promise('getTagsForGame', {
           game_id: game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) {
-            RNFS.writeFile(`${siftrDir}/tags.txt`, JSON.stringify(res.data));
-            resolve();
-          }
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('tags.getObjectTagsForGame', {
+        }).then(writeJSON('tags')),
+
+        this.props.auth.promise('call', 'tags.getObjectTagsForGame', {
           game_id: game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) {
-            RNFS.writeFile(`${siftrDir}/object_tags.txt`, JSON.stringify(res.data));
-            resolve();
-          }
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('quests.getQuestsForGame', {
+        }).then(writeJSON('object_tags')),
+
+        this.props.auth.promise('call', 'quests.getQuestsForGame', {
           game_id: game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) {
-            RNFS.writeFile(`${siftrDir}/quests.txt`, JSON.stringify(res.data));
-            resolve();
-          }
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('requirements.getRequirementRootPackagesForGame', {
+        }).then(writeJSON('quests')),
+
+        this.props.auth.promise('call', 'requirements.getRequirementRootPackagesForGame', {
           game_id: game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) {
-            RNFS.writeFile(`${siftrDir}/requirement_root_packages.txt`, JSON.stringify(res.data));
-            resolve();
-          }
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('requirements.getRequirementAndPackagesForGame', {
+        }).then(writeJSON('requirement_root_packages')),
+
+        this.props.auth.promise('call', 'requirements.getRequirementAndPackagesForGame', {
           game_id: game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) {
-            RNFS.writeFile(`${siftrDir}/requirement_and_packages.txt`, JSON.stringify(res.data));
-            resolve();
-          }
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('requirements.getRequirementAtomsForGame', {
+        }).then(writeJSON('requirement_and_packages')),
+
+        this.props.auth.promise('call', 'requirements.getRequirementAtomsForGame', {
           game_id: game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) {
-            RNFS.writeFile(`${siftrDir}/requirement_atoms.txt`, JSON.stringify(res.data));
-            resolve();
-          }
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('requirements.getRequirementAtomsForGame', {
+        }).then(writeJSON('requirement_atoms')),
+
+        this.props.auth.promise('call', 'client.touchItemsForPlayer', {
           game_id: game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) {
-            RNFS.writeFile(`${siftrDir}/requirement_atoms.txt`, JSON.stringify(res.data));
-            resolve();
-          }
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('client.touchItemsForPlayer', {
-          game_id: game.game_id,
-        }, () => {
-          this.props.auth.call('instances.getInstancesForGame', {
+        }).then(() =>
+          this.props.auth.promise('call', 'instances.getInstancesForGame', {
             game_id: game.game_id,
             owner_id: this.props.auth.authToken.user_id,
-          }, (res) => {
-            if (res.returnCode === 0) {
-              RNFS.writeFile(`${siftrDir}/inventory.txt`, JSON.stringify(res.data));
-              resolve();
-            }
-          });
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('instances.getInstancesForGame', {
+          })
+        ).then(writeJSON('inventory')),
+
+        this.props.auth.promise('call', 'instances.getInstancesForGame', {
           game_id: game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) {
-            RNFS.writeFile(`${siftrDir}/instances.txt`, JSON.stringify(res.data));
-            resolve();
-          }
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('client.getLogsForPlayer', {
+        }).then(writeJSON('instances')),
+
+        this.props.auth.promise('call', 'client.getLogsForPlayer', {
           game_id: game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) {
-            RNFS.writeFile(`${siftrDir}/logs.txt`, JSON.stringify(res.data));
-            resolve();
-          }
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('factories.getFactoriesForGame', {
+        }).then(writeJSON('logs')),
+
+        this.props.auth.promise('call', 'factories.getFactoriesForGame', {
           game_id: game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) {
-            RNFS.writeFile(`${siftrDir}/factories.txt`, JSON.stringify(res.data));
-            resolve();
-          }
-        });
-      }),
-      new Promise((resolve, reject) => {
-        this.props.auth.call('triggers.getTriggersForGame', {
+        }).then(writeJSON('factories')),
+
+        this.props.auth.promise('call', 'triggers.getTriggersForGame', {
           game_id: game.game_id,
-        }, (res) => {
-          if (res.returnCode === 0) {
-            RNFS.writeFile(`${siftrDir}/triggers.txt`, JSON.stringify(res.data));
-            resolve();
-          }
-        });
-      }),
-      RNFS.writeFile(`${siftrDir}/game.txt`, JSON.stringify(game)),
-    ]).then(RNFS.writeFile(`${siftrDir}/download_timestamp.txt`, Date.now()));
+        }).then(writeJSON('triggers')),
+
+        this.props.auth.promise('getFieldsForGame', {
+          game_id: game.game_id,
+        }).then(writeJSON('fields')),
+
+        this.props.auth.promise('getUsersForGame', {
+          game_id: game.game_id,
+        }).then(writeJSON('authors')),
+
+        this.props.auth.promise('getTheme', {
+          theme_id: game.theme_id != null ? game.theme_id : 1,
+        }).then(writeJSON('theme')),
+
+        this.props.auth.promise('getColors', {
+          colors_id: game.colors_id != null ? game.colors_id : 1,
+        }).then(writeJSON('colors')),
+
+        this.props.auth.promise('siftrSearch', {
+          game_id: game.game_id,
+          order: "recent",
+          map_data: false,
+        }).then(({notes}) =>
+          Promise.all(notes.map(note => this.props.auth.promise('getFieldDataForNote', {
+            note_id: note.note_id,
+          }))).then(field_data => {
+            return writeJSON('notes')(notes.map((note, i) =>
+              update(note, {field_data: {$set: field_data[i]}})
+            ));
+          })
+        ),
+
+        writeJSON('game')(game),
+
+      ]).then(RNFS.writeFile(`${siftrDir}/download_timestamp.txt`, Date.now()));
+    });
   }
 
   render() {

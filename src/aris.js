@@ -340,16 +340,7 @@ export function deserializeNote(json) {
   n = Object.assign(new Note(), json);
   n.user = Object.assign(new User(), n.user);
   n.created = new Date(n.created);
-  n.comments = (function() {
-    var i, len, ref, results;
-    ref = n.comments;
-    results = [];
-    for (i = 0, len = ref.length; i < len; i++) {
-      o = ref[i];
-      results.push(Object.assign(new Comment(), o));
-    }
-    return results;
-  })();
+  n.comments = n.comments && n.comments.map(o => Object.assign(new Comment(), o));
   return n;
 }
 
@@ -784,7 +775,7 @@ export const Auth = class Auth {
   promise(method, ...args) {
     return new Promise((resolve, reject) => {
       return this[method].call(this, ...args, result => {
-        if (result.returnCode === 0 && result.data != null) {
+        if (result.returnCode === 0) {
           return resolve(result.data);
         } else {
           return reject(result);
