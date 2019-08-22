@@ -65,11 +65,11 @@ export const UploadQueue = createClass({
         return [];
       }
     }).then((files) => {
-      var dir, timestamp;
       return Promise.all((function() {
         var i, len, results;
         results = [];
         for (i = 0, len = files.length; i < len; i++) {
+          let dir, timestamp;
           dir = files[i];
           timestamp = parseInt(dir.name);
           if (!(timestamp && dir.isDirectory())) {
@@ -82,11 +82,11 @@ export const UploadQueue = createClass({
         return results;
       }).call(this));
     }).then((listedDirs) => {
-      var dir, entries;
       return Promise.all((function() {
         var i, len, results;
         results = [];
         for (i = 0, len = listedDirs.length; i < len; i++) {
+          let dir, entries;
           ({dir, entries} = listedDirs[i]);
           if (!entries.some((ent) => {
             return ent.name === 'createNote.json';

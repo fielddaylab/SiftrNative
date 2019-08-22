@@ -856,7 +856,15 @@ export const SiftrView = createClass({
     return evalReqPackage(root, {
       log: this.state.logs,
       instances: this.state.inventory,
-      notes: (this.props.notes || []).concat(this.props.pendingNotes || []),
+      notes: (() => {
+        let notes = this.props.notes;
+        if (this.props.pendingNotes) {
+          notes = notes.concat(this.props.pendingNotes.map(pnote =>
+            JSON.parse(pnote.json)
+          ));
+        }
+        return notes;
+      })(),
       game: this.props.game,
       auth: this.props.auth,
     });

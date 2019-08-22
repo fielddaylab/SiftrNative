@@ -44,6 +44,10 @@ function playerHasItem(atom, instances) {
 function playerHasNoteWithTag(atom, env) {
   const user_id = parseInt(env.auth.authToken.user_id);
   const tag_id = parseInt(atom.content_id);
+  const rightUser = note => {
+    const note_user_id = parseInt(note.user_id || (note.user && note.user.user_id));
+    return note_user_id === user_id || !note_user_id;
+  };
   const hasTag = (tag_id > 10000000) ? (note => {
     if (!note.field_data) {
       return false;
@@ -59,10 +63,7 @@ function playerHasNoteWithTag(atom, env) {
   }) : (note =>
     false // not implemented
   );
-  const qty = env.notes.filter(note =>
-    parseInt(note.user_id || (note.user && note.user.user_id)) === user_id
-    && hasTag(note)
-  ).length;
+  const qty = env.notes.filter(note => rightUser(note) && hasTag(note)).length;
   return qty >= parseInt(atom.qty);
 }
 
