@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSContactsUsageDescription</key>
-	<string>This permission is not used by Siftr.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -23,7 +21,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>15</string>
+	<string>16</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
@@ -59,6 +57,8 @@
 	<string>This permission is not used by Siftr.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Allows you to take photos to upload to a Siftr project.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>This permission is not used by Siftr.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Allows Siftr to show where you are on the map, and find projects located close by.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
