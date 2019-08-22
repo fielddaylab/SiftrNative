@@ -821,7 +821,12 @@ export const SiftrView = createClass({
       logs: {
         $push: [logEntry],
       },
-    }));
+    }), () => {
+      const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${
+        this.props.game.game_id
+      }`;
+      RNFS.writeFile(`${siftrDir}/logs.txt`, JSON.stringify(this.state.logs));
+    });
   },
   /*
   checkinLogs: function() {
@@ -3148,6 +3153,11 @@ export const SiftrView = createClass({
                                   ),
                                 },
                               });
+                            }, () => {
+                              const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${
+                                this.props.game.game_id
+                              }`;
+                              RNFS.writeFile(`${siftrDir}/inventory.txt`, JSON.stringify(this.state.inventory));
                             });
                           }}
                         />
