@@ -10,6 +10,8 @@ import {
 import { styles, Text } from "./styles";
 import { NativeCard } from './native-browser';
 import {deserializeGame} from "./aris";
+import {loadMedia} from "./media";
+
 const RNFS = require("react-native-fs");
 
 export class StemportsPicker extends React.Component {
@@ -154,9 +156,22 @@ export class StemportsPicker extends React.Component {
           })
         ),
 
+        this.props.auth.promise('call', 'media.getMediaForGame', {
+          game_id: game.game_id,
+        }).then(medias =>
+          Promise.all(medias.map(media => new Promise((resolve, reject) => {
+            loadMedia({
+              media_id: media.media_id,
+              auth: this.props.auth,
+            }, resolve);
+          })))
+        ),
+
         writeJSON('game')(game),
 
-      ]).then(RNFS.writeFile(`${siftrDir}/download_timestamp.txt`, Date.now()));
+      ]).then(() =>
+        RNFS.writeFile(`${siftrDir}/download_timestamp.txt`, Date.now())
+      );
     });
   }
 

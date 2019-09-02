@@ -24,7 +24,7 @@ function djb_hash(str) {
 }
 
 // @ifdef NATIVE
-function loadMedia(props, cb) {
+export function loadMedia(props, cb) {
   const online = (props.online == null ? true : props.online);
 
   function loadFile(file) {
@@ -106,7 +106,7 @@ function loadMedia(props, cb) {
 // @endif
 
 // @ifdef WEB
-function loadMedia(props, cb) {
+export function loadMedia(props, cb) {
   if (props.url == null) {
     if (props.media_id) {
       props.auth.call('media.getMedia', {
