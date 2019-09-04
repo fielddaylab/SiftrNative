@@ -43,7 +43,11 @@
     "react-native-simple-markdown": "^1.1.0",
     "react-native-svg": "^9.5.3",
     "react-native-webview": "^5.12.1",
-    "remove-markdown": "^0.3.0"
+    "remove-markdown": "^0.3.0",
+    "react-native-3d-model-view": "file:./react-native-3d-model-view",
+    "react-native-zip-archive": "^5.0.0",
+    "remove-markdown": "^0.3.0",
+    "rn-fetch-blob": "^0.10.16"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",

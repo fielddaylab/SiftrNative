@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import {CacheMedia} from './media';
 import {WebView} from 'react-native-webview';
+import ModelView from '../react-native-3d-model-view/lib/ModelView';
 
 export class FullWidthWebView extends React.Component {
   constructor(props) {
@@ -73,17 +74,34 @@ export const ItemScreen = (props) => (
       media_id={props.item.media_id}
       auth={props.auth}
       online={true}
-      withURL={(url) => (
-        <View style={{marginTop: 20, marginBottom: 20}}>
-          <Image
-            source={url}
-            style={{
-              height: 150,
-              resizeMode: 'contain',
-            }}
-          />
-        </View>
-      )}
+      withURL={(url) => {
+        if (url && url.uri && url.uri.match(/\.zip$/)) {
+          return (
+            <View style={{marginTop: 20, marginBottom: 20, flexDirection: 'column', alignItems: 'center'}}>
+              <ModelView
+                source={{ zip: url, unzippedFolderName: 'Hamburger' }}
+                style={{
+                  width: 200,
+                  height: 150,
+                }}
+                autoPlay={true}
+              />
+            </View>
+          );
+        } else {
+          return (
+            <View style={{marginTop: 20, marginBottom: 20}}>
+              <Image
+                source={url}
+                style={{
+                  height: 150,
+                  resizeMode: 'contain',
+                }}
+              />
+            </View>
+          );
+        }
+      }}
     />
     <View style={{
       backgroundColor: 'white',

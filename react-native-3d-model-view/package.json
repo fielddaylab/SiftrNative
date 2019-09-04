@@ -1,0 +1,32 @@
+{
+  "name": "react-native-3d-model-view",
+  "version": "1.2.0",
+  "description": "React Native plugin for showing .obj, .dae and .scn models.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BonnierNews/react-native-3d-model-view"
+  },
+  "keywords": [
+    "react-native",
+    "native",
+    "bridge",
+    "opengl",
+    "model",
+    "View",
+    "arkit",
+    "scenekit",
+    "augmented reality"
+  ],
+  "author": "Johan Kasperi <johan@kasperi.se>",
+  "license": "MIT",
+  "peerDependencies": {
+    "react-native": ">=0.41",
+    "react-native-zip-archive": ">=2.2.1",
+    "rn-fetch-blob": ">=0.10.8",
+    "react-native-fs": ">=2.9.7"
+  }
+}
