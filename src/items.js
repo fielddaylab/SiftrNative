@@ -79,7 +79,7 @@ export const ItemScreen = (props) => (
           return (
             <View style={{marginTop: 20, marginBottom: 20, flexDirection: 'column', alignItems: 'center'}}>
               <ModelView
-                source={{ zip: url, unzippedFolderName: 'Hamburger' }}
+                source={{ zip: url }}
                 style={{
                   width: 200,
                   height: 150,

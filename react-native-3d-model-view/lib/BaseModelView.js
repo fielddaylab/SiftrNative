@@ -117,17 +117,8 @@ class BaseModelView extends React.Component {
   }
 
   unzip (path) {
-    return unzip(path, DOCUMENTS_FOLDER)
-    .then(unzippedPath => {
-      let name
-      if (this.props.source.unzippedFolderName) {
-        name = this.props.source.unzippedFolderName
-      } else {
-        name = this.getName(path)
-        name = name.includes('.zip') ? name.replace('.zip', '') : name
-      }
-      return `${unzippedPath}/${name}`
-    })
+    // MT: unzip next to zip instead of docs folder
+    return unzip(path, path.replace('.zip', ''));
   }
 
   getName = (source) => {
@@ -137,7 +128,15 @@ class BaseModelView extends React.Component {
   }
 
   getFirstFileTypeInFolder = (folder, acceptedFileTypes) => {
-    return RNFS.readDir(folder)
+    function readRecursive(dir) {
+      return RNFS.readDir(dir).then(items =>
+        Promise.all(items.map(item =>
+          item.isDirectory() ? readRecursive(item.path) : item
+        ))
+      ).then(lists => [].concat(...lists));
+    }
+
+    return readRecursive(folder)
     .then((result) => {
       const file = result.find(element => {
         for (let i = 0; i < acceptedFileTypes.length; i++) {
