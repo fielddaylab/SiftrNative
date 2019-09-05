@@ -42,6 +42,7 @@ import {ItemScreen, InventoryScreen} from './items';
 import {PlaqueScreen} from './plaques';
 import {QuestsScreen, QuestDetails} from './quests';
 import {evalReqPackage} from './requirements';
+import ModelView from '../react-native-3d-model-view/lib/ModelView';
 // @endif
 
 // @ifdef WEB
@@ -2963,7 +2964,32 @@ export const SiftrView = createClass({
                   <Text>View Quests</Text>
                 </TouchableOpacity>
               </View>
-              <View style={{
+              <CacheMedia
+                media_id={63}
+                auth={this.props.auth}
+                online={true}
+                withURL={(url) =>
+                  <View pointerEvents="none" style={{
+                    position: 'absolute',
+                    position: 'absolute',
+                    bottom: 100,
+                    left: 0,
+                    right: 0,
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}>
+                    <ModelView
+                      source={{ zip: url }}
+                      style={{
+                        width: 200,
+                        height: 150,
+                      }}
+                      autoPlay={true}
+                    />
+                  </View>
+                }
+              />
+              <View pointerEvents="box-none" style={{
                 position: 'absolute',
                 bottom: 10,
                 left: 10,
