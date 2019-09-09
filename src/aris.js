@@ -36,6 +36,7 @@ export const Game = class Game {
       this.field_id_pin = parseInt(json.field_id_pin) || null;
       this.field_id_caption = parseInt(json.field_id_caption) || null;
       this.force_new_format = parseInt(json.force_new_format) ? true : false;
+      this.version = parseInt(json.version);
     } else {
       this.game_id = null;
       this.name = null;
@@ -61,6 +62,7 @@ export const Game = class Game {
       this.field_id_pin = null;
       this.field_id_caption = null;
       this.force_new_format = null;
+      this.version = null;
     }
   }
 

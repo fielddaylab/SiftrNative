@@ -5,12 +5,15 @@ import update from "immutability-helper";
 import {
   View,
   TouchableOpacity,
-  ScrollView
+  ScrollView,
+  Modal,
+  TouchableWithoutFeedback
 } from "react-native";
 import { styles, Text } from "./styles";
 import { NativeCard } from './native-browser';
 import {deserializeGame} from "./aris";
 import {loadMedia} from "./media";
+import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 
 const RNFS = require("react-native-fs");
 
@@ -45,7 +48,7 @@ export class StemportsPicker extends React.Component {
   }
 
   loadDownloadedGames() {
-    this.setState({downloadedGames: []}, () => {
+    this.setState({downloadedGames: [], gameModal: null}, () => {
       RNFS.readDir(`${RNFS.DocumentDirectoryPath}/siftrs`).then(items => {
         items.forEach(item => {
           RNFS.exists(`${item.path}/download_timestamp.txt`).then(exist => {
@@ -176,35 +179,123 @@ export class StemportsPicker extends React.Component {
   }
 
   render() {
+    let games = {};
+    this.state.games.forEach(g => {
+      if (!games[g.game_id]) games[g.game_id] = {};
+      games[g.game_id].online = g;
+    });
+    this.state.downloadedGames.forEach(g => {
+      if (!games[g.game_id]) games[g.game_id] = {};
+      games[g.game_id].offline = g;
+    });
+    let gameList = [];
+    for (let g in games) {
+      gameList.push(games[g]);
+    }
     return (
-      <ScrollView>
-        <Text>Downloaded Games</Text>
+      <View style={{flex: 1}}>
+        <MapView
+          provider={PROVIDER_GOOGLE}
+          initialRegion={{
+            // TODO change these
+            latitude: 0,
+            longitude: -90,
+            latitudeDelta: 180,
+            longitudeDelta: 180,
+          }}
+          style={{
+            flex: 1,
+          }}
+          showsUserLocation={true}
+          mapType="standard"
+        >
+          {
+            gameList.map(obj => {
+              const game = obj.online || obj.offline;
+              return (
+                <MapView.Marker
+                  key={game.game_id}
+                  tracksViewChanges={false}
+                  coordinate={{
+                    latitude: game.latitude,
+                    longitude: game.longitude,
+                  }}
+                  onPress={() => this.setState({gameModal: obj})}
+                >
+                  <MapView.Callout tooltip={true} />
+                  <View
+                    style={{
+                      width: 30,
+                      height: 30,
+                      backgroundColor: 'rgb(40,80,120)',
+                      borderRadius: 15,
+                      borderWidth: 2,
+                      borderColor: 'white',
+                    }}
+                  />
+                </MapView.Marker>
+              );
+            })
+          }
+        </MapView>
         {
-          this.state.downloadedGames.map(game => (
-            <NativeCard
-              key={game.game_id}
-              game={game}
-              onSelect={() => this.props.onSelect(game)}
-              cardMode="compact"
-              auth={this.props.auth}
-              online={this.props.online}
-            />
-          ))
+          this.state.gameModal && (() => {
+            const obj = this.state.gameModal;
+            const game = obj.online || obj.offline;
+            const newVersion = obj.online && obj.offline && obj.online.version !== obj.offline.version;
+            return (
+              <Modal transparent={true} onRequestClose={() => this.setState({gameModal: null})}>
+                <TouchableWithoutFeedback onPress={() => this.setState({gameModal: null})} style={{
+                  flex: 1,
+                }}>
+                  <View style={{
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'rgba(0,0,0,0.3)',
+                    flex: 1,
+                  }}>
+                    <NativeCard
+                      key={game.game_id}
+                      game={game}
+                      cardMode="compact"
+                      auth={this.props.auth}
+                      online={this.props.online}
+                    />
+                    {
+                      obj.offline && (
+                        <TouchableOpacity onPress={() => this.props.onSelect(game)} style={{
+                          width: 200,
+                          padding: 10,
+                          borderColor: 'black',
+                          borderWidth: 1,
+                          backgroundColor: 'white',
+                        }}>
+                          <Text>Launch</Text>
+                        </TouchableOpacity>
+                      )
+                    }
+                    {
+                      obj.online && (
+                        <TouchableOpacity onPress={() =>
+                          this.initializeGame(game).then(() => this.loadDownloadedGames())
+                        } style={{
+                          width: 200,
+                          padding: 10,
+                          borderColor: 'black',
+                          borderWidth: 1,
+                          backgroundColor: 'white',
+                        }}>
+                          <Text>{newVersion ? "Download (update!)" : "Download"}</Text>
+                        </TouchableOpacity>
+                      )
+                    }
+                  </View>
+                </TouchableWithoutFeedback>
+              </Modal>
+            );
+          })()
         }
-        <Text>Available Games</Text>
-        {
-          this.state.games.map(game => (
-            <NativeCard
-              key={game.game_id}
-              game={game}
-              onSelect={() => this.initializeGame(game).then(() => this.loadDownloadedGames())}
-              cardMode="compact"
-              auth={this.props.auth}
-              online={this.props.online}
-            />
-          ))
-        }
-      </ScrollView>
+      </View>
     );
   }
 }
