@@ -884,6 +884,9 @@ export const SiftrView = createClass({
     });
     return update(root, {ands: {$set: ands}});
   },
+  setCurrentQuest: function(quest) {
+    this.setState({currentQuest: quest});
+  },
   checkQuestsOffline: function() {
     if (!this.isMounted) {
       // do nothing
@@ -903,7 +906,12 @@ export const SiftrView = createClass({
       });
       const oldQuests = this.state.quests;
       const newQuests = {active: active, complete: complete};
-      this.setState({quests: newQuests});
+      let o = {quests: newQuests};
+      if (newQuests.active.indexOf(this.state.currentQuest) === -1) {
+        // clear current quest because it's no longer active
+        o.currentQuest = null;
+      }
+      this.setState(o);
       if (oldQuests) {
         newQuests.active.forEach(quest => {
           if (!oldQuests.active.some(old => old.quest_id === quest.quest_id)) {
@@ -2945,9 +2953,9 @@ export const SiftrView = createClass({
                 }}
               >
                 {
-                  this.state.quests && this.state.quests.active.length > 0 && (
+                  this.state.currentQuest && (
                     <Text style={{margin: 10}}>
-                      { this.state.quests.active[0].name }
+                      { this.state.currentQuest.prompt || this.state.currentQuest.name }
                     </Text>
                   )
                 }
@@ -3058,6 +3066,7 @@ export const SiftrView = createClass({
                         onClose={this.popModal/*.bind(this)*/}
                         status="active"
                         auth={this.props.auth}
+                        setCurrentQuest={this.setCurrentQuest/*.bind(this)*/}
                       />
                     );
                   } else if (modal.type === 'quest-complete') {
@@ -3068,6 +3077,7 @@ export const SiftrView = createClass({
                         onClose={this.popModal/*.bind(this)*/}
                         status="complete"
                         auth={this.props.auth}
+                        setCurrentQuest={this.setCurrentQuest/*.bind(this)*/}
                       />
                     );
                   } else if (modal.type === 'inventory') {
@@ -3089,6 +3099,7 @@ export const SiftrView = createClass({
                         game={this.props.game}
                         onClose={this.popModal/*.bind(this)*/}
                         quests={this.state.quests}
+                        setCurrentQuest={this.setCurrentQuest/*.bind(this)*/}
                       />
                     );
                   } else if (modal.type === 'menu') {

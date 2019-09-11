@@ -58,9 +58,6 @@ export const QuestDetails = function(props) {
               />
             )
           }
-          <View>
-
-          </View>
           <View style={{
             margin: 15,
           }}>
@@ -71,6 +68,25 @@ export const QuestDetails = function(props) {
           }}>
             <Text>{ props.quest[props.status + '_description'] }</Text>
           </View>
+          {
+            props.status === 'active' && props.setCurrentQuest && (
+              <View style={{
+                margin: 15,
+                alignItems: 'center',
+              }}>
+                <TouchableOpacity onPress={() =>
+                  props.setCurrentQuest(props.quest)
+                } style={{
+                  backgroundColor: 'white',
+                  padding: 10,
+                  borderRadius: 10,
+                  fontSize: 20,
+                }}>
+                  <Text>Set as Current Quest</Text>
+                </TouchableOpacity>
+              </View>
+            )
+          }
         </ScrollView>
         <View style={{
           margin: 15,
@@ -137,6 +153,7 @@ export class QuestsScreen extends React.Component {
           status={this.state.viewingQuest.status}
           onClose={() => this.setState({viewingQuest: null})}
           auth={this.props.auth}
+          setCurrentQuest={this.props.setCurrentQuest}
         />
       );
     }
