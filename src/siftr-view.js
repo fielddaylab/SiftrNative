@@ -843,8 +843,29 @@ export const SiftrView = createClass({
       let active = [];
       let complete = [];
       this.props.quests.forEach(quest => {
+        if (parseInt(quest.parent_quest_id)) return;
         const is_active = this.evalReqPackage(quest.active_requirement_root_package_id);
-        const is_complete = this.evalReqPackage(quest.complete_requirement_root_package_id);
+        let is_complete = this.evalReqPackage(quest.complete_requirement_root_package_id);
+        if (quest.quest_type === 'COMPOUND') {
+          const subquests = this.props.quests.filter(sub =>
+            parseInt(sub.parent_quest_id) === parseInt(quest.quest_id)
+          );
+          let sub_active = [];
+          let sub_complete = [];
+          subquests.forEach(sub => {
+            const is_sub_complete = this.evalReqPackage(sub.complete_requirement_root_package_id);
+            if (is_sub_complete) {
+              sub_complete.push(sub);
+            } else {
+              sub_active.push(sub);
+            }
+          });
+          quest = update(quest, {
+            sub_active: {$set: sub_active},
+            sub_complete: {$set: sub_complete},
+          });
+          is_complete = is_complete && sub_active.length === 0;
+        }
         if (is_active) {
           if (is_complete) {
             complete.push(quest);
@@ -856,7 +877,7 @@ export const SiftrView = createClass({
       const oldQuests = this.state.quests;
       const newQuests = {active: active, complete: complete};
       let o = {quests: newQuests};
-      if (newQuests.active.indexOf(this.state.currentQuest) === -1) {
+      if (this.state.currentQuest && !newQuests.active.some(q => q.quest_id === this.state.currentQuest.quest_id)) {
         // clear current quest because it's no longer active
         o.currentQuest = null;
       }

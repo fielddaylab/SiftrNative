@@ -69,6 +69,20 @@ export const QuestDetails = function(props) {
             <Text>{ props.quest[props.status + '_description'] }</Text>
           </View>
           {
+            (props.quest.sub_active || []).map(sub =>
+              <View key={sub.quest_id} style={{margin: 15}}>
+                <Text>[ ] {sub.name}</Text>
+              </View>
+            )
+          }
+          {
+            (props.quest.sub_complete || []).map(sub =>
+              <View key={sub.quest_id} style={{margin: 15}}>
+                <Text>[x] {sub.name}</Text>
+              </View>
+            )
+          }
+          {
             props.status === 'active' && props.setCurrentQuest && (
               <View style={{
                 margin: 15,
