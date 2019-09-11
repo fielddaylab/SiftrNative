@@ -48,7 +48,7 @@ const SiftrRoll = class SiftrRoll extends React.Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.getMorePhotos();
   }
 
@@ -153,7 +153,7 @@ export const CreatePhoto = createClass({
       pendingPhoto: null,
     };
   },
-  componentWillMount: function() {
+  componentDidMount: function() {
     this.hardwareBack = () => {
       this.props.onCancel();
       return true;
@@ -739,7 +739,7 @@ export const CreateData = createClass({
       alertFields: [],
     };
   },
-  componentWillMount: function() {
+  componentDidMount: function() {
     firebase.analytics().logEvent("entering_note_info", {});
     this.hardwareBack = () => {
       if (this.state.isPickingLocation) {

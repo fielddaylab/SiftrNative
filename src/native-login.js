@@ -54,7 +54,7 @@ export var NativeLogin = createClass({
       );
     }
   },
-  componentWillMount: function() {
+  componentDidMount: function() {
     var verb;
     this.onKeyboardShow = () => {
       this.setState({

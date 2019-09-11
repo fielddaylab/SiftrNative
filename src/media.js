@@ -129,7 +129,7 @@ export class CacheMedia extends React.Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this._isMounted = true;
     loadMedia(this.props, (res) => {
       if (!this._isMounted) return;
@@ -161,7 +161,7 @@ export class CacheMedias extends React.Component {
     });
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this._isMounted = true;
     this.props.medias.forEach((media, i) => this.startLoad(media, i));
   }

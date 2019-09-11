@@ -36,7 +36,7 @@ const NativePassword = createClass({
       onChangePassword: function() {}
     };
   },
-  componentWillMount: function() {
+  componentDidMount: function() {
     this.hardwareBack = () => {
       this.props.onClose();
       return true;
@@ -188,7 +188,7 @@ const NativeProfile = createClass({
       progress: null
     };
   },
-  componentWillMount: function() {
+  componentDidMount: function() {
     this.fetchPicture();
     this.hardwareBack = () => {
       this.props.onClose();
@@ -430,7 +430,7 @@ export const NativeSettings = createClass({
       onEditProfile: function() {}
     };
   },
-  componentWillMount: function() {
+  componentDidMount: function() {
     this.hardwareBack = () => {
       this.props.onClose();
       return true;

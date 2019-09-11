@@ -329,7 +329,7 @@ export const CreateStep2 = createClass({
       getColor: function() {}
     };
   },
-  componentWillMount: function() {
+  componentDidMount: function() {
     var ref;
     this.setState({
       text: this.props.note.caption,

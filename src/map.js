@@ -633,7 +633,7 @@ export class SiftrMap extends React.Component {
   }
 
   // @ifdef NATIVE
-  componentWillMount() {
+  componentDidMount() {
     this.moveMapNative({
       latitude: this.props.center.lat,
       longitude: this.props.center.lng,

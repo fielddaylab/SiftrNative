@@ -41,7 +41,7 @@ export var WebNav = createClass({
     this.props.onMenuMove(false);
     this.props.onBrowserButton();
   },
-  componentWillMount: function() {
+  componentDidMount: function() {
     this.fetchPicture();
   },
   componentWillReceiveProps: function(nextProps) {

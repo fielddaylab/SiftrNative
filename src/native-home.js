@@ -199,7 +199,7 @@ class NativeHomeNew extends React.Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     // launch stemports right away
     /*
     this.props.auth.getGame({

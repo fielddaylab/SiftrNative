@@ -766,57 +766,6 @@ export const SiftrView = createClass({
       })
     );
   },
-  componentWillMount: function() {
-    var hash, n, ref, ref1;
-    this.isMounted = true;
-    // @ifdef NATIVE
-    firebase.analytics().logEvent("view_siftr", {
-      game_id: this.props.game.game_id
-    });
-    const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${
-      this.props.game.game_id
-    }`;
-    RNFS.mkdir(siftrDir, {
-      NSURLIsExcludedFromBackupKey: true
-    });
-    this.hardwareBack = () => {
-      if (this.state.searchOpen) {
-        if (this.isMounted) {
-          this.setState({
-            searchOpen: false
-          });
-        }
-      } else {
-        this.props.onExit();
-      }
-      return true;
-    };
-    BackHandler.addEventListener("hardwareBackPress", this.hardwareBack);
-    this.keyboardShow = () => {
-      this.setState({
-        keyboardUp: true
-      });
-    };
-    this.keyboardHide = () => {
-      this.setState({
-        keyboardUp: false
-      });
-    };
-    Keyboard.addListener("keyboardWillShow", this.keyboardShow);
-    Keyboard.addListener("keyboardWillHide", this.keyboardHide);
-    // @endif
-    // @ifdef WEB
-    // web code removed
-    // @endif
-    if (this.props.nomenData != null) {
-      this.applyNomenData({
-        nomenData: this.props.nomenData,
-        saved_note: this.props.saved_note
-      });
-    }
-    this.tickTriggersOffline();
-    this.checkQuestsOffline();
-  },
   addLog: function(logEntry) {
     this.setState(oldState => update(oldState, {
       logs: {
@@ -1115,6 +1064,58 @@ export const SiftrView = createClass({
     });
   },
   componentDidMount: function() {
+    // stuff that used to be in componentWillMount
+    var hash, n, ref, ref1;
+    this.isMounted = true;
+    // @ifdef NATIVE
+    firebase.analytics().logEvent("view_siftr", {
+      game_id: this.props.game.game_id
+    });
+    const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${
+      this.props.game.game_id
+    }`;
+    RNFS.mkdir(siftrDir, {
+      NSURLIsExcludedFromBackupKey: true
+    });
+    this.hardwareBack = () => {
+      if (this.state.searchOpen) {
+        if (this.isMounted) {
+          this.setState({
+            searchOpen: false
+          });
+        }
+      } else {
+        this.props.onExit();
+      }
+      return true;
+    };
+    BackHandler.addEventListener("hardwareBackPress", this.hardwareBack);
+    this.keyboardShow = () => {
+      this.setState({
+        keyboardUp: true
+      });
+    };
+    this.keyboardHide = () => {
+      this.setState({
+        keyboardUp: false
+      });
+    };
+    Keyboard.addListener("keyboardWillShow", this.keyboardShow);
+    Keyboard.addListener("keyboardWillHide", this.keyboardHide);
+    // @endif
+    // @ifdef WEB
+    // web code removed
+    // @endif
+    if (this.props.nomenData != null) {
+      this.applyNomenData({
+        nomenData: this.props.nomenData,
+        saved_note: this.props.saved_note
+      });
+    }
+    this.tickTriggersOffline();
+    this.checkQuestsOffline();
+
+    // rest
     this.nomenTimer = setInterval(() => {
       this.checkNomenFieldData();
     }, 1000);

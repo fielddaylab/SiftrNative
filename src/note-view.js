@@ -444,7 +444,7 @@ const SiftrComment = function() {
       );
     }
 
-    componentWillMount() {
+    componentDidMount() {
       this.getUserMedia();
     }
 
@@ -876,7 +876,7 @@ export const SiftrNoteView = function() {
     }
     // @endif
 
-    componentWillMount() {
+    componentDidMount() {
       this.loadExtra();
       // @ifdef NATIVE
       if (this.props.note.note_id) {

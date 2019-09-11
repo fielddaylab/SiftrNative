@@ -74,7 +74,7 @@ export var SiftrNative = createClass({
   },
 
   // @ifdef WEB
-  componentWillMount: function() {
+  componentDidMount: function() {
     this.login();
   },
   // @endif
@@ -111,8 +111,8 @@ export var SiftrNative = createClass({
         }
       });
     };
-    NetInfo.getConnectionInfo().then(this.withInfo);
-    NetInfo.addEventListener("connectionChange", this.withInfo);
+    NetInfo.fetch().then(this.withInfo);
+    this.removeNetInfo = NetInfo.addEventListener(this.withInfo);
     this.withAppState = appState => {
       if (appState !== "active") {
         this.setState({
@@ -149,7 +149,7 @@ export var SiftrNative = createClass({
     Orientation.lockToPortrait();
   },
   componentWillUnmount: function() {
-    NetInfo.removeEventListener("connectionChange", this.withInfo);
+    this.removeNetInfo && this.removeNetInfo();
     Linking.removeEventListener("url", this.urlHandler);
     AppState.removeEventListener("change", this.withAppState);
     if (this.hardwareBack != null) {

@@ -40,7 +40,7 @@ export class NativeCard extends React.Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this._isMounted = true;
     const useNotes = (notes) => {
       if (!this._isMounted) {
@@ -617,7 +617,7 @@ const makeBrowser = (getGames) => createClass({
       games: null
     };
   },
-  componentWillMount: function() {
+  componentDidMount: function() {
     this._isMounted = true;
     this.updateGames();
   },
