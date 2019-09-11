@@ -261,7 +261,7 @@ export class InventoryScreen extends React.Component {
                               this.setState({viewing: {item: o.item, instance: o.instance}});
                             })}>
                               <CacheMedia
-                                media_id={o.item.media_id}
+                                media_id={o.item.icon_media_id || o.item.media_id}
                                 auth={this.props.auth}
                                 online={true}
                                 withURL={(url) => (
