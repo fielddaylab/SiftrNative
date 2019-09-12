@@ -7,12 +7,15 @@ import {
   TouchableOpacity,
   ScrollView,
   Modal,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  Image,
+  SafeAreaView
 } from "react-native";
 import { styles, Text } from "./styles";
 import { NativeCard } from './native-browser';
 import {deserializeGame} from "./aris";
-import {loadMedia} from "./media";
+import {loadMedia, CacheMedia} from "./media";
+import { StatusSpace } from "./status-space";
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 
 const RNFS = require("react-native-fs");
@@ -39,8 +42,14 @@ export class StemportsPicker extends React.Component {
     }
     this.props.auth.getGame({game_id}, res => {
       if (res.returnCode === 0) {
-        this.setState(state => update(state, {games: {$push: [res.data]}}));
-        this.getGames(game_id + 1, 0);
+        let game = res.data;
+        this.props.auth.call('quests.getQuestsForGame', {game_id}, resQuests => {
+          if (resQuests.returnCode === 0) {
+            game = update(game, {quests: {$set: resQuests.data}});
+          }
+          this.setState(state => update(state, {games: {$push: [game]}}));
+          this.getGames(game_id + 1, 0);
+        });
       } else {
         this.getGames(game_id + 1, missed + 1);
       }
@@ -53,8 +62,14 @@ export class StemportsPicker extends React.Component {
         items.forEach(item => {
           RNFS.exists(`${item.path}/download_timestamp.txt`).then(exist => {
             if (exist) {
-              RNFS.readFile(`${item.path}/game.txt`).then(json => {
-                const game = deserializeGame(JSON.parse(json));
+              Promise.all([
+                RNFS.readFile(`${item.path}/game.txt`),
+                RNFS.readFile(`${item.path}/quests.txt`),
+              ]).then(([json, quests]) => {
+                const game = update(
+                  deserializeGame(JSON.parse(json)),
+                  {quests: {$set: JSON.parse(quests)}}
+                );
                 this.setState(state => update(state, {downloadedGames: {$push: [game]}}));
               });
             }
@@ -245,52 +260,101 @@ export class StemportsPicker extends React.Component {
             const newVersion = obj.online && obj.offline && obj.online.version !== obj.offline.version;
             return (
               <Modal transparent={true} onRequestClose={() => this.setState({gameModal: null})}>
-                <TouchableWithoutFeedback onPress={() => this.setState({gameModal: null})} style={{
-                  flex: 1,
-                }}>
+                <SafeAreaView style={{flex: 1}}>
+                  <StatusSpace
+                    backgroundColor="rgba(0,0,0,0)"
+                    leaveBar={true}
+                  />
                   <View style={{
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: 'rgba(0,0,0,0.3)',
                     flex: 1,
+                    backgroundColor: 'white',
+                    alignItems: 'stretch',
                   }}>
-                    <NativeCard
-                      key={game.game_id}
-                      game={game}
-                      cardMode="compact"
-                      auth={this.props.auth}
-                      online={this.props.online}
-                    />
-                    {
-                      obj.offline && (
-                        <TouchableOpacity onPress={() => this.props.onSelect(game)} style={{
-                          width: 200,
-                          padding: 10,
-                          borderColor: 'black',
-                          borderWidth: 1,
-                          backgroundColor: 'white',
-                        }}>
-                          <Text>Launch</Text>
-                        </TouchableOpacity>
-                      )
-                    }
-                    {
-                      obj.online && (
-                        <TouchableOpacity onPress={() =>
-                          this.initializeGame(game).then(() => this.loadDownloadedGames())
-                        } style={{
-                          width: 200,
-                          padding: 10,
-                          borderColor: 'black',
-                          borderWidth: 1,
-                          backgroundColor: 'white',
-                        }}>
-                          <Text>{newVersion ? "Download (update!)" : "Download"}</Text>
-                        </TouchableOpacity>
-                      )
-                    }
+                    <View style={{alignItems: 'center', padding: 10}}>
+                      <CacheMedia
+                        media_id={game.icon_media_id}
+                        auth={this.props.auth}
+                        online={true}
+                        withURL={(url) =>
+                          <View style={{margin: 10, alignItems: 'stretch', alignSelf: 'stretch'}}>
+                            <Image
+                              source={url}
+                              style={{
+                                height: 125,
+                                resizeMode: 'contain',
+                              }}
+                            />
+                          </View>
+                        }
+                      />
+                      <View style={{margin: 10}}>
+                        <Text style={{fontWeight: 'bold'}}>{game.name}</Text>
+                      </View>
+                      <View style={{margin: 10}}>
+                        <Text>{game.description}</Text>
+                      </View>
+                    </View>
+                    <View style={{
+                      backgroundColor: 'rgb(155,186,242)',
+                      borderColor: 'black',
+                      borderWidth: 1,
+                      padding: 10,
+                      alignItems: 'center',
+                    }}>
+                      <Text>Quests</Text>
+                    </View>
+                    <ScrollView style={{flex: 1, borderColor: 'black', borderWidth: 1}}>
+                      {
+                        (game.quests || []).filter(quest =>
+                          !parseInt(quest.parent_quest_id)
+                        ).map(quest =>
+                          <View key={quest.quest_id} style={{margin: 5}}>
+                            <Text>{quest.name}</Text>
+                          </View>
+                        )
+                      }
+                    </ScrollView>
+                    <View style={{alignItems: 'center', padding: 10}}>
+                      {
+                        obj.offline && (
+                          <TouchableOpacity onPress={() => this.props.onSelect(game)} style={{
+                            width: 200,
+                            padding: 10,
+                            borderColor: 'black',
+                            borderWidth: 1,
+                            backgroundColor: 'white',
+                          }}>
+                            <Text>Launch</Text>
+                          </TouchableOpacity>
+                        )
+                      }
+                      {
+                        obj.online && (
+                          <TouchableOpacity onPress={() =>
+                            this.initializeGame(game).then(() => this.loadDownloadedGames())
+                          } style={{
+                            width: 200,
+                            padding: 10,
+                            borderColor: 'black',
+                            borderWidth: 1,
+                            backgroundColor: 'white',
+                          }}>
+                            <Text>{newVersion ? "Download (update!)" : "Download"}</Text>
+                          </TouchableOpacity>
+                        )
+                      }
+                      <TouchableOpacity onPress={() => this.setState({gameModal: null})} style={{
+                        width: 200,
+                        padding: 10,
+                        borderColor: 'black',
+                        borderWidth: 1,
+                        backgroundColor: 'white',
+                      }}>
+                        <Text>Close</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                </TouchableWithoutFeedback>
+                </SafeAreaView>
               </Modal>
             );
           })()
