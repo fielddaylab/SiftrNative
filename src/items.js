@@ -7,10 +7,13 @@ import {
 , TouchableOpacity
 , ScrollView
 , Image
+, Animated
+, PanResponder
 } from 'react-native';
 import {CacheMedia} from './media';
 import {WebView} from 'react-native-webview';
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
+import update from "immutability-helper";
 
 export class FullWidthWebView extends React.Component {
   constructor(props) {
@@ -181,7 +184,9 @@ export class InventoryScreen extends React.Component {
     super(props);
     this.state = {
       viewing: null,
+      placedItems: [],
     };
+    this._itemSlots = {};
   }
 
   render() {
@@ -232,6 +237,7 @@ export class InventoryScreen extends React.Component {
       <View style={{
         backgroundColor: 'rgb(243,237,225)',
         flex: 1,
+        alignItems: 'stretch',
       }}>
         <ScrollView style={{flex: 1}}>
           {
@@ -254,35 +260,38 @@ export class InventoryScreen extends React.Component {
                         alignItems: 'stretch',
                       }}>
                         {
-                          row.map(o =>
-                            <TouchableOpacity key={o.item.item_id} style={{
-                              flex: 1,
-                            }} onPress={o.instance && (() => {
-                              this.setState({viewing: {item: o.item, instance: o.instance}});
-                            })}>
-                              <CacheMedia
-                                media_id={o.item.icon_media_id || o.item.media_id}
-                                auth={this.props.auth}
-                                online={true}
-                                withURL={(url) => (
-                                  <Image
-                                    source={url}
-                                    style={{
-                                      height: 60,
-                                      margin: 10,
-                                      resizeMode: 'contain',
-                                      opacity: o.instance ? 1 : 0.4,
-                                    }}
-                                  />
-                                )}
-                              />
-                              <Text style={{
-                                margin: 10,
-                              }}>
-                                {o.item.name}
-                              </Text>
-                            </TouchableOpacity>
-                          )
+                          row.map(o => {
+                            const isPlaced = o.instance && this.state.placedItems.indexOf(o.item.item_id) !== -1;
+                            return (
+                              <TouchableOpacity key={o.item.item_id} style={{
+                                flex: 1,
+                              }} onPress={() =>
+                                isPlaced && this.setState({viewing: {item: o.item, instance: o.instance}})
+                              } ref={slot => this._itemSlots[o.item.item_id] = slot}>
+                                <CacheMedia
+                                  media_id={o.item.icon_media_id || o.item.media_id}
+                                  auth={this.props.auth}
+                                  online={true}
+                                  withURL={(url) => (
+                                    <Image
+                                      source={url}
+                                      style={{
+                                        height: 60,
+                                        margin: 10,
+                                        resizeMode: 'contain',
+                                        opacity: isPlaced ? 1 : 0.4,
+                                      }}
+                                    />
+                                  )}
+                                />
+                                <Text style={{
+                                  margin: 10,
+                                }}>
+                                  {o.item.name}
+                                </Text>
+                              </TouchableOpacity>
+                            );
+                          })
                         }
                       </View>
                     )
@@ -291,45 +300,39 @@ export class InventoryScreen extends React.Component {
               );
             })
           }
-          {
-            null
-            /*
-            itemInstances.map(inst => {
-              const item = (this.props.items || []).find(x => parseInt(x.item_id) === parseInt(inst.object_id));
-              return (
-                <TouchableOpacity key={inst.instance_id} style={{
-                  padding: 15,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                }} onPress={() =>
-                  this.setState({viewing: {item: item, instance: inst}})
-                }>
-                  <CacheMedia
-                    media_id={item.media_id}
-                    auth={this.props.auth}
-                    online={true}
-                    withURL={(url) => (
-                      <Image
-                        source={url}
-                        style={{
-                          height: 100,
-                          width: 100,
-                          margin: 10,
-                          resizeMode: 'contain',
-                        }}
-                      />
-                    )}
-                  />
-                  <View style={{flex: 1}}>
-                    <Text style={{fontWeight: 'bold'}}>{item ? item.name : '…'}</Text>
-                    <Text>Quantity: {inst.qty}</Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })
-            */
-          }
         </ScrollView>
+        <View style={{height: 100, alignItems: 'stretch', borderColor: 'black', borderWidth: 1}}>
+          <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'stretch'}}>
+            {
+              [].concat(...(tags.map(o => o.items))).filter(o =>
+                o.instance && this.state.placedItems.indexOf(o.item.item_id) === -1
+              ).map(o =>
+                <DraggableItem
+                  key={o.item.item_id}
+                  auth={this.props.auth}
+                  object={o}
+                  onRelease={(gestureState, cb) => {
+                    if (this._itemSlots[o.item.item_id]) {
+                      this._itemSlots[o.item.item_id].measure((ox, oy, width, height, px, py) => {
+                        const inBounds =
+                          px <= gestureState.moveX && gestureState.moveX <= px + width &&
+                          py <= gestureState.moveY && gestureState.moveY <= py + height;
+                        if (inBounds) {
+                          this.setState(prevState => update(prevState, {
+                            placedItems: {$push: [o.item.item_id]},
+                          }));
+                        }
+                        cb(inBounds);
+                      });
+                    } else {
+                      cb(false); // probably shouldn't happen
+                    }
+                  }}
+                />
+              )
+            }
+          </View>
+        </View>
         <View style={{
           margin: 15,
           alignItems: 'center',
@@ -345,6 +348,74 @@ export class InventoryScreen extends React.Component {
           </TouchableOpacity>
         </View>
       </View>
+    );
+  }
+}
+
+export class DraggableItem extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+    };
+    this._val = {x: 0, y: 0}
+    this._pan = new Animated.ValueXY();
+    this._pan.addListener(value => this._val = value);
+    this._pan.setValue({x: 0, y: 0});
+    this._panResponder = PanResponder.create({
+      onStartShouldSetPanResponder: (evt, gestureState) => true,
+      onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
+      onMoveShouldSetPanResponder: (evt, gestureState) => true,
+      onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
+      onPanResponderMove: (evt, gestureState) => {
+        this._lastMoveX = gestureState.moveX;
+        this._lastMoveY = gestureState.moveY;
+        Animated.event([
+          null, { dx: this._pan.x, dy: this._pan.y }
+        ])(evt, gestureState);
+      },
+      onPanResponderTerminationRequest: (evt, gestureState) => true,
+      onPanResponderRelease: (evt, gestureState) => {
+        this.props.onRelease({moveX: this._lastMoveX, moveY: this._lastMoveY}, (inBounds) => {
+          if (!inBounds) {
+            Animated.spring(this._pan, {
+              toValue: { x: 0, y: 0 },
+              friction: 5
+            }).start();
+          }
+        });
+      },
+    });
+  }
+
+  render() {
+    const o = this.props.object;
+    return (
+      <Animated.View
+        {...this._panResponder.panHandlers}
+        style={{transform: this._pan.getTranslateTransform()}}
+      >
+        <CacheMedia
+          media_id={o.item.icon_media_id || o.item.media_id}
+          auth={this.props.auth}
+          online={true}
+          withURL={(url) => (
+            <Image
+              source={url}
+              style={{
+                flex: 1,
+                margin: 10,
+                resizeMode: 'contain',
+                opacity: o.instance ? 1 : 0.4,
+              }}
+            />
+          )}
+        />
+        <Text style={{
+          margin: 10,
+        }}>
+          {o.item.name}
+        </Text>
+      </Animated.View>
     );
   }
 }
