@@ -245,7 +245,7 @@ export class InventoryScreen extends React.Component {
               const tag = o.tag;
               const items = o.items;
               return (
-                <View key={tag.tag_id}>
+                <View key={tag.tag_id} ref={slot => this._itemSlots[tag.tag_id] = slot}>
                   <Text style={{
                     textAlign: 'center',
                     margin: 10,
@@ -267,27 +267,38 @@ export class InventoryScreen extends React.Component {
                                 flex: 1,
                               }} onPress={() =>
                                 isPlaced && this.setState({viewing: {item: o.item, instance: o.instance}})
-                              } ref={slot => this._itemSlots[o.item.item_id] = slot}>
+                              }>
                                 <CacheMedia
                                   media_id={o.item.icon_media_id || o.item.media_id}
                                   auth={this.props.auth}
                                   online={true}
                                   withURL={(url) => (
-                                    <Image
-                                      source={url}
-                                      style={{
-                                        height: 60,
-                                        margin: 10,
-                                        resizeMode: 'contain',
-                                        opacity: isPlaced ? 1 : 0.4,
-                                      }}
-                                    />
+                                    isPlaced ? (
+                                      <Image
+                                        source={url}
+                                        style={{
+                                          height: 60,
+                                          margin: 10,
+                                          resizeMode: 'contain',
+                                        }}
+                                      />
+                                    ) : (
+                                      <View
+                                        style={{
+                                          height: 60,
+                                          margin: 10,
+                                          backgroundColor: 'gray',
+                                          borderRadius: 999,
+                                        }}
+                                      />
+                                    )
                                   )}
                                 />
                                 <Text style={{
                                   margin: 10,
+                                  textAlign: 'center',
                                 }}>
-                                  {o.item.name}
+                                  {isPlaced ? o.item.name : '???'}
                                 </Text>
                               </TouchableOpacity>
                             );
@@ -304,32 +315,34 @@ export class InventoryScreen extends React.Component {
         <View style={{height: 100, alignItems: 'stretch', borderColor: 'black', borderWidth: 1}}>
           <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'stretch'}}>
             {
-              [].concat(...(tags.map(o => o.items))).filter(o =>
-                o.instance && this.state.placedItems.indexOf(o.item.item_id) === -1
-              ).map(o =>
-                <DraggableItem
-                  key={o.item.item_id}
-                  auth={this.props.auth}
-                  object={o}
-                  onRelease={(gestureState, cb) => {
-                    if (this._itemSlots[o.item.item_id]) {
-                      this._itemSlots[o.item.item_id].measure((ox, oy, width, height, px, py) => {
-                        const inBounds =
-                          px <= gestureState.moveX && gestureState.moveX <= px + width &&
-                          py <= gestureState.moveY && gestureState.moveY <= py + height;
-                        if (inBounds) {
-                          this.setState(prevState => update(prevState, {
-                            placedItems: {$push: [o.item.item_id]},
-                          }));
-                        }
-                        cb(inBounds);
-                      });
-                    } else {
-                      cb(false); // probably shouldn't happen
-                    }
-                  }}
-                />
-              )
+              [].concat(...(tags.map(otag =>
+                otag.items.filter(o =>
+                  o.instance && this.state.placedItems.indexOf(o.item.item_id) === -1
+                ).map(o =>
+                  <DraggableItem
+                    key={o.item.item_id}
+                    auth={this.props.auth}
+                    object={o}
+                    onRelease={(gestureState, cb) => {
+                      if (this._itemSlots[otag.tag.tag_id]) {
+                        this._itemSlots[otag.tag.tag_id].measure((ox, oy, width, height, px, py) => {
+                          const inBounds =
+                            px <= gestureState.moveX && gestureState.moveX <= px + width &&
+                            py <= gestureState.moveY && gestureState.moveY <= py + height;
+                          if (inBounds) {
+                            this.setState(prevState => update(prevState, {
+                              placedItems: {$push: [o.item.item_id]},
+                            }));
+                          }
+                          cb(inBounds);
+                        });
+                      } else {
+                        cb(false); // probably shouldn't happen
+                      }
+                    }}
+                  />
+                )
+              )))
             }
           </View>
         </View>
