@@ -741,6 +741,7 @@ export const SiftrView = createClass({
       inventory: this.props.inventory,
       factoryObjects: [],
       factoryProductionTimestamps: {},
+      pickedUpRemnants: [],
     };
   },
   getAllNotes: function(cb) {
@@ -3112,6 +3113,25 @@ export const SiftrView = createClass({
                         tags={this.props.tags}
                         inventory={this.state.inventory}
                         object_tags={this.props.object_tags}
+                        pickedUpRemnants={this.state.pickedUpRemnants}
+                        onPlace={item_id => {
+                          this.setState(state => update(state, {
+                            pickedUpRemnants: {
+                              $apply: remnants => remnants.filter(remnant => remnant !== item_id),
+                            },
+                            inventory: {
+                              $apply: inv => inv.map(inst => {
+                                if (parseInt(inst.object_id) === parseInt(item_id)) {
+                                  return update(inst, {
+                                    qty: {$apply: n => parseInt(n) + 1},
+                                  });
+                                } else {
+                                  return inst;
+                                }
+                              }),
+                            },
+                          }));
+                        }}
                       />
                     );
                   } else if (modal.type === 'quests') {
@@ -3195,16 +3215,8 @@ export const SiftrView = createClass({
                           onPickUp={(trigger) => {
                             this.setState(state => {
                               return update(state, {
-                                inventory: {
-                                  $apply: inv => inv.map(inst => {
-                                    if (parseInt(inst.object_id) === parseInt(modal.instance.object_id)) {
-                                      return update(inst, {
-                                        qty: {$apply: n => parseInt(n) + 1},
-                                      });
-                                    } else {
-                                      return inst;
-                                    }
-                                  }),
+                                pickedUpRemnants: {
+                                  $push: [modal.instance.object_id],
                                 },
                                 factoryObjects: {
                                   $apply: objs => objs.filter(obj =>

@@ -184,7 +184,6 @@ export class InventoryScreen extends React.Component {
     super(props);
     this.state = {
       viewing: null,
-      placedItems: [],
     };
     this._itemSlots = {};
   }
@@ -261,7 +260,7 @@ export class InventoryScreen extends React.Component {
                       }}>
                         {
                           row.map(o => {
-                            const isPlaced = o.instance && this.state.placedItems.indexOf(o.item.item_id) !== -1;
+                            const isPlaced = o.instance;
                             return (
                               <TouchableOpacity key={o.item.item_id} style={{
                                 flex: 1,
@@ -315,24 +314,27 @@ export class InventoryScreen extends React.Component {
         <View style={{height: 100, alignItems: 'stretch', borderColor: 'black', borderWidth: 1}}>
           <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'stretch'}}>
             {
-              [].concat(...(tags.map(otag =>
-                otag.items.filter(o =>
-                  o.instance && this.state.placedItems.indexOf(o.item.item_id) === -1
-                ).map(o =>
+              this.props.pickedUpRemnants.map(item_id => {
+                const item = (this.props.items || []).find(x => parseInt(x.item_id) === parseInt(item_id));
+                if (!item) return null;
+                const object_tag = (this.props.object_tags || []).find(otag =>
+                  otag.object_type === 'ITEM' && parseInt(otag.object_id) === parseInt(item.item_id)
+                );
+                if (!object_tag) return null;
+                const tag_id = object_tag.tag_id;
+                return (
                   <DraggableItem
-                    key={o.item.item_id}
+                    key={item_id}
                     auth={this.props.auth}
-                    object={o}
+                    item={item}
                     onRelease={(gestureState, cb) => {
-                      if (this._itemSlots[otag.tag.tag_id]) {
-                        this._itemSlots[otag.tag.tag_id].measure((ox, oy, width, height, px, py) => {
+                      if (this._itemSlots[tag_id]) {
+                        this._itemSlots[tag_id].measure((ox, oy, width, height, px, py) => {
                           const inBounds =
                             px <= gestureState.moveX && gestureState.moveX <= px + width &&
                             py <= gestureState.moveY && gestureState.moveY <= py + height;
                           if (inBounds) {
-                            this.setState(prevState => update(prevState, {
-                              placedItems: {$push: [o.item.item_id]},
-                            }));
+                            this.props.onPlace(item_id);
                           }
                           cb(inBounds);
                         });
@@ -341,8 +343,8 @@ export class InventoryScreen extends React.Component {
                       }
                     }}
                   />
-                )
-              )))
+                );
+              })
             }
           </View>
         </View>
@@ -401,14 +403,13 @@ export class DraggableItem extends React.Component {
   }
 
   render() {
-    const o = this.props.object;
     return (
       <Animated.View
         {...this._panResponder.panHandlers}
         style={{transform: this._pan.getTranslateTransform()}}
       >
         <CacheMedia
-          media_id={o.item.icon_media_id || o.item.media_id}
+          media_id={this.props.item.icon_media_id || this.props.item.media_id}
           auth={this.props.auth}
           online={true}
           withURL={(url) => (
@@ -418,7 +419,6 @@ export class DraggableItem extends React.Component {
                 flex: 1,
                 margin: 10,
                 resizeMode: 'contain',
-                opacity: o.instance ? 1 : 0.4,
               }}
             />
           )}
@@ -426,7 +426,7 @@ export class DraggableItem extends React.Component {
         <Text style={{
           margin: 10,
         }}>
-          {o.item.name}
+          {this.props.item.name}
         </Text>
       </Animated.View>
     );
