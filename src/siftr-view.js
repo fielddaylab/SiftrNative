@@ -311,6 +311,8 @@ const LOAD_OBJECTS = [
   {name: 'instances'},
   {name: 'factories'},
   {name: 'triggers'},
+  {name: 'events'},
+  {name: 'event_packages'},
   {name: 'fields', load: obj => obj.map(field => Object.assign(new Field(), field))},
   {name: 'authors', load: obj => obj.map(author => author.display_name)},
   {name: 'theme', load: obj => Object.assign(new Theme(), obj)},
@@ -3186,6 +3188,9 @@ export const SiftrView = createClass({
                           trigger={modal.trigger}
                           plaque={modal.plaque}
                           auth={this.props.auth}
+                          events={this.props.events}
+                          eventPackages={this.props.event_packages}
+                          items={this.props.items}
                           onClose={() => {
                             this.addLog({
                               event_type: 'VIEW_PLAQUE',
@@ -3200,6 +3205,9 @@ export const SiftrView = createClass({
                             });
                             */
                             this.popModal();
+                          }}
+                          onPickup={events => {
+                            // TODO apply the events to the inventory
                           }}
                         />
                       );

@@ -160,6 +160,14 @@ export class StemportsPicker extends React.Component {
           colors_id: game.colors_id != null ? game.colors_id : 1,
         }).then(writeJSON('colors')),
 
+        this.props.auth.promise('call', 'events.getEventsForGame', {
+          game_id: game.game_id,
+        }).then(writeJSON('events')),
+
+        this.props.auth.promise('call', 'events.getEventPackagesForGame', {
+          game_id: game.game_id,
+        }).then(writeJSON('event_packages')),
+
         this.props.auth.promise('siftrSearch', {
           game_id: game.game_id,
           order: "recent",
