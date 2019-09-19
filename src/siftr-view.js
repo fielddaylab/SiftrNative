@@ -3207,7 +3207,28 @@ export const SiftrView = createClass({
                             this.popModal();
                           }}
                           onPickup={events => {
-                            // TODO apply the events to the inventory
+                            this.setState(state => {
+                              let inv = state.inventory;
+                              events.forEach(event => {
+                                inv = inv.map(inst => {
+                                  if (parseInt(inst.object_id) === parseInt(event.content_id) && inst.object_type === 'ITEM') {
+                                    if (event.event === 'GIVE_ITEM') {
+                                      return update(inst, {qty: {$apply: n => parseInt(n) + parseInt(event.qty)}});
+                                    } else {
+                                      return inst; // TODO other event types
+                                    }
+                                  } else {
+                                    return inst;
+                                  }
+                                });
+                              });
+                              return update(state, {inventory: {$set: inv}});
+                            }, () => {
+                              const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${
+                                this.props.game.game_id
+                              }`;
+                              RNFS.writeFile(`${siftrDir}/inventory.txt`, JSON.stringify(this.state.inventory));
+                            });
                           }}
                         />
                       );
