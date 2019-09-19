@@ -232,6 +232,10 @@ export class InventoryScreen extends React.Component {
       if (b_empty) return -1;
     });
 
+    const untaggedInstances = itemInstances.filter(inst =>
+      !(tags.some(tag => tag.items.some(item => item.instance === inst)))
+    );
+
     return (
       <View style={{
         backgroundColor: 'rgb(243,237,225)',
@@ -239,6 +243,23 @@ export class InventoryScreen extends React.Component {
         alignItems: 'stretch',
       }}>
         <ScrollView style={{flex: 1}}>
+          {
+            untaggedInstances.map(inst => {
+              const item = (this.props.items || []).find(x => parseInt(x.item_id) === parseInt(inst.object_id));
+              return (
+                <TouchableOpacity key={inst.instance_id} onPress={() =>
+                  this.setState({viewing: {item: item, instance: inst}})
+                }>
+                  <Text style={{
+                    margin: 10,
+                    textAlign: 'center',
+                  }}>
+                    {inst.qty} x {item ? item.name : '???'}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })
+          }
           {
             tags.map(o => {
               const tag = o.tag;
