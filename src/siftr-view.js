@@ -2684,6 +2684,12 @@ export const SiftrView = createClass({
     return this.props.game.field_id_preview || this.props.game.field_id_caption;
   },
   // @ifdef NATIVE
+  saveInventory: function() {
+    const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${
+      this.props.game.game_id
+    }`;
+    RNFS.writeFile(`${siftrDir}/inventory.txt`, JSON.stringify(this.state.inventory));
+  },
   render: function() {
     var hasOptions, ref2, ref3, ref4;
     if (this.state.settingsInViola) {
@@ -3132,7 +3138,7 @@ export const SiftrView = createClass({
                                 }
                               }),
                             },
-                          }));
+                          }), () => this.saveInventory());
                         }}
                       />
                     );
@@ -3223,12 +3229,7 @@ export const SiftrView = createClass({
                                 });
                               });
                               return update(state, {inventory: {$set: inv}});
-                            }, () => {
-                              const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${
-                                this.props.game.game_id
-                              }`;
-                              RNFS.writeFile(`${siftrDir}/inventory.txt`, JSON.stringify(this.state.inventory));
-                            });
+                            }, () => this.saveInventory());
                           }}
                         />
                       );
@@ -3253,12 +3254,7 @@ export const SiftrView = createClass({
                                   ),
                                 },
                               });
-                            }, () => {
-                              const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${
-                                this.props.game.game_id
-                              }`;
-                              RNFS.writeFile(`${siftrDir}/inventory.txt`, JSON.stringify(this.state.inventory));
-                            });
+                            }, () => this.saveInventory());
                           }}
                         />
                       );
