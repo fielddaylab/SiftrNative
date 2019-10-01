@@ -314,6 +314,7 @@ const LOAD_OBJECTS = [
   {name: 'events'},
   {name: 'event_packages'},
   {name: 'fields', load: obj => obj.map(field => Object.assign(new Field(), field))},
+  {name: 'guides'},
   {name: 'authors', load: obj => obj.map(author => author.display_name)},
   {name: 'theme', load: obj => Object.assign(new Theme(), obj)},
   {name: 'colors', load: obj => Object.assign(new Colors(), obj)},
@@ -553,7 +554,8 @@ export function downloadGame(auth, game, callbacks = {}) {
       if (callbacks.theme) callbacks.theme(theme);
       RNFS.writeFile(`${siftrDir}/theme.txt`, JSON.stringify(theme));
     }));
-    auth.getFieldsForGame({game_id: game.game_id}, withSuccess(fields => {
+    auth.getFieldsForGame({game_id: game.game_id}, withSuccess(obj => {
+      const fields = obj.fields;
       if (callbacks.fields) callbacks.fields(fields);
       RNFS.writeFile(`${siftrDir}/fields.txt`, JSON.stringify(fields));
     }));
@@ -2344,6 +2346,7 @@ export const SiftrView = createClass({
           onViolaIdentify={this.props.onViolaIdentify}
           resumedNote={this.state.resumedNote}
           quests={this.state.quests}
+          isGuideComplete={this.isGuideComplete/*.bind(this)*/}
         />
       );
     }
@@ -2689,6 +2692,21 @@ export const SiftrView = createClass({
       this.props.game.game_id
     }`;
     RNFS.writeFile(`${siftrDir}/inventory.txt`, JSON.stringify(this.state.inventory));
+  },
+  isGuideComplete: function(field_guide) {
+    if (['number', 'string'].indexOf(typeof field_guide) !== -1) {
+      field_guide = this.props.guides.find(guide => parseInt(guide.field_guide_id) === parseInt(field_guide));
+    }
+    const field = this.props.fields.find(field => parseInt(field.field_id) === parseInt(field_guide.field_id));
+    if (!field) return false;
+    return field.options.every(option =>
+      !parseInt(option.remnant_id) || this.state.inventory.find(inst =>
+        inst.object_type === 'ITEM'
+        && inst.owner_type === 'USER'
+        && parseInt(inst.object_id) === parseInt(option.remnant_id)
+        && parseInt(inst.qty) > 0
+      )
+    );
   },
   render: function() {
     var hasOptions, ref2, ref3, ref4;
@@ -3049,9 +3067,8 @@ export const SiftrView = createClass({
                   />
                 </TouchableOpacity>
                 {
-                  this.state.quests && (this.state.quests.active.concat(this.state.quests.complete)).some(quest =>
-                    parseInt(quest.quest_id) === 7
-                  ) && (
+                  // show if player has at least one remnant set finished
+                  this.props.guides.some(guide => this.isGuideComplete(guide)) && (
                     <TouchableOpacity
                       style={{
                         padding: 10
@@ -3246,7 +3263,13 @@ export const SiftrView = createClass({
                             this.setState(state => {
                               return update(state, {
                                 pickedUpRemnants: {
-                                  $push: [modal.instance.object_id],
+                                  $apply: rems => {
+                                    if (rems.indexOf(modal.instance.object_id) === -1) {
+                                      return update(rems, {$push: [modal.instance.object_id]});
+                                    } else {
+                                      return rems;
+                                    }
+                                  },
                                 },
                                 factoryObjects: {
                                   $apply: objs => objs.filter(obj =>

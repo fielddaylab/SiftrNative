@@ -361,6 +361,7 @@ export const Field = class Field {
       this.step = parseFloat(json.step);
       this.min_color = json.min_color;
       this.max_color = json.max_color;
+      this.field_guide_id = parseInt(json.field_guide_id);
     }
   }
 };
@@ -375,6 +376,8 @@ export const FieldOption = class FieldOption {
       this.sort_index =
         json.sort_index != null ? parseInt(json.sort_index) : null;
       this.color = json.color;
+      this.remnant_id = parseInt(json.remnant_id);
+      this.field_guide_id = parseInt(json.field_guide_id);
     }
   }
 };
@@ -844,7 +847,7 @@ export const Auth = class Auth {
         })();
         field.options.sort(sortByIndex("field_option_id"));
       }
-      return fields;
+      return {fields: fields, guides: data.guides};
     });
   }
 

@@ -825,14 +825,38 @@ export const CreateData = createClass({
     if (this.props.progress != null) {
       return;
     }
-    if (field_data.some(data => data.field_id === 1 && data.field_option_id === 18)) {
-      // tree species, remove end product
-      field_data = field_data.filter(data => data.field_id !== 4);
-    } else if (field_data.some(data => data.field_id === 1 && data.field_option_id === 17)) {
-      // end product, remove tree species
-      field_data = field_data.filter(data => data.field_id !== 2);
+    // if field_data has an option with field_guide_id set (meaning it's the guide selection),
+    // remove all data that has a field with a different field_guide_id set
+    let selected_guide_id = this.defaultGuideID();
+    field_data.forEach(data => {
+      const field = this.props.fields.find(field => field.field_id === data.field_id);
+      const field_option = field.options.find(option => option.field_option_id === data.field_option_id);
+      const this_guide_id = parseInt(field_option.field_guide_id);
+      if (this_guide_id) {
+        selected_guide_id = this_guide_id;
+      }
+    });
+    if (selected_guide_id) {
+      field_data = field_data.filter(data => {
+        const field = this.props.fields.find(field => field.field_id === data.field_id);
+        const this_guide_id = parseInt(field.field_guide_id);
+        if (this_guide_id) {
+          return parseInt(this_guide_id) === selected_guide_id;
+        } else {
+          return true;
+        }
+      });
     }
     this.props.onFinish(field_data, this.state.noteLocation);
+  },
+  defaultGuideID: function() {
+    let field_guide_id = null;
+    this.props.fields.forEach(field => {
+      if (!field.options || field.options.length === 0) return;
+      if (!parseInt(field.options[0].field_guide_id)) return;
+      field_guide_id = parseInt(field.options[0].field_guide_id);
+    });
+    return field_guide_id;
   },
   scrollToField: function(field_id) {
     if (this.scrollFields && this.fieldChunks && this.fieldChunks[field_id]) {
@@ -1087,21 +1111,26 @@ export const CreateData = createClass({
                     </View>
                   </Blackout>
                   {this.props.fields.map(field => {
-                    var field_data, getText, onChangeData, clearAlert, setText;
+                    var getText, onChangeData, clearAlert, setText;
+                    const field_data = this.props.createNote.field_data || [];
                     if (isEditing && field.field_type === "MEDIA") {
                       return null;
                     }
-                    let stemportsCategory = 0;
-                    (this.props.createNote.field_data || []).forEach(fdata => {
-                      if (fdata.field_id === 1) {
-                        stemportsCategory = fdata.field_option_id;
+
+                    // filter fields based on selected guide
+                    let selected_guide_id = this.defaultGuideID();
+                    field_data.forEach(data => {
+                      const field = this.props.fields.find(field => field.field_id === data.field_id);
+                      const field_option = field.options.find(option => option.field_option_id === data.field_option_id);
+                      const this_guide_id = parseInt(field_option.field_guide_id);
+                      if (this_guide_id) {
+                        selected_guide_id = this_guide_id;
                       }
                     });
-                    if (field.field_id === 2) {
-                      if (stemportsCategory !== 0 && stemportsCategory !== 18) return;
-                    } else if (field.field_id === 4) {
-                      if (stemportsCategory !== 17) return;
+                    if (field.field_guide_id && parseInt(field.field_guide_id) !== selected_guide_id) {
+                      return;
                     }
+
                     return (
                       <Blackout
                         keyboardUp={this.state.focusedBox != null}
@@ -1125,10 +1154,6 @@ export const CreateData = createClass({
                         </View>
                         {function() {
                           var ref2;
-                          field_data =
-                            (ref2 = this.props.createNote.field_data) != null
-                              ? ref2
-                              : [];
                           onChangeData = newData => {
                             this.props.onUpdateNote(
                               update(this.props.createNote, {
@@ -1251,15 +1276,11 @@ export const CreateData = createClass({
                               );
                             case "SINGLESELECT":
                               const filteredOptions = field.options.filter(opt => {
-                                if (opt.field_option_id === 17) {
-                                  // don't show consumer products
-                                  // until "Collect all the Consumer Products Remnants" is done
-                                  if (!this.props.quests) return false;
-                                  return this.props.quests.complete.some(quest =>
-                                    parseInt(quest.quest_id) === 2
-                                  );
+                                if (parseInt(opt.field_guide_id)) {
+                                  return this.props.isGuideComplete(opt.field_guide_id);
+                                } else {
+                                  return true;
                                 }
-                                return true;
                               });
                               return (
                                 <CreateSingleSelect

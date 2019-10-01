@@ -146,7 +146,12 @@ export class StemportsPicker extends React.Component {
 
         this.props.auth.promise('getFieldsForGame', {
           game_id: game.game_id,
-        }).then(writeJSON('fields')),
+        }).then(obj =>
+          Promise.all([
+            writeJSON('fields')(obj.fields),
+            writeJSON('guides')(obj.guides),
+          ])
+        ),
 
         this.props.auth.promise('getUsersForGame', {
           game_id: game.game_id,
