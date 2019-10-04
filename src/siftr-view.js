@@ -881,6 +881,8 @@ export const SiftrView = createClass({
       });
       const oldQuests = this.state.quests;
       const newQuests = {active: active, complete: complete};
+      const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
+      RNFS.writeFile(`${siftrDir}/quests-sorted.txt`, JSON.stringify(newQuests));
       let o = {quests: newQuests};
       if (this.state.currentQuest && !newQuests.active.some(q => q.quest_id === this.state.currentQuest.quest_id)) {
         // clear current quest because it's no longer active

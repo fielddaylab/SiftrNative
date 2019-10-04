@@ -12,10 +12,10 @@ import {
   SafeAreaView
 } from "react-native";
 import { styles, Text } from "./styles";
-import { NativeCard } from './native-browser';
 import {deserializeGame} from "./aris";
 import {loadMedia, CacheMedia} from "./media";
 import { StatusSpace } from "./status-space";
+import { StemportsPlayer } from "./stemports-player";
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 
 const RNFS = require("react-native-fs");
@@ -207,6 +207,21 @@ export class StemportsPicker extends React.Component {
   }
 
   render() {
+    if (this.state.player) {
+      return (
+        <StemportsPlayer
+          onClose={() => this.setState({player: false})}
+          onLogout={this.props.onLogout}
+          auth={this.props.auth}
+          onChangePassword={this.props.onChangePassword}
+          onEditProfile={this.props.onEditProfile}
+          queueMessage={this.props.queueMessage}
+          online={this.props.online}
+          onSelect={this.props.onSelect}
+        />
+      );
+    }
+
     let games = {};
     this.state.games.forEach(g => {
       if (!games[g.game_id]) games[g.game_id] = {};
@@ -266,6 +281,20 @@ export class StemportsPicker extends React.Component {
             })
           }
         </MapView>
+        <TouchableOpacity onPress={() =>
+          this.setState({player: true})
+        } style={{
+          position: 'absolute',
+          padding: 8,
+          backgroundColor: 'white',
+          borderColor: 'black',
+          borderWidth: 1,
+          borderRadius: 5,
+          right: 10,
+          bottom: 10,
+        }}>
+          <Text>player</Text>
+        </TouchableOpacity>
         {
           this.state.gameModal && (() => {
             const obj = this.state.gameModal;
