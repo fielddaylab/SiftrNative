@@ -954,7 +954,7 @@ export const SiftrView = createClass({
     return this.getInstances().find(inst => inst.instance_id === instance_id);
   },
   getObjectInstances: function(object_type, object_id) {
-    return this.getInstances().filter(inst => inst.object_type === object_type && inst.object_id === object_id);
+    return this.getInstances().filter(inst => inst.object_type === object_type && parseInt(inst.object_id) === parseInt(object_id));
   },
   tickTriggersOffline: function() {
     this.setState(oldState => {
@@ -3106,7 +3106,11 @@ export const SiftrView = createClass({
               {this.renderNoteView()}
               {this.renderCreateNote()}
               {
-                this.state.modals.length > 0 && (() => {
+                this.state.modals.length > 0
+                && !(this.state.viewingNote)
+                && !(this.state.createNote)
+                && !(this.state.searchOpen)
+                && (() => {
                   const modal = this.state.modals[0];
                   if (modal.type === 'quest-available') {
                     return (
@@ -3214,6 +3218,14 @@ export const SiftrView = createClass({
                           plaque={modal.plaque}
                           auth={this.props.auth}
                           events={this.props.events}
+                          notes={this.props.notes}
+                          getTriggerForNote={(note) => {
+                            const insts = this.getObjectInstances('NOTE', note.note_id);
+                            if (insts.length === 0) return;
+                            const triggers = this.getTriggersForInstance(insts[0]);
+                            return triggers[0];
+                          }}
+                          onSelectNote={this.selectNote}
                           eventPackages={this.props.event_packages}
                           items={this.props.items}
                           onClose={() => {

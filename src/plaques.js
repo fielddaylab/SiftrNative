@@ -20,6 +20,11 @@ export const PlaqueScreen = (props) => {
   if (event_package_id) {
     events = props.events.filter(event => event.event_package_id === event_package_id);
   }
+  const notes = props.notes.filter(note => {
+    const trigger = props.getTriggerForNote(note);
+    if (!trigger) return;
+    return parseInt(trigger.cluster_id) === parseInt(props.trigger.trigger_id)
+  });
   return (
     <View style={{
       flex: 1,
@@ -87,6 +92,21 @@ export const PlaqueScreen = (props) => {
               }}>
                 <Text>Collect</Text>
               </TouchableOpacity>
+            </View>
+          )
+        }
+        {
+          notes.length > 0 && (
+            <View>
+              {
+                notes.map(note =>
+                  <TouchableOpacity key={note.note_id} onPress={() =>
+                    props.onSelectNote(note)
+                  } style={{padding: 5}}>
+                    <Text>Note by {note.user.display_name}</Text>
+                  </TouchableOpacity>
+                )
+              }
             </View>
           )
         }
