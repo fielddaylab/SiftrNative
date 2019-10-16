@@ -633,45 +633,22 @@ export class SiftrMap extends React.Component {
   }
 
   // @ifdef NATIVE
-  componentDidMount() {
-    this.moveMapNative({
-      latitude: this.props.center.lat,
-      longitude: this.props.center.lng,
-      latitudeDelta: this.props.delta.lat,
-      longitudeDelta: this.props.delta.lng,
-    });
-  }
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!this.refs.theMapView) return;
+    if (!prevProps.location && !this.props.location) return;
+    if ( prevProps.location
+      && this.props.location
+      && prevProps.location.coords.latitude === this.props.location.coords.latitude
+      && prevProps.location.coords.longitude === this.props.location.coords.longitude
+    ) return;
 
-  moveMapNative({latitude, longitude, latitudeDelta, longitudeDelta}) {
-    this.props.onMove({
-      center: {
-        lat: latitude,
-        lng: longitude,
-      },
-      delta: {
-        lat: latitudeDelta,
-        lng: longitudeDelta,
-      },
-      bounds: {
-        nw: {
-          lat: latitude + latitudeDelta,
-          lng: longitude - longitudeDelta,
-        },
-        se: {
-          lat: latitude - latitudeDelta,
-          lng: longitude + longitudeDelta,
-        },
-      },
+    this.refs.theMapView.setCamera({
+      center: this.props.location.coords,
     });
   }
 
   moveToPoint(center) {
-    // this.refs.theMapView.animateToRegion({
-    //   latitude: center.lat,
-    //   longitude: center.lng,
-    //   latitudeDelta: Math.min(0.007, this.props.delta.lat),
-    //   longitudeDelta: Math.min(0.007, this.props.delta.lng),
-    // }, 500);
+    // removed
   }
 
   render() {
@@ -711,7 +688,7 @@ export class SiftrMap extends React.Component {
       mapPadding={{
         top: height * 0.45,
       }}
-      camera={{
+      initialCamera={{
         center: this.props.location ? this.props.location.coords : {
           latitude: 0,
           longitude: 0,
@@ -721,7 +698,6 @@ export class SiftrMap extends React.Component {
         zoom: 18,
         altitude: 0, // not used
       }}
-      onRegionChangeComplete={this.moveMapNative.bind(this)}
       showsUserLocation={true}
       customMapStyle={this.getMapStyles()}
       mapType={this.props.game.map_type === 'STREET' ? 'standard' : 'hybrid'}
