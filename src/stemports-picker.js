@@ -253,6 +253,44 @@ export class StemportsPicker extends React.Component {
           mapType="standard"
         >
           {
+            // separate markers drawn first for the text labels
+            gameList.map(obj => {
+              const game = obj.online || obj.offline;
+              return (
+                <MapView.Marker
+                  key={'text' + game.game_id}
+                  tracksViewChanges={false}
+                  coordinate={{
+                    latitude: game.latitude,
+                    longitude: game.longitude,
+                  }}
+                  anchor={{x: 0.5, y: 0.5}}
+                >
+                  <MapView.Callout tooltip={true} />
+                  <View style={{
+                    alignItems: 'center',
+                  }}>
+                    <Text style={{opacity: 0}}>
+                      {game.name}
+                    </Text>
+                    <View
+                      style={{
+                        opacity: 0,
+                        width: 26,
+                        height: 26,
+                        borderRadius: 13,
+                        borderWidth: 2,
+                      }}
+                    />
+                    <Text>
+                      {game.name}
+                    </Text>
+                  </View>
+                </MapView.Marker>
+              );
+            })
+          }
+          {
             gameList.map(obj => {
               const game = obj.online || obj.offline;
               return (
@@ -263,15 +301,16 @@ export class StemportsPicker extends React.Component {
                     latitude: game.latitude,
                     longitude: game.longitude,
                   }}
+                  anchor={{x: 0.5, y: 0.5}}
                   onPress={() => this.setState({gameModal: obj})}
                 >
                   <MapView.Callout tooltip={true} />
                   <View
                     style={{
-                      width: 30,
-                      height: 30,
+                      width: 26,
+                      height: 26,
                       backgroundColor: 'rgb(40,80,120)',
-                      borderRadius: 15,
+                      borderRadius: 13,
                       borderWidth: 2,
                       borderColor: 'white',
                     }}
