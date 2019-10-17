@@ -34,6 +34,10 @@ export class StemportsPicker extends React.Component {
       this.getGames(1, 0);
       this.loadDownloadedGames();
     });
+
+    RNFS.readFile(`${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`).then(str => {
+      this.setState({inventory_zero: JSON.parse(str)});
+    });
   }
 
   getGames(game_id, missed) {
@@ -128,6 +132,17 @@ export class StemportsPicker extends React.Component {
           })
         ).then(writeJSON('inventory')),
 
+        this.props.auth.promise('call', 'client.touchItemsForPlayer', {
+          game_id: 0,
+        }).then(() =>
+          this.props.auth.promise('call', 'instances.getInstancesForGame', {
+            game_id: 0,
+            owner_id: this.props.auth.authToken.user_id,
+          })
+        ).then(data =>
+          RNFS.writeFile(`${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`, JSON.stringify(data))
+        ),
+
         this.props.auth.promise('call', 'instances.getInstancesForGame', {
           game_id: game.game_id,
         }).then(writeJSON('instances')),
@@ -218,6 +233,7 @@ export class StemportsPicker extends React.Component {
           queueMessage={this.props.queueMessage}
           online={this.props.online}
           onSelect={this.props.onSelect}
+          inventory_zero={this.state.inventory_zero}
         />
       );
     }

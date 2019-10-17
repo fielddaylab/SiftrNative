@@ -337,6 +337,9 @@ class SiftrViewLoader extends React.Component {
         this.setState({[name]: load(JSON.parse(str))});
       });
     });
+    RNFS.readFile(`${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`).then(str => {
+      this.setState({inventory_zero: JSON.parse(str)});
+    });
   }
 
   loadAfterUpload(...args) {
@@ -346,10 +349,25 @@ class SiftrViewLoader extends React.Component {
   render() {
     if (LOAD_OBJECTS.some(({name}) => this.state[name] == null)) {
       return null;
+    } else if (this.state.inventory_zero == null) {
+      return null;
     } else {
       return <SiftrView
         {...this.props}
         {...this.state}
+        addXP={(xp) => {
+          const new_inventory_zero = this.state.inventory_zero.map(inst => {
+            if (inst.object_type === 'ITEM' && parseInt(inst.object_id) === 35) {
+              return update(inst, {qty: {$apply: (cur) => parseInt(cur) + xp}});
+            } else {
+              return inst;
+            }
+          });
+          console.warn(new_inventory_zero);
+          this.setState({inventory_zero: new_inventory_zero}, () => {
+            RNFS.writeFile(`${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`, JSON.stringify(new_inventory_zero));
+          });
+        }}
         ref={(sv) => this.siftrView = sv}
       />;
     }
@@ -3146,6 +3164,7 @@ export const SiftrView = createClass({
                         object_tags={this.props.object_tags}
                         pickedUpRemnants={this.state.pickedUpRemnants}
                         onPlace={item_id => {
+                          this.props.addXP(2);
                           this.setState(state => update(state, {
                             pickedUpRemnants: {
                               $apply: remnants => remnants.filter(remnant => remnant !== item_id),
@@ -3244,6 +3263,7 @@ export const SiftrView = createClass({
                             this.popModal();
                           }}
                           onPickup={events => {
+                            this.props.addXP(2);
                             this.setState(state => {
                               let inv = state.inventory;
                               events.forEach(event => {
@@ -3274,6 +3294,7 @@ export const SiftrView = createClass({
                           auth={this.props.auth}
                           onClose={this.popModal/*.bind(this)*/}
                           onPickUp={(trigger) => {
+                            this.props.addXP(2);
                             this.setState(state => {
                               return update(state, {
                                 pickedUpRemnants: {

@@ -94,6 +94,21 @@ export class StemportsPlayer extends React.Component {
     return quests;
   }
 
+  currentLevel() {
+    const cutoffs = [0, 10, 50, 100, 250, 500, 1000];
+    const instance = this.props.inventory_zero.find(inst =>
+      inst.object_type === 'ITEM' && parseInt(inst.object_id) === 35
+    );
+    const xp = instance ? parseInt(instance.qty) : 0;
+    const level = cutoffs.filter(cutoff => xp >= cutoff).length;
+    return {
+      level: level,
+      xp: xp,
+      this_cutoff: cutoffs[level - 1],
+      next_cutoff: cutoffs[level],
+    };
+  }
+
   render() {
     if (this.state.settings) {
       return (
@@ -108,6 +123,8 @@ export class StemportsPlayer extends React.Component {
         />
       );
     }
+
+    const xpStuff = this.currentLevel();
 
     return (
       <ScrollView style={{flex: 1}}>
@@ -139,6 +156,30 @@ export class StemportsPlayer extends React.Component {
           />
           <Text style={{padding: 20, fontWeight: 'bold', fontSize: 25}}>
             {this.props.auth.authToken.display_name || this.props.auth.authToken.username}
+          </Text>
+        </View>
+        <View style={{alignItems: 'center'}}>
+          <Text style={{padding: 20}}>
+            Level {xpStuff.level} ({xpStuff.xp} XP)
+          </Text>
+          <View style={{
+            height: 6,
+            flexDirection: 'row',
+            alignItems: 'stretch',
+            alignSelf: 'stretch',
+            margin: 6,
+          }}>
+            <View style={{
+              flex: xpStuff.xp - xpStuff.this_cutoff,
+              backgroundColor: 'orange',
+            }} />
+            <View style={{
+              flex: xpStuff.next_cutoff - xpStuff.xp,
+              backgroundColor: 'gray',
+            }} />
+          </View>
+          <Text style={{padding: 20}}>
+            Next level: {xpStuff.xp - xpStuff.this_cutoff} / {xpStuff.next_cutoff - xpStuff.this_cutoff}
           </Text>
         </View>
         <Text style={{textAlign: 'center'}}>=== Complete Field Guides ===</Text>
