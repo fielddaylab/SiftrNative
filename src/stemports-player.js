@@ -96,7 +96,7 @@ export class StemportsPlayer extends React.Component {
 
   currentLevel() {
     const cutoffs = [0, 10, 50, 100, 250, 500, 1000];
-    const instance = this.props.inventory_zero.find(inst =>
+    const instance = (this.props.inventory_zero || []).find(inst =>
       inst.object_type === 'ITEM' && parseInt(inst.object_id) === 35
     );
     const xp = instance ? parseInt(instance.qty) : 0;

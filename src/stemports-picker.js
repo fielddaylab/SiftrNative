@@ -17,6 +17,7 @@ import {loadMedia, CacheMedia} from "./media";
 import { StatusSpace } from "./status-space";
 import { StemportsPlayer } from "./stemports-player";
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
+import {addXP} from './siftr-view';
 
 const RNFS = require("react-native-fs");
 
@@ -34,10 +35,19 @@ export class StemportsPicker extends React.Component {
       this.getGames(1, 0);
       this.loadDownloadedGames();
     });
+    this.loadXP();
+  }
 
+  loadXP() {
     RNFS.readFile(`${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`).then(str => {
       this.setState({inventory_zero: JSON.parse(str)});
     });
+  }
+
+  addXP(xp, inv, cb) {
+    addXP(xp, inv, (new_inventory_zero) =>
+      this.setState({inventory_zero: new_inventory_zero}, cb)
+    );
   }
 
   getGames(game_id, missed) {
@@ -83,7 +93,7 @@ export class StemportsPicker extends React.Component {
     });
   }
 
-  initializeGame(game) {
+  initializeGame(game, hasOffline) {
     const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${game.game_id}`;
     return RNFS.mkdir(siftrDir, {NSURLIsExcludedFromBackupKey: true}).then(() => {
       const writeJSON = (name) => {
@@ -140,7 +150,7 @@ export class StemportsPicker extends React.Component {
             owner_id: this.props.auth.authToken.user_id,
           })
         ).then(data =>
-          RNFS.writeFile(`${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`, JSON.stringify(data))
+          new Promise((resolve, reject) => this.addXP((hasOffline ? 0 : 2), data, resolve))
         ),
 
         this.props.auth.promise('call', 'instances.getInstancesForGame', {
@@ -428,7 +438,7 @@ export class StemportsPicker extends React.Component {
                       {
                         obj.online && (
                           <TouchableOpacity onPress={() =>
-                            this.initializeGame(game).then(() => this.loadDownloadedGames())
+                            this.initializeGame(game, obj.offline).then(() => this.loadDownloadedGames())
                           } style={{
                             width: 200,
                             padding: 10,

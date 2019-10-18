@@ -297,6 +297,20 @@ const SiftrInfo = createClass({
   }
 });
 
+export function addXP(xp, inventory_zero, cb) {
+  const new_inventory_zero = inventory_zero.map(inst => {
+    if (inst.object_type === 'ITEM' && parseInt(inst.object_id) === 35) {
+      return update(inst, {qty: {$apply: (cur) => parseInt(cur) + xp}});
+    } else {
+      return inst;
+    }
+  });
+  RNFS.writeFile(
+    `${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`,
+    JSON.stringify(new_inventory_zero)
+  ).then(() => cb(new_inventory_zero));
+}
+
 const LOAD_OBJECTS = [
   {name: 'quests'},
   {name: 'plaques'},
@@ -355,19 +369,11 @@ class SiftrViewLoader extends React.Component {
       return <SiftrView
         {...this.props}
         {...this.state}
-        addXP={(xp) => {
-          const new_inventory_zero = this.state.inventory_zero.map(inst => {
-            if (inst.object_type === 'ITEM' && parseInt(inst.object_id) === 35) {
-              return update(inst, {qty: {$apply: (cur) => parseInt(cur) + xp}});
-            } else {
-              return inst;
-            }
-          });
-          console.warn(new_inventory_zero);
-          this.setState({inventory_zero: new_inventory_zero}, () => {
-            RNFS.writeFile(`${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`, JSON.stringify(new_inventory_zero));
-          });
-        }}
+        addXP={(xp) =>
+          addXP(xp, this.state.inventory_zero, (new_inventory_zero) =>
+            this.setState({inventory_zero: new_inventory_zero})
+          )
+        }
         ref={(sv) => this.siftrView = sv}
       />;
     }
@@ -2632,6 +2638,7 @@ export const SiftrView = createClass({
       } else {
         // @ifdef NATIVE
         // save note for later upload queue
+        this.props.addXP(2);
         queueDir = `${RNFS.DocumentDirectoryPath}/siftrqueue/${Date.now()}`;
         filesToCopy = [];
         for (i = 0, len = files.length; i < len; i++) {
