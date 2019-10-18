@@ -93,6 +93,45 @@ export class StemportsPicker extends React.Component {
     });
   }
 
+  uploadGame(game) {
+    const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${game.game_id}`;
+    return Promise.all([
+      Promise.all([
+        RNFS.readFile(`${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`),
+        RNFS.readFile(`${siftrDir}/inventory.txt`),
+      ]).then(([inv0, inv]) => {
+        const instances = JSON.parse(inv0).concat(JSON.parse(inv));
+        return Promise.all(instances.map(inst =>
+          this.props.auth.promise('call', 'client.setQtyForInstance', {
+            instance_id: inst.instance_id,
+            qty: inst.qty,
+          })
+        ));
+      }),
+      RNFS.readFile(`${siftrDir}/logs.txt`).then(str => {
+        const logs = JSON.parse(str);
+        return Promise.all(logs.map(log => {
+          if (parseInt(log.user_log_id)) {
+            return null;
+          } else if (log.event_type === 'VIEW_PLAQUE') {
+            return this.props.auth.promise('call', 'client.logPlayerViewedContent', {
+              game_id: game.game_id,
+              content_type: 'PLAQUE',
+              content_id: log.content_id,
+            });
+          } else if (log.event_type === 'COMPLETE_QUEST') {
+            return this.props.auth.promise('call', 'client.logPlayerCompletedQuest', {
+              game_id: game.game_id,
+              quest_id: log.content_id,
+            });
+          } else {
+            return null;
+          }
+        }).filter(x => x));
+      }),
+    ]);
+  }
+
   initializeGame(game, hasOffline) {
     const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${game.game_id}`;
     return RNFS.mkdir(siftrDir, {NSURLIsExcludedFromBackupKey: true}).then(() => {
@@ -432,6 +471,21 @@ export class StemportsPicker extends React.Component {
                             backgroundColor: 'white',
                           }}>
                             <Text>Launch</Text>
+                          </TouchableOpacity>
+                        )
+                      }
+                      {
+                        obj.offline && (
+                          <TouchableOpacity onPress={() =>
+                            this.uploadGame(game).then(() => this.loadDownloadedGames())
+                          } style={{
+                            width: 200,
+                            padding: 10,
+                            borderColor: 'black',
+                            borderWidth: 1,
+                            backgroundColor: 'white',
+                          }}>
+                            <Text>Upload</Text>
                           </TouchableOpacity>
                         )
                       }
