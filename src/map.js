@@ -10,6 +10,7 @@ import {
 , View
 , Platform
 , Image
+, ImageBackground
 , Dimensions
 } from 'react-native';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
@@ -439,6 +440,7 @@ function stringToColorCode(str) {
     return (str in color_codes) ? color_codes[str] : (color_codes[str] = '#'+ ('000000' + (Math.random()*0xFFFFFF<<0).toString(16)).slice(-6));
 }
 
+// @ifdef NATIVE
 class SmartMarker extends React.Component {
   constructor(props) {
     super(props);
@@ -471,15 +473,31 @@ class SmartMarker extends React.Component {
         onPress={this.props.onPress}
         ref={marker => this.marker = marker}
       >
-        <Image
+        <ImageBackground
           style={{width: 32, height: 32}}
           source={this.props.url}
-        />
+        >
+          {
+            this.props.visited && (
+              <Image
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  width: 16,
+                  height: 16,
+                }}
+                source={require('../web/assets/img/checkmark.png')}
+              />
+            )
+          }
+        </ImageBackground>
         <MapView.Callout tooltip={true} />
       </MapView.Marker>
     );
   }
 }
+// @endif
 
 export class SiftrMap extends React.Component {
   constructor(props) {
@@ -736,6 +754,10 @@ export class SiftrMap extends React.Component {
           }
           const select = {trigger: trigger, instance: inst, plaque: plaque, item: item};
 
+          const visited = inst.object_type === 'PLAQUE' && this.props.logs && this.props.logs.some(log =>
+            log.event_type === 'VIEW_PLAQUE' && parseInt(log.content_id) === parseInt(inst.object_id)
+          );
+
           return (
             icon ? (
               <CacheMedia
@@ -753,6 +775,7 @@ export class SiftrMap extends React.Component {
                     onPress={() => this.props.onSelectItem(select)}
                     url={url}
                     size={size}
+                    visited={visited}
                   />
                 )}
               />
@@ -766,6 +789,7 @@ export class SiftrMap extends React.Component {
                 onPress={() => this.props.onSelectItem(select)}
                 url={null}
                 size={size}
+                visited={visited}
               />
             )
           );

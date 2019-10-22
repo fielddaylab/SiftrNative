@@ -2031,6 +2031,7 @@ export const SiftrView = createClass({
         plaques={this.props.plaques}
         items={this.props.items}
         auth={this.props.auth}
+        logs={this.state.logs}
         onSelectItem={(o) => {
           if (!this.props.location) return;
           const distance = Math.ceil(meterDistance(o.trigger, this.props.location.coords));
