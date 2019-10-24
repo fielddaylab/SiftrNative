@@ -454,26 +454,15 @@ export class StemportsPicker extends React.Component {
                         (game.quests || []).filter(quest =>
                           !parseInt(quest.parent_quest_id)
                         ).map(quest =>
-                          <View key={quest.quest_id} style={{margin: 5}}>
+                          <TouchableOpacity key={quest.quest_id} style={{margin: 5}} onPress={() =>
+                            obj.offline && this.props.onSelect(game, quest)
+                          }>
                             <Text>{quest.name}</Text>
-                          </View>
+                          </TouchableOpacity>
                         )
                       }
                     </ScrollView>
                     <View style={{alignItems: 'center', padding: 10}}>
-                      {
-                        obj.offline && (
-                          <TouchableOpacity onPress={() => this.props.onSelect(game)} style={{
-                            width: 200,
-                            padding: 10,
-                            borderColor: 'black',
-                            borderWidth: 1,
-                            backgroundColor: 'white',
-                          }}>
-                            <Text>Launch</Text>
-                          </TouchableOpacity>
-                        )
-                      }
                       {
                         obj.offline && (
                           <TouchableOpacity onPress={() =>

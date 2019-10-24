@@ -862,9 +862,6 @@ export const SiftrView = createClass({
     });
     return update(root, {ands: {$set: ands}});
   },
-  setCurrentQuest: function(quest) {
-    this.setState({currentQuest: quest});
-  },
   checkQuestsOffline: function() {
     if (!this.isMounted) {
       // do nothing
@@ -908,9 +905,8 @@ export const SiftrView = createClass({
       const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
       RNFS.writeFile(`${siftrDir}/quests-sorted.txt`, JSON.stringify(newQuests));
       let o = {quests: newQuests};
-      if (this.state.currentQuest && !newQuests.active.some(q => q.quest_id === this.state.currentQuest.quest_id)) {
-        // clear current quest because it's no longer active
-        o.currentQuest = null;
+      if (this.props.currentQuest && !newQuests.active.some(q => q.quest_id === this.props.currentQuest.quest_id)) {
+        // TODO close this quest because it's complete?
       }
       this.setState(o);
       if (oldQuests) {
@@ -3030,9 +3026,9 @@ export const SiftrView = createClass({
                 }}
               >
                 {
-                  this.state.currentQuest && (
+                  this.props.currentQuest && (
                     <Text style={{margin: 10}}>
-                      { this.state.currentQuest.prompt || this.state.currentQuest.name }
+                      { this.props.currentQuest.prompt || this.props.currentQuest.name }
                     </Text>
                   )
                 }
@@ -3146,7 +3142,6 @@ export const SiftrView = createClass({
                         onClose={this.popModal/*.bind(this)*/}
                         status="active"
                         auth={this.props.auth}
-                        setCurrentQuest={this.setCurrentQuest/*.bind(this)*/}
                       />
                     );
                   } else if (modal.type === 'quest-complete') {
@@ -3157,7 +3152,6 @@ export const SiftrView = createClass({
                         onClose={this.popModal/*.bind(this)*/}
                         status="complete"
                         auth={this.props.auth}
-                        setCurrentQuest={this.setCurrentQuest/*.bind(this)*/}
                       />
                     );
                   } else if (modal.type === 'inventory') {
@@ -3199,7 +3193,6 @@ export const SiftrView = createClass({
                         game={this.props.game}
                         onClose={this.popModal/*.bind(this)*/}
                         quests={this.state.quests}
-                        setCurrentQuest={this.setCurrentQuest/*.bind(this)*/}
                       />
                     );
                   } else if (modal.type === 'menu') {

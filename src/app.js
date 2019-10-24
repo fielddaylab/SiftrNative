@@ -389,45 +389,13 @@ export var SiftrNative = createClass({
     );
   },
   // @endif
-  loadGamePosition: function(game, create = false) {
-    if (game.type === "ANYWHERE" && this.state.online) {
-      this.state.auth.call(
-        "notes.siftrBounds",
-        {
-          game_id: game.game_id
-        },
-        withSuccess(bounds => {
-          if (
-            bounds.max_latitude != null &&
-            bounds.min_longitude != null &&
-            bounds.min_latitude != null &&
-            bounds.max_longitude != null
-          ) {
-            bounds.max_latitude = parseFloat(bounds.max_latitude);
-            bounds.min_longitude = parseFloat(bounds.min_longitude);
-            bounds.min_latitude = parseFloat(bounds.min_latitude);
-            bounds.max_longitude = parseFloat(bounds.max_longitude);
-            this.setState({
-              game,
-              createOnLaunch: create,
-              bounds
-            });
-          } else {
-            this.setState({
-              game,
-              createOnLaunch: create,
-              bounds: null
-            });
-          }
-        })
-      );
-    } else {
-      this.setState({
-        game,
-        createOnLaunch: create,
-        bounds: null
-      });
-    }
+  loadGamePosition: function(game, {create, quest}) {
+    this.setState({
+      game,
+      quest,
+      createOnLaunch: create,
+      bounds: null
+    });
   },
   login: function(username, password) {
     var ref2;
@@ -645,6 +613,7 @@ export var SiftrNative = createClass({
               <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
                 <SiftrViewPW
                   game={this.state.game}
+                  currentQuest={this.state.quest}
                   bounds={this.state.bounds}
                   auth={this.state.auth}
                   isAdmin={this.gameBelongsToUser(this.state.game)}
@@ -697,9 +666,9 @@ export var SiftrNative = createClass({
                 <StemportsPicker
                   auth={this.state.auth}
                   onLogout={this.logout}
-                  onSelect={(game, create = false) => {
-                    this.loadGamePosition(game, create);
-                  }}
+                  onSelect={(game, quest) =>
+                    this.loadGamePosition(game, {quest: quest})
+                  }
                   online={this.state.online}
                   mine={this.state.games}
                   followed={this.state.followed}
