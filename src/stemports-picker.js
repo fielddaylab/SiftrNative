@@ -136,7 +136,14 @@ export class StemportsPicker extends React.Component {
     const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${game.game_id}`;
     return RNFS.mkdir(siftrDir, {NSURLIsExcludedFromBackupKey: true}).then(() => {
       const writeJSON = (name) => {
-        return (data) => RNFS.writeFile(`${siftrDir}/${name}.txt`, JSON.stringify(data));
+        return (data) => {
+          return RNFS.writeFile(
+            `${siftrDir}/${name}.txt`,
+            JSON.stringify(data)
+          ).then(() =>
+            ({key: name, data: data}) // return object to generate quests
+          );
+        };
       }
       return Promise.all([
 
@@ -264,7 +271,126 @@ export class StemportsPicker extends React.Component {
 
         writeJSON('game')(game),
 
-      ]).then(() =>
+      ]).then(objs => {
+        // generate quests
+        let allData = {};
+        objs.forEach(o => {
+          [o].flat(Infinity).forEach(x => {
+            if (x && x.key) {
+              allData[x.key] = x.data;
+            }
+          });
+        });
+        if (allData.quests.length === 0) {
+          // generate quests from remnants
+          let new_quests = [];
+          let new_requirement_root_packages = [];
+          let new_requirement_and_packages = [];
+          let new_requirement_atoms = [];
+          function addTo(xs, f) {
+            // make new object with sequential ID
+            const new_id = 1000000 + xs.length;
+            xs.push(f(new_id));
+            return new_id;
+          }
+          allData.guides.forEach(guide => {
+            const field = allData.fields.find(field => parseInt(field.field_id) === parseInt(guide.field_id));
+            const selector_option = allData.fields.map(f => f.options).flat().find(opt =>
+              parseInt(opt.field_guide_id) === parseInt(guide.field_guide_id)
+            );
+            if (!field || !selector_option) return;
+
+            // make the compound quest
+            const compound_id = addTo(new_quests, quest_id => ({
+              quest_id: quest_id,
+              game_id: game.game_id,
+              name: field.label,
+              description: '',
+              prompt: '',
+              stars: 0,
+              quest_type: 'COMPOUND',
+              parent_quest_id: 0,
+              active_requirement_root_package_id: 0,
+              complete_requirement_root_package_id: 0,
+            }));
+
+            // make the "get the remnants" quest
+            const remnant_root_id = addTo(new_requirement_root_packages, root_id => ({
+              requirement_root_package_id: root_id,
+              game_id: game.game_id,
+            }));
+            const remnant_and_id = addTo(new_requirement_and_packages, and_id => ({
+              requirement_and_package_id: and_id,
+              game_id: game.game_id,
+              requirement_root_package_id: remnant_root_id,
+            }));
+            field.options.forEach(field =>
+              addTo(new_requirement_atoms, atom_id => ({
+                requirement_atom_id: atom_id,
+                game_id: game.game_id,
+                requirement_and_package_id: remnant_and_id,
+                bool_operator: 1,
+                requirement: 'PLAYER_HAS_ITEM',
+                content_id: field.remnant_id,
+                qty: 1,
+              }))
+            );
+            addTo(new_quests, quest_id => ({
+              quest_id: quest_id,
+              game_id: game.game_id,
+              name: `Collect: ${field.label}`,
+              description: '',
+              prompt: `Find all the ${field.label} remnants!`,
+              stars: 0,
+              quest_type: 'QUEST',
+              parent_quest_id: compound_id,
+              active_requirement_root_package_id: 0,
+              complete_requirement_root_package_id: remnant_root_id,
+            }));
+
+            // make the "do observations" quest
+            const observe_root_id = addTo(new_requirement_root_packages, root_id => ({
+              requirement_root_package_id: root_id,
+              game_id: game.game_id,
+            }));
+            const observe_and_id = addTo(new_requirement_and_packages, and_id => ({
+              requirement_and_package_id: and_id,
+              game_id: game.game_id,
+              requirement_root_package_id: observe_root_id,
+            }));
+            addTo(new_requirement_atoms, atom_id => ({
+              requirement_atom_id: atom_id,
+              game_id: game.game_id,
+              requirement_and_package_id: observe_and_id,
+              bool_operator: 1,
+              requirement: 'PLAYER_HAS_NOTE_WITH_TAG',
+              content_id: 10000000 + selector_option.field_option_id,
+              qty: 3,
+            }))
+            addTo(new_quests, quest_id => ({
+              quest_id: quest_id,
+              game_id: game.game_id,
+              name: `Observe: ${field.label}`,
+              description: '',
+              prompt: `Make 3 ${field.label} observations!`,
+              stars: 0,
+              quest_type: 'QUEST',
+              parent_quest_id: compound_id,
+              active_requirement_root_package_id: 0,
+              complete_requirement_root_package_id: observe_root_id,
+            }));
+          });
+
+          return Promise.all([
+            writeJSON('quests')(allData.quests.concat(new_quests)),
+            writeJSON('requirement_root_packages')(allData.requirement_root_packages.concat(new_requirement_root_packages)),
+            writeJSON('requirement_and_packages')(allData.requirement_and_packages.concat(new_requirement_and_packages)),
+            writeJSON('requirement_atoms')(allData.requirement_atoms.concat(new_requirement_atoms)),
+          ]);
+        } else {
+          return; // nothing to do
+        }
+      }).then(() =>
         RNFS.writeFile(`${siftrDir}/download_timestamp.txt`, Date.now())
       );
     });
@@ -451,7 +577,7 @@ export class StemportsPicker extends React.Component {
                     </View>
                     <ScrollView style={{flex: 1, borderColor: 'black', borderWidth: 1}}>
                       {
-                        (game.quests || []).filter(quest =>
+                        (obj.offline ? obj.offline.quests : obj.online.quests).filter(quest =>
                           !parseInt(quest.parent_quest_id)
                         ).map(quest =>
                           <TouchableOpacity key={quest.quest_id} style={{margin: 5}} onPress={() =>
