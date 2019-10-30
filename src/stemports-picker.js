@@ -17,7 +17,7 @@ import {loadMedia, CacheMedia} from "./media";
 import { StatusSpace } from "./status-space";
 import { StemportsPlayer } from "./stemports-player";
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
-import {addXP} from './siftr-view';
+import {addXP, meterDistance} from './siftr-view';
 
 const RNFS = require("react-native-fs");
 
@@ -423,19 +423,69 @@ export class StemportsPicker extends React.Component {
       games[g.game_id].offline = g;
     });
     let gameList = [];
-    for (let g in games) {
-      gameList.push(games[g]);
+    for (let game_id in games) {
+      const obj = games[game_id];
+      const game = obj.online || obj.offline;
+      const distance = this.props.location ? meterDistance(game, this.props.location.coords) : Infinity;
+      gameList.push(update(obj, {game: {$set: game}, distance: {$set: distance}}));
     }
+
+    if (!this.state.mapLocation) {
+      const gamesByDistance = gameList.slice(0);
+      gamesByDistance.sort((a, b) => a.distance - b.distance);
+      return (
+        <View style={{flex: 1}}>
+          <Text style={{margin: 10, fontSize: 25}}>
+            Get to a Science Station
+          </Text>
+          <Text style={{margin: 10}}>
+            {
+              gamesByDistance.length > 0 && gamesByDistance[0].distance < 1000
+              ? `It looks like you're at the ${gamesByDistance[0].game.name} Science Station. Download Quests to get started!`
+              : 'You need to be at a science station to start a quest. Here are the closest ones.'
+            }
+          </Text>
+          <ScrollView style={{flex: 1}}>
+            {
+              gamesByDistance.map(o =>
+                <View key={o.game.game_id} style={{margin: 10, flexDirection: 'row'}}>
+                  <TouchableOpacity style={{flex: 1}} onPress={() => {
+                    this.setState({mapLocation: o.game, gameModal: o});
+                  }}>
+                    <Text style={{fontWeight: 'bold', margin: 5}}>
+                      {o.game.name}
+                    </Text>
+                    <Text style={{fontStyle: 'italic', margin: 5}}>
+                      {(o.distance / 1000).toFixed(2)} km away
+                    </Text>
+                  </TouchableOpacity>
+                  <View>
+                    <TouchableOpacity onPress={() => {
+                      this.setState({mapLocation: o.game});
+                    }} style={{
+                      backgroundColor: 'rgb(101,88,245)',
+                      padding: 5,
+                    }}>
+                      <Text style={{color: 'white'}}>Map it</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )
+            }
+          </ScrollView>
+        </View>
+      );
+    }
+
     return (
       <View style={{flex: 1}}>
         <MapView
           provider={PROVIDER_GOOGLE}
           initialRegion={{
-            // TODO change these
-            latitude: 0,
-            longitude: -90,
-            latitudeDelta: 180,
-            longitudeDelta: 180,
+            latitude: this.state.mapLocation.latitude,
+            longitude: this.state.mapLocation.longitude,
+            latitudeDelta: 1,
+            longitudeDelta: 1,
           }}
           style={{
             flex: 1,
@@ -446,7 +496,7 @@ export class StemportsPicker extends React.Component {
           {
             // separate markers drawn first for the text labels
             gameList.map(obj => {
-              const game = obj.online || obj.offline;
+              const game = obj.game;
               return (
                 <MapView.Marker
                   key={'text' + game.game_id}
@@ -483,7 +533,7 @@ export class StemportsPicker extends React.Component {
           }
           {
             gameList.map(obj => {
-              const game = obj.online || obj.offline;
+              const game = obj.game;
               return (
                 <MapView.Marker
                   key={game.game_id}
@@ -512,6 +562,20 @@ export class StemportsPicker extends React.Component {
           }
         </MapView>
         <TouchableOpacity onPress={() =>
+          this.setState({mapLocation: null})
+        } style={{
+          position: 'absolute',
+          padding: 8,
+          backgroundColor: 'white',
+          borderColor: 'black',
+          borderWidth: 1,
+          borderRadius: 5,
+          left: 10,
+          bottom: 10,
+        }}>
+          <Text>back</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() =>
           this.setState({player: true})
         } style={{
           position: 'absolute',
@@ -528,8 +592,7 @@ export class StemportsPicker extends React.Component {
         {
           this.state.gameModal && (() => {
             const obj = this.state.gameModal;
-            const game = obj.online || obj.offline;
-            const newVersion = obj.online && obj.offline && obj.online.version !== obj.offline.version;
+            const game = obj.game;
             return (
               <Modal transparent={true} onRequestClose={() => this.setState({gameModal: null})}>
                 <SafeAreaView style={{flex: 1}}>
@@ -537,104 +600,151 @@ export class StemportsPicker extends React.Component {
                     backgroundColor="rgba(0,0,0,0)"
                     leaveBar={true}
                   />
-                  <View style={{
-                    flex: 1,
-                    backgroundColor: 'white',
-                    alignItems: 'stretch',
-                  }}>
-                    <View style={{alignItems: 'center', padding: 10}}>
-                      <CacheMedia
-                        media_id={game.icon_media_id}
-                        auth={this.props.auth}
-                        online={true}
-                        withURL={(url) =>
-                          <View style={{margin: 10, alignItems: 'stretch', alignSelf: 'stretch'}}>
-                            <Image
-                              source={url}
-                              style={{
-                                height: 125,
-                                resizeMode: 'contain',
-                              }}
-                            />
-                          </View>
-                        }
-                      />
-                      <View style={{margin: 10}}>
-                        <Text style={{fontWeight: 'bold'}}>{game.name}</Text>
-                      </View>
-                      <View style={{margin: 10}}>
-                        <Text>{game.description}</Text>
-                      </View>
-                    </View>
-                    <View style={{
-                      backgroundColor: 'rgb(155,186,242)',
-                      borderColor: 'black',
-                      borderWidth: 1,
-                      padding: 10,
-                      alignItems: 'center',
-                    }}>
-                      <Text>Quests</Text>
-                    </View>
-                    <ScrollView style={{flex: 1, borderColor: 'black', borderWidth: 1}}>
-                      {
-                        (obj.offline ? obj.offline.quests : obj.online.quests).filter(quest =>
-                          !parseInt(quest.parent_quest_id)
-                        ).map(quest =>
-                          <TouchableOpacity key={quest.quest_id} style={{margin: 5}} onPress={() =>
-                            obj.offline && this.props.onSelect(game, quest)
-                          }>
-                            <Text>{quest.name}</Text>
-                          </TouchableOpacity>
-                        )
-                      }
-                    </ScrollView>
-                    <View style={{alignItems: 'center', padding: 10}}>
-                      {
-                        obj.offline && (
-                          <TouchableOpacity onPress={() =>
-                            this.uploadGame(game).then(() => this.loadDownloadedGames())
-                          } style={{
-                            width: 200,
-                            padding: 10,
-                            borderColor: 'black',
-                            borderWidth: 1,
-                            backgroundColor: 'white',
-                          }}>
-                            <Text>Upload</Text>
-                          </TouchableOpacity>
-                        )
-                      }
-                      {
-                        obj.online && (
-                          <TouchableOpacity onPress={() =>
-                            this.initializeGame(game, obj.offline).then(() => this.loadDownloadedGames())
-                          } style={{
-                            width: 200,
-                            padding: 10,
-                            borderColor: 'black',
-                            borderWidth: 1,
-                            backgroundColor: 'white',
-                          }}>
-                            <Text>{newVersion ? "Download (update!)" : "Download"}</Text>
-                          </TouchableOpacity>
-                        )
-                      }
-                      <TouchableOpacity onPress={() => this.setState({gameModal: null})} style={{
-                        width: 200,
-                        padding: 10,
-                        borderColor: 'black',
-                        borderWidth: 1,
-                        backgroundColor: 'white',
-                      }}>
-                        <Text>Close</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
+                  <StemportsOutpost
+                    game={game}
+                    obj={obj}
+                    auth={this.props.auth}
+                    onUpload={() => this.uploadGame(game).then(() => this.loadDownloadedGames())}
+                    onDownload={() => this.initializeGame(game, obj.offline).then(() => this.loadDownloadedGames())}
+                    onClose={() => this.setState({gameModal: null})}
+                    onSelect={this.props.onSelect}
+                  />
                 </SafeAreaView>
               </Modal>
             );
           })()
         }
+      </View>
+    );
+  }
+}
+
+export class StemportsOutpost extends React.Component {
+  render() {
+    const game = this.props.game;
+    const obj = this.props.obj;
+    const newVersion = obj.online && obj.offline && obj.online.version !== obj.offline.version;
+    return (
+      <View style={{
+        flex: 1,
+        backgroundColor: 'white',
+        alignItems: 'stretch',
+      }}>
+        <View style={{alignItems: 'center', padding: 10}}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <CacheMedia
+              media_id={game.icon_media_id}
+              auth={this.props.auth}
+              online={true}
+              withURL={(url) =>
+                <View style={{margin: 10, alignItems: 'stretch', alignSelf: 'stretch'}}>
+                  <Image
+                    source={url}
+                    style={{
+                      width: 90,
+                      height: 90,
+                      resizeMode: 'contain',
+                    }}
+                  />
+                </View>
+              }
+            />
+            <View style={{margin: 10, flex: 1}}>
+              <Text style={{fontSize: 25}}>{game.name}</Text>
+            </View>
+          </View>
+          <View style={{margin: 10}}>
+            <Text>{game.description}</Text>
+          </View>
+        </View>
+        {
+          obj.offline ? (
+            <View style={{flex: 1}}>
+              <View style={{
+                padding: 10,
+                alignItems: 'center',
+              }}>
+                <Text style={{textDecorationLine: 'underline'}}>All Quests</Text>
+              </View>
+              <ScrollView style={{flex: 1, borderColor: 'black', borderWidth: 1}}>
+                {
+                  (obj.offline ? obj.offline.quests : obj.online.quests).filter(quest =>
+                    !parseInt(quest.parent_quest_id)
+                  ).map(quest =>
+                    <View key={quest.quest_id} style={{flexDirection: 'row'}}>
+                      <Text style={{flex: 1, margin: 5}}>{quest.name}</Text>
+                      <TouchableOpacity onPress={() =>
+                        obj.offline && this.props.onSelect(game, quest)
+                      } style={{
+                        backgroundColor: 'rgb(101,88,245)',
+                        padding: 5,
+                        margin: 5,
+                      }}>
+                        <Text style={{color: 'white'}}>start</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )
+                }
+              </ScrollView>
+            </View>
+          ) : (
+            <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
+              <Text style={{fontSize: 25, margin: 5, textAlign: 'center'}}>
+                Download Quests
+              </Text>
+              <Text style={{margin: 5, textAlign: 'center'}}>
+                It looks like you're at the {game.name} Science Station.
+                Download Quests to get started!
+              </Text>
+              <TouchableOpacity style={{
+                backgroundColor: 'rgb(101,88,245)',
+                padding: 5,
+                margin: 5,
+              }} onPress={this.props.onDownload}>
+                <Text style={{color: 'white'}}>
+                  Download Quests
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )
+        }
+        <View style={{alignItems: 'center', padding: 10}}>
+          {
+            obj.offline && (
+              <TouchableOpacity onPress={this.props.onUpload} style={{
+                width: 200,
+                padding: 10,
+                borderColor: 'black',
+                borderWidth: 1,
+                backgroundColor: 'white',
+              }}>
+                <Text>Upload</Text>
+              </TouchableOpacity>
+            )
+          }
+          {
+            obj.online && (
+              <TouchableOpacity onPress={this.props.onDownload} style={{
+                width: 200,
+                padding: 10,
+                borderColor: 'black',
+                borderWidth: 1,
+                backgroundColor: 'white',
+              }}>
+                <Text>{newVersion ? "Download (update!)" : "Download"}</Text>
+              </TouchableOpacity>
+            )
+          }
+          <TouchableOpacity onPress={this.props.onClose} style={{
+            width: 200,
+            padding: 10,
+            borderColor: 'black',
+            borderWidth: 1,
+            backgroundColor: 'white',
+          }}>
+            <Text>Close</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }

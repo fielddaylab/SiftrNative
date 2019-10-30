@@ -596,7 +596,7 @@ export function downloadGame(auth, game, callbacks = {}) {
 
 // @endif
 
-function meterDistance(posn1, posn2) {
+export function meterDistance(posn1, posn2) {
   // Haversine formula code from https://stackoverflow.com/a/14561433/509936
 
   const toRad = function(n) {

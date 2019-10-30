@@ -684,6 +684,7 @@ export var SiftrNative = createClass({
                   settings={this.state.settings}
                   screen={this.state.screen}
                   recent={this.state.recent || []}
+                  location={this.state.location}
                 />
               </SafeAreaView>
             )
