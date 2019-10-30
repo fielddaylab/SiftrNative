@@ -21,6 +21,13 @@ import {addXP, meterDistance} from './siftr-view';
 
 const RNFS = require("react-native-fs");
 
+function addTo(xs, f) {
+  // make new object with sequential ID
+  const new_id = 1000000 + xs.length;
+  xs.push(f(new_id));
+  return new_id;
+}
+
 export class StemportsPicker extends React.Component {
   constructor(props) {
     super(props);
@@ -287,12 +294,6 @@ export class StemportsPicker extends React.Component {
           let new_requirement_root_packages = [];
           let new_requirement_and_packages = [];
           let new_requirement_atoms = [];
-          function addTo(xs, f) {
-            // make new object with sequential ID
-            const new_id = 1000000 + xs.length;
-            xs.push(f(new_id));
-            return new_id;
-          }
           allData.guides.forEach(guide => {
             const field = allData.fields.find(field => parseInt(field.field_id) === parseInt(guide.field_id));
             const selector_option = allData.fields.map(f => f.options).flat().find(opt =>
@@ -324,14 +325,14 @@ export class StemportsPicker extends React.Component {
               game_id: game.game_id,
               requirement_root_package_id: remnant_root_id,
             }));
-            field.options.forEach(field =>
+            field.options.forEach(opt =>
               addTo(new_requirement_atoms, atom_id => ({
                 requirement_atom_id: atom_id,
                 game_id: game.game_id,
                 requirement_and_package_id: remnant_and_id,
                 bool_operator: 1,
                 requirement: 'PLAYER_HAS_ITEM',
-                content_id: field.remnant_id,
+                content_id: opt.remnant_id,
                 qty: 1,
               }))
             );
@@ -386,10 +387,84 @@ export class StemportsPicker extends React.Component {
             writeJSON('requirement_root_packages')(allData.requirement_root_packages.concat(new_requirement_root_packages)),
             writeJSON('requirement_and_packages')(allData.requirement_and_packages.concat(new_requirement_and_packages)),
             writeJSON('requirement_atoms')(allData.requirement_atoms.concat(new_requirement_atoms)),
+          ]).then(() => allData);
+        } else {
+          return allData; // nothing to do
+        }
+
+      }).then(allData => {
+        // generate factories
+        if (allData.factories.length === 0) {
+          // generate factories from remnants
+          let new_factories = [];
+          let new_instances = [];
+          let new_triggers = [];
+          allData.fields.forEach(field => {
+            field.options.forEach(opt => {
+              if (!opt.remnant_id) return;
+              addTo(new_factories, factory_id => ({
+                factory_id: factory_id,
+                game_id: game.game_id,
+                name: `Factory for item ${opt.remnant_id}`,
+                object_type: 'ITEM',
+                object_id: opt.remnant_id,
+                seconds_per_production: 10,
+                production_probability: 1,
+                max_production: 1,
+                produce_expiration_time: 60,
+                produce_expire_on_view: 1,
+                production_bound_type: 'PER_PLAYER',
+                location_bound_type: 'PLAYER',
+                min_production_distance: 10,
+                max_production_distance: 200,
+                requirement_root_package_id: 0,
+                trigger_latitude: 0,
+                trigger_longitude: 0,
+                trigger_distance: 25,
+                trigger_infinite_distance: 0,
+                trigger_on_enter: 0,
+                trigger_hidden: 0,
+                trigger_wiggle: 0,
+                trigger_title: '',
+                trigger_icon_media_id: 0,
+                trigger_show_title: 1,
+                trigger_requirement_root_package_id: 0, // TODO add locks?
+                trigger_scene_id: 0,
+              }));
+            });
+          });
+          new_factories.forEach(fact => {
+            addTo(new_instances, instance_id => ({
+              instance_id: instance_id,
+              game_id: game.game_id,
+              object_type: 'FACTORY',
+              object_id: fact.factory_id,
+              qty: 1,
+              infinite_qty: 1,
+              factory_id: 0,
+              owner_type: 'GAME_CONTENT',
+              owner_id: 0,
+            }));
+          });
+          new_instances.forEach(inst => {
+            addTo(new_triggers, trigger_id => ({
+              trigger_id: trigger_id,
+              game_id: game.game_id,
+              instance_id: inst.instance_id,
+              scene_id: 1,
+              requirement_root_package_id: 0,
+              type: 'IMMEDIATE',
+            }));
+          });
+          return Promise.all([
+            writeJSON('factories')(allData.factories.concat(new_factories)),
+            writeJSON('instances')(allData.instances.concat(new_instances)),
+            writeJSON('triggers')(allData.triggers.concat(new_triggers)),
           ]);
         } else {
-          return; // nothing to do
+          return;
         }
+
       }).then(() =>
         RNFS.writeFile(`${siftrDir}/download_timestamp.txt`, Date.now())
       );
