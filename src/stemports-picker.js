@@ -393,6 +393,46 @@ export class StemportsPicker extends React.Component {
         }
 
       }).then(allData => {
+        // generate tags
+        if (allData.tags.length === 0) {
+          // generate tags and object_tags from remnants
+          let new_tags = [];
+          let new_object_tags = [];
+          allData.guides.forEach(guide => {
+            const field = allData.fields.find(field =>
+              parseInt(field.field_id) === parseInt(guide.field_id)
+            );
+            if (!field) return;
+            const tag_id = addTo(new_tags, tag_id => ({
+              tag_id: tag_id,
+              game_id: game.game_id,
+              tag: field.label,
+              media_id: 0,
+              visible: 1,
+              curated: 0,
+              sort_index: 0,
+              color: '',
+            }));
+            field.options.forEach(opt => {
+              addTo(new_object_tags, object_tag_id => ({
+                object_tag_id: object_tag_id,
+                game_id: game.game_id,
+                object_type: 'ITEM',
+                object_id: opt.remnant_id,
+                tag_id: tag_id,
+              }));
+            });
+          });
+
+          return Promise.all([
+            writeJSON('tags')(allData.tags.concat(new_tags)),
+            writeJSON('object_tags')(allData.object_tags.concat(new_object_tags)),
+          ]).then(() => allData);
+        } else {
+          return allData; // nothing to do
+        }
+
+      }).then(allData => {
         // generate factories
         if (allData.factories.length === 0) {
           // generate factories from remnants
