@@ -223,10 +223,14 @@ export class InventoryScreen extends React.Component {
     }).sort((a, b) => {
       const a_empty = !a.items.some(item => item.instance);
       const b_empty = !b.items.some(item => item.instance);
-      if (a_empty === b_empty) {
+      if (true /* a_empty === b_empty */) {
         const a_tag = parseInt(a.tag.sort_index);
         const b_tag = parseInt(b.tag.sort_index);
-        return a_tag - b_tag;
+        if (a_tag === b_tag) {
+          return parseInt(a.tag.tag_id) - parseInt(b.tag.tag_id);
+        } else {
+          return a_tag - b_tag;
+        }
       }
       if (a_empty) return 1;
       if (b_empty) return -1;

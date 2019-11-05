@@ -59,9 +59,8 @@ function playerHasNoteWithQuest(atom, env) {
         field_ids.indexOf(parseInt(field_data.field_id)) !== -1
       );
     } else {
-      for (const k in note.field_data) {
-        const field_data = note.field_data[k];
-        if (field_ids.indexOf(parseInt(field_data.field_id)) !== -1) {
+      for (let field_id in note.field_data) {
+        if (field_ids.indexOf(parseInt(field_id)) !== -1) {
           return true;
         }
       }
