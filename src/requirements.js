@@ -41,6 +41,37 @@ function playerHasItem(atom, instances) {
   );
 }
 
+function playerHasNoteWithQuest(atom, env) {
+  const user_id = parseInt(env.auth.authToken.user_id);
+  const quest_id = parseInt(atom.content_id);
+  const rightUser = note => {
+    const note_user_id = parseInt(note.user_id || (note.user && note.user.user_id));
+    return note_user_id === user_id || !note_user_id;
+  };
+  const field_ids = env.guides.filter(guide =>
+    parseInt(guide.quest_id) === quest_id
+  ).map(guide => parseInt(guide.field_id));
+  const hasQuest = note => {
+    if (!note.field_data) {
+      return false;
+    } else if (note.field_data.some) {
+      return note.field_data.some(field_data =>
+        field_ids.indexOf(parseInt(field_data.field_id)) !== -1
+      );
+    } else {
+      for (const k in note.field_data) {
+        const field_data = note.field_data[k];
+        if (field_ids.indexOf(parseInt(field_data.field_id)) !== -1) {
+          return true;
+        }
+      }
+      return false;
+    }
+  };
+  const qty = env.notes.filter(note => rightUser(note) && hasQuest(note)).length;
+  return qty >= parseInt(atom.qty);
+}
+
 function playerHasNoteWithTag(atom, env) {
   const user_id = parseInt(env.auth.authToken.user_id);
   const tag_id = parseInt(atom.content_id);
@@ -117,6 +148,8 @@ function evalReqAtom(atom, env) {
       return !bool_operator; // TODO
     case 'PLAYER_HAS_NOTE_WITH_TAG':
       return bool_operator == playerHasNoteWithTag(atom, env);
+    case 'PLAYER_HAS_NOTE_WITH_QUEST': // custom requirement type
+      return bool_operator == playerHasNoteWithQuest(atom, env);
     case 'PLAYER_HAS_NOTE_WITH_LIKES':
       return !bool_operator; // TODO
     case 'PLAYER_HAS_NOTE_WITH_COMMENTS':

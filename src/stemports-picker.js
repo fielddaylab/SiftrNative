@@ -279,7 +279,7 @@ export class StemportsPicker extends React.Component {
         writeJSON('game')(game),
 
       ]).then(objs => {
-        // generate quests
+        // organize the data we got for the game
         let allData = {};
         objs.forEach(o => {
           [o].flat(Infinity).forEach(x => {
@@ -288,34 +288,29 @@ export class StemportsPicker extends React.Component {
             }
           });
         });
-        if (allData.quests.length === 0) {
-          // generate quests from remnants
-          let new_quests = [];
-          let new_requirement_root_packages = [];
-          let new_requirement_and_packages = [];
-          let new_requirement_atoms = [];
-          allData.guides.forEach(guide => {
-            const field = allData.fields.find(field => parseInt(field.field_id) === parseInt(guide.field_id));
-            const selector_option = allData.fields.map(f => f.options).flat().find(opt =>
-              parseInt(opt.field_guide_id) === parseInt(guide.field_guide_id)
+
+        // generate quests
+
+        /*
+        for each quest that is referred to by at least one guide's quest_id:
+          make a "get the remnants" quest
+          make a "do observations" quest
+        */
+
+        let new_quests = [];
+        let new_requirement_root_packages = [];
+        let new_requirement_and_packages = [];
+        let new_requirement_atoms = [];
+        allData.quests.forEach(quest => {
+          const guides = allData.guides.filter(guide =>
+            parseInt(guide.quest_id) === parseInt(quest.quest_id)
+          );
+          if (guides.length > 0) {
+            const fields = guides.map(guide =>
+              allData.fields.find(field => parseInt(field.field_id) === parseInt(guide.field_id))
             );
-            if (!field || !selector_option) return;
 
-            // make the compound quest
-            const compound_id = addTo(new_quests, quest_id => ({
-              quest_id: quest_id,
-              game_id: game.game_id,
-              name: field.label,
-              description: '',
-              prompt: '',
-              stars: 0,
-              quest_type: 'COMPOUND',
-              parent_quest_id: 0,
-              active_requirement_root_package_id: 0,
-              complete_requirement_root_package_id: 0,
-            }));
-
-            // make the "get the remnants" quest
+            // make the "get the remnants" subquest
             const remnant_root_id = addTo(new_requirement_root_packages, root_id => ({
               requirement_root_package_id: root_id,
               game_id: game.game_id,
@@ -325,31 +320,33 @@ export class StemportsPicker extends React.Component {
               game_id: game.game_id,
               requirement_root_package_id: remnant_root_id,
             }));
-            field.options.forEach(opt =>
-              addTo(new_requirement_atoms, atom_id => ({
-                requirement_atom_id: atom_id,
-                game_id: game.game_id,
-                requirement_and_package_id: remnant_and_id,
-                bool_operator: 1,
-                requirement: 'PLAYER_HAS_ITEM',
-                content_id: opt.remnant_id,
-                qty: 1,
-              }))
-            );
+            fields.forEach(field => {
+              field.options.forEach(opt =>
+                addTo(new_requirement_atoms, atom_id => ({
+                  requirement_atom_id: atom_id,
+                  game_id: game.game_id,
+                  requirement_and_package_id: remnant_and_id,
+                  bool_operator: 1,
+                  requirement: 'PLAYER_HAS_ITEM',
+                  content_id: opt.remnant_id,
+                  qty: 1,
+                }))
+              );
+            });
             addTo(new_quests, quest_id => ({
               quest_id: quest_id,
               game_id: game.game_id,
-              name: `Collect: ${field.label}`,
+              name: 'Collect',
               description: '',
-              prompt: `Find all the ${field.label} remnants!`,
+              prompt: 'Find all the remnants!',
               stars: 0,
               quest_type: 'QUEST',
-              parent_quest_id: compound_id,
+              parent_quest_id: quest.quest_id,
               active_requirement_root_package_id: 0,
               complete_requirement_root_package_id: remnant_root_id,
             }));
 
-            // make the "do observations" quest
+            // make the "do observations" subquest
             const observe_root_id = addTo(new_requirement_root_packages, root_id => ({
               requirement_root_package_id: root_id,
               game_id: game.game_id,
@@ -364,24 +361,26 @@ export class StemportsPicker extends React.Component {
               game_id: game.game_id,
               requirement_and_package_id: observe_and_id,
               bool_operator: 1,
-              requirement: 'PLAYER_HAS_NOTE_WITH_TAG',
-              content_id: 10000000 + selector_option.field_option_id,
+              requirement: 'PLAYER_HAS_NOTE_WITH_QUEST', // custom req type
+              content_id: quest.quest_id,
               qty: 3,
             }))
             addTo(new_quests, quest_id => ({
               quest_id: quest_id,
               game_id: game.game_id,
-              name: `Observe: ${field.label}`,
+              name: 'Observe',
               description: '',
-              prompt: `Make 3 ${field.label} observations!`,
+              prompt: 'Make 3 observations!',
               stars: 0,
               quest_type: 'QUEST',
-              parent_quest_id: compound_id,
+              parent_quest_id: quest.quest_id,
               active_requirement_root_package_id: 0,
               complete_requirement_root_package_id: observe_root_id,
             }));
-          });
+          }
+        });
 
+        if (new_quests.length > 0) {
           return Promise.all([
             writeJSON('quests')(allData.quests.concat(new_quests)),
             writeJSON('requirement_root_packages')(allData.requirement_root_packages.concat(new_requirement_root_packages)),

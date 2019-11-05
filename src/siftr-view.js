@@ -849,6 +849,7 @@ export const SiftrView = createClass({
         }
         return notes;
       })(),
+      guides: this.props.guides,
       game: this.props.game,
       auth: this.props.auth,
     });
