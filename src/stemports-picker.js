@@ -18,6 +18,7 @@ import { StatusSpace } from "./status-space";
 import { StemportsPlayer } from "./stemports-player";
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import {addXP, meterDistance} from './siftr-view';
+import {loadQueue, uploadNote} from './upload-queue';
 
 const RNFS = require("react-native-fs");
 
@@ -103,6 +104,18 @@ export class StemportsPicker extends React.Component {
   uploadGame(game) {
     const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${game.game_id}`;
     return Promise.all([
+      loadQueue().then(notes => {
+        const uploadRemaining = (rem) => {
+          if (rem.length === 0) {
+            return notes;
+          } else {
+            return uploadNote(this.props.auth, rem[0]).then(() => {
+              return uploadRemaining(rem.slice(1));
+            });
+          }
+        }
+        return uploadRemaining(notes);
+      }),
       Promise.all([
         RNFS.readFile(`${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`),
         RNFS.readFile(`${siftrDir}/inventory.txt`),

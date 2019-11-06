@@ -11,6 +11,104 @@ import {Auth} from './aris';
 
 import {Platform} from 'react-native';
 
+export function loadQueue() {
+  const queueDir = `${RNFS.DocumentDirectoryPath}/siftrqueue`;
+  return RNFS.exists(queueDir).then((dirExists) => {
+    if (dirExists) {
+      return RNFS.readDir(queueDir);
+    } else {
+      return [];
+    }
+  }).then((files) => {
+    return Promise.all((function() {
+      var i, len, results;
+      results = [];
+      for (i = 0, len = files.length; i < len; i++) {
+        let dir, timestamp;
+        dir = files[i];
+        timestamp = parseInt(dir.name);
+        if (!(timestamp && dir.isDirectory())) {
+          continue;
+        }
+        results.push(RNFS.readDir(dir.path).then((entries) => {
+          return {dir, entries};
+        }));
+      }
+      return results;
+    }).call());
+  }).then((listedDirs) => {
+    return Promise.all((function() {
+      var i, len, results;
+      results = [];
+      for (i = 0, len = listedDirs.length; i < len; i++) {
+        let dir, entries;
+        ({dir, entries} = listedDirs[i]);
+        if (!entries.some((ent) => {
+          return ent.name === 'createNote.json';
+        })) {
+          continue;
+        }
+        results.push(RNFS.readFile(`${dir.path}/createNote.json`).then((json) => {
+          return {dir, json};
+        }));
+      }
+      return results;
+    }).call());
+  });
+}
+
+export function uploadNote(auth, {dir, json}) {
+  json = JSON.parse(json);
+  if (!json.files) json.files = [];
+  let progress = json.files.map(() => 0);
+  return Promise.all(
+    json.files.map((f, index) => {
+      const file = {
+        uri: Platform.OS === 'ios' ? `${dir.path}/${f.filename}` : `file://${dir.path}/${f.filename}`,
+        type: f.mimetype,
+        name: f.filename
+      };
+      return auth.promise('rawUpload', file, (fileProg) => {
+        progress[index] = fileProg;
+        const percent = (progress.reduce((a, b) => a + b, 0) / progress.length) * 100;
+      }).then((raw_upload_id) => {
+        return auth.promise('call', 'media.createMediaFromRawUpload', {
+          file_name: f.filename,
+          raw_upload_id: raw_upload_id,
+          game_id: f.game_id,
+          resize: 800,
+        }).then((media) => {
+          return {
+            media_id: media.media_id,
+            field_id: f.field_id,
+          };
+        });
+      });
+    })
+  ).then((medias) => {
+    medias.forEach((m) => {
+      if (m.field_id === null) {
+        json.media_id = m.media_id;
+      } else {
+        if (json.field_data === undefined) json.field_data = [];
+        json.field_data.push({
+          field_id: m.field_id,
+          media_id: m.media_id,
+        });
+      }
+    });
+    return auth.promise('call', 'notes.createNote', json);
+  }).then((note) => {
+    firebase.analytics().logEvent('create_note', {
+      note_id: note.note_id,
+      game_id: note.game_id,
+    });
+    return RNFS.unlink(dir.path);
+  }).catch((err) => {
+    return console.warn(err);
+  });
+}
+
 export const UploadQueue = createClass({
   displayName: 'UploadQueue',
   propTypes: {
