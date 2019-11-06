@@ -30,7 +30,7 @@ import InfiniteScrollView from "react-native-infinite-scroll-view";
 import firebase from "react-native-firebase";
 import Geocoder from "react-native-geocoder";
 import Permissions from "react-native-permissions";
-import { Auth, Game, Tag, Field, FieldData } from "./aris";
+import { Auth, Game, Tag, Field, FieldData, FieldOption } from "./aris";
 import { requestImage } from "./photos";
 
 // Not used currently
@@ -795,6 +795,9 @@ export const CreateData = createClass({
       field = ref2[i];
       if (field.field_type === "SINGLESELECT") {
         if (field_data.some(data => data.field_id === field.field_id)) {
+          // singleselect has something selected
+        } else if (!field.required) {
+          // don't add anything because the top option is (none)
         } else {
           field_data.push(
             new FieldData({
@@ -1275,13 +1278,25 @@ export const CreateData = createClass({
                                 />
                               );
                             case "SINGLESELECT":
-                              const filteredOptions = field.options.filter(opt => {
+                              let filteredOptions = field.options.filter(opt => {
                                 if (parseInt(opt.field_guide_id)) {
                                   return this.props.isGuideComplete(opt.field_guide_id);
                                 } else {
                                   return true;
                                 }
                               });
+                              if (!field.required) {
+                                filteredOptions.unshift(new FieldOption({
+                                  field_option_id: 0,
+                                  field_id: field.field_id,
+                                  game_id: this.props.game.game_id,
+                                  option: '(none)',
+                                  sort_index: 0,
+                                  color: 'gray',
+                                  remnant_id: null,
+                                  field_guide_id: null,
+                                }));
+                              }
                               return (
                                 <CreateSingleSelect
                                   current={(() => {
@@ -1333,12 +1348,14 @@ export const CreateData = createClass({
                                     var newData = field_data.filter(
                                       data => data.field_id !== field.field_id
                                     );
-                                    newData.push(
-                                      new FieldData({
-                                        field_id: field.field_id,
-                                        field_option_id: opt.field_option_id
-                                      })
-                                    );
+                                    if (opt.field_option_id !== 0) {
+                                      newData.push(
+                                        new FieldData({
+                                          field_id: field.field_id,
+                                          field_option_id: opt.field_option_id
+                                        })
+                                      );
+                                    }
                                     return onChangeData(newData);
                                   }}
                                 />
