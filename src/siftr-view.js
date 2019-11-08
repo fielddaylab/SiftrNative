@@ -770,6 +770,9 @@ export const SiftrView = createClass({
       factoryObjects: [],
       factoryProductionTimestamps: {},
       pickedUpRemnants: [],
+      guideLines: [],
+      guideMentionedRemnant: false,
+      guideMentionedXP: false,
     };
   },
   getAllNotes: function(cb) {
@@ -794,6 +797,22 @@ export const SiftrView = createClass({
         });
       })
     );
+  },
+  addXP: function(n) {
+    this.setState(oldState =>
+      oldState.guideMentionedXP
+      ? oldState
+      : update(oldState, {
+        guideMentionedXP: {$set: true},
+        guideLines: {$push: [`You got ${n} XP!`]},
+      })
+    );
+    this.props.addXP(n);
+  },
+  addGuideLine: function(line) {
+    this.setState(oldState => update(oldState, {
+      guideLines: {$push: [line]},
+    }));
   },
   addLog: function(logEntry) {
     this.setState(oldState => update(oldState, {
@@ -912,8 +931,14 @@ export const SiftrView = createClass({
       this.setState(o);
       if (oldQuests) {
         newQuests.active.forEach(quest => {
-          if (!oldQuests.active.some(old => old.quest_id === quest.quest_id)) {
+          const oldVersion = oldQuests.active.find(old => old.quest_id === quest.quest_id);
+          if (!oldVersion) {
             this.pushModal({type: 'quest-available', quest: quest});
+          } else {
+            // check if subquests have been completed
+            if (quest.sub_active && oldVersion.sub_active && quest.sub_active.length !== oldVersion.sub_active.length) {
+              this.addGuideLine(`Good job! ${quest.sub_active[0].prompt}`);
+            }
           }
         });
         newQuests.complete.forEach(quest => {
@@ -926,6 +951,21 @@ export const SiftrView = createClass({
             });
           }
         });
+        if (newQuests.active.length === 0 && oldQuests.active.length > 0) {
+          this.addGuideLine("You're done with the subquests here!");
+        }
+      } else {
+        // first quest computation since launch
+        if (newQuests.active.length === 0) {
+          this.addGuideLine("You've already completed all the subquests here!");
+        } else {
+          const quest = newQuests.active[0];
+          if (quest.sub_active && quest.sub_active.length > 0) {
+            this.addGuideLine(quest.sub_active[0].prompt);
+          } else {
+            this.addGuideLine(quest.prompt);
+          }
+        }
       }
     }
     setTimeout(() => this.checkQuestsOffline(), 5000);
@@ -2636,7 +2676,7 @@ export const SiftrView = createClass({
       } else {
         // @ifdef NATIVE
         // save note for later upload queue
-        this.props.addXP(2);
+        this.addXP(2);
         queueDir = `${RNFS.DocumentDirectoryPath}/siftrqueue/${Date.now()}`;
         filesToCopy = [];
         for (i = 0, len = files.length; i < len; i++) {
@@ -3011,41 +3051,52 @@ export const SiftrView = createClass({
                     )
                   : this.renderMap()
               }
-              <View
-                style={{
-                  position: 'absolute',
-                  top: 10,
-                  left: 10,
-                  right: 10,
-                  backgroundColor: 'white',
-                  borderRadius: 5,
-                  paddingTop: 3,
-                  paddingBottom: 3,
-                  paddingLeft: 7,
-                  paddingRight: 7,
-                  alignItems: 'flex-start',
-                }}
-              >
-                {
-                  this.props.currentQuest && (
-                    <Text style={{margin: 10}}>
-                      { this.props.currentQuest.prompt || this.props.currentQuest.name }
-                    </Text>
-                  )
-                }
-                <TouchableOpacity
-                  onPress={() => this.pushModal({type: 'quests'})}
-                  style={{
-                    margin: 10,
-                    padding: 10,
-                    backgroundColor: 'rgb(114,236,222)',
-                    borderRadius: 10,
-                    fontSize: 20,
-                  }}
-                >
-                  <Text>View Quests</Text>
-                </TouchableOpacity>
-              </View>
+              {
+                this.state.guideLines.length === 0 ? (
+                  <TouchableOpacity
+                    onPress={() => this.pushModal({type: 'quests'})}
+                    style={{
+                      position: 'absolute',
+                      top: 10,
+                      right: 10,
+                    }}
+                  >
+                    <Image
+                      style={{margin: 10, width: 36, height: 39}}
+                      source={require('../web/assets/img/puffin.png')}
+                    />
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    onPress={() => this.setState(prevState => update(prevState, {
+                      guideLines: {$apply: (lines) => lines.slice(1)},
+                    }))}
+                    style={{
+                      position: 'absolute',
+                      top: 10,
+                      left: 10,
+                      right: 10,
+                      flexDirection: 'row',
+                    }}
+                  >
+                    <View style={{
+                      flex: 1,
+                      backgroundColor: 'white',
+                      borderRadius: 5,
+                      paddingTop: 3,
+                      paddingBottom: 3,
+                      paddingLeft: 7,
+                      paddingRight: 7,
+                    }}>
+                      <Text>{this.state.guideLines[0]}</Text>
+                    </View>
+                    <Image
+                      style={{margin: 10, width: 36, height: 39}}
+                      source={require('../web/assets/img/puffin.png')}
+                    />
+                  </TouchableOpacity>
+                )
+              }
               <CacheMedia
                 media_id={63}
                 auth={this.props.auth}
@@ -3167,7 +3218,7 @@ export const SiftrView = createClass({
                         object_tags={this.props.object_tags}
                         pickedUpRemnants={this.state.pickedUpRemnants}
                         onPlace={item_id => {
-                          this.props.addXP(2);
+                          this.addXP(2);
                           this.setState(state => update(state, {
                             pickedUpRemnants: {
                               $apply: remnants => remnants.filter(remnant => remnant !== item_id),
@@ -3265,7 +3316,7 @@ export const SiftrView = createClass({
                             this.popModal();
                           }}
                           onPickup={events => {
-                            this.props.addXP(2);
+                            this.addXP(2);
                             this.setState(state => {
                               let inv = state.inventory;
                               events.forEach(event => {
@@ -3296,7 +3347,7 @@ export const SiftrView = createClass({
                           auth={this.props.auth}
                           onClose={this.popModal/*.bind(this)*/}
                           onPickUp={(trigger) => {
-                            this.props.addXP(2);
+                            this.addXP(2);
                             this.setState(state => {
                               return update(state, {
                                 pickedUpRemnants: {
@@ -3308,6 +3359,11 @@ export const SiftrView = createClass({
                                     }
                                   },
                                 },
+                                guideMentionedRemnant: {$set: true},
+                                guideLines: (state.guideMentionedRemnant
+                                  ? undefined
+                                  : {$push: ['You picked up a remnant!']}
+                                  ),
                                 factoryObjects: {
                                   $apply: objs => objs.filter(obj =>
                                     parseInt(obj.trigger.trigger_id) != parseInt(modal.trigger.trigger_id)
