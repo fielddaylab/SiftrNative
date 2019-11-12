@@ -451,9 +451,16 @@ export class StemportsPicker extends React.Component {
           let new_factories = [];
           let new_instances = [];
           let new_triggers = [];
+          let event_items = [];
+          allData.events.forEach(event => {
+            if (event.event === 'GIVE_ITEM') { // GIVE_ITEM_PLAYER in database
+              event_items.push(parseInt(event.content_id));
+            }
+          });
           allData.fields.forEach(field => {
             field.options.forEach(opt => {
               if (!opt.remnant_id) return;
+              if (event_items.indexOf(opt.remnant_id) !== -1) return;
               addTo(new_factories, factory_id => ({
                 factory_id: factory_id,
                 game_id: game.game_id,
