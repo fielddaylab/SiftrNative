@@ -3361,7 +3361,7 @@ export const SiftrView = createClass({
                                 },
                                 guideMentionedRemnant: {$set: true},
                                 guideLines: (state.guideMentionedRemnant
-                                  ? undefined
+                                  ? {$apply: x => x}
                                   : {$push: ['You picked up a remnant!']}
                                   ),
                                 factoryObjects: {
