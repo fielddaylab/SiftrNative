@@ -828,38 +828,20 @@ export const CreateData = createClass({
     if (this.props.progress != null) {
       return;
     }
-    // if field_data has an option with field_guide_id set (meaning it's the guide selection),
-    // remove all data that has a field with a different field_guide_id set
-    let selected_guide_id = this.defaultGuideID();
-    field_data.forEach(data => {
-      const field = this.props.fields.find(field => field.field_id === data.field_id);
-      const field_option = field.options.find(option => option.field_option_id === data.field_option_id);
-      const this_guide_id = parseInt(field_option.field_guide_id);
-      if (this_guide_id) {
-        selected_guide_id = this_guide_id;
-      }
-    });
-    if (selected_guide_id) {
+    // remove any fields that are for other quests
+    let current_quest_id = this.props.currentQuest && parseInt(this.props.currentQuest.quest_id);
+    if (current_quest_id) {
       field_data = field_data.filter(data => {
         const field = this.props.fields.find(field => field.field_id === data.field_id);
-        const this_guide_id = parseInt(field.field_guide_id);
-        if (this_guide_id) {
-          return parseInt(this_guide_id) === selected_guide_id;
+        const this_quest_id = parseInt(field.quest_id);
+        if (this_quest_id) {
+          return parseInt(this_quest_id) === current_quest_id;
         } else {
           return true;
         }
       });
     }
     this.props.onFinish(field_data, this.state.noteLocation);
-  },
-  defaultGuideID: function() {
-    let field_guide_id = null;
-    this.props.fields.forEach(field => {
-      if (!field.options || field.options.length === 0) return;
-      if (!parseInt(field.options[0].field_guide_id)) return;
-      field_guide_id = parseInt(field.options[0].field_guide_id);
-    });
-    return field_guide_id;
   },
   scrollToField: function(field_id) {
     if (this.scrollFields && this.fieldChunks && this.fieldChunks[field_id]) {
@@ -1120,17 +1102,10 @@ export const CreateData = createClass({
                       return null;
                     }
 
-                    // filter fields based on selected guide
-                    let selected_guide_id = this.defaultGuideID();
-                    field_data.forEach(data => {
-                      const field = this.props.fields.find(field => field.field_id === data.field_id);
-                      const field_option = field.options.find(option => option.field_option_id === data.field_option_id);
-                      const this_guide_id = parseInt(field_option.field_guide_id);
-                      if (this_guide_id) {
-                        selected_guide_id = this_guide_id;
-                      }
-                    });
-                    if (field.field_guide_id && parseInt(field.field_guide_id) !== selected_guide_id) {
+                    // filter fields based on selected quest
+                    if (field.field_guide_id
+                      && this.props.currentQuest
+                      && parseInt(field.field_guide_id) !== parseInt(this.props.currentQuest.quest_id)) {
                       return;
                     }
 

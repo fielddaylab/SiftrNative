@@ -2411,6 +2411,7 @@ export const SiftrView = createClass({
           resumedNote={this.state.resumedNote}
           quests={this.state.quests}
           isGuideComplete={this.isGuideComplete/*.bind(this)*/}
+          currentQuest={this.props.currentQuest}
         />
       );
     }
