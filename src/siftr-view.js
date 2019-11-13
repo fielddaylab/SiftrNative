@@ -2759,6 +2759,24 @@ export const SiftrView = createClass({
     }`;
     RNFS.writeFile(`${siftrDir}/inventory.txt`, JSON.stringify(this.state.inventory));
   },
+  areRemnantsComplete: function() {
+    if (!this.props.currentQuest) return false;
+    return this.props.guides.every(guide => {
+      if (parseInt(guide.quest_id) !== parseInt(this.props.currentQuest.quest_id)) {
+        return true;
+      }
+      const field = this.props.fields.find(field => parseInt(field.field_id) === parseInt(guide.field_id));
+      if (!field) return false;
+      return field.options.every(option =>
+        !parseInt(option.remnant_id) || this.state.inventory.some(inst =>
+          inst.object_type === 'ITEM'
+          && inst.owner_type === 'USER'
+          && parseInt(inst.object_id) === parseInt(option.remnant_id)
+          && parseInt(inst.qty) > 0
+        )
+      );
+    });
+  },
   isGuideComplete: function(field_guide) {
     if (['number', 'string'].indexOf(typeof field_guide) !== -1) {
       field_guide = this.props.guides.find(guide => parseInt(guide.field_guide_id) === parseInt(field_guide));
@@ -3144,8 +3162,8 @@ export const SiftrView = createClass({
                   />
                 </TouchableOpacity>
                 {
-                  // show if player has at least one remnant set finished
-                  this.props.guides.some(guide => this.isGuideComplete(guide)) && (
+                  // show if player has collected all this quest's remnants
+                  this.areRemnantsComplete() && (
                     <TouchableOpacity
                       style={{
                         padding: 10

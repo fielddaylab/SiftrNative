@@ -740,13 +740,13 @@ export class SiftrMap extends React.Component {
           let plaque;
           let item;
           if (inst.object_type === 'PLAQUE') {
+            plaque = this.props.plaques.find(p => parseInt(p.plaque_id) === parseInt(inst.object_id));
             if (!icon) {
-              plaque = this.props.plaques.find(p => parseInt(p.plaque_id) === parseInt(inst.object_id));
               if (plaque) icon = parseInt(plaque.icon_media_id);
             }
           } else if (inst.object_type === 'ITEM') {
+            item = this.props.items.find(p => parseInt(p.item_id) === parseInt(inst.object_id));
             if (!icon) {
-              item = this.props.items.find(p => parseInt(p.item_id) === parseInt(inst.object_id));
               if (item) icon = parseInt(item.icon_media_id);
             }
           } else {

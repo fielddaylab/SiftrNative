@@ -1253,6 +1253,7 @@ export const CreateData = createClass({
                                 />
                               );
                             case "SINGLESELECT":
+                              // TODO this is probably not necessary anymore
                               let filteredOptions = field.options.filter(opt => {
                                 if (parseInt(opt.field_guide_id)) {
                                   return this.props.isGuideComplete(opt.field_guide_id);
