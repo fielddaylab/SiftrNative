@@ -9,7 +9,8 @@ import {
   Modal,
   TouchableWithoutFeedback,
   Image,
-  SafeAreaView
+  SafeAreaView,
+  ActivityIndicator
 } from "react-native";
 import { styles, Text } from "./styles";
 import {deserializeGame} from "./aris";
@@ -79,12 +80,20 @@ export class StemportsPicker extends React.Component {
   }
 
   loadDownloadedGames() {
-    this.setState({downloadedGames: [], gameModal: null}, () => {
+    let gameToReload;
+    this.setState(prevState => {
+      gameToReload = prevState.gameModal;
+      if (gameToReload) {
+        return update(prevState, {gameModal: {$set: 'loading'}});
+      } else {
+        return prevState;
+      }
+    }, () => {
       RNFS.readDir(`${RNFS.DocumentDirectoryPath}/siftrs`).then(items => {
-        items.forEach(item => {
-          RNFS.exists(`${item.path}/download_timestamp.txt`).then(exist => {
+        Promise.all(items.map(item => {
+          return RNFS.exists(`${item.path}/download_timestamp.txt`).then(exist => {
             if (exist) {
-              Promise.all([
+              return Promise.all([
                 RNFS.readFile(`${item.path}/game.txt`),
                 RNFS.readFile(`${item.path}/quests.txt`),
               ]).then(([json, quests]) => {
@@ -93,9 +102,26 @@ export class StemportsPicker extends React.Component {
                   {quests: {$set: JSON.parse(quests)}}
                 );
                 this.setState(state => update(state, {downloadedGames: {$push: [game]}}));
+                return game;
               });
+            } else {
+              return null;
             }
           });
+        })).then(games => {
+          if (!gameToReload) return;
+          let foundGame = false;
+          games.forEach(game => {
+            if (!game) return;
+            if (parseInt(game.game_id) === parseInt(gameToReload.game.game_id)) {
+              this.setState({gameModal: update(gameToReload, {offline: {$set: game}})});
+              foundGame = true;
+            }
+          });
+          if (!foundGame) {
+            // probably shouldn't happen, but just to make sure spinner goes away
+            this.setState({gameModal: null});
+          }
         });
       });
     });
@@ -726,6 +752,23 @@ export class StemportsPicker extends React.Component {
         {
           this.state.gameModal && (() => {
             const obj = this.state.gameModal;
+            if (obj === 'loading') {
+              return (
+                <Modal transparent={true} onRequestClose={() => this.setState({gameModal: null})}>
+                  <View style={{
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flex: 1,
+                    backgroundColor: 'white',
+                  }}>
+                    <ActivityIndicator
+                      size="large"
+                      color="black"
+                    />
+                  </View>
+                </Modal>
+              );
+            }
             const game = obj.game;
             return (
               <Modal transparent={true} onRequestClose={() => this.setState({gameModal: null})}>
