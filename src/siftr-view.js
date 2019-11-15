@@ -2032,37 +2032,11 @@ export const SiftrView = createClass({
     return (
       <SiftrMap
         location={this.props.location}
-        map_notes={(() => {
-          var pin;
-          // @ifdef WEB
-          if (this.state.createNote != null && this.state.createStep === 5) {
-            pin = new Note();
-            pin.note_id = 0;
-            pin.latitude = this.state.createNote.location.lat;
-            pin.longitude = this.state.createNote.location.lng;
-            pin.description = this.state.createNote.caption;
-            pin.tag_id = this.state.createNote.category ? this.state.createNote.category.tag_id : 0;
-            return [pin];
-          } else if (this.state.createNote != null) {
-            return []; // pin gets shown by CreateStep3 instead
-          } else {
-            return this.state.map_notes;
-          }
-          // @endif
-          // @ifdef NATIVE
-          if (this.state.createNote != null && this.state.createStep > 1) {
-            pin = new Note();
-            pin.note_id = 0;
-            pin.latitude = this.state.center.lat;
-            pin.longitude = this.state.center.lng;
-            pin.description = this.state.createNote.caption;
-            pin.tag_id = this.state.createNote.category ? this.state.createNote.category.tag_id : 0;
-            return [pin];
-          } else {
-            return this.state.map_notes;
-          }
-          // @endif
-        })()}
+        map_notes={this.props.notes.filter(note => {
+          if (note.user.user_id !== this.props.auth.authToken.user_id) return false;
+          // TODO filter notes by currentQuest
+          return true;
+        })}
         triggers={this.getTriggers()}
         instances={this.getInstances()}
         plaques={this.props.plaques}
@@ -2097,13 +2071,7 @@ export const SiftrView = createClass({
           }
           // @endif
         })()}
-        map_clusters={(() => {
-          if (this.state.createNote != null) {
-            return [];
-          } else {
-            return this.state.map_clusters;
-          }
-        })()}
+        map_clusters={[]}
         onMove={this.moveMap}
         onLayout={event => {
           return (this.layout = event.nativeEvent.layout);
