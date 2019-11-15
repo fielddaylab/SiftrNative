@@ -598,13 +598,31 @@ export class StemportsPicker extends React.Component {
           <Text style={{margin: 10, fontSize: 25}}>
             Get to a Science Station
           </Text>
-          <Text style={{margin: 10}}>
-            {
-              gamesByDistance.length > 0 && gamesByDistance[0].distance < 1000
-              ? `It looks like you're at the ${gamesByDistance[0].game.name} Science Station. Download Quests to get started!`
-              : 'You need to be at a science station to start a quest. Here are the closest ones.'
-            }
-          </Text>
+          <View style={{flexDirection: 'row', padding: 5}}>
+            <View style={{
+              flex: 1,
+              backgroundColor: 'white',
+              borderRadius: 5,
+              paddingTop: 3,
+              paddingBottom: 3,
+              paddingLeft: 7,
+              paddingRight: 7,
+              borderColor: 'black',
+              borderWidth: 1,
+            }}>
+              <Text>
+                {
+                  gamesByDistance.length > 0 && gamesByDistance[0].distance < 1000
+                  ? `It looks like you're at the ${gamesByDistance[0].game.name} Science Station. Download Quests to get started!`
+                  : 'You need to be at a science station to start a quest. Here are the closest ones.'
+                }
+              </Text>
+            </View>
+            <Image
+              style={{margin: 10, width: 36, height: 39}}
+              source={require('../web/assets/img/puffin.png')}
+            />
+          </View>
           <ScrollView style={{flex: 1}}>
             {
               gamesByDistance.map(o =>
@@ -721,6 +739,34 @@ export class StemportsPicker extends React.Component {
             })
           }
         </MapView>
+        <View
+          style={{
+            position: 'absolute',
+            top: 10,
+            left: 10,
+            right: 10,
+            flexDirection: 'row',
+          }}
+        >
+          <View style={{
+            flex: 1,
+            backgroundColor: 'white',
+            borderRadius: 5,
+            paddingTop: 3,
+            paddingBottom: 3,
+            paddingLeft: 7,
+            paddingRight: 7,
+          }}>
+            <Text>
+              You need to be at a science station to start a quest.
+              Check the list to find ones near you!
+            </Text>
+          </View>
+          <Image
+            style={{margin: 10, width: 36, height: 39}}
+            source={require('../web/assets/img/puffin.png')}
+          />
+        </View>
         <TouchableOpacity onPress={() =>
           this.setState({mapLocation: null})
         } style={{
