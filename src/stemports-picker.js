@@ -843,6 +843,30 @@ export class StemportsPicker extends React.Component {
 }
 
 export class StemportsOutpost extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      currentQuestID: null,
+      tab: null,
+    };
+  }
+
+  componentDidMount() {
+    const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
+    RNFS.readFile(`${siftrDir}/current_quest.txt`).then(str => {
+      this.setState({currentQuestID: parseInt(str), tab: 'current'});
+    }).catch(() => {
+      this.setState({currentQuestID: 'none', tab: 'all'});
+    });
+  }
+
+  launchQuest(game, quest) {
+    const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
+    RNFS.writeFile(`${siftrDir}/current_quest.txt`, quest.quest_id);
+    this.setState({currentQuestID: parseInt(quest.quest_id)});
+    this.props.onSelect(game, quest);
+  }
+
   render() {
     const game = this.props.game;
     const obj = this.props.obj;
@@ -884,31 +908,81 @@ export class StemportsOutpost extends React.Component {
           obj.offline ? (
             <View style={{flex: 1}}>
               <View style={{
-                padding: 10,
                 alignItems: 'center',
+                justifyContent: 'space-around',
+                flexDirection: 'row',
               }}>
-                <Text style={{textDecorationLine: 'underline'}}>All Quests</Text>
+                <TouchableOpacity
+                  onPress={() => this.setState({tab: 'current'})}
+                  style={{padding: 10}}
+                >
+                  <Text style={{
+                    textDecorationLine: 'underline',
+                    color: this.state.tab === 'current' ? 'rgb(101,88,245)' : 'black',
+                  }}>
+                    Current Quest
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => this.setState({tab: 'all'})}
+                  style={{padding: 10}}
+                >
+                  <Text style={{
+                    textDecorationLine: 'underline',
+                    color: this.state.tab === 'all' ? 'rgb(101,88,245)' : 'black',
+                  }}>
+                    All Quests
+                  </Text>
+                </TouchableOpacity>
               </View>
-              <ScrollView style={{flex: 1, borderColor: 'black', borderWidth: 1}}>
-                {
-                  (obj.offline ? obj.offline.quests : obj.online.quests).filter(quest =>
-                    !parseInt(quest.parent_quest_id)
-                  ).map(quest =>
-                    <View key={quest.quest_id} style={{flexDirection: 'row'}}>
-                      <Text style={{flex: 1, margin: 5}}>{quest.name}</Text>
-                      <TouchableOpacity onPress={() =>
-                        obj.offline && this.props.onSelect(game, quest)
-                      } style={{
-                        backgroundColor: 'rgb(101,88,245)',
-                        padding: 5,
-                        margin: 5,
-                      }}>
-                        <Text style={{color: 'white'}}>start</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )
-                }
-              </ScrollView>
+              {
+                this.state.currentQuestID == null ? (
+                  <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                    <ActivityIndicator
+                      size="large"
+                      color="black"
+                    />
+                  </View>
+                ) : this.state.tab === 'current' ? (() => {
+                  const quests = (obj.offline ? obj.offline.quests : obj.online.quests);
+                  const quest = quests.find(q => parseInt(q.quest_id) === this.state.currentQuestID);
+                  if (quest) {
+                    return (
+                      <ScrollView style={{flex: 1, borderColor: 'black', borderTopWidth: 1, borderBottomWidth: 1}}>
+                        <Text>{quest.name}</Text>
+                      </ScrollView>
+                    );
+                  } else {
+                    return (
+                      <View style={{flex: 1, borderColor: 'black', borderTopWidth: 1, borderBottomWidth: 1}}>
+                        <Text>You haven't started a quest from this outpost.</Text>
+                        <Text>Find one to start from the All Quests tab.</Text>
+                      </View>
+                    );
+                  }
+                })() : (
+                  <ScrollView style={{flex: 1, borderColor: 'black', borderTopWidth: 1, borderBottomWidth: 1}}>
+                    {
+                      (obj.offline ? obj.offline.quests : obj.online.quests).filter(quest =>
+                        !parseInt(quest.parent_quest_id)
+                      ).map(quest =>
+                        <View key={quest.quest_id} style={{flexDirection: 'row'}}>
+                          <Text style={{flex: 1, margin: 5}}>{quest.name}</Text>
+                          <TouchableOpacity onPress={() =>
+                            obj.offline && this.launchQuest(game, quest)
+                          } style={{
+                            backgroundColor: 'rgb(101,88,245)',
+                            padding: 5,
+                            margin: 5,
+                          }}>
+                            <Text style={{color: 'white'}}>start</Text>
+                          </TouchableOpacity>
+                        </View>
+                      )
+                    }
+                  </ScrollView>
+                )
+              }
             </View>
           ) : (
             <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
