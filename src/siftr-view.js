@@ -846,14 +846,14 @@ export const SiftrView = createClass({
     });
   },
   */
-  evalReqPackage: function(id) {
+  evalReqPackageExtra: function(id) {
     const root = this.getReqRoot(id);
     if (!root) {
       if (parseInt(id) === 0) {
-        return true;
+        return {bool: true};
       } else {
         console.warn(`Requirement root package ${id} not found`);
-        return false;
+        return {bool: false};
       }
     }
     return evalReqPackage(root, {
@@ -873,6 +873,9 @@ export const SiftrView = createClass({
       auth: this.props.auth,
     });
   },
+  evalReqPackage: function(id) {
+    return this.evalReqPackageExtra(id).bool;
+  },
   getReqRoot: function(id) {
     const root = this.props.requirement_root_packages.find(root => root.requirement_root_package_id === id);
     if (!root) return null;
@@ -888,10 +891,12 @@ export const SiftrView = createClass({
     } else {
       let active = [];
       let complete = [];
+      let displayInfo = [];
       this.props.quests.forEach(quest => {
         if (parseInt(quest.parent_quest_id)) return;
         const is_active = this.evalReqPackage(quest.active_requirement_root_package_id);
-        let is_complete = this.evalReqPackage(quest.complete_requirement_root_package_id);
+        if (!is_active) return;
+        let reqRoots = [this.evalReqPackageExtra(quest.complete_requirement_root_package_id)];
         if (quest.quest_type === 'COMPOUND') {
           const subquests = this.props.quests.filter(sub =>
             parseInt(sub.parent_quest_id) === parseInt(quest.quest_id)
@@ -899,29 +904,29 @@ export const SiftrView = createClass({
           let sub_active = [];
           let sub_complete = [];
           subquests.forEach(sub => {
-            const is_sub_complete = this.evalReqPackage(sub.complete_requirement_root_package_id);
-            if (is_sub_complete) {
+            const subRoot = this.evalReqPackageExtra(sub.complete_requirement_root_package_id);
+            if (subRoot.bool) {
               sub_complete.push(sub);
             } else {
               sub_active.push(sub);
             }
+            reqRoots.push(subRoot);
           });
           quest = update(quest, {
             sub_active: {$set: sub_active},
             sub_complete: {$set: sub_complete},
           });
-          is_complete = is_complete && sub_active.length === 0;
         }
-        if (is_active) {
-          if (is_complete) {
-            complete.push(quest);
-          } else {
-            active.push(quest);
-          }
+        const is_complete = reqRoots.every(o => o.bool);
+        if (is_complete) {
+          complete.push(quest);
+        } else {
+          active.push(quest);
         }
+        displayInfo.push({quest: quest, reqRoots: reqRoots});
       });
       const oldQuests = this.state.quests;
-      const newQuests = {active: active, complete: complete};
+      const newQuests = {active: active, complete: complete, displayInfo: displayInfo};
       const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
       RNFS.writeFile(`${siftrDir}/quests-sorted.txt`, JSON.stringify(newQuests));
       let o = {quests: newQuests};

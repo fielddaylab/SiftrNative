@@ -858,6 +858,11 @@ export class StemportsOutpost extends React.Component {
     }).catch(() => {
       this.setState({currentQuestID: 'none', tab: 'all'});
     });
+    RNFS.readFile(`${siftrDir}/quests-sorted.txt`).then(str => {
+      this.setState({sortedQuests: JSON.parse(str)});
+    }).catch(() => {
+      this.setState({sortedQuests: 'unknown'});
+    });
   }
 
   launchQuest(game, quest) {
@@ -949,7 +954,93 @@ export class StemportsOutpost extends React.Component {
                   if (quest) {
                     return (
                       <ScrollView style={{flex: 1, borderColor: 'black', borderTopWidth: 1, borderBottomWidth: 1}}>
-                        <Text>{quest.name}</Text>
+                        <View style={{
+                          flexDirection: 'row',
+                        }}>
+                          <Text style={{flex: 1, margin: 10, fontSize: 20}}>{quest.name}</Text>
+                          <TouchableOpacity onPress={() =>
+                            obj.offline && this.launchQuest(game, quest)
+                          } style={{
+                            backgroundColor: 'rgb(101,88,245)',
+                            padding: 5,
+                            margin: 10,
+                          }}>
+                            <Text style={{color: 'white'}}>resume</Text>
+                          </TouchableOpacity>
+                        </View>
+                        {
+                          (() => {
+                            const details = this.state.sortedQuests &&
+                              this.state.sortedQuests.displayInfo &&
+                              this.state.sortedQuests.displayInfo.find(o =>
+                                parseInt(o.quest.quest_id) === this.state.currentQuestID
+                              );
+                            if (details) {
+                              return (
+                                <View>
+                                  {
+                                    details.reqRoots.map(root => {
+                                      if (!root.req) return;
+                                      // this is all hacked for now, to match how generated quests look
+                                      const requirement = root.req.ands[0].atoms[0].requirement;
+                                      let done = root.ands[0].atoms.filter(o => o.bool).length;
+                                      let total = root.ands[0].atoms.length;
+                                      if (requirement === 'PLAYER_HAS_NOTE_WITH_QUEST') {
+                                        done = root.ands[0].atoms[0].qty;
+                                        total = root.ands[0].atoms[0].atom.qty;
+                                      }
+                                      let subquestLabel = root.req.ands[0].atoms[0].requirement;
+                                      if (subquestLabel === 'PLAYER_HAS_ITEM') {
+                                        subquestLabel = 'Explore and Collect Remnants';
+                                      } else if (subquestLabel === 'PLAYER_HAS_NOTE_WITH_QUEST') {
+                                        subquestLabel = `Make ${total} Observations`;
+                                      }
+                                      let circles = [];
+                                      for (let i = 0; i < total; i++) {
+                                        circles.push(i < done);
+                                      }
+                                      return (
+                                        <View key={root.req.requirement_root_package_id} style={{
+                                          padding: 15,
+                                          borderColor: 'black',
+                                          borderTopWidth: 1,
+                                          marginLeft: 10,
+                                          marginRight: 10,
+                                          paddingLeft: 5,
+                                          paddingRight: 5,
+                                        }}>
+                                          <Text style={{margin: 5}}>
+                                            {subquestLabel}
+                                          </Text>
+                                          <View style={{flexDirection: 'row'}}>
+                                            {circles.map((b, i) =>
+                                              <View
+                                                key={i}
+                                                style={{
+                                                  backgroundColor: b ? 'rgb(178,172,250)' : 'white',
+                                                  borderColor: 'black',
+                                                  borderWidth: 2,
+                                                  width: 20,
+                                                  height: 20,
+                                                  borderRadius: 10,
+                                                  margin: 3,
+                                                }}
+                                              />
+                                            )}
+                                          </View>
+                                        </View>
+                                      );
+                                    }).filter(x => x)
+                                  }
+                                </View>
+                              );
+                            } else {
+                              return (
+                                <Text>Launch this quest to refresh its progress information.</Text>
+                              );
+                            }
+                          })()
+                        }
                       </ScrollView>
                     );
                   } else {
