@@ -165,7 +165,7 @@ export const ItemScreen = (props) => (
   </View>
 );
 
-function groupBy(n, xs) {
+export function groupBy(n, xs) {
   let ys = [];
   while (true) {
     if (xs.length === 0) break;

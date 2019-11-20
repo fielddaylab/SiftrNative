@@ -32,6 +32,8 @@ import Geocoder from "react-native-geocoder";
 import Permissions from "react-native-permissions";
 import { Auth, Game, Tag, Field, FieldData, FieldOption } from "./aris";
 import { requestImage } from "./photos";
+import { groupBy } from "./items";
+import {CacheMedia} from './media';
 
 // Not used currently
 const SiftrRoll = class SiftrRoll extends React.Component {
@@ -552,97 +554,71 @@ const CreateDataPhotoButton = createClass({
 const CreateSingleSelect = createClass({
   displayName: "CreateSingleSelect",
   getInitialState: function() {
-    return {
-      menuOpen: false
-    };
+    return {};
   },
   render: function() {
     return (
       <View>
-        <TouchableOpacity
-          onPress={() => {
-            this.setState({
-              menuOpen: !this.state.menuOpen
-            });
-          }}
-          style={{
-            padding: 13,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            backgroundColor: "white"
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: this.props.getColor(this.props.current),
-              height: 16,
-              width: 16,
-              borderRadius: 8,
-              marginRight: 20
-            }}
-          />
-          <Text
-            style={{
-              flex: 1
-            }}
-          >
-            {this.props.getLabel(this.props.current)}
-          </Text>
-          <Image
-            source={require("../web/assets/img/icon-expand.png")}
-            style={{
-              width: 32 * 0.7,
-              height: 18 * 0.7,
-              resizeMode: "contain"
-            }}
-          />
-        </TouchableOpacity>
-        {this.state.menuOpen ? (
-          <View>
-            {this.props.options.map(option => {
-              return (
-                <TouchableOpacity
-                  key={this.props.getKey(option)}
-                  onPress={() => {
-                    this.setState({
-                      menuOpen: false
-                    });
-                    this.props.onSelectOption(option);
-                  }}
-                  style={{
-                    borderTopColor: "rgb(230,230,230)",
-                    borderTopWidth: 1,
-                    padding: 13,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    backgroundColor: "rgb(240,240,240)"
-                  }}
-                >
-                  <View
-                    style={{
-                      backgroundColor: this.props.getColor(option),
-                      height: 16,
-                      width: 16,
-                      borderRadius: 8,
-                      marginRight: 20
-                    }}
-                  />
-                  <Text
-                    style={{
-                      flex: 1
-                    }}
-                  >
-                    {this.props.getLabel(option)}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        ) : (
-          void 0
-        )}
+        {
+          groupBy(4, this.props.options).map((row, i) =>
+            <View key={i} style={{
+              flexDirection: 'row',
+              alignItems: 'stretch',
+            }}>
+              {
+                row.map(option => {
+                  const media_id = this.props.getMediaID(option);
+                  return (
+                    <TouchableOpacity key={this.props.getKey(option)} style={{
+                      flex: 1,
+                      alignItems: 'stretch',
+                    }} onPress={() => this.props.onSelectOption(option)}>
+                      {
+                        media_id ? (
+                          <CacheMedia
+                            media_id={this.props.getMediaID(option)}
+                            auth={this.props.auth}
+                            online={true}
+                            withURL={(url) =>
+                              <Image
+                                source={url}
+                                style={{
+                                  height: 60,
+                                  margin: 10,
+                                  resizeMode: 'contain',
+                                  opacity: option === this.props.current ? 1 : 0.5,
+                                }}
+                              />
+                            }
+                          />
+                        ) : (
+                          <View
+                            style={{
+                              alignSelf: 'center',
+                              height: 60,
+                              width: 60,
+                              borderRadius: 999,
+                              margin: 10,
+                              resizeMode: 'contain',
+                              opacity: option === this.props.current ? 1 : 0.5,
+                              backgroundColor: this.props.getColor(option),
+                            }}
+                          />
+                        )
+                      }
+                      <Text style={{
+                        margin: 10,
+                        textAlign: 'center',
+                      }}>
+                        {this.props.getLabel(option)}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })
+              }
+            </View>
+          )
+        }
       </View>
     );
   }
@@ -1314,6 +1290,13 @@ export const CreateData = createClass({
                                   })()}
                                   options={filteredOptions}
                                   getColor={this.props.getColor}
+                                  auth={this.props.auth}
+                                  getMediaID={option => {
+                                    const item = this.props.items.find(item =>
+                                      parseInt(item.item_id) === option.remnant_id
+                                    );
+                                    return item && (item.icon_media_id || item.media_id);
+                                  }}
                                   getLabel={opt => {
                                     return opt.option;
                                   }}

@@ -2385,6 +2385,8 @@ export const SiftrView = createClass({
           quests={this.state.quests}
           isGuideComplete={this.isGuideComplete/*.bind(this)*/}
           currentQuest={this.props.currentQuest}
+          items={this.props.items}
+          auth={this.props.auth}
         />
       );
     }
