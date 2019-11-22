@@ -3313,10 +3313,14 @@ export const SiftrView = createClass({
                             this.addXP(2);
                             this.setState(state => {
                               let rems = state.pickedUpRemnants;
-                              events.forEach(event => {
-                                if (event.event !== 'GIVE_ITEM') return;
-                                rems = update(rems, {$push: [event.content_id]});
-                              });
+                              const item_ids = events.filter(
+                                e => e.event === 'GIVE_ITEM'
+                              ).map(
+                                e => e.content_id
+                              ).filter(
+                                item_id => rems.indexOf(item_id) === -1
+                              );
+                              rems = update(rems, {$push: item_ids});
                               return update(state, {
                                 pickedUpRemnants: {$set: rems},
                                 guideMentionedRemnant: {$set: true},

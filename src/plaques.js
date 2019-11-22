@@ -78,9 +78,16 @@ export const PlaqueScreen = (props) => {
                 events.map(event => {
                   const item = props.items.find(item => parseInt(item.item_id) === parseInt(event.content_id));
                   return (
-                    <Text key={event.event_id}>{
+                    <Text key={event.event_id} style={{
+                      margin: 5,
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                      textAlign: 'center',
+                    }}>{
                       event.event === 'GIVE_ITEM' ? (
-                        `${event.qty} x ${item ? item.name : '???'}`
+                        parseInt(event.qty) === 1
+                          ? `${item ? item.name : '???'}`
+                          : `${event.qty} x ${item ? item.name : '???'}`
                       ) : JSON.stringify(event)
                     }</Text>
                   );
@@ -89,8 +96,14 @@ export const PlaqueScreen = (props) => {
               <TouchableOpacity onPress={() => {
                 props.onPickup(events);
                 props.onClose();
+              }} style={{
+                margin: 25,
+                backgroundColor: 'rgb(101,88,245)',
+                padding: 10,
+                borderRadius: 6,
+                marginBottom: 35,
               }}>
-                <Text>Collect</Text>
+                <Text style={{color: 'white'}}>Collect</Text>
               </TouchableOpacity>
             </View>
           )
@@ -110,20 +123,24 @@ export const PlaqueScreen = (props) => {
             </View>
           )
         }
-        <View style={{
-          margin: 15,
-          alignItems: 'center',
-        }}>
-          <TouchableOpacity onPress={props.onClose}>
-            <Image
-              style={{
-                width: 140 * 0.45,
-                height: 140 * 0.45,
-              }}
-              source={require("../web/assets/img/quest-close.png")}
-            />
-          </TouchableOpacity>
-        </View>
+        {
+          events.length === 0 && (
+            <View style={{
+              margin: 15,
+              alignItems: 'center',
+            }}>
+              <TouchableOpacity onPress={props.onClose}>
+                <Image
+                  style={{
+                    width: 140 * 0.45,
+                    height: 140 * 0.45,
+                  }}
+                  source={require("../web/assets/img/quest-close.png")}
+                />
+              </TouchableOpacity>
+            </View>
+          )
+        }
       </View>
     </View>
   );
