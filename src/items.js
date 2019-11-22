@@ -141,7 +141,7 @@ export const ItemScreen = (props) => (
               borderRadius: 10,
               fontSize: 20,
             }}>
-              <Text>Add to Codex</Text>
+              <Text>Add to Field Notes</Text>
             </TouchableOpacity>
           </View>
         ) : (

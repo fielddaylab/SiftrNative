@@ -474,8 +474,9 @@ class SmartMarker extends React.Component {
         ref={marker => this.marker = marker}
       >
         <ImageBackground
-          style={{width: 32, height: 32}}
-          source={this.props.url}
+          style={{width: this.props.size, height: this.props.size}}
+          imageStyle={{resizeMode: 'contain'}}
+          source={this.props.icon}
         >
           {
             this.props.visited && (
@@ -735,20 +736,17 @@ export class SiftrMap extends React.Component {
         this.props.triggers && this.props.instances && this.props.triggers.map((trigger) => {
           const inst = this.props.instances.find(inst => parseInt(inst.instance_id) === parseInt(trigger.instance_id));
           if (!inst) return;
-          const size = 30;
-          let icon = parseInt(trigger.icon_media_id);
+          let size = 32;
+          let icon;
           let plaque;
           let item;
           if (inst.object_type === 'PLAQUE') {
+            size = 42;
+            icon = require('../web/assets/img/icon-blaze.png');
             plaque = this.props.plaques.find(p => parseInt(p.plaque_id) === parseInt(inst.object_id));
-            if (!icon) {
-              if (plaque) icon = parseInt(plaque.icon_media_id);
-            }
           } else if (inst.object_type === 'ITEM') {
+            icon = require('../web/assets/img/icon-chest.png');
             item = this.props.items.find(p => parseInt(p.item_id) === parseInt(inst.object_id));
-            if (!icon) {
-              if (item) icon = parseInt(item.icon_media_id);
-            }
           } else {
             return;
           }
@@ -759,39 +757,17 @@ export class SiftrMap extends React.Component {
           );
 
           return (
-            icon ? (
-              <CacheMedia
-                key={trigger.trigger_id}
-                media_id={icon}
-                size={'url' /* needed for alpha */}
-                auth={this.props.auth}
-                online={true}
-                withURL={(url) => (
-                  <SmartMarker
-                    coordinate={{
-                      latitude: parseFloat(trigger.latitude),
-                      longitude: parseFloat(trigger.longitude),
-                    }}
-                    onPress={() => this.props.onSelectItem(select)}
-                    url={url}
-                    size={size}
-                    visited={visited}
-                  />
-                )}
-              />
-            ) : (
-              <SmartMarker
-                key={trigger.trigger_id}
-                coordinate={{
-                  latitude: parseFloat(trigger.latitude),
-                  longitude: parseFloat(trigger.longitude),
-                }}
-                onPress={() => this.props.onSelectItem(select)}
-                url={null}
-                size={size}
-                visited={visited}
-              />
-            )
+            <SmartMarker
+              key={trigger.trigger_id}
+              coordinate={{
+                latitude: parseFloat(trigger.latitude),
+                longitude: parseFloat(trigger.longitude),
+              }}
+              onPress={() => this.props.onSelectItem(select)}
+              icon={icon}
+              size={size}
+              visited={visited}
+            />
           );
         })
       }
