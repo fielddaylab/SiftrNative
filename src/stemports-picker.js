@@ -425,7 +425,11 @@ export class StemportsPicker extends React.Component {
             writeJSON('requirement_root_packages')(allData.requirement_root_packages.concat(new_requirement_root_packages)),
             writeJSON('requirement_and_packages')(allData.requirement_and_packages.concat(new_requirement_and_packages)),
             writeJSON('requirement_atoms')(allData.requirement_atoms.concat(new_requirement_atoms)),
-          ]).then(() => allData);
+          ]).then(() => update(allData, {
+            requirement_root_packages: {$push: new_requirement_root_packages},
+            requirement_and_packages: {$push: new_requirement_and_packages},
+            requirement_atoms: {$push: new_requirement_atoms},
+          }));
         } else {
           return allData; // nothing to do
         }
@@ -478,6 +482,9 @@ export class StemportsPicker extends React.Component {
           let new_instances = [];
           let new_triggers = [];
           let event_items = [];
+          let new_requirement_root_packages = [];
+          let new_requirement_and_packages = [];
+          let new_requirement_atoms = [];
           allData.events.forEach(event => {
             if (event.event === 'GIVE_ITEM') { // GIVE_ITEM_PLAYER in database
               event_items.push(parseInt(event.content_id));
@@ -487,6 +494,24 @@ export class StemportsPicker extends React.Component {
             field.options.forEach(opt => {
               if (!opt.remnant_id) return;
               if (event_items.indexOf(opt.remnant_id) !== -1) return;
+              const factory_root_id = addTo(new_requirement_root_packages, root_id => ({
+                requirement_root_package_id: root_id,
+                game_id: game.game_id,
+              }));
+              const factory_and_id = addTo(new_requirement_and_packages, and_id => ({
+                requirement_and_package_id: and_id,
+                game_id: game.game_id,
+                requirement_root_package_id: factory_root_id,
+              }));
+              addTo(new_requirement_atoms, atom_id => ({
+                requirement_atom_id: atom_id,
+                game_id: game.game_id,
+                requirement_and_package_id: factory_and_id,
+                bool_operator: 0,
+                requirement: 'PLAYER_HAS_ITEM',
+                content_id: opt.remnant_id,
+                qty: 1,
+              }))
               addTo(new_factories, factory_id => ({
                 factory_id: factory_id,
                 game_id: game.game_id,
@@ -513,7 +538,7 @@ export class StemportsPicker extends React.Component {
                 trigger_title: '',
                 trigger_icon_media_id: 0,
                 trigger_show_title: 1,
-                trigger_requirement_root_package_id: 0, // TODO add locks?
+                trigger_requirement_root_package_id: factory_root_id,
                 trigger_scene_id: 0,
               }));
             });
@@ -545,6 +570,9 @@ export class StemportsPicker extends React.Component {
             writeJSON('factories')(allData.factories.concat(new_factories)),
             writeJSON('instances')(allData.instances.concat(new_instances)),
             writeJSON('triggers')(allData.triggers.concat(new_triggers)),
+            writeJSON('requirement_root_packages')(allData.requirement_root_packages.concat(new_requirement_root_packages)),
+            writeJSON('requirement_and_packages')(allData.requirement_and_packages.concat(new_requirement_and_packages)),
+            writeJSON('requirement_atoms')(allData.requirement_atoms.concat(new_requirement_atoms)),
           ]);
         } else {
           return;

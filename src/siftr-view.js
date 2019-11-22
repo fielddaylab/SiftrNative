@@ -1005,7 +1005,11 @@ export const SiftrView = createClass({
     });
   },
   getTriggers: function() {
-    return this.props.triggers.concat(this.state.factoryObjects.map(x => x.trigger));
+    return this.props.triggers.concat(
+      this.state.factoryObjects.map(x => x.trigger)
+    ).filter(trig =>
+      this.evalReqPackage(trig.requirement_root_package_id)
+    );
   },
   getInstances: function() {
     return this.props.instances.concat(this.state.factoryObjects.map(x => x.instance));
