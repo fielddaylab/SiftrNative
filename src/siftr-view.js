@@ -3312,21 +3312,19 @@ export const SiftrView = createClass({
                           onPickup={events => {
                             this.addXP(2);
                             this.setState(state => {
-                              let inv = state.inventory;
+                              let rems = state.pickedUpRemnants;
                               events.forEach(event => {
-                                inv = inv.map(inst => {
-                                  if (parseInt(inst.object_id) === parseInt(event.content_id) && inst.object_type === 'ITEM') {
-                                    if (event.event === 'GIVE_ITEM') {
-                                      return update(inst, {qty: {$apply: n => parseInt(n) + parseInt(event.qty)}});
-                                    } else {
-                                      return inst; // TODO other event types
-                                    }
-                                  } else {
-                                    return inst;
-                                  }
-                                });
+                                if (event.event !== 'GIVE_ITEM') return;
+                                rems = update(rems, {$push: [event.content_id]});
                               });
-                              return update(state, {inventory: {$set: inv}});
+                              return update(state, {
+                                pickedUpRemnants: {$set: rems},
+                                guideMentionedRemnant: {$set: true},
+                                guideLines: (state.guideMentionedRemnant
+                                  ? {$apply: x => x}
+                                  : {$push: ['You picked up a remnant!']}
+                                  ),
+                              });
                             }, () => this.saveInventory());
                           }}
                         />
