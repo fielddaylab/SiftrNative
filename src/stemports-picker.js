@@ -23,9 +23,9 @@ import {loadQueue, uploadNote} from './upload-queue';
 
 const RNFS = require("react-native-fs");
 
-function addTo(xs, f) {
+function addTo(xs, f, offset = 1000000) {
   // make new object with sequential ID
-  const new_id = 1000000 + xs.length;
+  const new_id = offset + xs.length;
   xs.push(f(new_id));
   return new_id;
 }
@@ -376,7 +376,7 @@ export class StemportsPicker extends React.Component {
               quest_id: quest_id,
               game_id: game.game_id,
               name: 'Collect',
-              description: '',
+              description: `Collect the ${quest.name} remnants and stops.`,
               prompt: `The first thing you need to do is collect the ${quest.name} remnants and stops.`,
               stars: 0,
               quest_type: 'QUEST',
@@ -408,8 +408,8 @@ export class StemportsPicker extends React.Component {
               quest_id: quest_id,
               game_id: game.game_id,
               name: 'Observe',
-              description: '',
-              prompt: `Make 3 observations with ${quest.name} remnants.`,
+              description: `Make 3 observations with ${quest.name} field notes.`,
+              prompt: `Great! Now, make 3 observations using your ${quest.name} field notes.`,
               stars: 0,
               quest_type: 'QUEST',
               parent_quest_id: quest.quest_id,
@@ -497,12 +497,12 @@ export class StemportsPicker extends React.Component {
               const factory_root_id = addTo(new_requirement_root_packages, root_id => ({
                 requirement_root_package_id: root_id,
                 game_id: game.game_id,
-              }));
+              }), 1500000);
               const factory_and_id = addTo(new_requirement_and_packages, and_id => ({
                 requirement_and_package_id: and_id,
                 game_id: game.game_id,
                 requirement_root_package_id: factory_root_id,
-              }));
+              }), 1500000);
               addTo(new_requirement_atoms, atom_id => ({
                 requirement_atom_id: atom_id,
                 game_id: game.game_id,
@@ -511,7 +511,7 @@ export class StemportsPicker extends React.Component {
                 requirement: 'PLAYER_HAS_ITEM',
                 content_id: opt.remnant_id,
                 qty: 1,
-              }))
+              }), 1500000)
               addTo(new_factories, factory_id => ({
                 factory_id: factory_id,
                 game_id: game.game_id,

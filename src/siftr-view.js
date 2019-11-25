@@ -942,6 +942,11 @@ export const SiftrView = createClass({
           } else {
             // check if subquests have been completed
             if (quest.sub_active && oldVersion.sub_active && quest.sub_active.length !== oldVersion.sub_active.length) {
+              oldVersion.sub_active.forEach(sub => {
+                if (quest.sub_active.indexOf(sub) === -1) {
+                  this.pushModal({type: 'subquest-complete', quest: quest, subquest: sub});
+                }
+              });
               this.addGuideLine(`Good job! ${quest.sub_active[0].prompt}`);
             }
           }
@@ -957,7 +962,7 @@ export const SiftrView = createClass({
           }
         });
         if (newQuests.active.length === 0 && oldQuests.active.length > 0) {
-          this.addGuideLine("You're done with the subquests here!");
+          this.addGuideLine("Your work here is complete! You've made all the observations we needed. Keep observing or pick another quest.");
         }
       } else {
         // first quest computation since launch
@@ -3199,6 +3204,16 @@ export const SiftrView = createClass({
                       <QuestDetails
                         quest={modal.quest}
                         message="Quest complete!"
+                        onClose={this.popModal/*.bind(this)*/}
+                        status="complete"
+                        auth={this.props.auth}
+                      />
+                    );
+                  } else if (modal.type === 'subquest-complete') {
+                    return (
+                      <QuestDetails
+                        quest={modal.subquest}
+                        message="Subquest complete!"
                         onClose={this.popModal/*.bind(this)*/}
                         status="complete"
                         auth={this.props.auth}

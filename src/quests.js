@@ -26,7 +26,7 @@ export const QuestDetails = function(props) {
         flex: 1,
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
-        paddingTop: 80,
+        paddingTop: 10,
       }}>
         <ScrollView style={{flex: 1}}>
           {
@@ -107,10 +107,10 @@ export const QuestDetails = function(props) {
       }}>
         <Image
           style={{
-            width: 278 * 0.45,
-            height: 306 * 0.45,
+            width: 72,
+            height: 78,
           }}
-          source={require("../web/assets/img/spirit_companion_01.png")}
+          source={require("../web/assets/img/puffin.png")}
         />
       </View>
     </View>
@@ -165,7 +165,7 @@ export class QuestsScreen extends React.Component {
           flex: 1,
           borderTopLeftRadius: 10,
           borderTopRightRadius: 10,
-          paddingTop: 80,
+          paddingTop: 10,
         }}>
           <View style={{
             flexDirection: 'row',
@@ -225,10 +225,10 @@ export class QuestsScreen extends React.Component {
         }}>
           <Image
             style={{
-              width: 278 * 0.45,
-              height: 306 * 0.45,
+              width: 72,
+              height: 78,
             }}
-            source={require("../web/assets/img/spirit_companion_01.png")}
+            source={require("../web/assets/img/puffin.png")}
           />
         </View>
       </View>
