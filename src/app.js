@@ -20,6 +20,7 @@ import {
   SafeAreaView
 } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
+import { UploadQueue } from "./upload-queue";
 import { styles, Text } from "./styles";
 import { Terms } from "./native-terms";
 import RNFS from "react-native-fs";
@@ -594,8 +595,14 @@ export var SiftrNative = createClass({
   render: function() {
     if (this.state.auth != null) {
       return (
-        (
-          this.state.auth.authToken != null ? (
+        <UploadQueue
+          auth={this.state.auth}
+          online={this.state.online}
+          withPendingNotes={pendingNotes => {
+            this.setState({ pendingNotes });
+          }}
+        >
+          {this.state.auth.authToken != null ? (
             this.state.game != null ? (
               <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
                 <SiftrViewPW
@@ -694,8 +701,8 @@ export var SiftrNative = createClass({
               backToViola={this.props.backToViola}
               online={this.state.online}
             />
-          )
-        )
+          )}
+        </UploadQueue>
       );
     } else {
       return <Loading queueMessage={this.state.queueMessage} />;

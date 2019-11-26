@@ -143,15 +143,10 @@ export const UploadQueue = createClass({
         this.props.onMessage({notes: count, uploading: this.props.online, percent: 0});
       }
 
-      if (notes.length === 0 || !this.props.online) {
-        setTimeout(() => {
-          this.checkQueue();
-        }, 3000);
-      } else {
-        this.uploadNote(notes[0], count).then(() => {
-          this.checkQueue();
-        });
-      }
+      // removed upload function; just checks queue continuously
+      setTimeout(() => {
+        this.checkQueue();
+      }, 3000);
     })
   },
   loadQueue: function() {
