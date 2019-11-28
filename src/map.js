@@ -309,56 +309,19 @@ class MapNote extends React.Component {
   }
 
   // @ifdef NATIVE
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (this.markerRef && this.thumbFocused() !== this.thumbFocused(prevProps)) {
-      this.markerRef.redraw();
-    }
-  }
-
   render() {
-    const bigSize = 24;
-    const smallSize = 16;
-    const focus = this.thumbFocused();
-    const margin = focus ? 0 : (bigSize - smallSize) / 2;
-    const w = focus ? bigSize : smallSize;
-    const r = w / 2;
-    return <MapView.Marker
-      tracksViewChanges={false}
-      ref={ref => this.markerRef = ref}
-      coordinate={{
-        latitude: this.props.lat,
-        longitude: this.props.lng,
-      }}
-      anchor={{x: 0.5, y: 0.5}}
-      title=""
-      description=""
-      pinColor={this.props.getColor(this.props.note)}
-      onPress={() => {
-        this.props.onSelect(this.props.note);
-      }}
-    >
-      <View style={{width: bigSize + 3, height: bigSize + 3}}>
-        <View style={{
-          position: 'absolute',
-          top: 2 + margin,
-          left: 1 + margin,
-          width: w,
-          height: w,
-          borderRadius: r,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-        }} />
-        <View style={{
-          position: 'absolute',
-          top: margin,
-          left: margin,
-          width: w,
-          height: w,
-          borderRadius: r,
-          backgroundColor: this.props.getColor(this.props.note),
-        }} />
-      </View>
-      <MapView.Callout tooltip={true} />
-    </MapView.Marker>
+    return (
+      <SmartMarker
+        coordinate={{
+          latitude: this.props.lat,
+          longitude: this.props.lng,
+        }}
+        onPress={() => this.props.onSelect(this.props.note)}
+        icon={require('../web/assets/img/icon-flag.png')}
+        size={40}
+        visited={false}
+      />
+    );
   }
   // @endif
 
