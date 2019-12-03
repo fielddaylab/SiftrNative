@@ -227,7 +227,7 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - Google-Maps-iOS-Utils
   - GoogleMaps
-  - RCT3DModel (from `../react-native-3d-model-view`)
+  - RCT3DModel (from `../node_modules/react-native-3d-model-view`)
   - React (from `../node_modules/react-native/`)
   - React-Core (from `../node_modules/react-native/React`)
   - React-cxxreact (from `../node_modules/react-native/ReactCommon/cxxreact`)
@@ -288,7 +288,7 @@ EXTERNAL SOURCES:
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   RCT3DModel:
-    :path: "../react-native-3d-model-view"
+    :path: "../node_modules/react-native-3d-model-view"
   React:
     :path: "../node_modules/react-native/"
   React-Core:
