@@ -2045,7 +2045,11 @@ export const SiftrView = createClass({
     var ref;
     return (
       <SiftrMap
-        location={this.props.location}
+        location={
+          this.state.warp
+            ? {coords: this.props.game}
+            : this.props.location
+        }
         map_notes={this.props.notes.filter(note => {
           if (note.user.user_id !== this.props.auth.authToken.user_id) return false;
           // TODO filter notes by currentQuest
@@ -3276,6 +3280,12 @@ export const SiftrView = createClass({
                         alignItems: 'center',
                         justifyContent: 'center',
                       }}>
+                        <TouchableOpacity style={buttonStyle} onPress={() => {
+                          this.setState({warp: !this.state.warp});
+                          this.popModal();
+                        }}>
+                          <Text>Warp to Outpost: {this.state.warp ? 'ON' : 'OFF'}</Text>
+                        </TouchableOpacity>
                         <TouchableOpacity style={buttonStyle} onPress={this.props.onLogout}>
                           <Text>Logout</Text>
                         </TouchableOpacity>
