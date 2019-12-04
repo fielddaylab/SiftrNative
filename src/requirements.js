@@ -26,13 +26,17 @@ function playerCompletedQuest(atom, log) {
   );
 }
 
-function playerHasItem(atom, instances) {
+function playerHasItem(atom, instances, pickedUpRemnants) {
+  pickedUpRemnants = pickedUpRemnants.map(x => parseInt(x));
+  const pickedUpQty = (item_id) => (
+    pickedUpRemnants.indexOf(parseInt(item_id)) === -1 ? 0 : 1
+  );
   return instances.some(instance =>
        instance.owner_type === 'USER'
     // && instance.owner_id === (player's user id)
     && instance.object_type === 'ITEM'
     && parseInt(instance.object_id) === parseInt(atom.content_id)
-    && parseInt(instance.qty) >= parseInt(atom.qty)
+    && parseInt(instance.qty) + pickedUpQty(instance.object_id) >= parseInt(atom.qty)
   );
 }
 
@@ -99,14 +103,14 @@ function evalReqAtom(atom, env) {
   let qty = 0;
   const bool = (() => {
     const bool_operator = !!(atom.bool_operator);
-    const {log, instances, notes} = env;
+    const {log, instances, notes, pickedUpRemnants} = env;
     switch (atom.requirement) {
       case 'ALWAYS_TRUE':
         return bool_operator;
       case 'ALWAYS_FALSE':
         return !bool_operator;
       case 'PLAYER_HAS_ITEM':
-        return bool_operator == playerHasItem(atom, instances);
+        return bool_operator == playerHasItem(atom, instances, pickedUpRemnants);
       case 'PLAYER_HAS_TAGGED_ITEM':
         return !bool_operator; // TODO
       case 'GAME_HAS_ITEM':

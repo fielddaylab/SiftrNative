@@ -859,6 +859,7 @@ export const SiftrView = createClass({
     return evalReqPackage(root, {
       log: this.state.logs,
       instances: this.state.inventory,
+      pickedUpRemnants: this.state.pickedUpRemnants,
       notes: (() => {
         let notes = this.props.notes;
         if (this.props.pendingNotes) {

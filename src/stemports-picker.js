@@ -520,7 +520,7 @@ export class StemportsPicker extends React.Component {
                 object_id: opt.remnant_id,
                 seconds_per_production: 10,
                 production_probability: 1,
-                max_production: 1,
+                max_production: 2,
                 produce_expiration_time: 60,
                 produce_expire_on_view: 1,
                 production_bound_type: 'PER_PLAYER',
