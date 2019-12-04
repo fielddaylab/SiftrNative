@@ -51,7 +51,7 @@ export function webViewBoilerplate(str) {
       html { margin:0; padding:0; }
       body {
           color:#000000;
-          font-size:20px;
+          font-size:25px;
           font-family:HelveticaNeue-Light;
           margin:0;
           padding:10;
