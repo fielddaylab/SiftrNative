@@ -2064,7 +2064,7 @@ export const SiftrView = createClass({
         onSelectItem={(o) => {
           if (!this.props.location) return;
           const distance = Math.ceil(meterDistance(o.trigger, this.props.location.coords));
-          if (distance > 100 && false) {
+          if (distance > 60 && false) {
             Alert.alert(
               'Too far',
               `You are ${distance}m away. Walk ${distance - 100}m closer`,

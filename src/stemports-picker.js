@@ -526,7 +526,7 @@ export class StemportsPicker extends React.Component {
                 production_bound_type: 'PER_PLAYER',
                 location_bound_type: 'PLAYER',
                 min_production_distance: 10,
-                max_production_distance: 200,
+                max_production_distance: 40,
                 requirement_root_package_id: 0,
                 trigger_latitude: 0,
                 trigger_longitude: 0,

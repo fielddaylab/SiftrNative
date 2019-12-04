@@ -677,7 +677,7 @@ export class SiftrMap extends React.Component {
         },
         heading: 0,
         pitch: 90,
-        zoom: 18,
+        zoom: 20.5,
         altitude: 0, // not used
       }}
       showsUserLocation={true}
@@ -688,7 +688,7 @@ export class SiftrMap extends React.Component {
         this.props.location && (
           <MapView.Circle
             center={this.props.location.coords}
-            radius={100}
+            radius={60}
             fillColor="rgba(0,100,255,0.2)"
           />
         )
