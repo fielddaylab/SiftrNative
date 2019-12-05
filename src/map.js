@@ -318,7 +318,7 @@ class MapNote extends React.Component {
         }}
         onPress={() => this.props.onSelect(this.props.note)}
         icon={require('../web/assets/img/icon-flag.png')}
-        size={40}
+        size={40 * 2}
         visited={false}
       />
     );
@@ -680,7 +680,8 @@ export class SiftrMap extends React.Component {
         zoom: 20.5,
         altitude: 0, // not used
       }}
-      showsUserLocation={true}
+      showsUserLocation={false}
+      showsBuildings={false}
       customMapStyle={this.getMapStyles()}
       mapType={this.props.game.map_type === 'STREET' ? 'standard' : 'hybrid'}
     >
@@ -688,7 +689,7 @@ export class SiftrMap extends React.Component {
         this.props.location && (
           <MapView.Circle
             center={this.props.location.coords}
-            radius={60}
+            radius={10}
             fillColor="rgba(0,100,255,0.2)"
           />
         )
@@ -699,12 +700,12 @@ export class SiftrMap extends React.Component {
         this.props.triggers && this.props.instances && this.props.triggers.map((trigger) => {
           const inst = this.props.instances.find(inst => parseInt(inst.instance_id) === parseInt(trigger.instance_id));
           if (!inst) return;
-          let size = 32;
+          let size = 32 * 2;
           let icon;
           let plaque;
           let item;
           if (inst.object_type === 'PLAQUE') {
-            size = 42;
+            size = 42 * 2;
             icon = require('../web/assets/img/icon-blaze.png');
             plaque = this.props.plaques.find(p => parseInt(p.plaque_id) === parseInt(inst.object_id));
           } else if (inst.object_type === 'ITEM') {

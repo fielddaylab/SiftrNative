@@ -1014,7 +1014,7 @@ export const CreateData = createClass({
                   >
                     <View style={styles.settingsHeader}>
                       <Text style={styles.settingsHeaderText}>
-                        Modify location
+                        Location
                       </Text>
                     </View>
                     <View
@@ -1024,6 +1024,7 @@ export const CreateData = createClass({
                     >
                       <TouchableOpacity
                         onPress={() => {
+                          return; // disable location picking for now
                           this.setState({
                             isPickingLocation: true
                           });
@@ -1052,22 +1053,6 @@ export const CreateData = createClass({
                               : this.state.geocodeResult[0].formattedAddress
                             : "Locating…"}
                         </Text>
-                        <View
-                          style={{
-                            paddingLeft: 20,
-                            paddingRight: 20,
-                            paddingTop: 8,
-                            paddingBottom: 8
-                          }}
-                        >
-                          <Image
-                            style={{
-                              width: 69 * 0.15,
-                              height: 112 * 0.15
-                            }}
-                            source={require("../web/assets/img/disclosure-arrow-right.png")}
-                          />
-                        </View>
                       </TouchableOpacity>
                     </View>
                   </Blackout>
@@ -1082,6 +1067,10 @@ export const CreateData = createClass({
                     if (field.field_guide_id
                       && this.props.currentQuest
                       && parseInt(field.field_guide_id) !== parseInt(this.props.currentQuest.quest_id)) {
+                      return;
+                    }
+
+                    if (field.sort_index === -1) {
                       return;
                     }
 

@@ -40,7 +40,7 @@ import {CacheMedia} from './media';
 import ProgressCircle from 'react-native-progress-circle';
 import {ItemScreen, InventoryScreen} from './items';
 import {PlaqueScreen} from './plaques';
-import {QuestsScreen, QuestDetails} from './quests';
+import {QuestsScreen, QuestDetails, QuestDotDetails} from './quests';
 import {evalReqPackage} from './requirements';
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
 // @endif
@@ -1373,6 +1373,7 @@ export const SiftrView = createClass({
     }
   },
   getColor: function(x) {
+    if (x.color) return x.color;
     let tag, index;
     if (!(this.props.tags != null && this.props.colors != null && x != null)) {
       return "white";
@@ -2042,15 +2043,18 @@ export const SiftrView = createClass({
       modals: {$apply: (ary) => ary.slice(1)}
     }));
   },
+  getLocationWithWarp: function() {
+    if (this.state.warp) {
+      return {coords: this.props.game};
+    } else {
+      return this.props.location;
+    }
+  },
   renderMap: function() {
     var ref;
     return (
       <SiftrMap
-        location={
-          this.state.warp
-            ? {coords: this.props.game}
-            : this.props.location
-        }
+        location={this.getLocationWithWarp()}
         map_notes={this.props.notes.filter(note => {
           if (note.user.user_id !== this.props.auth.authToken.user_id) return false;
           // TODO filter notes by currentQuest
@@ -2063,12 +2067,13 @@ export const SiftrView = createClass({
         auth={this.props.auth}
         logs={this.state.logs}
         onSelectItem={(o) => {
-          if (!this.props.location) return;
-          const distance = Math.ceil(meterDistance(o.trigger, this.props.location.coords));
-          if (distance > 60 && false) {
+          const location = this.getLocationWithWarp();
+          if (!location) return;
+          const distance = Math.ceil(meterDistance(o.trigger, location.coords));
+          if (distance > 10) {
             Alert.alert(
               'Too far',
-              `You are ${distance}m away. Walk ${distance - 100}m closer`,
+              `You are ${distance}m away. Walk ${distance - 10}m closer`,
               [
                 {text: 'OK'},
               ],
@@ -2212,10 +2217,11 @@ export const SiftrView = createClass({
       return;
     }
     // try geolocation api for user's current location
-    if (this.props.location) {
+    const location = this.getLocationWithWarp();
+    if (location) {
       cb({
-        lat: this.props.location.coords.latitude,
-        lng: this.props.location.coords.longitude,
+        lat: location.coords.latitude,
+        lng: location.coords.longitude,
       });
       return;
     }
@@ -3106,7 +3112,7 @@ export const SiftrView = createClass({
                 )
               }
               <CacheMedia
-                media_id={63}
+                media_id={95}
                 auth={this.props.auth}
                 online={true}
                 withURL={(url) =>
@@ -3258,11 +3264,10 @@ export const SiftrView = createClass({
                     );
                   } else if (modal.type === 'quests') {
                     return (
-                      <QuestsScreen
-                        auth={this.props.auth}
-                        game={this.props.game}
-                        onClose={this.popModal/*.bind(this)*/}
+                      <QuestDotDetails
+                        currentQuest={this.props.currentQuest}
                         quests={this.state.quests}
+                        onClose={this.popModal/*.bind(this)*/}
                       />
                     );
                   } else if (modal.type === 'menu') {
@@ -3285,7 +3290,7 @@ export const SiftrView = createClass({
                           this.setState({warp: !this.state.warp});
                           this.popModal();
                         }}>
-                          <Text>Warp to Outpost: {this.state.warp ? 'ON' : 'OFF'}</Text>
+                          <Text>{this.state.warp ? 'Stop Warping to Station' : 'Warp to Station'}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={buttonStyle} onPress={this.props.onLogout}>
                           <Text>Logout</Text>
@@ -3299,7 +3304,7 @@ export const SiftrView = createClass({
                           <Text style={{color: 'red'}}>Reset Progress</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={buttonStyle} onPress={this.props.onExit}>
-                          <Text>Back to Games</Text>
+                          <Text>Back to Station Quests</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={buttonStyle} onPress={this.popModal/*.bind(this)*/}>
                           <Text>Cancel</Text>

@@ -20,6 +20,7 @@ import { StemportsPlayer } from "./stemports-player";
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import {addXP, meterDistance} from './siftr-view';
 import {loadQueue, uploadNote} from './upload-queue';
+import {getQuestProgress} from './quests';
 
 const RNFS = require("react-native-fs");
 
@@ -672,7 +673,7 @@ export class StemportsPicker extends React.Component {
                       backgroundColor: 'rgb(101,88,245)',
                       padding: 5,
                     }}>
-                      <Text style={{color: 'white'}}>Map it</Text>
+                      <Text style={{color: 'white'}}>Go</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -874,18 +875,11 @@ export class StemportsOutpost extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentQuestID: null,
-      tab: null,
     };
   }
 
   componentDidMount() {
     const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
-    RNFS.readFile(`${siftrDir}/current_quest.txt`).then(str => {
-      this.setState({currentQuestID: parseInt(str), tab: 'current'});
-    }).catch(() => {
-      this.setState({currentQuestID: 'none', tab: 'all'});
-    });
     RNFS.readFile(`${siftrDir}/quests-sorted.txt`).then(str => {
       this.setState({sortedQuests: JSON.parse(str)});
     }).catch(() => {
@@ -895,8 +889,6 @@ export class StemportsOutpost extends React.Component {
 
   launchQuest(game, quest) {
     const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
-    RNFS.writeFile(`${siftrDir}/current_quest.txt`, quest.quest_id);
-    this.setState({currentQuestID: parseInt(quest.quest_id)});
     this.props.onSelect(game, quest);
   }
 
@@ -940,164 +932,71 @@ export class StemportsOutpost extends React.Component {
         {
           obj.offline ? (
             <View style={{flex: 1}}>
-              <View style={{
-                alignItems: 'center',
-                justifyContent: 'space-around',
-                flexDirection: 'row',
-              }}>
-                <TouchableOpacity
-                  onPress={() => this.setState({tab: 'current'})}
-                  style={{padding: 10}}
-                >
-                  <Text style={{
-                    textDecorationLine: 'underline',
-                    color: this.state.tab === 'current' ? 'rgb(101,88,245)' : 'black',
-                  }}>
-                    Current Quest
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => this.setState({tab: 'all'})}
-                  style={{padding: 10}}
-                >
-                  <Text style={{
-                    textDecorationLine: 'underline',
-                    color: this.state.tab === 'all' ? 'rgb(101,88,245)' : 'black',
-                  }}>
-                    All Quests
-                  </Text>
-                </TouchableOpacity>
-              </View>
               {
-                this.state.currentQuestID == null ? (
-                  <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-                    <ActivityIndicator
-                      size="large"
-                      color="black"
-                    />
-                  </View>
-                ) : this.state.tab === 'current' ? (() => {
-                  const quests = (obj.offline ? obj.offline.quests : obj.online.quests);
-                  const quest = quests.find(q => parseInt(q.quest_id) === this.state.currentQuestID);
-                  if (quest) {
-                    return (
-                      <ScrollView style={{flex: 1, borderColor: 'black', borderTopWidth: 1, borderBottomWidth: 1}}>
-                        <View style={{
-                          flexDirection: 'row',
-                        }}>
-                          <Text style={{flex: 1, margin: 10, fontSize: 20}}>{quest.name}</Text>
-                          <TouchableOpacity onPress={() =>
-                            obj.offline && this.launchQuest(game, quest)
-                          } style={{
-                            backgroundColor: 'rgb(101,88,245)',
-                            padding: 5,
-                            margin: 10,
-                          }}>
-                            <Text style={{color: 'white'}}>resume</Text>
-                          </TouchableOpacity>
-                        </View>
-                        {
-                          (() => {
-                            const details = this.state.sortedQuests &&
-                              this.state.sortedQuests.displayInfo &&
-                              this.state.sortedQuests.displayInfo.find(o =>
-                                parseInt(o.quest.quest_id) === this.state.currentQuestID
-                              );
-                            if (details) {
-                              return (
-                                <View>
-                                  {
-                                    details.reqRoots.map(root => {
-                                      if (!root.req) return;
-                                      // this is all hacked for now, to match how generated quests look
-                                      const requirement = root.req.ands[0].atoms[0].requirement;
-                                      let done = root.ands[0].atoms.filter(o => o.bool).length;
-                                      let total = root.ands[0].atoms.length;
-                                      if (requirement === 'PLAYER_HAS_NOTE_WITH_QUEST') {
-                                        done = root.ands[0].atoms[0].qty;
-                                        total = root.ands[0].atoms[0].atom.qty;
-                                      }
-                                      let subquestLabel = root.req.ands[0].atoms[0].requirement;
-                                      if (subquestLabel === 'PLAYER_HAS_ITEM') {
-                                        subquestLabel = 'Explore and Collect Remnants';
-                                      } else if (subquestLabel === 'PLAYER_HAS_NOTE_WITH_QUEST') {
-                                        subquestLabel = `Make ${total} Observations`;
-                                      }
-                                      let circles = [];
-                                      for (let i = 0; i < total; i++) {
-                                        circles.push(i < done);
-                                      }
-                                      return (
-                                        <View key={root.req.requirement_root_package_id} style={{
-                                          padding: 15,
-                                          borderColor: 'black',
-                                          borderTopWidth: 1,
-                                          marginLeft: 10,
-                                          marginRight: 10,
-                                          paddingLeft: 5,
-                                          paddingRight: 5,
-                                        }}>
-                                          <Text style={{margin: 5}}>
-                                            {subquestLabel}
-                                          </Text>
-                                          <View style={{flexDirection: 'row'}}>
-                                            {circles.map((b, i) =>
-                                              <View
-                                                key={i}
-                                                style={{
-                                                  backgroundColor: b ? 'rgb(178,172,250)' : 'white',
-                                                  borderColor: 'black',
-                                                  borderWidth: 2,
-                                                  width: 20,
-                                                  height: 20,
-                                                  borderRadius: 10,
-                                                  margin: 3,
-                                                }}
-                                              />
-                                            )}
-                                          </View>
-                                        </View>
-                                      );
-                                    }).filter(x => x)
-                                  }
-                                </View>
-                              );
-                            } else {
-                              return (
-                                <Text>Launch this quest to refresh its progress information.</Text>
-                              );
-                            }
-                          })()
-                        }
-                      </ScrollView>
-                    );
-                  } else {
-                    return (
-                      <View style={{flex: 1, borderColor: 'black', borderTopWidth: 1, borderBottomWidth: 1}}>
-                        <Text>You haven't started a quest from this outpost.</Text>
-                        <Text>Find one to start from the All Quests tab.</Text>
-                      </View>
-                    );
-                  }
-                })() : (
+                (
                   <ScrollView style={{flex: 1, borderColor: 'black', borderTopWidth: 1, borderBottomWidth: 1}}>
                     {
                       (obj.offline ? obj.offline.quests : obj.online.quests).filter(quest =>
                         !parseInt(quest.parent_quest_id)
-                      ).map(quest =>
-                        <View key={quest.quest_id} style={{flexDirection: 'row'}}>
-                          <Text style={{flex: 1, margin: 5}}>{quest.name}</Text>
-                          <TouchableOpacity onPress={() =>
-                            obj.offline && this.launchQuest(game, quest)
-                          } style={{
-                            backgroundColor: 'rgb(101,88,245)',
-                            padding: 5,
-                            margin: 5,
+                      ).map(quest => {
+                        const details = this.state.sortedQuests &&
+                          this.state.sortedQuests.displayInfo &&
+                          this.state.sortedQuests.displayInfo.find(o =>
+                            parseInt(o.quest.quest_id) === parseInt(quest.quest_id)
+                          );
+                        const progress = getQuestProgress(details);
+                        let done = 0;
+                        let total = 0;
+                        progress.forEach(sub => {
+                          done += sub.done;
+                          total += sub.total;
+                        });
+                        return (
+                          <View key={quest.quest_id} style={{
+                            flexDirection: 'column',
+                            alignItems: 'stretch',
+                            borderColor: 'black',
+                            borderBottomWidth: 1,
                           }}>
-                            <Text style={{color: 'white'}}>start</Text>
-                          </TouchableOpacity>
-                        </View>
-                      )
+                            <View key={quest.quest_id} style={{
+                              flexDirection: 'row',
+                              padding: 5,
+                              alignItems: 'center',
+                            }}>
+                              <Text style={{flex: 1, margin: 5}}>{quest.name}</Text>
+                              <TouchableOpacity onPress={() =>
+                                obj.offline && this.launchQuest(game, quest)
+                              } style={{
+                                backgroundColor: 'rgb(101,88,245)',
+                                padding: 5,
+                                margin: 5,
+                              }}>
+                                <Text style={{color: 'white'}}>{done === 0 ? 'start' : 'resume'}</Text>
+                              </TouchableOpacity>
+                            </View>
+                            <View style={{
+                              padding: 10,
+                              alignItems: 'stretch',
+                              flexDirection: 'row',
+                            }}>
+                              <View style={{
+                                backgroundColor: 'rgb(66,82,96)',
+                                height: 12,
+                                flex: done,
+                                borderTopLeftRadius: 4,
+                                borderBottomLeftRadius: 4,
+                              }} />
+                              <View style={{
+                                backgroundColor: 'rgb(211,217,223)',
+                                height: 12,
+                                flex: total - done,
+                                borderTopRightRadius: 4,
+                                borderBottomRightRadius: 4,
+                              }} />
+                            </View>
+                          </View>
+                        );
+                      })
                     }
                   </ScrollView>
                 )
