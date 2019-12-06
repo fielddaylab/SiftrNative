@@ -586,22 +586,6 @@ export class StemportsPicker extends React.Component {
   }
 
   render() {
-    if (this.state.player) {
-      return (
-        <StemportsPlayer
-          onClose={() => this.setState({player: false})}
-          onLogout={this.props.onLogout}
-          auth={this.props.auth}
-          onChangePassword={this.props.onChangePassword}
-          onEditProfile={this.props.onEditProfile}
-          queueMessage={this.props.queueMessage}
-          online={this.props.online}
-          onSelect={this.props.onSelect}
-          inventory_zero={this.state.inventory_zero}
-        />
-      );
-    }
-
     let games = {};
     this.state.games.forEach(g => {
       if (!games[g.game_id]) games[g.game_id] = {};
@@ -617,6 +601,27 @@ export class StemportsPicker extends React.Component {
       const game = obj.online || obj.offline;
       const distance = this.props.location ? meterDistance(game, this.props.location.coords) : Infinity;
       gameList.push(update(obj, {game: {$set: game}, distance: {$set: distance}}));
+    }
+
+    if (this.state.player) {
+      return (
+        <StemportsPlayer
+          onClose={() => this.setState({player: false})}
+          onLogout={this.props.onLogout}
+          auth={this.props.auth}
+          onChangePassword={this.props.onChangePassword}
+          onEditProfile={this.props.onEditProfile}
+          queueMessage={this.props.queueMessage}
+          online={this.props.online}
+          onSelect={this.props.onSelect}
+          inventory_zero={this.state.inventory_zero}
+          onSync={() =>
+            Promise.all(this.state.downloadedGames.map(game =>
+              this.uploadGame(game).then(() => this.initializeGame(game, game))
+            )).then(() => this.loadDownloadedGames())
+          }
+        />
+      );
     }
 
     if (!this.state.mapLocation) {
@@ -856,6 +861,11 @@ export class StemportsPicker extends React.Component {
                     game={game}
                     obj={obj}
                     auth={this.props.auth}
+                    onSync={() =>
+                      this.uploadGame(game)
+                      .then(() => this.initializeGame(game, obj.offline))
+                      .then(() => this.loadDownloadedGames())
+                    }
                     onUpload={() => this.uploadGame(game).then(() => this.loadDownloadedGames())}
                     onDownload={() => this.initializeGame(game, obj.offline).then(() => this.loadDownloadedGames())}
                     onClose={() => this.setState({gameModal: null})}
@@ -1024,40 +1034,14 @@ export class StemportsOutpost extends React.Component {
           )
         }
         <View style={{alignItems: 'center', padding: 10}}>
-          {
-            obj.offline && (
-              <TouchableOpacity onPress={this.props.onUpload} style={{
-                width: 200,
-                padding: 10,
-                borderColor: 'black',
-                borderWidth: 1,
-                backgroundColor: 'white',
-              }}>
-                <Text>Upload</Text>
-              </TouchableOpacity>
-            )
-          }
-          {
-            obj.online && (
-              <TouchableOpacity onPress={this.props.onDownload} style={{
-                width: 200,
-                padding: 10,
-                borderColor: 'black',
-                borderWidth: 1,
-                backgroundColor: 'white',
-              }}>
-                <Text>{newVersion ? "Download (update!)" : "Download"}</Text>
-              </TouchableOpacity>
-            )
-          }
-          <TouchableOpacity onPress={this.props.onClose} style={{
-            width: 200,
-            padding: 10,
-            borderColor: 'black',
-            borderWidth: 1,
-            backgroundColor: 'white',
-          }}>
-            <Text>Close</Text>
+          <TouchableOpacity onPress={this.props.onClose}>
+            <Image
+              style={{
+                width: 140 * 0.45,
+                height: 140 * 0.45,
+              }}
+              source={require("../web/assets/img/quest-close.png")}
+            />
           </TouchableOpacity>
         </View>
       </View>

@@ -2070,7 +2070,7 @@ export const SiftrView = createClass({
           const location = this.getLocationWithWarp();
           if (!location) return;
           const distance = Math.ceil(meterDistance(o.trigger, location.coords));
-          if (distance > 10) {
+          if (distance > 10 && !this.state.warp) {
             Alert.alert(
               'Too far',
               `You are ${distance}m away. Walk ${distance - 10}m closer`,
@@ -3081,34 +3081,55 @@ export const SiftrView = createClass({
                     />
                   </TouchableOpacity>
                 ) : (
-                  <TouchableOpacity
-                    onPress={() => this.setState(prevState => update(prevState, {
-                      guideLines: {$apply: (lines) => lines.slice(1)},
-                    }))}
-                    style={{
-                      position: 'absolute',
-                      top: 10,
-                      left: 10,
-                      right: 10,
-                      flexDirection: 'row',
-                    }}
-                  >
-                    <View style={{
-                      flex: 1,
-                      backgroundColor: 'white',
-                      borderRadius: 5,
-                      paddingTop: 3,
-                      paddingBottom: 3,
-                      paddingLeft: 7,
-                      paddingRight: 7,
-                    }}>
-                      <Text>{this.state.guideLines[0]}</Text>
+                  <View style={{
+                    flexDirection: 'column',
+                    alignItems: 'stretch',
+                    position: 'absolute',
+                    top: 10,
+                    left: 10,
+                    right: 10,
+                  }}>
+                    <View style={{flexDirection: 'row'}}>
+                      <View style={{
+                        flex: 1,
+                        backgroundColor: 'white',
+                        borderRadius: 5,
+                        paddingTop: 3,
+                        paddingBottom: 3,
+                        paddingLeft: 7,
+                        paddingRight: 7,
+                        borderColor: 'black',
+                        borderWidth: 1,
+                      }}>
+                        <Text>{this.state.guideLines[0]}</Text>
+                      </View>
+                      <TouchableOpacity
+                        onPress={() => this.pushModal({type: 'quests'})}
+                        style={{margin: 10}}
+                      >
+                        <Image
+                          style={{width: 36, height: 39}}
+                          source={require('../web/assets/img/puffin.png')}
+                        />
+                      </TouchableOpacity>
                     </View>
-                    <Image
-                      style={{margin: 10, width: 36, height: 39}}
-                      source={require('../web/assets/img/puffin.png')}
-                    />
-                  </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => this.setState(prevState => update(prevState, {
+                        guideLines: {$apply: (lines) => lines.slice(1)},
+                      }))}
+                      style={{
+                        alignSelf: 'flex-start',
+                        backgroundColor: 'white',
+                        borderRadius: 5,
+                        padding: 13,
+                        borderColor: 'black',
+                        borderWidth: 1,
+                        marginTop: 5,
+                      }}
+                    >
+                      <Text>OK</Text>
+                    </TouchableOpacity>
+                  </View>
                 )
               }
               <CacheMedia

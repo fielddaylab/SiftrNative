@@ -136,6 +136,9 @@ export class StemportsPlayer extends React.Component {
           <TouchableOpacity style={{padding: 10}} onPress={this.props.onClose}>
             <Text>Close</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={{padding: 10}} onPress={this.props.onSync}>
+            <Text>Sync</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={{padding: 10}} onPress={() => this.setState({settings: true})}>
             <Text>Settings</Text>
           </TouchableOpacity>
