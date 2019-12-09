@@ -82,223 +82,6 @@ const colorAverage = function(c1, c2, numSteps) {
   return ret;
 };
 
-class MapCluster extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  thumbFocused(props = this.props) {
-    if (typeof props.cluster.note_ids[0] === 'string') {
-      return props.thumbHover && props.cluster.note_ids.indexOf('' + props.thumbHover) !== -1;
-    } else {
-      return props.thumbHover && props.cluster.note_ids.indexOf(props.thumbHover) !== -1;
-    }
-  }
-
-  numberColor() {
-    if (!this.props.fields) return;
-    if (!this.props.game.field_id_pin) return;
-    const field = this.props.fields.find((field) => field.field_id === this.props.game.field_id_pin);
-    if (field && field.field_type === 'NUMBER') {
-      let total = 0;
-      let count = 0;
-      const values = this.props.cluster.fields[field.field_id];
-      for (let value in values) {
-        const value_count = parseInt(values[value]);
-        value = parseFloat(value);
-        if (isNaN(value)) continue;
-        total += value * value_count;
-        count += value_count;
-      }
-      return this.props.getColor(total / count);
-    } else {
-      return;
-    }
-  }
-
-  // @ifdef NATIVE
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (this.markerRef && this.thumbFocused() !== this.thumbFocused(prevProps)) {
-      this.markerRef.redraw();
-    }
-  }
-
-  render() {
-    const smallSize = 30;
-    const bigSize = 45;
-    const focus = this.thumbFocused();
-    const w = focus ? bigSize : smallSize;
-    const margin = focus ? 0 : (bigSize - smallSize) / 2;
-    const r = w / 2;
-    let stops = [];
-    let startRads = 0;
-    const numberColor = this.numberColor();
-    if (numberColor) {
-      stops.push(['circle', 'circle', numberColor]);
-    } else {
-      const tags = this.props.game.newFormat() ? this.props.cluster.fields[this.props.game.field_id_pin] : this.props.cluster.tags;
-      for (let tag_id in tags) {
-        const tag_count = tags[tag_id];
-        const color = this.props.getColor(tag_id);
-        if (tag_count === this.props.cluster.note_count) {
-          stops.push(['circle', 'circle', color]);
-        } else {
-          const endRads = startRads + (tag_count / this.props.cluster.note_count) * 2 * Math.PI;
-          stops.push([startRads, endRads, color]);
-          startRads = endRads;
-        }
-      }
-    }
-    const blurStops = function(){
-      if (stops.length === 0 || stops[0][0] === 'circle') {
-        return false;
-      }
-      const newStops = [];
-      for (let i = 0; i < stops.length; i++) {
-        const stop = stops[i];
-        const [startRads, endRads, color] = stop;
-        const nextColor = stops[(i + 1) % stops.length][2]
-        const midpoint = startRads + (endRads - startRads) * 0.6
-        newStops.push([startRads, midpoint, color]);
-        let numSteps = Math.ceil((endRads - midpoint) * 10);
-        if (numSteps < 4) numSteps = 4;
-        const stepLength = (endRads - midpoint) / numSteps;
-        const colorSteps = colorAverage(color, nextColor, numSteps);
-        for (let j = 0; j < numSteps; j++) {
-          newStops.push([midpoint + stepLength * j, midpoint + stepLength * (j + 1), colorSteps[j]]);
-        }
-      }
-      stops = newStops;
-    };
-    blurStops();
-    return <MapView.Marker
-      tracksViewChanges={false}
-      ref={ref => this.markerRef = ref}
-      coordinate={{
-        latitude: this.props.lat,
-        longitude: this.props.lng,
-      }}
-      anchor={{x: 0.5, y: 0.5}}
-      title=""
-      description=""
-      pinColor="black"
-      onPress={() => this.props.onSelect(this.props.cluster)}
-    >
-      <View style={{width: bigSize + 13, height: bigSize + 3}}>
-        <View style={{
-          position: 'absolute',
-          top: 2 + margin,
-          left: 6 + margin,
-          width: w,
-          height: w,
-          borderRadius: r,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-        }} />
-        <Svg width={bigSize + 11} height={bigSize + 1} viewBox={`${-margin} ${-margin} ${bigSize + 11} ${bigSize + 1}`}>
-          {
-            (function(){
-              const results = [];
-              for (let i = 0; i < stops.length; i++) {
-                const [startRads, endRads, color] = stops[i];
-                if (startRads === 'circle') {
-                  results.push(<Circle
-                    key={i}
-                    cx={r + 5}
-                    cy={r}
-                    r={r}
-                    fill={color}
-                  />);
-                } else {
-                  const x1 = Math.cos(startRads) * r + r + 5;
-                  const y1 = Math.sin(startRads) * r + r;
-                  const x2 = Math.cos(endRads) * r + r + 5;
-                  const y2 = Math.sin(endRads) * r + r;
-                  const large = (endRads - startRads >= Math.PI ? 1 : 0);
-                  results.push(<Path
-                    key={i}
-                    d={`M${r+5},${r} L${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2} z`}
-                    fill={color}
-                  />);
-                }
-              }
-              return results;
-            })()
-          }
-          <SvgText
-            textAnchor="middle"
-            stroke="black"
-            fill="white"
-            x={r + 5}
-            y={(w + 3) * 0.65}
-            fontSize={smallSize * (2/3)}
-            fontWeight={Platform.OS === 'ios' ? '900' : 'bold'}
-          >{this.props.cluster.note_count}</SvgText>
-        </Svg>
-      </View>
-      <MapView.Callout tooltip={true} />
-    </MapView.Marker>;
-    // SvgText above doesn't get position fixed on size change; see
-    // https://github.com/react-native-community/react-native-svg/issues/709
-    // (will be fixed with RNSVG upgrade which requires RN 0.57.4)
-  }
-  // @endif
-
-  // @ifdef WEB
-  render() {
-    const width = 30;
-    const stops = [];
-    let percent = 0;
-    let last_color;
-    const numberColor = this.numberColor();
-    if (numberColor) {
-      stops.push(`${numberColor} 1 0%`);
-      stops.push(`${numberColor} 1 100%`);
-    } else {
-      const tags = this.props.game.newFormat() ? this.props.cluster.fields[this.props.game.field_id_pin] : this.props.cluster.tags;
-      for (let tag_id in tags) {
-        const tag_count = tags[tag_id];
-        percent += (tag_count / this.props.cluster.note_count) * 100;
-        const color = this.props.getColor(tag_id);
-        stops.push(`${color} 1 ${percent}%`);
-        last_color = color;
-      }
-      stops.unshift(`${last_color} 1 0%`);
-    }
-    const gradient = getConicGradient({stops: stops.join(', '), size: width});
-    let className = 'siftr-map-cluster';
-    if (this.thumbFocused()) {
-      className += ' hybrid-hover';
-    }
-    return <div className={className} style={{background: `url(${gradient})`}}
-      onClick={clicker(() => this.props.onSelect(this.props.cluster))}
-      onMouseEnter={() => this.props.onMouseEnter(this.props.cluster)}
-      onMouseLeave={() => this.props.onMouseLeave(this.props.cluster)}
-    >
-      <span className="siftr-map-cluster-number">
-        {this.props.cluster.note_count}
-      </span>
-    </div>
-  }
-  // @endif
-}
-
-MapCluster.propTypes = {
-  cluster: T.any.isRequired,
-  lat: T.number.isRequired,
-  lng: T.number.isRequired,
-  getColor: T.func,
-  onSelect: T.func,
-  onMouseEnter: T.func,
-  onMouseLeave: T.func,
-};
-
-MapCluster.defaultProps = {
-  getColor: function(){return 'white';},
-  onSelect: function(){},
-  onMouseEnter: function(){},
-  onMouseLeave: function(){},
-};
-
 class MapNote extends React.Component {
   constructor(props) {
     super(props);
@@ -317,9 +100,7 @@ class MapNote extends React.Component {
           longitude: this.props.lng,
         }}
         onPress={() => this.props.onSelect(this.props.note)}
-        icon={require('../web/assets/img/icon-flag.png')}
-        size={40 * 2}
-        visited={false}
+        icon={require('../web/assets/img/icon-flag-2x.png')}
       />
     );
   }
@@ -407,21 +188,6 @@ function stringToColorCode(str) {
 class SmartMarker extends React.Component {
   constructor(props) {
     super(props);
-    this.startRedraw(0);
-    this.didUnmount = false;
-  }
-
-  startRedraw(i) {
-    if (this.didUnmount) return;
-    if (this.marker) {
-      this.marker.redraw();
-    }
-    setTimeout(() => this.startRedraw(i + 1), 100 * Math.pow(2, i) + Math.random() * 100);
-    // very hacky but this spaces out the redraws
-  }
-
-  componentWillUnmount() {
-    this.didUnmount = true;
   }
 
   render() {
@@ -434,28 +200,8 @@ class SmartMarker extends React.Component {
         description=""
         pinColor="blue"
         onPress={this.props.onPress}
-        ref={marker => this.marker = marker}
+        icon={this.props.icon /* TODO handle checkmark */}
       >
-        <ImageBackground
-          style={{width: this.props.size, height: this.props.size}}
-          imageStyle={{resizeMode: 'contain'}}
-          source={this.props.icon}
-        >
-          {
-            this.props.visited && (
-              <Image
-                style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  width: 16,
-                  height: 16,
-                }}
-                source={require('../web/assets/img/checkmark.png')}
-              />
-            )
-          }
-        </ImageBackground>
         <MapView.Callout tooltip={true} />
       </MapView.Marker>
     );
@@ -553,29 +299,6 @@ export class SiftrMap extends React.Component {
     this.props.onMove({center, zoom});
   }
   // @endif
-
-  renderClusters() {
-    // @ifdef NATIVE
-    if (!this.state.isMapReady) return null;
-    // @endif
-    return this.props.map_clusters.map((map_cluster, i) => {
-      const lat = (map_cluster.min_latitude + map_cluster.max_latitude) / 2;
-      const lng = (map_cluster.min_longitude + map_cluster.max_longitude) / 2;
-      return <MapCluster
-        key={`${lat} ${lng}`}
-        lat={lat}
-        lng={lng}
-        cluster={map_cluster}
-        getColor={this.props.getColor}
-        onSelect={this.openCluster.bind(this)}
-        onMouseEnter={this.props.onMouseEnter}
-        onMouseLeave={this.props.onMouseLeave}
-        thumbHover={this.props.thumbHover}
-        game={this.props.game}
-        fields={this.props.fields}
-      />;
-    });
-  }
 
   renderNotes() {
     // @ifdef NATIVE
@@ -694,31 +417,29 @@ export class SiftrMap extends React.Component {
           />
         )
       }
-      {this.renderClusters()}
       {this.renderNotes()}
       {
         this.props.triggers && this.props.instances && this.props.triggers.map((trigger) => {
           const inst = this.props.instances.find(inst => parseInt(inst.instance_id) === parseInt(trigger.instance_id));
           if (!inst) return;
-          let size = 32 * 2;
           let icon;
           let plaque;
           let item;
           if (inst.object_type === 'PLAQUE') {
-            size = 42 * 2;
-            icon = require('../web/assets/img/icon-blaze.png');
+            const visited = this.props.logs && this.props.logs.some(log =>
+              log.event_type === 'VIEW_PLAQUE' && parseInt(log.content_id) === parseInt(inst.object_id)
+            );
+            icon = visited ? 
+              require('../web/assets/img/icon-blaze-2x-visited.png') :
+              require('../web/assets/img/icon-blaze-2x.png');
             plaque = this.props.plaques.find(p => parseInt(p.plaque_id) === parseInt(inst.object_id));
           } else if (inst.object_type === 'ITEM') {
-            icon = require('../web/assets/img/icon-chest.png');
+            icon = require('../web/assets/img/icon-chest-2x.png');
             item = this.props.items.find(p => parseInt(p.item_id) === parseInt(inst.object_id));
           } else {
             return;
           }
           const select = {trigger: trigger, instance: inst, plaque: plaque, item: item};
-
-          const visited = inst.object_type === 'PLAQUE' && this.props.logs && this.props.logs.some(log =>
-            log.event_type === 'VIEW_PLAQUE' && parseInt(log.content_id) === parseInt(inst.object_id)
-          );
 
           return (
             <SmartMarker
@@ -729,8 +450,6 @@ export class SiftrMap extends React.Component {
               }}
               onPress={() => this.props.onSelectItem(select)}
               icon={icon}
-              size={size}
-              visited={visited}
             />
           );
         })
@@ -769,7 +488,6 @@ export class SiftrMap extends React.Component {
           };
         }}
       >
-        {this.renderClusters()}
         {this.renderNotes()}
       </GoogleMap>
       <div className={`siftr-map-legend ${this.state.legendOpen ? 'selected' : ''}`}>

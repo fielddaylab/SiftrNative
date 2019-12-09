@@ -3152,7 +3152,7 @@ export const SiftrView = createClass({
                         width: 200,
                         height: 150,
                       }}
-                      autoPlay={true}
+                      autoPlay={false}
                     />
                   </View>
                 }
