@@ -271,6 +271,60 @@ const QuestEntry = function(props) {
   );
 };
 
+export const GenericModal = (props) => {
+  return (
+    <View style={{
+      flex: 1,
+      backgroundColor: 'rgb(67,139,176)',
+      flexDirection: 'column',
+      paddingLeft: 10,
+      paddingRight: 10,
+    }}>
+      <View style={{height: 80}} />
+      <View style={{
+        backgroundColor: '#aea',
+        flex: 1,
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+        paddingTop: 10,
+      }}>
+        <ScrollView style={{flex: 1}}>
+          {props.children}
+        </ScrollView>
+        <View style={{
+          margin: 15,
+          alignItems: 'center',
+        }}>
+          <TouchableOpacity onPress={props.onClose}>
+            <Image
+              style={{
+                width: 140 * 0.45,
+                height: 140 * 0.45,
+              }}
+              source={require("../web/assets/img/quest-close.png")}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View style={{
+        position: 'absolute',
+        top: 10,
+        left: 0,
+        right: 0,
+        alignItems: 'center',
+      }}>
+        <Image
+          style={{
+            width: 72,
+            height: 78,
+          }}
+          source={require("../web/assets/img/puffin.png")}
+        />
+      </View>
+    </View>
+  );
+}
+
 export class QuestsScreen extends React.Component {
   constructor(props) {
     super(props);

@@ -40,7 +40,7 @@ import {CacheMedia} from './media';
 import ProgressCircle from 'react-native-progress-circle';
 import {ItemScreen, InventoryScreen} from './items';
 import {PlaqueScreen} from './plaques';
-import {QuestsScreen, QuestDetails, QuestDotDetails} from './quests';
+import {QuestDetails, QuestDotDetails, GenericModal} from './quests';
 import {evalReqPackage} from './requirements';
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
 // @endif
@@ -770,7 +770,7 @@ export const SiftrView = createClass({
       factoryObjects: [],
       factoryProductionTimestamps: {},
       pickedUpRemnants: [],
-      guideLines: [],
+      guideLine: null,
       guideMentionedRemnant: false,
       guideMentionedXP: false,
     };
@@ -799,20 +799,14 @@ export const SiftrView = createClass({
     );
   },
   addXP: function(n) {
-    this.setState(oldState =>
-      oldState.guideMentionedXP
-      ? oldState
-      : update(oldState, {
-        guideMentionedXP: {$set: true},
-        guideLines: {$push: [`You got ${n} XP!`]},
-      })
-    );
+    if (!this.state.guideMentionedXP) {
+      this.setState({guideMentionedXP: true});
+      this.queueModal({type: 'generic', message: `You got ${n} XP!`});
+    }
     this.props.addXP(n);
   },
-  addGuideLine: function(line) {
-    this.setState(oldState => update(oldState, {
-      guideLines: {$push: [line]},
-    }));
+  setGuideLine: function(line) {
+    this.setState({guideLine: line});
   },
   addLog: function(logEntry) {
     this.setState(oldState => update(oldState, {
@@ -948,7 +942,7 @@ export const SiftrView = createClass({
                   this.pushModal({type: 'subquest-complete', quest: quest, subquest: sub});
                 }
               });
-              this.addGuideLine(`Good job! ${quest.sub_active[0].prompt}`);
+              this.setGuideLine(`Good job! ${quest.sub_active[0].prompt}`);
             }
           }
         });
@@ -963,18 +957,18 @@ export const SiftrView = createClass({
           }
         });
         if (newQuests.active.length === 0 && oldQuests.active.length > 0) {
-          this.addGuideLine("Your work here is complete! You've made all the observations we needed. Keep observing or pick another quest.");
+          this.setGuideLine("Your work here is complete! You've made all the observations we needed. Keep observing or pick another quest.");
         }
       } else {
         // first quest computation since launch
         if (newQuests.active.length === 0) {
-          this.addGuideLine("You've already completed all the subquests here!");
+          this.setGuideLine("You've already completed all the subquests here!");
         } else {
           const quest = newQuests.active[0];
           if (quest.sub_active && quest.sub_active.length > 0) {
-            this.addGuideLine(quest.sub_active[0].prompt);
+            this.setGuideLine(quest.sub_active[0].prompt);
           } else {
-            this.addGuideLine(quest.prompt);
+            this.setGuideLine(quest.prompt);
           }
         }
       }
@@ -2038,6 +2032,11 @@ export const SiftrView = createClass({
       modals: {$apply: (ary) => [modal].concat(ary)}
     }));
   },
+  queueModal: function(modal) {
+    this.setState(old => update(old, {
+      modals: {$apply: (ary) => ary.concat([modal])}
+    }));
+  },
   popModal: function() {
     this.setState(old => update(old, {
       modals: {$apply: (ary) => ary.slice(1)}
@@ -3066,7 +3065,7 @@ export const SiftrView = createClass({
                   : this.renderMap()
               }
               {
-                this.state.guideLines.length === 0 ? (
+                this.state.guideLine == null ? (
                   <TouchableOpacity
                     onPress={() => this.pushModal({type: 'quests'})}
                     style={{
@@ -3101,7 +3100,7 @@ export const SiftrView = createClass({
                         borderColor: 'black',
                         borderWidth: 1,
                       }}>
-                        <Text>{this.state.guideLines[0]}</Text>
+                        <Text>{this.state.guideLine}</Text>
                       </View>
                       <TouchableOpacity
                         onPress={() => this.pushModal({type: 'quests'})}
@@ -3113,22 +3112,6 @@ export const SiftrView = createClass({
                         />
                       </TouchableOpacity>
                     </View>
-                    <TouchableOpacity
-                      onPress={() => this.setState(prevState => update(prevState, {
-                        guideLines: {$apply: (lines) => lines.slice(1)},
-                      }))}
-                      style={{
-                        alignSelf: 'flex-start',
-                        backgroundColor: 'white',
-                        borderRadius: 5,
-                        padding: 13,
-                        borderColor: 'black',
-                        borderWidth: 1,
-                        marginTop: 5,
-                      }}
-                    >
-                      <Text>OK</Text>
-                    </TouchableOpacity>
                   </View>
                 )
               }
@@ -3291,6 +3274,18 @@ export const SiftrView = createClass({
                         onClose={this.popModal/*.bind(this)*/}
                       />
                     );
+                  } else if (modal.type === 'generic') {
+                    return (
+                      <GenericModal onClose={this.popModal/*.bind(this)*/}>
+                        <Text style={{
+                          padding: 15,
+                          textAlign: 'center',
+                          fontWeight: 'bold',
+                        }}>
+                          {modal.message}
+                        </Text>
+                      </GenericModal>
+                    );
                   } else if (modal.type === 'menu') {
                     const buttonStyle = {
                       margin: 10,
@@ -3377,13 +3372,14 @@ export const SiftrView = createClass({
                                 item_id => rems.indexOf(item_id) === -1
                               );
                               rems = update(rems, {$push: item_ids});
+                              if (!state.guideMentionedRemnant) {
+                                setTimeout(() => (
+                                  this.queueModal({type: 'generic', message: 'You picked up a remnant!'})
+                                ), 0);
+                              }
                               return update(state, {
                                 pickedUpRemnants: {$set: rems},
                                 guideMentionedRemnant: {$set: true},
-                                guideLines: (state.guideMentionedRemnant
-                                  ? {$apply: x => x}
-                                  : {$push: ['You picked up a remnant!']}
-                                  ),
                               });
                             }, () => this.saveInventory());
                           }}
@@ -3401,6 +3397,11 @@ export const SiftrView = createClass({
                           onPickUp={(trigger) => {
                             this.addXP(2);
                             this.setState(state => {
+                              if (!state.guideMentionedRemnant) {
+                                setTimeout(() => (
+                                  this.queueModal({type: 'generic', message: 'You picked up a remnant!'})
+                                ), 0);
+                              }
                               return update(state, {
                                 pickedUpRemnants: {
                                   $apply: rems => {
@@ -3412,10 +3413,6 @@ export const SiftrView = createClass({
                                   },
                                 },
                                 guideMentionedRemnant: {$set: true},
-                                guideLines: (state.guideMentionedRemnant
-                                  ? {$apply: x => x}
-                                  : {$push: ['You picked up a remnant!']}
-                                  ),
                                 factoryObjects: {
                                   $apply: objs => objs.filter(obj =>
                                     parseInt(obj.trigger.trigger_id) != parseInt(modal.trigger.trigger_id)
