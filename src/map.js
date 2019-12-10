@@ -100,7 +100,7 @@ class MapNote extends React.Component {
           longitude: this.props.lng,
         }}
         onPress={() => this.props.onSelect(this.props.note)}
-        icon={require('../web/assets/img/icon-flag-2x.png')}
+        icon={require('../web/assets/img/icon-flag.png')}
       />
     );
   }
@@ -200,7 +200,7 @@ class SmartMarker extends React.Component {
         description=""
         pinColor="blue"
         onPress={this.props.onPress}
-        icon={this.props.icon /* TODO handle checkmark */}
+        icon={this.props.icon}
       >
         <MapView.Callout tooltip={true} />
       </MapView.Marker>
@@ -430,11 +430,11 @@ export class SiftrMap extends React.Component {
               log.event_type === 'VIEW_PLAQUE' && parseInt(log.content_id) === parseInt(inst.object_id)
             );
             icon = visited ? 
-              require('../web/assets/img/icon-blaze-2x-visited.png') :
-              require('../web/assets/img/icon-blaze-2x.png');
+              require('../web/assets/img/icon-blaze-visited.png') :
+              require('../web/assets/img/icon-blaze.png');
             plaque = this.props.plaques.find(p => parseInt(p.plaque_id) === parseInt(inst.object_id));
           } else if (inst.object_type === 'ITEM') {
-            icon = require('../web/assets/img/icon-chest-2x.png');
+            icon = require('../web/assets/img/icon-chest.png');
             item = this.props.items.find(p => parseInt(p.item_id) === parseInt(inst.object_id));
           } else {
             return;

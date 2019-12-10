@@ -1054,9 +1054,10 @@ export const SiftrView = createClass({
             let lat = 0;
             let lon = 0;
             if (factory.location_bound_type === 'PLAYER') {
-              if (this.props.location) {
-                lat = this.props.location.coords.latitude;
-                lon = this.props.location.coords.longitude;
+              const playerLoc = this.getLocationWithWarp();
+              if (playerLoc) {
+                lat = playerLoc.coords.latitude;
+                lon = playerLoc.coords.longitude;
               }
             } else if (factory.location_bound_type === 'LOCATION') {
               lat = factory.trigger_latitude;
@@ -3303,7 +3304,7 @@ export const SiftrView = createClass({
                         justifyContent: 'center',
                       }}>
                         <TouchableOpacity style={buttonStyle} onPress={() => {
-                          this.setState({warp: !this.state.warp});
+                          this.setState({warp: !this.state.warp, factoryObjects: []});
                           this.popModal();
                         }}>
                           <Text>{this.state.warp ? 'Stop Warping to Station' : 'Warp to Station'}</Text>
