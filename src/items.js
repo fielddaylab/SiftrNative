@@ -9,6 +9,8 @@ import {
 , Image
 , Animated
 , PanResponder
+, Modal
+, TouchableWithoutFeedback
 } from 'react-native';
 import {CacheMedia} from './media';
 import {WebView} from 'react-native-webview';
@@ -184,6 +186,7 @@ export class InventoryScreen extends React.Component {
     super(props);
     this.state = {
       viewing: null,
+      niceModal: false,
     };
     this._itemSlots = {};
   }
@@ -240,13 +243,41 @@ export class InventoryScreen extends React.Component {
       !(tags.some(tag => tag.items.some(item => item.instance === inst)))
     );
 
+    let guideMessage = '';
+    if (tags.every(o => o.items.every(o => o.instance))) {
+      guideMessage = "Congratulations, you've completed these field notes!";
+    } else if (this.props.pickedUpRemnants.length !== 0) {
+      guideMessage = "You've found some field notes. Now, place them in the right areas of your guide!";
+    } else {
+      guideMessage = "Go find more field notes to fill in the empty spaces in your guide!";
+    }
+
     return (
       <View style={{
-        backgroundColor: 'rgb(243,237,225)',
+        backgroundColor: '#b2c6ea',
         flex: 1,
         alignItems: 'stretch',
       }}>
-        <ScrollView style={{flex: 1}}>
+        <View style={{flexDirection: 'row', padding: 10}}>
+          <View style={{
+            flex: 1,
+            backgroundColor: 'white',
+            borderRadius: 5,
+            paddingTop: 3,
+            paddingBottom: 3,
+            paddingLeft: 7,
+            paddingRight: 7,
+            borderColor: 'black',
+            borderWidth: 1,
+          }}>
+            <Text>{guideMessage}</Text>
+          </View>
+          <Image
+            style={{width: 36, height: 39, margin: 10}}
+            source={require('../web/assets/img/puffin.png')}
+          />
+        </View>
+        <ScrollView style={{flex: 1, backgroundColor: 'rgb(243,237,225)'}}>
           {
             untaggedInstances.map(inst => {
               const item = (this.props.items || []).find(x => parseInt(x.item_id) === parseInt(inst.object_id));
@@ -269,7 +300,10 @@ export class InventoryScreen extends React.Component {
               const tag = o.tag;
               const items = o.items;
               return (
-                <View key={tag.tag_id} ref={slot => this._itemSlots[tag.tag_id] = slot}>
+                <View key={tag.tag_id} ref={slot => this._itemSlots[tag.tag_id] = slot} style={{
+                  borderColor: 'black',
+                  borderTopWidth: 1,
+                }}>
                   <Text style={{
                     textAlign: 'center',
                     margin: 10,
@@ -277,66 +311,71 @@ export class InventoryScreen extends React.Component {
                   }}>
                     {tag.tag}
                   </Text>
-                  {
-                    groupBy(4, items).map((row, i) =>
-                      <View key={i} style={{
-                        flexDirection: 'row',
-                        alignItems: 'stretch',
-                      }}>
-                        {
-                          row.map(o => {
-                            const isPlaced = o.instance;
-                            return (
-                              <TouchableOpacity key={o.item.item_id} style={{
-                                flex: 1,
-                              }} onPress={() =>
-                                isPlaced && this.setState({viewing: {item: o.item, instance: o.instance}})
-                              }>
-                                <CacheMedia
-                                  media_id={o.item.icon_media_id || o.item.media_id}
-                                  auth={this.props.auth}
-                                  online={true}
-                                  withURL={(url) => (
-                                    isPlaced ? (
-                                      <Image
-                                        source={url}
-                                        style={{
-                                          height: 60,
-                                          margin: 10,
-                                          resizeMode: 'contain',
-                                        }}
-                                      />
-                                    ) : (
-                                      <View
-                                        style={{
-                                          height: 60,
-                                          margin: 10,
-                                          backgroundColor: 'gray',
-                                          borderRadius: 999,
-                                        }}
-                                      />
-                                    )
-                                  )}
-                                />
-                                <Text style={{
-                                  margin: 10,
-                                  textAlign: 'center',
-                                }}>
-                                  {isPlaced ? o.item.name : '???'}
-                                </Text>
-                              </TouchableOpacity>
-                            );
-                          })
-                        }
-                      </View>
-                    )
-                  }
+                  <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'flex-start',
+                    flexWrap: 'wrap',
+                  }}>
+                    {
+                      items.map(o => {
+                        const isPlaced = o.instance;
+                        return (
+                          <TouchableOpacity key={o.item.item_id} style={{
+                            alignItems: 'center',
+                          }} onPress={() =>
+                            isPlaced && this.setState({viewing: {item: o.item, instance: o.instance}})
+                          }>
+                            <CacheMedia
+                              media_id={o.item.icon_media_id || o.item.media_id}
+                              auth={this.props.auth}
+                              online={true}
+                              withURL={(url) => (
+                                isPlaced ? (
+                                  <Image
+                                    source={url}
+                                    style={{
+                                      height: 70,
+                                      width: 70,
+                                      margin: 10,
+                                      resizeMode: 'contain',
+                                    }}
+                                  />
+                                ) : (
+                                  <View
+                                    style={{
+                                      height: 70,
+                                      width: 70,
+                                      margin: 10,
+                                      backgroundColor: 'gray',
+                                      borderRadius: 999,
+                                    }}
+                                  />
+                                )
+                              )}
+                            />
+                            <Text style={{
+                              margin: 10,
+                              textAlign: 'center',
+                              width: 100,
+                            }}>
+                              {isPlaced ? o.item.name : '???'}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })
+                    }
+                  </View>
                 </View>
               );
             })
           }
         </ScrollView>
-        <View style={{height: 100, alignItems: 'stretch', borderColor: 'black', borderWidth: 1}}>
+        <View style={{
+          height: 100,
+          alignItems: 'stretch',
+          borderColor: 'black',
+          borderTopWidth: 1,
+        }}>
           <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'stretch'}}>
             {
               this.props.pickedUpRemnants.map(item_id => {
@@ -360,6 +399,7 @@ export class InventoryScreen extends React.Component {
                             py <= gestureState.moveY && gestureState.moveY <= py + height;
                           if (inBounds) {
                             this.props.onPlace(item_id);
+                            this.setState({niceModal: true});
                           }
                           cb(inBounds);
                         });
@@ -374,7 +414,7 @@ export class InventoryScreen extends React.Component {
           </View>
         </View>
         <View style={{
-          margin: 15,
+          margin: 8,
           alignItems: 'center',
         }}>
           <TouchableOpacity onPress={this.props.onClose}>
@@ -387,6 +427,38 @@ export class InventoryScreen extends React.Component {
             />
           </TouchableOpacity>
         </View>
+        {
+          this.state.niceModal && (
+            <Modal transparent={true} onRequestClose={() => this.setState({niceModal: false})}>
+              <TouchableWithoutFeedback onPress={() => this.setState({niceModal: false})}>
+                <View style={{
+                  flex: 1,
+                  backgroundColor: 'rgba(0,0,0,0.5)',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <View style={{
+                    backgroundColor: 'white',
+                    padding: 20,
+                    alignItems: 'center',
+                  }}>
+                    <Image source={require('../web/assets/img/icon-nice-check.png')} style={{
+                      margin: 10,
+                      width: 200 * 0.5,
+                      height: 162 * 0.5,
+                    }} />
+                    <Text style={{
+                      margin: 10,
+                      fontWeight: 'bold',
+                    }}>
+                      Nice!
+                    </Text>
+                  </View>
+                </View>
+              </TouchableWithoutFeedback>
+            </Modal>
+          )
+        }
       </View>
     );
   }
