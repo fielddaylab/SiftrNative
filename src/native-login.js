@@ -121,20 +121,13 @@ export var NativeLogin = createClass({
                 }}
               >
                 <Image
-                  source={require("../web/assets/img/siftr-logo.png")}
+                  source={require("../web/assets/img/stemports-logo.png")}
                   style={{
-                    width: 190 * 0.5,
-                    height: 196 * 0.5,
+                    width: 1522 / 7,
+                    height: 346 / 7,
                     marginBottom: 20
                   }}
                 />
-                <Text
-                  style={{
-                    color: "white"
-                  }}
-                >
-                  Exploring our world together
-                </Text>
               </View>
             </TouchableWithoutFeedback>
           ) : (

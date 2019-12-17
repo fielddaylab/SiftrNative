@@ -82,6 +82,10 @@ export function loadMedia(props, cb) {
   }
 
   function loadMediaID(media_id, size = 'url') {
+    if (!parseInt(media_id)) {
+      cb(require('../web/assets/img/stemports-avatar.png'));
+      return;
+    }
     loadGeneral(size + media_id, (useURL) => {
       if (online) {
         props.auth.call('media.getMedia', {
