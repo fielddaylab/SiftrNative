@@ -586,7 +586,7 @@ const CreateSingleSelect = createClass({
                                   height: 60,
                                   margin: 10,
                                   resizeMode: 'contain',
-                                  opacity: option === this.props.current ? 1 : 0.5,
+                                  opacity: option === this.props.current ? 1 : 0.3,
                                 }}
                               />
                             }
@@ -600,7 +600,7 @@ const CreateSingleSelect = createClass({
                               borderRadius: 999,
                               margin: 10,
                               resizeMode: 'contain',
-                              opacity: option === this.props.current ? 1 : 0.5,
+                              opacity: option === this.props.current ? 1 : 0.3,
                               backgroundColor: this.props.getColor(option),
                             }}
                           />
@@ -713,6 +713,7 @@ export const CreateData = createClass({
       userPickedLocation: false,
       geocodeResult: null,
       alertFields: [],
+      fieldIndex: 0,
     };
   },
   componentDidMount: function() {
@@ -885,6 +886,29 @@ export const CreateData = createClass({
         />
       );
     } else {
+
+      const visibleFields = this.props.fields.filter(field => {
+        if (isEditing && field.field_type === "MEDIA") {
+          return false;
+        }
+        // filter fields based on selected quest
+        if (field.field_guide_id
+          && this.props.currentQuest
+          && parseInt(field.field_guide_id) !== parseInt(this.props.currentQuest.quest_id)) {
+          return false;
+        }
+        if (field.sort_index === -1) {
+          return false;
+        }
+        return true;
+      });
+      const previousField = () => this.setState(prevState =>
+        update(prevState, {fieldIndex: {$apply: (x) => x - 1}})
+      );
+      const nextField = () => this.setState(prevState =>
+        update(prevState, {fieldIndex: {$apply: (x) => x + 1}})
+      );
+
       return (
         <View
           style={{
@@ -1008,72 +1032,9 @@ export const CreateData = createClass({
                       ))
                     }
                   </Blackout>
-                  <Blackout
-                    keyboardUp={this.state.focusedBox != null}
-                    isFocused={false}
-                  >
-                    <View style={styles.settingsHeader}>
-                      <Text style={styles.settingsHeaderText}>
-                        Location
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        backgroundColor: "white"
-                      }}
-                    >
-                      <TouchableOpacity
-                        onPress={() => {
-                          return; // disable location picking for now
-                          this.setState({
-                            isPickingLocation: true
-                          });
-                          this.props.onStartLocation(this.state.noteLocation);
-                        }}
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center"
-                        }}
-                      >
-                        <Text
-                          style={{
-                            paddingLeft: 20,
-                            paddingRight: 20,
-                            paddingTop: 13,
-                            paddingBottom: 13,
-                            color: "black",
-                            flex: 1
-                          }}
-                        >
-                          {this.state.geocodeResult != null &&
-                          this.state.geocodeResult[0] != null
-                            ? (ref1 = this.state.geocodeResult[0].feature) !=
-                              null
-                              ? ref1
-                              : this.state.geocodeResult[0].formattedAddress
-                            : "Locating…"}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </Blackout>
-                  {this.props.fields.map(field => {
+                  {[visibleFields[this.state.fieldIndex]].map(field => {
                     var getText, onChangeData, clearAlert, setText;
                     const field_data = this.props.createNote.field_data || [];
-                    if (isEditing && field.field_type === "MEDIA") {
-                      return null;
-                    }
-
-                    // filter fields based on selected quest
-                    if (field.field_guide_id
-                      && this.props.currentQuest
-                      && parseInt(field.field_guide_id) !== parseInt(this.props.currentQuest.quest_id)) {
-                      return;
-                    }
-
-                    if (field.sort_index === -1) {
-                      return;
-                    }
-
                     return (
                       <Blackout
                         keyboardUp={this.state.focusedBox != null}
@@ -1416,21 +1377,14 @@ export const CreateData = createClass({
           >
             <View style={styles.buttonRow}>
               <TouchableOpacity
-                onPress={this.props.onCancel}
+                onPress={this.state.fieldIndex === 0 ? this.props.onCancel : previousField}
                 style={{
                   flex: 1,
                   alignItems: "center"
                 }}
               >
-                <Text
-                  style={[
-                    styles.blackViolaButton,
-                    {
-                      color: "rgb(165,159,164)"
-                    }
-                  ]}
-                >
-                  Cancel
+                <Text style={styles.blackViolaButton}>
+                  {this.state.fieldIndex === 0 ? 'Cancel' : 'Back'}
                 </Text>
               </TouchableOpacity>
               <View
@@ -1441,22 +1395,14 @@ export const CreateData = createClass({
                 }}
               />
               <TouchableOpacity
-                onPress={() => {
-                  if (!this.props.createNote.uploading) {
-                    this.finishForm();
-                  }
-                }}
+                onPress={this.state.fieldIndex >= visibleFields.length - 1 ? this.finishForm/*.bind(this)*/ : nextField}
                 style={{
                   flex: 1,
                   alignItems: "center"
                 }}
               >
                 <Text style={styles.blackViolaButton}>
-                  {this.props.createNote.uploading
-                    ? `Uploading… (${Math.floor(
-                        ((ref2 = this.props.progress) != null ? ref2 : 0) * 100
-                      )}%)`
-                    : "Post"}
+                  {this.state.fieldIndex >= visibleFields.length - 1 ? 'Post!' : 'Next'}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -1464,5 +1410,5 @@ export const CreateData = createClass({
         </View>
       );
     }
-  }
+  },
 });
