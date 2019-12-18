@@ -2936,7 +2936,7 @@ export const SiftrView = createClass({
                             ]
                       }
                     </View>
-                    {this.state.viewingNote != null ? (
+                    {
                       ((hasOptions = false),
                       hasOptions ||
                         (hasOptions =
@@ -2990,62 +2990,7 @@ export const SiftrView = createClass({
                           />
                         </View>
                       ))
-                    ) : (
-                      <View style={{flexDirection: 'row'}}>
-                        <TouchableOpacity
-                          onPress={() => this.pushModal({type: 'quests'})}
-                        >
-                          <View style={{
-                            paddingTop: 3,
-                            paddingBottom: 3,
-                            paddingLeft: 7,
-                            paddingRight: 7,
-                            margin: 10,
-                            borderColor: 'black',
-                            borderWidth: 1,
-                            borderRadius: 5,
-                          }}>
-                            <Text>quests</Text>
-                          </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          onPress={() => this.pushModal({type: 'inventory'})}
-                        >
-                          <View style={{
-                            paddingTop: 3,
-                            paddingBottom: 3,
-                            paddingLeft: 7,
-                            paddingRight: 7,
-                            margin: 10,
-                            borderColor: 'black',
-                            borderWidth: 1,
-                            borderRadius: 5,
-                          }}>
-                            <Text>items</Text>
-                          </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          onPress={() => {
-                            this.props.auth.call('client.logPlayerResetGame', {
-                              game_id: this.props.game.game_id,
-                            });
-                          }}
-                        >
-                          <View style={{
-                            paddingTop: 3,
-                            paddingBottom: 3,
-                            paddingLeft: 7,
-                            paddingRight: 7,
-                            margin: 10,
-                            borderColor: 'black',
-                            borderWidth: 1,
-                            borderRadius: 5,
-                          }}>
-                            <Text style={{color: 'red'}}>reset</Text>
-                          </View>
-                        </TouchableOpacity>
-                      </View>
-                    )}
+                    }
                   </View>
                 }
               </Blackout>
@@ -3313,9 +3258,12 @@ export const SiftrView = createClass({
                           <Text>Logout</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={buttonStyle} onPress={() => {
-                          this.props.auth.call('client.logPlayerResetGame', {
-                            game_id: this.props.game.game_id,
-                          });
+                          this.setState((prevState => update(prevState, {
+                            pickedUpRemnants: {$set: []},
+                            inventory: {$apply: inv => inv.map(inst =>
+                              update(inst, {qty: {$set: 0}})
+                            )},
+                          })), () => this.saveInventory());
                           this.popModal();
                         }}>
                           <Text style={{color: 'red'}}>Reset Progress</Text>
