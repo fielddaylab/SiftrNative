@@ -942,7 +942,7 @@ export const SiftrView = createClass({
                   this.pushModal({type: 'subquest-complete', quest: quest, subquest: sub});
                 }
               });
-              this.setGuideLine(`Good job! ${quest.sub_active[0].prompt}`);
+              this.setGuideLine(quest.sub_active[0].prompt);
             }
           }
         });
@@ -1368,6 +1368,7 @@ export const SiftrView = createClass({
     }
   },
   getColor: function(x) {
+    if (!x) return 'white';
     if (x.color) return x.color;
     let tag, index;
     if (!(this.props.tags != null && this.props.colors != null && x != null)) {
@@ -2908,7 +2909,11 @@ export const SiftrView = createClass({
                           , <Text key={2} style={{
                               color: 'rgb(140,140,140)',
                             }}>
-                              {`Post by: ${this.state.viewingNote.user.display_name}`}
+                              {`Post by: ${
+                                this.state.viewingNote.pending
+                                ? this.props.auth.authToken.display_name || this.props.auth.authToken.username
+                                : this.state.viewingNote.user.display_name
+                              }`}
                             </Text>
                           ]
                         : this.state.createNote != null

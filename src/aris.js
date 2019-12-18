@@ -327,10 +327,14 @@ export const Note = class Note {
       })();
       this.published = json.published;
       this.field_data = {};
-      for (const k in json) {
-        if (k.indexOf('field_') === 0) {
-          const n = parseInt(k.slice('field_'.length))
-          this.field_data[n] = json[k];
+      if (Array.isArray(json.field_data)) {
+        this.field_data = json.field_data;
+      } else {
+        for (const k in json) {
+          if (k.indexOf('field_') === 0) {
+            const n = parseInt(k.slice('field_'.length))
+            this.field_data[n] = json[k];
+          }
         }
       }
     }

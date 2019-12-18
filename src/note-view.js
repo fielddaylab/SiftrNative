@@ -910,6 +910,7 @@ export const SiftrNoteView = function() {
 
     loadExtra(note = this.props.note) {
       if (note.pending) {
+        this.setState({field_data: note.field_data});
         return;
       }
       // load comments
@@ -1128,9 +1129,7 @@ export const SiftrNoteView = function() {
         ref2,
         ref3,
         text;
-      if (this.props.note.pending) {
-        return null;
-      } else if (
+      if (
         !(this.state.field_data != null && this.props.fields != null)
       ) {
         return (
@@ -1144,51 +1143,6 @@ export const SiftrNoteView = function() {
         );
       } else {
         parts = [];
-        if (this.props.tag != null && !this.props.game.newFormat()) {
-          parts.push(
-            <View
-              key={0}
-              style={{
-                borderTopWidth: 1,
-                borderTopColor: "#F1F5F4",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "flex-start"
-              }}
-            >
-              <Text
-                style={{
-                  margin: 10,
-                  fontWeight: "bold"
-                }}
-              >
-                Category
-              </Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center"
-                }}
-              >
-                <View
-                  style={{
-                    backgroundColor: this.props.getColor(this.props.tag),
-                    width: 16,
-                    height: 16,
-                    borderRadius: 8
-                  }}
-                />
-                <Text
-                  style={{
-                    margin: 10
-                  }}
-                >
-                  {this.props.tag.tag}
-                </Text>
-              </View>
-            </View>
-          );
-        }
         ref = this.props.fields;
         for (j = 0, len = ref.length; j < len; j++) {
           field = ref[j];
@@ -1210,10 +1164,10 @@ export const SiftrNoteView = function() {
             case "TEXT":
             case "NOMEN":
             case "NUMBER":
-              text = (ref1 = data[0]) != null ? ref1.field_data : void 0;
+              text = (ref1 = data[0]) != null ? '' + ref1.field_data : void 0;
               break;
             case "TEXTAREA":
-              text = (ref2 = data[0]) != null ? ref2.field_data : void 0;
+              text = (ref2 = data[0]) != null ? '' + ref2.field_data : void 0;
               long = true;
               break;
             case "SINGLESELECT":
