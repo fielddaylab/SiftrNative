@@ -668,6 +668,7 @@ class NumberInput extends React.Component {
             borderBottomColor: '#888',
             borderBottomWidth: 1,
             textAlign: 'left',
+            color: 'black',
           }}
         />
       </View>
@@ -1011,7 +1012,8 @@ export const CreateData = createClass({
                             padding: 10,
                             fontSize: 16,
                             backgroundColor: "white",
-                            flex: 1
+                            flex: 1,
+                            color: 'black',
                           }}
                         />
                       )),
@@ -1159,7 +1161,8 @@ export const CreateData = createClass({
                                     padding: 10,
                                     fontSize: 16,
                                     alignSelf: "stretch",
-                                    backgroundColor: "white"
+                                    backgroundColor: "white",
+                                    color: 'black',
                                   }}
                                   onFocus={() => {
                                     this.scrollToField(field.field_id);
