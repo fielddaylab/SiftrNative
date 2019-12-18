@@ -1054,6 +1054,7 @@ export const CreateData = createClass({
                           <Text style={[
                             styles.settingsHeaderText,
                             this.state.alertFields.indexOf(field) !== -1 ? {color: 'red'} : {},
+                            {fontSize: 18, color: 'black', textAlign: 'center', fontWeight: 'bold'},
                           ]}>
                             {field.label}{field.required ? ' *' : ''}
                           </Text>
