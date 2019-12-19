@@ -410,7 +410,7 @@ export class StemportsPicker extends React.Component {
               game_id: game.game_id,
               name: 'Observe',
               description: `Make 3 observations with ${quest.name} field notes.`,
-              prompt: `Great! Now, make 3 observations using your ${quest.name} field notes.`,
+              prompt: 'Great! You have a complete Field Guide! Now you are ready to make 3 observations of your own to complete the quest.',
               stars: 0,
               quest_type: 'QUEST',
               parent_quest_id: quest.quest_id,

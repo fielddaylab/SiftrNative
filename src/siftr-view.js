@@ -840,7 +840,7 @@ export const SiftrView = createClass({
     });
   },
   */
-  evalReqPackageExtra: function(id) {
+  evalReqPackageExtra: function(id, reqType) {
     const root = this.getReqRoot(id);
     if (!root) {
       if (parseInt(id) === 0) {
@@ -853,7 +853,7 @@ export const SiftrView = createClass({
     return evalReqPackage(root, {
       log: this.state.logs,
       instances: this.state.inventory,
-      pickedUpRemnants: this.state.pickedUpRemnants,
+      pickedUpRemnants: reqType === 'quest' ? [] : this.state.pickedUpRemnants,
       notes: (() => {
         let notes = this.props.notes;
         if (this.props.pendingNotes) {
@@ -868,8 +868,8 @@ export const SiftrView = createClass({
       auth: this.props.auth,
     });
   },
-  evalReqPackage: function(id) {
-    return this.evalReqPackageExtra(id).bool;
+  evalReqPackage: function(id, type) {
+    return this.evalReqPackageExtra(id, type).bool;
   },
   getReqRoot: function(id) {
     const root = this.props.requirement_root_packages.find(root => root.requirement_root_package_id === id);
@@ -889,9 +889,9 @@ export const SiftrView = createClass({
       let displayInfo = [];
       this.props.quests.forEach(quest => {
         if (parseInt(quest.parent_quest_id)) return;
-        const is_active = this.evalReqPackage(quest.active_requirement_root_package_id);
+        const is_active = this.evalReqPackage(quest.active_requirement_root_package_id, 'quest');
         if (!is_active) return;
-        let reqRoots = [this.evalReqPackageExtra(quest.complete_requirement_root_package_id)];
+        let reqRoots = [this.evalReqPackageExtra(quest.complete_requirement_root_package_id, 'quest')];
         if (quest.quest_type === 'COMPOUND') {
           const subquests = this.props.quests.filter(sub =>
             parseInt(sub.parent_quest_id) === parseInt(quest.quest_id)
@@ -899,7 +899,7 @@ export const SiftrView = createClass({
           let sub_active = [];
           let sub_complete = [];
           subquests.forEach(sub => {
-            const subRoot = this.evalReqPackageExtra(sub.complete_requirement_root_package_id);
+            const subRoot = this.evalReqPackageExtra(sub.complete_requirement_root_package_id, 'quest');
             if (subRoot.bool) {
               sub_complete.push(sub);
             } else {
@@ -1008,7 +1008,7 @@ export const SiftrView = createClass({
     return this.props.triggers.concat(
       this.state.factoryObjects.map(x => x.trigger)
     ).filter(trig =>
-      this.evalReqPackage(trig.requirement_root_package_id)
+      this.evalReqPackage(trig.requirement_root_package_id, 'trigger')
     );
   },
   getInstances: function() {
@@ -1041,7 +1041,7 @@ export const SiftrView = createClass({
         // this doesn't actually use scenes but named to match the PHP code
         const inValidScene = this.getObjectInstances('FACTORY', factory.factory_id).some(inst =>
           this.getTriggersForInstance(inst).some(trig =>
-            this.evalReqPackage(trig.requirement_root_package_id)
+            this.evalReqPackage(trig.requirement_root_package_id, 'factory')
           )
         );
         let updated = oldState.factoryProductionTimestamps[factory.factory_id] || 0;
@@ -2755,7 +2755,14 @@ export const SiftrView = createClass({
     }`;
     RNFS.writeFile(`${siftrDir}/inventory.txt`, JSON.stringify(this.state.inventory));
   },
-  areRemnantsComplete: function() {
+  checkReadyToPlace: function() {
+    const complete = this.areRemnantsComplete(false);
+    const completeAfterPlace = this.areRemnantsComplete(true);
+    if (!complete && completeAfterPlace) {
+      this.setGuideLine('You have all the notes! Now open your field guide and sort them so you can make observations!');
+    }
+  },
+  areRemnantsComplete: function(considerPickedUp = false) {
     if (!this.props.currentQuest) return false;
     return this.props.guides.every(guide => {
       if (parseInt(guide.quest_id) !== parseInt(this.props.currentQuest.quest_id)) {
@@ -2769,7 +2776,9 @@ export const SiftrView = createClass({
           && inst.owner_type === 'USER'
           && parseInt(inst.object_id) === parseInt(option.remnant_id)
           && parseInt(inst.qty) > 0
-        )
+        ) || (considerPickedUp && this.state.pickedUpRemnants.some(item_id =>
+          parseInt(item_id) === parseInt(option.remnant_id)
+        ))
       );
     });
   },
@@ -3335,7 +3344,7 @@ export const SiftrView = createClass({
                                 pickedUpRemnants: {$set: rems},
                                 guideMentionedRemnant: {$set: true},
                               });
-                            }, () => this.saveInventory());
+                            }, () => this.checkReadyToPlace());
                           }}
                         />
                       );
@@ -3373,7 +3382,7 @@ export const SiftrView = createClass({
                                   ),
                                 },
                               });
-                            }, () => this.saveInventory());
+                            }, () => this.checkReadyToPlace());
                           }}
                         />
                       );
