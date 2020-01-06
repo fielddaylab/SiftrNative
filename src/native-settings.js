@@ -105,6 +105,7 @@ const NativePassword = createClass({
           </View>
           <TextInput
             placeholder="Current password"
+            placeholderTextColor="rgb(180,180,180)"
             secureTextEntry={true}
             style={styles.input}
             autoCapitalize="none"
@@ -118,6 +119,7 @@ const NativePassword = createClass({
           </View>
           <TextInput
             placeholder="New password"
+            placeholderTextColor="rgb(180,180,180)"
             secureTextEntry={true}
             style={styles.input}
             autoCapitalize="none"
@@ -133,6 +135,7 @@ const NativePassword = createClass({
           </View>
           <TextInput
             placeholder="New password, once more"
+            placeholderTextColor="rgb(180,180,180)"
             secureTextEntry={true}
             style={styles.input}
             autoCapitalize="none"
@@ -325,6 +328,7 @@ const NativeProfile = createClass({
           </View>
           <TextInput
             placeholder="Username"
+            placeholderTextColor="rgb(180,180,180)"
             style={styles.input}
             value={this.props.auth.authToken.username}
             editable={false}
@@ -334,6 +338,7 @@ const NativeProfile = createClass({
           </View>
           <TextInput
             placeholder="Display name"
+            placeholderTextColor="rgb(180,180,180)"
             style={styles.input}
             autoCapitalize="words"
             autoCorrect={false}
@@ -350,6 +355,7 @@ const NativeProfile = createClass({
           </View>
           <TextInput
             placeholder="Website"
+            placeholderTextColor="rgb(180,180,180)"
             style={styles.input}
             autoCapitalize="none"
             autoCorrect={false}
@@ -366,6 +372,7 @@ const NativeProfile = createClass({
           </View>
           <TextInput
             placeholder="Bio"
+            placeholderTextColor="rgb(180,180,180)"
             style={styles.input}
             autoCapitalize="sentences"
             autoCorrect={true}

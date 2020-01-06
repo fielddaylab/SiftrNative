@@ -538,6 +538,7 @@ export class SiftrViewPW extends React.Component {
                   alignSelf: 'stretch',
                 }}
                 placeholder="Enter password..."
+                placeholderTextColor="rgb(180,180,180)"
                 onSubmitEditing={this.tryPassword.bind(this)}
               />
               {

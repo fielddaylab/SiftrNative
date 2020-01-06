@@ -152,6 +152,7 @@ export class SearchNotes extends React.Component {
     }}>
       <TextInput
         placeholder="search"
+        placeholderTextColor="rgb(180,180,180)"
         defaultValue={text}
         onChangeText={this.userTyped.bind(this)}
         autoCapitalize="none"

@@ -234,6 +234,7 @@ export var NativeLogin = createClass({
                     >
                       <TextInput
                         placeholder="Username"
+                        placeholderTextColor="rgb(180,180,180)"
                         style={styles.input}
                         autoCapitalize="none"
                         autoCorrect={false}
@@ -252,6 +253,7 @@ export var NativeLogin = createClass({
                           this.passwordBox = box;
                         }}
                         placeholder="Password"
+                        placeholderTextColor="rgb(180,180,180)"
                         secureTextEntry={true}
                         style={styles.input}
                         autoCapitalize="none"
@@ -323,6 +325,7 @@ export var NativeLogin = createClass({
                     >
                       <TextInput
                         placeholder="Username"
+                        placeholderTextColor="rgb(180,180,180)"
                         style={styles.input}
                         autoCapitalize="none"
                         autoCorrect={false}
@@ -341,6 +344,7 @@ export var NativeLogin = createClass({
                           this.passwordBox = box;
                         }}
                         placeholder="Password"
+                        placeholderTextColor="rgb(180,180,180)"
                         secureTextEntry={true}
                         style={styles.input}
                         autoCapitalize="none"
@@ -359,6 +363,7 @@ export var NativeLogin = createClass({
                           this.password2Box = box;
                         }}
                         placeholder="Password (confirm)"
+                        placeholderTextColor="rgb(180,180,180)"
                         secureTextEntry={true}
                         style={styles.input}
                         autoCapitalize="none"
@@ -377,6 +382,7 @@ export var NativeLogin = createClass({
                           this.emailBox = box;
                         }}
                         placeholder="Email (optional)"
+                        placeholderTextColor="rgb(180,180,180)"
                         secureTextEntry={true}
                         style={styles.input}
                         autoCapitalize="none"

@@ -713,7 +713,7 @@ export const BrowserSearchPane = createClass({
             height: 40,
             padding: 10,
             flex: 1,
-          }} placeholder="Enter search term or siftr code:" autoCapitalize="none" autoCorrect={true} autoFocus={false} onChangeText={(search) => {
+          }} placeholder="Enter search term or siftr code:" placeholderTextColor="rgb(180,180,180)" autoCapitalize="none" autoCorrect={true} autoFocus={false} onChangeText={(search) => {
             this.setState({
               search: search
             });
