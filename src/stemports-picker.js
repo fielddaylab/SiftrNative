@@ -624,7 +624,7 @@ export class StemportsPicker extends React.Component {
       );
     }
 
-    if (!this.state.mapLocation) {
+    if (!this.state.gameModal) {
       const gamesByDistance = gameList.slice(0);
       gamesByDistance.sort((a, b) => a.distance - b.distance);
       return (
@@ -647,7 +647,7 @@ export class StemportsPicker extends React.Component {
               <Text>
                 {
                   gamesByDistance.length > 0 && gamesByDistance[0].distance < 1000
-                  ? `It looks like you're at the ${gamesByDistance[0].game.name} Science Station. Download Quests to get started!`
+                  ? `It looks like you're at the ${gamesByDistance[0].game.name} Science Station. Hit Go to find quests at the station!`
                   : 'You need to be at a science station to start a quest. Here are the closest ones.'
                 }
               </Text>
@@ -661,19 +661,17 @@ export class StemportsPicker extends React.Component {
             {
               gamesByDistance.map(o =>
                 <View key={o.game.game_id} style={{margin: 10, flexDirection: 'row'}}>
-                  <TouchableOpacity style={{flex: 1}} onPress={() => {
-                    this.setState({mapLocation: o.game, gameModal: o});
-                  }}>
+                  <View style={{flex: 1}}>
                     <Text style={{fontWeight: 'bold', margin: 5}}>
                       {o.game.name}
                     </Text>
                     <Text style={{fontStyle: 'italic', margin: 5}}>
                       {(o.distance / 1000).toFixed(2)} km away
                     </Text>
-                  </TouchableOpacity>
+                  </View>
                   <View>
                     <TouchableOpacity onPress={() => {
-                      this.setState({mapLocation: o.game});
+                      this.setState({gameModal: o});
                     }} style={{
                       backgroundColor: 'rgb(101,88,245)',
                       padding: 5,
@@ -691,144 +689,6 @@ export class StemportsPicker extends React.Component {
 
     return (
       <View style={{flex: 1}}>
-        <MapView
-          provider={PROVIDER_GOOGLE}
-          initialRegion={{
-            latitude: this.state.mapLocation.latitude,
-            longitude: this.state.mapLocation.longitude,
-            latitudeDelta: 1,
-            longitudeDelta: 1,
-          }}
-          style={{
-            flex: 1,
-          }}
-          showsUserLocation={true}
-          mapType="standard"
-        >
-          {
-            // separate markers drawn first for the text labels
-            gameList.map(obj => {
-              const game = obj.game;
-              return (
-                <MapView.Marker
-                  key={'text' + game.game_id}
-                  tracksViewChanges={false}
-                  coordinate={{
-                    latitude: game.latitude,
-                    longitude: game.longitude,
-                  }}
-                  anchor={{x: 0.5, y: 0.5}}
-                >
-                  <MapView.Callout tooltip={true} />
-                  <View style={{
-                    alignItems: 'center',
-                  }}>
-                    <Text style={{opacity: 0}}>
-                      {game.name}
-                    </Text>
-                    <View
-                      style={{
-                        opacity: 0,
-                        width: 26,
-                        height: 26,
-                        borderRadius: 13,
-                        borderWidth: 2,
-                      }}
-                    />
-                    <Text>
-                      {game.name}
-                    </Text>
-                  </View>
-                </MapView.Marker>
-              );
-            })
-          }
-          {
-            gameList.map(obj => {
-              const game = obj.game;
-              return (
-                <MapView.Marker
-                  key={game.game_id}
-                  tracksViewChanges={false}
-                  coordinate={{
-                    latitude: game.latitude,
-                    longitude: game.longitude,
-                  }}
-                  anchor={{x: 0.5, y: 0.5}}
-                  onPress={() => this.setState({gameModal: obj})}
-                >
-                  <MapView.Callout tooltip={true} />
-                  <View
-                    style={{
-                      width: 26,
-                      height: 26,
-                      backgroundColor: 'rgb(40,80,120)',
-                      borderRadius: 13,
-                      borderWidth: 2,
-                      borderColor: 'white',
-                    }}
-                  />
-                </MapView.Marker>
-              );
-            })
-          }
-        </MapView>
-        <View
-          style={{
-            position: 'absolute',
-            top: 10,
-            left: 10,
-            right: 10,
-            flexDirection: 'row',
-          }}
-        >
-          <View style={{
-            flex: 1,
-            backgroundColor: 'white',
-            borderRadius: 5,
-            paddingTop: 3,
-            paddingBottom: 3,
-            paddingLeft: 7,
-            paddingRight: 7,
-          }}>
-            <Text>
-              You need to be at a science station to start a quest.
-              Check the list to find ones near you!
-            </Text>
-          </View>
-          <Image
-            style={{margin: 10, width: 36, height: 39}}
-            source={require('../web/assets/img/puffin.png')}
-          />
-        </View>
-        <TouchableOpacity onPress={() =>
-          this.setState({mapLocation: null})
-        } style={{
-          position: 'absolute',
-          padding: 8,
-          backgroundColor: 'white',
-          borderColor: 'black',
-          borderWidth: 1,
-          borderRadius: 5,
-          left: 10,
-          bottom: 10,
-        }}>
-          <Text>back</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() =>
-          this.setState({player: true})
-        } style={{
-          position: 'absolute',
-          padding: 8,
-          backgroundColor: 'white',
-          borderColor: 'black',
-          borderWidth: 1,
-          borderRadius: 5,
-          right: 10,
-          bottom: 10,
-        }}>
-          <Text>player</Text>
-        </TouchableOpacity>
         {
           this.state.gameModal && (() => {
             const obj = this.state.gameModal;
