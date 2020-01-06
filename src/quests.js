@@ -24,7 +24,7 @@ export const getQuestProgress = (details) => {
     }
     let subquestLabel = root.req.ands[0].atoms[0].requirement;
     if (subquestLabel === 'PLAYER_HAS_ITEM') {
-      subquestLabel = 'Explore and Collect Remnants';
+      subquestLabel = 'Explore and Collect Field Notes';
     } else if (subquestLabel === 'PLAYER_HAS_NOTE_WITH_QUEST') {
       subquestLabel = `Make ${total} Observations`;
     }

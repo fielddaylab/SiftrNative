@@ -3337,7 +3337,7 @@ export const SiftrView = createClass({
                               rems = update(rems, {$push: item_ids});
                               if (!state.guideMentionedRemnant) {
                                 setTimeout(() => (
-                                  this.queueModal({type: 'generic', message: 'You picked up a remnant!'})
+                                  this.queueModal({type: 'generic', message: 'You picked up a field note!'})
                                 ), 0);
                               }
                               return update(state, {
@@ -3362,7 +3362,7 @@ export const SiftrView = createClass({
                             this.setState(state => {
                               if (!state.guideMentionedRemnant) {
                                 setTimeout(() => (
-                                  this.queueModal({type: 'generic', message: 'You picked up a remnant!'})
+                                  this.queueModal({type: 'generic', message: 'You picked up a field note!'})
                                 ), 0);
                               }
                               return update(state, {
