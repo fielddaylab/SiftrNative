@@ -683,6 +683,20 @@ export class StemportsPicker extends React.Component {
               )
             }
           </ScrollView>
+          <TouchableOpacity onPress={() =>
+            this.setState({player: true})
+          } style={{
+            position: 'absolute',
+            padding: 8,
+            backgroundColor: 'white',
+            borderColor: 'black',
+            borderWidth: 1,
+            borderRadius: 5,
+            right: 10,
+            bottom: 10,
+          }}>
+            <Text>player</Text>
+          </TouchableOpacity>
         </View>
       );
     }
