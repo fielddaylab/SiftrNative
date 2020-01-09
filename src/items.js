@@ -299,6 +299,10 @@ export class InventoryScreen extends React.Component {
             tags.map(o => {
               const tag = o.tag;
               const items = o.items;
+              const quest_id = parseInt(tag.quest_id);
+              if (quest_id && quest_id !== parseInt(this.props.quest_id)) {
+                return; // skip tag because it's not for this quest
+              }
               return (
                 <View key={tag.tag_id} ref={slot => this._itemSlots[tag.tag_id] = slot} style={{
                   borderColor: 'black',
@@ -367,7 +371,7 @@ export class InventoryScreen extends React.Component {
                   </View>
                 </View>
               );
-            })
+            }).filter(x => x)
           }
         </ScrollView>
         <View style={{

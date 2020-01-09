@@ -867,6 +867,7 @@ export const SiftrView = createClass({
       guides: this.props.guides,
       game: this.props.game,
       auth: this.props.auth,
+      quest_id: this.props.currentQuest.quest_id,
     });
   },
   evalReqPackage: function(id, type) {
@@ -2387,7 +2388,7 @@ export const SiftrView = createClass({
             return this.state.center;
           }}
           categories={(ref = this.props.tags) != null ? ref : []}
-          fields={(ref1 = this.props.fields) != null ? ref1 : []}
+          fields={this.props.fields || []}
           onFinish={this.finishNoteCreation}
           onCancel={() => {
             this.setState({
@@ -3206,6 +3207,7 @@ export const SiftrView = createClass({
                         inventory={this.state.inventory}
                         object_tags={this.props.object_tags}
                         pickedUpRemnants={this.state.pickedUpRemnants}
+                        quest_id={this.props.currentQuest.quest_id}
                         onPlace={item_id => {
                           this.addXP(2);
                           this.setState(state => update(state, {

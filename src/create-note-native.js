@@ -893,9 +893,9 @@ export const CreateData = createClass({
           return false;
         }
         // filter fields based on selected quest
-        if (field.field_guide_id
+        if (field.quest_id
           && this.props.currentQuest
-          && parseInt(field.field_guide_id) !== parseInt(this.props.currentQuest.quest_id)) {
+          && parseInt(field.quest_id) !== parseInt(this.props.currentQuest.quest_id)) {
           return false;
         }
         if (field.sort_index === -1) {

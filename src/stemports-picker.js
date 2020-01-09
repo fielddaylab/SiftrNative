@@ -455,6 +455,7 @@ export class StemportsPicker extends React.Component {
               curated: 0,
               sort_index: 0,
               color: '',
+              quest_id: guide.quest_id,
             }));
             field.options.forEach(opt => {
               addTo(new_object_tags, object_tag_id => ({
@@ -512,7 +513,18 @@ export class StemportsPicker extends React.Component {
                 requirement: 'PLAYER_HAS_ITEM',
                 content_id: opt.remnant_id,
                 qty: 1,
-              }), 1500000)
+              }), 1500000);
+              const quest_id = parseInt(field.quest_id);
+              if (quest_id) {
+                addTo(new_requirement_atoms, atom_id => ({
+                  requirement_atom_id: atom_id,
+                  game_id: game.game_id,
+                  requirement_and_package_id: factory_and_id,
+                  bool_operator: 1,
+                  requirement: 'PLAYER_IS_IN_QUEST',
+                  content_id: quest_id,
+                }), 1500000);
+              }
               addTo(new_factories, factory_id => ({
                 factory_id: factory_id,
                 game_id: game.game_id,

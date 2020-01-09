@@ -103,7 +103,7 @@ function evalReqAtom(atom, env) {
   let qty = 0;
   const bool = (() => {
     const bool_operator = !!(atom.bool_operator);
-    const {log, instances, notes, pickedUpRemnants} = env;
+    const {log, instances, notes, pickedUpRemnants, quest_id} = env;
     switch (atom.requirement) {
       case 'ALWAYS_TRUE':
         return bool_operator;
@@ -154,7 +154,9 @@ function evalReqAtom(atom, env) {
       case 'PLAYER_HAS_NOTE_WITH_QUEST': // custom requirement type
         const o = playerHasNoteWithQuest(atom, env);
         qty = o.qty;
-        return o.bool;
+        return bool_operator == o.bool;
+      case 'PLAYER_IS_IN_QUEST': // custom requirement type
+        return bool_operator == (parseInt(quest_id) === parseInt(atom.content_id));
       case 'PLAYER_HAS_NOTE_WITH_LIKES':
         return !bool_operator; // TODO
       case 'PLAYER_HAS_NOTE_WITH_COMMENTS':
