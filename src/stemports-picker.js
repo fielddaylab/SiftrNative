@@ -405,12 +405,14 @@ export class StemportsPicker extends React.Component {
               content_id: quest.quest_id,
               qty: 3,
             }))
+            let prompt = 'Now you are ready to make 3 observations of your own to complete the quest. Use the plus button to make an observation!';
+            if (quest.prompt) prompt = quest.prompt;
             addTo(new_quests, quest_id => ({
               quest_id: quest_id,
               game_id: game.game_id,
               name: 'Observe',
               description: `Make 3 observations with ${quest.name} field notes.`,
-              prompt: 'Great! You have a complete Field Guide! Now you are ready to make 3 observations of your own to complete the quest.',
+              prompt: prompt,
               stars: 0,
               quest_type: 'QUEST',
               parent_quest_id: quest.quest_id,

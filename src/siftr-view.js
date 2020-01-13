@@ -2759,30 +2759,49 @@ export const SiftrView = createClass({
   },
   checkReadyToPlace: function() {
     const complete = this.areRemnantsComplete(false);
-    const completeAfterPlace = this.areRemnantsComplete(true);
-    if (!complete && completeAfterPlace) {
-      this.setGuideLine('You have all the notes! Now open your field guide and sort them so you can make observations!');
+    if (!complete) {
+      const progressAfterPlace = this.getRemnantProgress(true);
+      let remaining = 0;
+      progressAfterPlace.guides.forEach(guide => {
+        remaining += guide.remaining;
+      });
+      if (remaining === 0) {
+        this.setGuideLine('You have all the notes! Now open your field guide and sort them so you can make observations!');
+      } else {
+        this.setGuideLine(`You have ${remaining} more field ${remaining === 1 ? 'note' : 'notes'} to find!`);
+      }
     }
   },
-  areRemnantsComplete: function(considerPickedUp = false) {
-    if (!this.props.currentQuest) return false;
-    return this.props.guides.every(guide => {
+  getRemnantProgress: function(considerPickedUp = false) {
+    if (!this.props.currentQuest) return {complete: false, guides: []};
+    const guides = this.props.guides.map(guide => {
       if (parseInt(guide.quest_id) !== parseInt(this.props.currentQuest.quest_id)) {
-        return true;
+        return {complete: true, remaining: 0};
       }
       const field = this.props.fields.find(field => parseInt(field.field_id) === parseInt(guide.field_id));
-      if (!field) return false;
-      return field.options.every(option =>
-        !parseInt(option.remnant_id) || this.state.inventory.some(inst =>
-          inst.object_type === 'ITEM'
-          && inst.owner_type === 'USER'
-          && parseInt(inst.object_id) === parseInt(option.remnant_id)
-          && parseInt(inst.qty) > 0
-        ) || (considerPickedUp && this.state.pickedUpRemnants.some(item_id =>
-          parseInt(item_id) === parseInt(option.remnant_id)
-        ))
-      );
+      if (!field) return {complete: false, remaining: 0};
+      let remaining = 0;
+      field.options.forEach(option => {
+        if (parseInt(option.remnant_id)) {
+          const hasRemnant = this.state.inventory.some(inst =>
+            inst.object_type === 'ITEM'
+            && inst.owner_type === 'USER'
+            && parseInt(inst.object_id) === parseInt(option.remnant_id)
+            && parseInt(inst.qty) > 0
+          ) || (considerPickedUp && this.state.pickedUpRemnants.some(item_id =>
+            parseInt(item_id) === parseInt(option.remnant_id)
+          ));
+          if (!hasRemnant) {
+            remaining++;
+          }
+        }
+      });
+      return {complete: remaining === 0, remaining: remaining}
     });
+    return {complete: guides.every(x => x.complete), guides: guides};
+  },
+  areRemnantsComplete: function(considerPickedUp = false) {
+    return this.getRemnantProgress(considerPickedUp).complete;
   },
   isGuideComplete: function(field_guide) {
     if (['number', 'string'].indexOf(typeof field_guide) !== -1) {
