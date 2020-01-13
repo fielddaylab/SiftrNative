@@ -1479,61 +1479,6 @@ export const SiftrNoteView = function() {
               });
             }}
           />
-          <View
-            style={{
-              backgroundColor: "white",
-              padding: 5,
-              flexDirection: "row",
-              justifyContent: "flex-start",
-              borderBottomColor: "#F1F5F4",
-              borderBottomWidth: 1,
-              alignItems: "center"
-            }}
-          >
-            {this.props.auth.authToken != null &&
-            this.props.note.player_liked ? (
-              <TouchableOpacity onPress={this.unlikeNote.bind(this)}>
-                <Image
-                  style={{
-                    margin: 5,
-                    width: 18,
-                    height: 16
-                  }}
-                  source={require("../web/assets/img/icon-heart-full.png")}
-                />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity onPress={this.likeNote.bind(this)}>
-                <Image
-                  style={{
-                    margin: 5,
-                    width: 18,
-                    height: 16
-                  }}
-                  source={require("../web/assets/img/icon-heart-empty.png")}
-                />
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity
-              onPress={() => {
-                var ref4;
-                return (ref4 = this.scrollView) != null
-                  ? ref4.scrollToEnd({
-                      animated: true
-                    })
-                  : void 0;
-              }}
-            >
-              <Image
-                style={{
-                  margin: 5,
-                  width: 19,
-                  height: 17
-                }}
-                source={require("../web/assets/img/icon-speech-bubble.png")}
-              />
-            </TouchableOpacity>
-          </View>
           {function() {
             switch (this.props.note.published) {
               case "PENDING":
