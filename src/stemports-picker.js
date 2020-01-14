@@ -646,31 +646,14 @@ export class StemportsPicker extends React.Component {
           <Text style={{margin: 10, fontSize: 25}}>
             Get to a Science Station
           </Text>
-          <View style={{flexDirection: 'row', padding: 5}}>
-            <View style={{
-              flex: 1,
-              backgroundColor: 'white',
-              borderRadius: 5,
-              paddingTop: 3,
-              paddingBottom: 3,
-              paddingLeft: 7,
-              paddingRight: 7,
-              borderColor: 'black',
-              borderWidth: 1,
-            }}>
-              <Text>
-                {
-                  gamesByDistance.length > 0 && gamesByDistance[0].distance < 1000
-                  ? `It looks like you're at the ${gamesByDistance[0].game.name} Science Station. Hit Go to find quests at the station!`
-                  : 'You need to be at a science station to start a quest. Here are the closest ones.'
-                }
-              </Text>
-            </View>
-            <Image
-              style={{margin: 10, width: 36, height: 39}}
-              source={require('../web/assets/img/puffin.png')}
-            />
-          </View>
+          <GuideLine
+            style={{padding: 5}}
+            text={
+              gamesByDistance.length > 0 && gamesByDistance[0].distance < 1000
+              ? `It looks like you're at the ${gamesByDistance[0].game.name} Science Station. Hit Go to find quests at the station!`
+              : 'You need to be at a science station to start a quest. Here are the closest ones.'
+            }
+          />
           <ScrollView style={{flex: 1}}>
             {
               gamesByDistance.map(o =>
@@ -764,6 +747,93 @@ export class StemportsPicker extends React.Component {
             );
           })()
         }
+      </View>
+    );
+  }
+}
+
+const animSpeed = 10; // ms per char
+
+export class GuideLine extends React.Component {
+  constructor(props) {
+    super(props);
+    this._isMounted = true;
+    this.startAnimation(props.text, true);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.text !== prevProps.text) {
+      this.startAnimation(this.props.text);
+    }
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
+
+  startAnimation(text, firstRender = false) {
+    if (!this._isMounted) return;
+    if (this.animationID) clearTimeout(this.animationID);
+    if (firstRender) {
+      this.state = {
+        chars: 0,
+        text: text,
+      };
+    } else {
+      this.setState({
+        chars: 0,
+        text: text,
+      });
+    }
+    this.animationID = setTimeout(this.continueAnimation.bind(this), animSpeed);
+  }
+
+  continueAnimation() {
+    if (!this._isMounted) return;
+    this.setState(prevState => {
+      const newChars = prevState.chars + 2;
+      if (newChars < prevState.text.length) {
+        this.animationID = setTimeout(this.continueAnimation.bind(this), animSpeed);
+      }
+      return update(prevState, {chars: {$set: newChars}});
+    });
+  }
+
+  render() {
+    return (
+      <View style={this.props.style}>
+        <View style={{flexDirection: 'row'}}>
+          <View style={{
+            flex: 1,
+            backgroundColor: 'white',
+            borderRadius: 5,
+            paddingTop: 3,
+            paddingBottom: 3,
+            paddingLeft: 7,
+            paddingRight: 7,
+            borderColor: 'black',
+            borderWidth: 1,
+          }}>
+            <Text>
+              {this.state.text.slice(0, this.state.chars)}
+            </Text>
+          </View>
+          {
+            this.props.onPress ? (
+              <TouchableOpacity style={{margin: 10}} onPress={this.props.onPress}>
+                <Image
+                  style={{width: 36, height: 39}}
+                  source={require('../web/assets/img/puffin.png')}
+                />
+              </TouchableOpacity>
+            ) : (
+              <Image
+                style={{margin: 10, width: 36, height: 39}}
+                source={require('../web/assets/img/puffin.png')}
+              />
+            )
+          }
+        </View>
       </View>
     );
   }

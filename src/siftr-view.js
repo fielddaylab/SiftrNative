@@ -42,6 +42,7 @@ import {ItemScreen, InventoryScreen} from './items';
 import {PlaqueScreen} from './plaques';
 import {QuestDetails, QuestDotDetails, GenericModal} from './quests';
 import {evalReqPackage} from './requirements';
+import {GuideLine} from './stemports-picker';
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
 // @endif
 
@@ -807,7 +808,13 @@ export const SiftrView = createClass({
     this.props.addXP(n);
   },
   setGuideLine: function(line) {
-    this.setState({guideLine: line});
+    this.setState(prevState => {
+      if (prevState.modals.length > 0) {
+        return update(prevState, {pendingGuideLine: {$set: line}});
+      } else {
+        return update(prevState, {guideLine: {$set: line}});
+      }
+    });
   },
   addLog: function(logEntry) {
     this.setState(oldState => update(oldState, {
@@ -2042,9 +2049,16 @@ export const SiftrView = createClass({
     }));
   },
   popModal: function() {
-    this.setState(old => update(old, {
-      modals: {$apply: (ary) => ary.slice(1)}
-    }));
+    this.setState(old => {
+      let o = {
+        modals: {$apply: (ary) => ary.slice(1)},
+      };
+      if (old.pendingGuideLine && old.modals.length === 1) {
+        o.guideLine = {$set: old.pendingGuideLine};
+        o.pendingGuideLine = {$set: null};
+      }
+      return update(old, o);
+    });
   },
   getLocationWithWarp: function() {
     if (this.state.warp) {
@@ -3061,39 +3075,18 @@ export const SiftrView = createClass({
                     />
                   </TouchableOpacity>
                 ) : (
-                  <View style={{
-                    flexDirection: 'column',
-                    alignItems: 'stretch',
-                    position: 'absolute',
-                    top: 10,
-                    left: 10,
-                    right: 10,
-                  }}>
-                    <View style={{flexDirection: 'row'}}>
-                      <View style={{
-                        flex: 1,
-                        backgroundColor: 'white',
-                        borderRadius: 5,
-                        paddingTop: 3,
-                        paddingBottom: 3,
-                        paddingLeft: 7,
-                        paddingRight: 7,
-                        borderColor: 'black',
-                        borderWidth: 1,
-                      }}>
-                        <Text>{this.state.guideLine}</Text>
-                      </View>
-                      <TouchableOpacity
-                        onPress={() => this.pushModal({type: 'quests'})}
-                        style={{margin: 10}}
-                      >
-                        <Image
-                          style={{width: 36, height: 39}}
-                          source={require('../web/assets/img/puffin.png')}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
+                  <GuideLine
+                    style={{
+                      flexDirection: 'column',
+                      alignItems: 'stretch',
+                      position: 'absolute',
+                      top: 10,
+                      left: 10,
+                      right: 10,
+                    }}
+                    onPress={() => this.pushModal({type: 'quests'})}
+                    text={this.state.guideLine}
+                  />
                 )
               }
               <CacheMedia
