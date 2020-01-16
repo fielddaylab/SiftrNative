@@ -897,6 +897,7 @@ export const SiftrView = createClass({
       let complete = [];
       let displayInfo = [];
       this.props.quests.forEach(quest => {
+        if (this.props.currentQuest && parseInt(this.props.currentQuest.quest_id) !== parseInt(quest.quest_id)) return;
         if (parseInt(quest.parent_quest_id)) return;
         const is_active = this.evalReqPackage(quest.active_requirement_root_package_id, 'quest');
         if (!is_active) return;
