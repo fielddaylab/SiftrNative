@@ -898,6 +898,12 @@ export const CreateData = createClass({
           && parseInt(field.quest_id) !== parseInt(this.props.currentQuest.quest_id)) {
           return false;
         }
+        // filter fields based on previously selected field options
+        const field_data = this.props.createNote.field_data || [];
+        if (field.field_option_id
+          && field_data.every(data => data.field_option_id !== field.field_option_id)) {
+          return false;
+        }
         if (field.sort_index === -1) {
           return false;
         }
