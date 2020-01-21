@@ -3288,13 +3288,21 @@ export const SiftrView = createClass({
                           <Text>Logout</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={buttonStyle} onPress={() => {
-                          this.setState((prevState => update(prevState, {
-                            pickedUpRemnants: {$set: []},
-                            inventory: {$apply: inv => inv.map(inst =>
-                              update(inst, {qty: {$set: 0}})
-                            )},
-                          })), () => this.saveInventory());
-                          this.popModal();
+                          this.props.auth.call('client.logPlayerResetGame', {
+                            game_id: this.props.game.game_id,
+                          }, (res1) => {
+                            this.props.auth.call('notes.deleteUserNotesForGame', {
+                              user_id: this.props.auth.authToken.user_id,
+                              game_id: this.props.game.game_id,
+                            }, (res2) => {
+                              const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
+                              RNFS.unlink(`${siftrDir}/download_timestamp.txt`).then(() => {
+                                RNFS.unlink(`${siftrDir}/quests-sorted.txt`).then(() => {
+                                  this.props.onExit();
+                                });
+                              });
+                            })
+                          });
                         }}>
                           <Text style={{color: 'red'}}>Reset Progress</Text>
                         </TouchableOpacity>
