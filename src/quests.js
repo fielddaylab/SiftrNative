@@ -272,6 +272,28 @@ const QuestEntry = function(props) {
 };
 
 export const GenericModal = (props) => {
+  /*
+  return (
+    <View style={{
+      flex: 1,
+      backgroundColor: 'white',
+      flexDirection: 'column',
+      padding: 10,
+    }}>
+      {
+        this.props.guideText && (
+          <GuideLine
+            text={this.props.guideText}
+          />
+        )
+      }
+      <View style={{flex: 1}}>
+        {this.props.children}
+      </View>
+    </View>
+  );
+  */
+
   return (
     <View style={{
       flex: 1,

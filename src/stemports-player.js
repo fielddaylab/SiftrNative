@@ -127,88 +127,146 @@ export class StemportsPlayer extends React.Component {
     const xpStuff = this.currentLevel();
 
     return (
-      <ScrollView style={{flex: 1}}>
-        <View style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-        }}>
-          <TouchableOpacity style={{padding: 10}} onPress={this.props.onClose}>
-            <Text>Close</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={{padding: 10}} onPress={this.props.onSync}>
-            <Text>Sync</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={{padding: 10}} onPress={() => this.setState({settings: true})}>
-            <Text>Settings</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={{alignItems: 'center'}}>
-          <CacheMedia
-            media_id={this.props.auth.authToken.media_id}
-            auth={this.props.auth}
-            online={this.props.online}
-            withURL={url =>
-              <Image source={url} style={{
-                height: 100,
-                width: 100,
-                resizeMode: 'contain',
-                margin: 10,
-              }} />
-            }
-          />
-          <Text style={{padding: 20, fontWeight: 'bold', fontSize: 25}}>
-            {this.props.auth.authToken.display_name || this.props.auth.authToken.username}
-          </Text>
-        </View>
-        <View style={{alignItems: 'center'}}>
-          <Text style={{padding: 20}}>
-            Level {xpStuff.level} ({xpStuff.xp} XP)
-          </Text>
+      <View style={{flex: 1}}>
+        <ScrollView style={{flex: 1}}>
+          <View style={{alignItems: 'flex-end'}}>
+            <TouchableOpacity onPress={() => this.setState({settings: true})}>
+              <Image
+                style={{
+                  width: 44 * 1,
+                  height: 44 * 1,
+                  margin: 15,
+                }}
+                source={require("../web/assets/img/icon-gear.png")}
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around'}}>
+            <CacheMedia
+              media_id={this.props.auth.authToken.media_id}
+              auth={this.props.auth}
+              online={this.props.online}
+              withURL={url =>
+                <Image source={url} style={{
+                  height: 100,
+                  width: 100,
+                  resizeMode: 'contain',
+                }} />
+              }
+            />
+            <Text style={{
+              fontWeight: 'bold',
+              fontSize: 20,
+            }}>
+              {this.props.auth.authToken.display_name || this.props.auth.authToken.username}
+            </Text>
+          </View>
           <View style={{
-            height: 6,
-            flexDirection: 'row',
-            alignItems: 'stretch',
-            alignSelf: 'stretch',
-            margin: 6,
+            padding: 25,
+            borderBottomWidth: 2,
+            borderColor: 'rgb(223,230,237)',
           }}>
             <View style={{
-              flex: xpStuff.xp - xpStuff.this_cutoff,
-              backgroundColor: 'orange',
-            }} />
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}>
+              <Text style={{padding: 5, fontSize: 17}}>
+                Level {xpStuff.level}
+              </Text>
+              <Text style={{padding: 5, fontSize: 17}}>
+                {xpStuff.xp - xpStuff.this_cutoff} / {xpStuff.next_cutoff - xpStuff.this_cutoff}
+              </Text>
+            </View>
             <View style={{
-              flex: xpStuff.next_cutoff - xpStuff.xp,
-              backgroundColor: 'gray',
-            }} />
+              height: 14,
+              flexDirection: 'row',
+              alignItems: 'stretch',
+              alignSelf: 'stretch',
+              margin: 6,
+            }}>
+              <View style={{
+                flex: xpStuff.xp - xpStuff.this_cutoff,
+                backgroundColor: 'rgb(75,92,107)',
+              }} />
+              <View style={{
+                flex: xpStuff.next_cutoff - xpStuff.xp,
+                backgroundColor: 'rgb(216,222,227)',
+              }} />
+            </View>
           </View>
-          <Text style={{padding: 20}}>
-            Next level: {xpStuff.xp - xpStuff.this_cutoff} / {xpStuff.next_cutoff - xpStuff.this_cutoff}
-          </Text>
+          <View style={{
+            padding: 25,
+            borderBottomWidth: 2,
+            borderColor: 'rgb(223,230,237)',
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}>
+            <View style={{flex: 1, marginRight: 10}}>
+              <Text style={{
+                fontSize: 17,
+                margin: 3,
+              }}>
+                Observation Queue
+              </Text>
+              <Text style={{
+                margin: 3,
+              }}>
+                {this.props.syncMessage}
+              </Text>
+            </View>
+            {
+              this.props.canSync && (
+                <TouchableOpacity onPress={this.props.onSync} style={{
+                  backgroundColor: 'rgb(101,88,245)',
+                  padding: 10,
+                  borderRadius: 4,
+                }}>
+                  <Text style={{color: 'white'}}>sync</Text>
+                </TouchableOpacity>
+              )
+            }
+          </View>
+          <View style={{padding: 13}}>
+            <Text style={{fontSize: 17, padding: 12}}>Complete Field Guides</Text>
+            {
+              this.getCompleteGuides().map(o =>
+                <TouchableOpacity key={o.guide.field_guide_id} onPress={() => this.props.onSelect(o.game)}>
+                  <Text style={{padding: 12, fontWeight: 'bold'}}>
+                    {o.field.label} ({o.game.name})
+                  </Text>
+                  <Text style={{padding: 12, paddingLeft: 20}}>
+                    {o.field.options.map(opt => opt.option).join(', ')}
+                  </Text>
+                </TouchableOpacity>
+              )
+            }
+            <Text style={{fontSize: 17, padding: 12}}>Complete Quests</Text>
+            {
+              this.getCompleteQuests().map(o =>
+                <TouchableOpacity key={o.quest.quest_id} onPress={() => this.props.onSelect(o.game)}>
+                  <Text style={{padding: 12, fontWeight: 'bold'}}>
+                    {o.quest.name} ({o.game.name})
+                  </Text>
+                </TouchableOpacity>
+              )
+            }
+          </View>
+        </ScrollView>
+        <View style={{
+          alignItems: 'center',
+        }}>
+          <TouchableOpacity onPress={this.props.onClose}>
+            <Image
+              style={{
+                width: 140 * 0.45,
+                height: 140 * 0.45,
+                margin: 5,
+              }}
+              source={require("../web/assets/img/quest-close.png")}
+            />
+          </TouchableOpacity>
         </View>
-        <Text style={{textAlign: 'center'}}>=== Complete Field Guides ===</Text>
-        {
-          this.getCompleteGuides().map(o =>
-            <TouchableOpacity key={o.guide.field_guide_id} onPress={() => this.props.onSelect(o.game)}>
-              <Text style={{padding: 10, fontWeight: 'bold'}}>
-                {o.field.label} ({o.game.name})
-              </Text>
-              <Text style={{padding: 10, paddingLeft: 20}}>
-                {o.field.options.map(opt => opt.option).join(', ')}
-              </Text>
-            </TouchableOpacity>
-          )
-        }
-        <Text style={{textAlign: 'center'}}>=== Complete Quests ===</Text>
-        {
-          this.getCompleteQuests().map(o =>
-            <TouchableOpacity key={o.quest.quest_id} onPress={() => this.props.onSelect(o.game)}>
-              <Text style={{padding: 10, fontWeight: 'bold'}}>
-                {o.quest.name} ({o.game.name})
-              </Text>
-            </TouchableOpacity>
-          )
-        }
-      </ScrollView>
+      </View>
     );
   }
 }

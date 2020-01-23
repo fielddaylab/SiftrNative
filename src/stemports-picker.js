@@ -46,6 +46,7 @@ export class StemportsPicker extends React.Component {
       this.loadDownloadedGames();
     });
     this.loadXP();
+    loadQueue().then(notes => this.setState({queueNotes: notes}));
   }
 
   loadXP() {
@@ -131,18 +132,6 @@ export class StemportsPicker extends React.Component {
   uploadGame(game) {
     const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${game.game_id}`;
     return Promise.all([
-      loadQueue().then(notes => {
-        const uploadRemaining = (rem) => {
-          if (rem.length === 0) {
-            return notes;
-          } else {
-            return uploadNote(this.props.auth, rem[0]).then(() => {
-              return uploadRemaining(rem.slice(1));
-            });
-          }
-        }
-        return uploadRemaining(notes);
-      }),
       Promise.all([
         RNFS.readFile(`${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`),
         RNFS.readFile(`${siftrDir}/inventory.txt`),
@@ -599,6 +588,32 @@ export class StemportsPicker extends React.Component {
     });
   }
 
+  startSync() {
+    if (this.state.queueNotes == null) return;
+    if (this.state.syncing) return;
+    this.setState({syncing: true}, () => {
+      let promises = this.state.downloadedGames.map(game =>
+        this.uploadGame(game).then(() => this.initializeGame(game, game))
+      );
+      const uploadNotes = (rem) => {
+        if (rem.length === 0) {
+          return new Promise((resolve, reject) => resolve());
+        } else {
+          return uploadNote(this.props.auth, rem[0]).then(() => {
+            return uploadNotes(rem.slice(1));
+          });
+        }
+      };
+      promises.push(uploadNotes(this.state.queueNotes).then(() => {
+        loadQueue().then(notes => this.setState({queueNotes: notes}));
+      }));
+      return Promise.all(promises).then(() => {
+        this.setState({syncing: false});
+        this.loadDownloadedGames();
+      });
+    });
+  }
+
   render() {
     let games = {};
     this.state.games.forEach(g => {
@@ -629,11 +644,15 @@ export class StemportsPicker extends React.Component {
           online={this.props.online}
           onSelect={this.props.onSelect}
           inventory_zero={this.state.inventory_zero}
-          onSync={() =>
-            Promise.all(this.state.downloadedGames.map(game =>
-              this.uploadGame(game).then(() => this.initializeGame(game, game))
-            )).then(() => this.loadDownloadedGames())
+          onSync={() => this.startSync()}
+          syncMessage={
+            this.state.syncing ? 'Syncing…' : (
+              this.state.queueNotes && (
+                `You have ${this.state.queueNotes.length} observations that need to be synced.`
+              )
+            )
           }
+          canSync={this.state.queueNotes && !this.state.syncing}
         />
       );
     }
