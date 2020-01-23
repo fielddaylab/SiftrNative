@@ -40,7 +40,7 @@ import {CacheMedia} from './media';
 import ProgressCircle from 'react-native-progress-circle';
 import {ItemScreen, InventoryScreen} from './items';
 import {PlaqueScreen} from './plaques';
-import {QuestDetails, QuestDotDetails, GenericModal} from './quests';
+import {QuestDetails, QuestDotDetails, GenericModal, TaskComplete} from './quests';
 import {evalReqPackage} from './requirements';
 import {GuideLine} from './stemports-picker';
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
@@ -3201,12 +3201,8 @@ export const SiftrView = createClass({
                     );
                   } else if (modal.type === 'subquest-complete') {
                     return (
-                      <QuestDetails
-                        quest={modal.subquest}
-                        message="Subquest complete!"
+                      <TaskComplete
                         onClose={this.popModal/*.bind(this)*/}
-                        status="complete"
-                        auth={this.props.auth}
                       />
                     );
                   } else if (modal.type === 'inventory') {

@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import {Text} from './styles';
 import {CacheMedia} from './media';
+import {GuideLine} from './stemports-picker';
 
 export const getQuestProgress = (details) => {
   let progress = [];
@@ -271,29 +272,40 @@ const QuestEntry = function(props) {
   );
 };
 
-export const GenericModal = (props) => {
-  /*
+export const TaskComplete = (props) => {
   return (
     <View style={{
       flex: 1,
       backgroundColor: 'white',
-      flexDirection: 'column',
-      padding: 10,
     }}>
-      {
-        this.props.guideText && (
-          <GuideLine
-            text={this.props.guideText}
-          />
-        )
-      }
-      <View style={{flex: 1}}>
-        {this.props.children}
+      <GuideLine
+        style={{padding: 5}}
+        text="Oh snap you did it!"
+      />
+      <View style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <Text style={{fontSize: 30}}>Task Complete!</Text>
+      </View>
+      <View style={{
+        padding: 30,
+        alignItems: 'center',
+      }}>
+        <TouchableOpacity onPress={props.onClose} style={{
+          backgroundColor: 'rgb(98,97,241)',
+          padding: 10,
+          borderRadius: 4,
+        }}>
+          <Text style={{color: 'white'}}>Start next task</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
-  */
+};
 
+export const GenericModal = (props) => {
   return (
     <View style={{
       flex: 1,
