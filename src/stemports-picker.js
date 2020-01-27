@@ -614,6 +614,17 @@ export class StemportsPicker extends React.Component {
     });
   }
 
+  startSyncGame(game) {
+    if (this.state.syncing) return;
+    this.setState({syncing: true}, () => {
+      const promise = this.uploadGame(game).then(() => this.initializeGame(game, game));
+      return promise.then(() => {
+        this.setState({syncing: false, gameModal: null});
+        this.loadDownloadedGames();
+      });
+    });
+  }
+
   render() {
     let games = {};
     this.state.games.forEach(g => {
@@ -751,15 +762,12 @@ export class StemportsPicker extends React.Component {
                     game={game}
                     obj={obj}
                     auth={this.props.auth}
-                    onSync={() =>
-                      this.uploadGame(game)
-                      .then(() => this.initializeGame(game, obj.offline))
-                      .then(() => this.loadDownloadedGames())
-                    }
+                    onSync={() => this.startSyncGame(game)}
                     onUpload={() => this.uploadGame(game).then(() => this.loadDownloadedGames())}
                     onDownload={() => this.initializeGame(game, obj.offline).then(() => this.loadDownloadedGames())}
                     onClose={() => this.setState({gameModal: null})}
                     onSelect={this.props.onSelect}
+                    canSync={!this.state.syncing}
                   />
                 </SafeAreaView>
               </Modal>
@@ -1007,6 +1015,36 @@ export class StemportsOutpost extends React.Component {
                   Download Quests
                 </Text>
               </TouchableOpacity>
+            </View>
+          )
+        }
+        {
+          newVersion && (
+            <View style={{
+              padding: 25,
+              borderBottomWidth: 1,
+              borderColor: 'black',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+              <View style={{flex: 1, marginRight: 10}}>
+                <Text style={{
+                  margin: 3,
+                }}>
+                  {this.props.canSync ? "There's new data to download from this station!" : 'Syncing…'}
+                </Text>
+              </View>
+              {
+                this.props.canSync && (
+                  <TouchableOpacity onPress={this.props.onSync} style={{
+                    backgroundColor: 'rgb(101,88,245)',
+                    padding: 10,
+                    borderRadius: 4,
+                  }}>
+                    <Text style={{color: 'white'}}>sync</Text>
+                  </TouchableOpacity>
+                )
+              }
             </View>
           )
         }
