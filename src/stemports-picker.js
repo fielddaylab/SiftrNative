@@ -10,7 +10,8 @@ import {
   TouchableWithoutFeedback,
   Image,
   SafeAreaView,
-  ActivityIndicator
+  ActivityIndicator,
+  Dimensions
 } from "react-native";
 import { styles, Text } from "./styles";
 import {deserializeGame} from "./aris";
@@ -625,6 +626,20 @@ export class StemportsPicker extends React.Component {
     });
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!this.refs.theMapView) return;
+    if (!prevProps.location && !this.props.location) return;
+    if ( prevProps.location
+      && this.props.location
+      && prevProps.location.coords.latitude === this.props.location.coords.latitude
+      && prevProps.location.coords.longitude === this.props.location.coords.longitude
+    ) return;
+
+    this.refs.theMapView.setCamera({
+      center: this.props.location.coords,
+    });
+  }
+
   render() {
     let games = {};
     this.state.games.forEach(g => {
@@ -669,6 +684,104 @@ export class StemportsPicker extends React.Component {
     }
 
     if (!this.state.gameModal) {
+      if (!this.state.listOpen) {
+        // show map
+        const {height, width} = Dimensions.get('window');
+        return (
+          <View style={{flex: 1}}>
+            <MapView
+              provider={PROVIDER_GOOGLE}
+              ref="theMapView"
+              initialCamera={{
+                center: this.props.location ? this.props.location.coords : {
+                  latitude: 0,
+                  longitude: 0,
+                },
+                heading: 0,
+                pitch: 90,
+                zoom: 20.5,
+                altitude: 0, // not used
+              }}
+              showsUserLocation={true}
+              showsBuildings={false}
+              scrollEnabled={false}
+              pitchEnabled={false}
+              zoomEnabled={false}
+              style={{flex: 1}}
+              mapPadding={{
+                top: height * 0.45,
+              }}
+            >
+              {
+                gameList.map(o =>
+                  <MapView.Marker
+                    key={o.game.game_id}
+                    tracksViewChanges={false}
+                    coordinate={{
+                      latitude: parseFloat(o.game.latitude),
+                      longitude: parseFloat(o.game.longitude),
+                    }}
+                    anchor={{x: 0.5, y: 0.5}}
+                    title=""
+                    description=""
+                    pinColor="blue"
+                    onPress={() => this.setState({gameModal: o})}
+                    icon={require('../web/assets/img/icon-blaze.png')}
+                  >
+                    <MapView.Callout tooltip={true} />
+                  </MapView.Marker>
+                )
+              }
+            </MapView>
+            <GuideLine
+              style={{
+                flexDirection: 'column',
+                alignItems: 'stretch',
+                position: 'absolute',
+                top: 10,
+                left: 10,
+                right: 10,
+              }}
+              text="Find a science station to start a quest!"
+            />
+            <View pointerEvents="box-none" style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+            }}>
+              <TouchableOpacity onPress={() =>
+                this.setState({player: true})
+              } style={{
+                padding: 8,
+                backgroundColor: 'white',
+                borderColor: 'black',
+                borderWidth: 1,
+                borderRadius: 5,
+                margin: 10,
+              }}>
+                <Text>player</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() =>
+                this.setState({listOpen: true})
+              } style={{
+                padding: 8,
+                backgroundColor: 'white',
+                borderColor: 'black',
+                borderWidth: 1,
+                borderRadius: 5,
+                margin: 10,
+              }}>
+                <Text>list</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        );
+      }
+
       const gamesByDistance = gameList.slice(0);
       gamesByDistance.sort((a, b) => a.distance - b.distance);
       return (
@@ -710,20 +823,36 @@ export class StemportsPicker extends React.Component {
               )
             }
           </ScrollView>
-          <TouchableOpacity onPress={() =>
-            this.setState({player: true})
-          } style={{
-            position: 'absolute',
-            padding: 8,
-            backgroundColor: 'white',
-            borderColor: 'black',
-            borderWidth: 1,
-            borderRadius: 5,
-            right: 10,
-            bottom: 10,
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
           }}>
-            <Text>player</Text>
-          </TouchableOpacity>
+            <TouchableOpacity onPress={() =>
+              this.setState({player: true})
+            } style={{
+              padding: 8,
+              backgroundColor: 'white',
+              borderColor: 'black',
+              borderWidth: 1,
+              borderRadius: 5,
+              margin: 10,
+            }}>
+              <Text>player</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() =>
+              this.setState({listOpen: false})
+            } style={{
+              padding: 8,
+              backgroundColor: 'white',
+              borderColor: 'black',
+              borderWidth: 1,
+              borderRadius: 5,
+              margin: 10,
+            }}>
+              <Text>map</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       );
     }

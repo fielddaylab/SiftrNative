@@ -3091,12 +3091,11 @@ export const SiftrView = createClass({
                 )
               }
               <CacheMedia
-                media_id={95}
+                media_id={161}
                 auth={this.props.auth}
                 online={true}
                 withURL={(url) =>
                   <View pointerEvents="none" style={{
-                    position: 'absolute',
                     position: 'absolute',
                     bottom: 100,
                     left: 0,
@@ -3110,7 +3109,7 @@ export const SiftrView = createClass({
                         width: 200,
                         height: 150,
                       }}
-                      autoPlay={false}
+                      autoPlay={true}
                     />
                   </View>
                 }
