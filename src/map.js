@@ -407,6 +407,7 @@ export class SiftrMap extends React.Component {
       showsBuildings={false}
       customMapStyle={this.getMapStyles()}
       mapType={this.props.game.map_type === 'STREET' ? 'standard' : 'hybrid'}
+      onPress={this.props.onPress}
     >
       {
         this.props.location && (

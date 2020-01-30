@@ -2063,7 +2063,7 @@ export const SiftrView = createClass({
   },
   getLocationWithWarp: function() {
     if (this.state.warp) {
-      return {coords: this.props.game};
+      return {coords: this.state.warpCoords || this.props.game};
     } else {
       return this.props.location;
     }
@@ -2143,6 +2143,9 @@ export const SiftrView = createClass({
         tags={this.props.tags}
         game={this.props.game}
         fields={this.props.fields}
+        onPress={o => {
+          this.setState({warpCoords: o.nativeEvent.coordinate});
+        }}
       />
     );
   },
@@ -3274,7 +3277,7 @@ export const SiftrView = createClass({
                         justifyContent: 'center',
                       }}>
                         <TouchableOpacity style={buttonStyle} onPress={() => {
-                          this.setState({warp: !this.state.warp, factoryObjects: []});
+                          this.setState({warp: !this.state.warp, warpCoords: null, factoryObjects: []});
                           this.popModal();
                         }}>
                           <Text>{this.state.warp ? 'Stop Warping to Station' : 'Warp to Station'}</Text>
