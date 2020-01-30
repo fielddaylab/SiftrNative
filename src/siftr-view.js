@@ -3127,15 +3127,19 @@ export const SiftrView = createClass({
                 alignItems: 'center',
               }}>
                 <TouchableOpacity
-                  onPress={() => this.pushModal({type: 'inventory'})}
+                  onPress={() => {
+                    this.pushModal({type: 'menu'});
+                  }}
                 >
-                  <Image
-                    source={require('../web/assets/img/stemports-codex.png')}
-                    style={{
-                      width: 163 * 0.5,
-                      height: 127 * 0.5,
-                    }}
-                  />
+                  <View style={{
+                    padding: 8,
+                    backgroundColor: 'white',
+                    borderColor: 'black',
+                    borderWidth: 1,
+                    borderRadius: 5,
+                  }}>
+                    <Text>menu</Text>
+                  </View>
                 </TouchableOpacity>
                 {
                   // show if player has collected all this quest's remnants
@@ -3157,19 +3161,15 @@ export const SiftrView = createClass({
                   )
                 }
                 <TouchableOpacity
-                  onPress={() => {
-                    this.pushModal({type: 'menu'});
-                  }}
+                  onPress={() => this.pushModal({type: 'inventory'})}
                 >
-                  <View style={{
-                    padding: 8,
-                    backgroundColor: 'white',
-                    borderColor: 'black',
-                    borderWidth: 1,
-                    borderRadius: 5,
-                  }}>
-                    <Text>menu</Text>
-                  </View>
+                  <Image
+                    source={require('../web/assets/img/stemports-codex.png')}
+                    style={{
+                      width: 163 * 0.5,
+                      height: 127 * 0.5,
+                    }}
+                  />
                 </TouchableOpacity>
               </View>
               {this.renderNoteView()}
