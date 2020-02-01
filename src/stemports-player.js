@@ -8,7 +8,8 @@ import {
   ScrollView,
   Modal,
   Image,
-  SafeAreaView
+  SafeAreaView,
+  TouchableWithoutFeedback
 } from "react-native";
 import { styles, Text } from "./styles";
 import {loadMedia, CacheMedia} from "./media";
@@ -127,9 +128,25 @@ export class StemportsPlayer extends React.Component {
     const xpStuff = this.currentLevel();
 
     return (
-      <View style={{flex: 1}}>
+      <View style={{flex: 1, backgroundColor: 'white'}}>
         <ScrollView style={{flex: 1}}>
-          <View style={{alignItems: 'flex-end'}}>
+          <View style={{justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center'}}>
+            {
+              this.props.inQuest ? (
+                <TouchableOpacity onPress={() => this.setState({sideMenu: true})}>
+                  <Image
+                    style={{
+                      width: 44 * 1,
+                      height: 44 * 1,
+                      margin: 15,
+                    }}
+                    source={require("../web/assets/img/menu-black.png")}
+                  />
+                </TouchableOpacity>
+              ) : (
+                <View />
+              )
+            }
             <TouchableOpacity onPress={() => this.setState({settings: true})}>
               <Image
                 style={{
@@ -141,7 +158,20 @@ export class StemportsPlayer extends React.Component {
               />
             </TouchableOpacity>
           </View>
-          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around'}}>
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-around',
+            padding: 15,
+            borderBottomWidth: 2,
+            borderColor: 'rgb(223,230,237)',
+          }}>
+            <Text style={{
+              fontWeight: 'bold',
+              fontSize: 20,
+            }}>
+              {this.props.auth.authToken.display_name || this.props.auth.authToken.username}
+            </Text>
             <CacheMedia
               media_id={this.props.auth.authToken.media_id}
               auth={this.props.auth}
@@ -154,45 +184,38 @@ export class StemportsPlayer extends React.Component {
                 }} />
               }
             />
-            <Text style={{
-              fontWeight: 'bold',
-              fontSize: 20,
-            }}>
-              {this.props.auth.authToken.display_name || this.props.auth.authToken.username}
-            </Text>
           </View>
           <View style={{
             padding: 25,
             borderBottomWidth: 2,
             borderColor: 'rgb(223,230,237)',
+            flexDirection: 'row',
+            alignItems: 'stretch',
           }}>
-            <View style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
+            <TouchableOpacity style={{
+              alignItems: 'center',
+              flex: 1,
             }}>
-              <Text style={{padding: 5, fontSize: 17}}>
-                Level {xpStuff.level}
+              <Text style={{
+                fontSize: 17,
+              }}>
+                My Quests
               </Text>
-              <Text style={{padding: 5, fontSize: 17}}>
-                {xpStuff.xp - xpStuff.this_cutoff} / {xpStuff.next_cutoff - xpStuff.this_cutoff}
-              </Text>
-            </View>
+            </TouchableOpacity>
             <View style={{
-              height: 14,
-              flexDirection: 'row',
-              alignItems: 'stretch',
-              alignSelf: 'stretch',
-              margin: 6,
+              backgroundColor: 'rgb(223,230,237)',
+              width: 2,
+            }} />
+            <TouchableOpacity style={{
+              alignItems: 'center',
+              flex: 1,
             }}>
-              <View style={{
-                flex: xpStuff.xp - xpStuff.this_cutoff,
-                backgroundColor: 'rgb(75,92,107)',
-              }} />
-              <View style={{
-                flex: xpStuff.next_cutoff - xpStuff.xp,
-                backgroundColor: 'rgb(216,222,227)',
-              }} />
-            </View>
+              <Text style={{
+                fontSize: 17,
+              }}>
+                Stations
+              </Text>
+            </TouchableOpacity>
           </View>
           <View style={{
             padding: 25,
@@ -200,13 +223,15 @@ export class StemportsPlayer extends React.Component {
             borderColor: 'rgb(223,230,237)',
             flexDirection: 'row',
             alignItems: 'center',
+            backgroundColor: 'rgb(247,249,250)',
           }}>
             <View style={{flex: 1, marginRight: 10}}>
               <Text style={{
                 fontSize: 17,
                 margin: 3,
+                fontWeight: 'bold',
               }}>
-                Observation Queue
+                Game Sync
               </Text>
               <Text style={{
                 margin: 3,
@@ -217,36 +242,13 @@ export class StemportsPlayer extends React.Component {
             {
               this.props.canSync && (
                 <TouchableOpacity onPress={this.props.onSync} style={{
-                  backgroundColor: 'rgb(101,88,245)',
+                  backgroundColor: 'white',
                   padding: 10,
                   borderRadius: 4,
+                  borderColor: 'rgb(205,202,248)',
+                  borderWidth: 2,
                 }}>
-                  <Text style={{color: 'white'}}>sync</Text>
-                </TouchableOpacity>
-              )
-            }
-          </View>
-          <View style={{padding: 13}}>
-            <Text style={{fontSize: 17, padding: 12}}>Complete Field Guides</Text>
-            {
-              this.getCompleteGuides().map(o =>
-                <TouchableOpacity key={o.guide.field_guide_id} onPress={() => this.props.onSelect(o.game)}>
-                  <Text style={{padding: 12, fontWeight: 'bold'}}>
-                    {o.field.label} ({o.game.name})
-                  </Text>
-                  <Text style={{padding: 12, paddingLeft: 20}}>
-                    {o.field.options.map(opt => opt.option).join(', ')}
-                  </Text>
-                </TouchableOpacity>
-              )
-            }
-            <Text style={{fontSize: 17, padding: 12}}>Complete Quests</Text>
-            {
-              this.getCompleteQuests().map(o =>
-                <TouchableOpacity key={o.quest.quest_id} onPress={() => this.props.onSelect(o.game)}>
-                  <Text style={{padding: 12, fontWeight: 'bold'}}>
-                    {o.quest.name} ({o.game.name})
-                  </Text>
+                  <Text style={{color: 'rgb(101,88,245)'}}>Sync Game</Text>
                 </TouchableOpacity>
               )
             }
@@ -266,6 +268,43 @@ export class StemportsPlayer extends React.Component {
             />
           </TouchableOpacity>
         </View>
+        {
+          this.state.sideMenu && (
+            <Modal transparent={true} onRequestClose={() => this.setState({sideMenu: false})}>
+              <View style={{
+                flexDirection: 'row',
+                alignItems: 'stretch',
+                flex: 1,
+              }}>
+                <View style={{
+                  backgroundColor: 'white',
+                  paddingTop: 50,
+                }}>
+                  <TouchableOpacity onPress={this.props.onToggleWarp} style={{
+                    padding: 20,
+                  }}>
+                    <Text style={{fontSize: 17}}>
+                      {this.props.warpOn ? 'Stop Warping to Station' : 'Warp to Station'}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={this.props.onResetProgress} style={{
+                    padding: 20,
+                  }}>
+                    <Text style={{fontSize: 17}}>
+                      Reset Progress
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <TouchableWithoutFeedback onPress={() => this.setState({sideMenu: false})}>
+                  <View style={{
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    flex: 1,
+                  }} />
+                </TouchableWithoutFeedback>
+              </View>
+            </Modal>
+          )
+        }
       </View>
     );
   }

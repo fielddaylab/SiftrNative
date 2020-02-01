@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Modal,
-  TouchableWithoutFeedback,
   Image,
   SafeAreaView,
   ActivityIndicator,
@@ -674,7 +673,7 @@ export class StemportsPicker extends React.Component {
           syncMessage={
             this.state.syncing ? 'Syncing…' : (
               this.state.queueNotes && (
-                `You have ${this.state.queueNotes.length} observations that need to be synced.`
+                `You have ${this.state.queueNotes.length} unsynced observations.`
               )
             )
           }
@@ -763,7 +762,7 @@ export class StemportsPicker extends React.Component {
                 borderRadius: 5,
                 margin: 10,
               }}>
-                <Text>player</Text>
+                <Text>home</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() =>
                 this.setState({listOpen: true})

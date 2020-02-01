@@ -44,6 +44,7 @@ import {QuestDetails, QuestDotDetails, GenericModal, TaskComplete} from './quest
 import {evalReqPackage} from './requirements';
 import {GuideLine} from './stemports-picker';
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
+import { StemportsPlayer } from "./stemports-player";
 // @endif
 
 // @ifdef WEB
@@ -3138,7 +3139,7 @@ export const SiftrView = createClass({
                     borderWidth: 1,
                     borderRadius: 5,
                   }}>
-                    <Text>menu</Text>
+                    <Text>home</Text>
                   </View>
                 </TouchableOpacity>
                 {
@@ -3270,22 +3271,23 @@ export const SiftrView = createClass({
                       padding: 10,
                     };
                     return (
-                      <View style={{
-                        flex: 1,
-                        backgroundColor: 'rgba(0,0,0,0.4)',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}>
-                        <TouchableOpacity style={buttonStyle} onPress={() => {
+                      <StemportsPlayer
+                        onClose={() => this.popModal()}
+                        onLogout={this.props.onLogout}
+                        auth={this.props.auth}
+                        onChangePassword={this.props.onChangePassword}
+                        onEditProfile={this.props.onEditProfile}
+                        queueMessage={this.props.queueMessage}
+                        online={this.props.online}
+                        onSelect={() => null}
+                        inventory_zero={this.state.inventory_zero}
+                        syncMessage="Syncing from this screen not done yet…"
+                        canSync={false}
+                        inQuest={true}
+                        onToggleWarp={() => {
                           this.setState({warp: !this.state.warp, warpCoords: null, factoryObjects: []});
-                          this.popModal();
-                        }}>
-                          <Text>{this.state.warp ? 'Stop Warping to Station' : 'Warp to Station'}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={buttonStyle} onPress={this.props.onLogout}>
-                          <Text>Logout</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={buttonStyle} onPress={() => {
+                        }}
+                        onResetProgress={() => {
                           this.props.auth.call('client.logPlayerResetGame', {
                             game_id: this.props.game.game_id,
                           }, (res1) => {
@@ -3301,17 +3303,11 @@ export const SiftrView = createClass({
                               });
                             })
                           });
-                        }}>
-                          <Text style={{color: 'red'}}>Reset Progress</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={buttonStyle} onPress={this.props.onExit}>
-                          <Text>Back to Station Quests</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={buttonStyle} onPress={this.popModal/*.bind(this)*/}>
-                          <Text>Cancel</Text>
-                        </TouchableOpacity>
-                      </View>
+                        }}
+                        warpOn={this.state.warp}
+                      />
                     );
+                    // TODO add a way to go back up via this.props.onExit
                   } else if (modal.type === 'trigger') {
                     if (modal.instance.object_type === 'PLAQUE') {
                       return (
