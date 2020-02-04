@@ -3279,7 +3279,7 @@ export const SiftrView = createClass({
                         onEditProfile={this.props.onEditProfile}
                         queueMessage={this.props.queueMessage}
                         online={this.props.online}
-                        onSelect={() => null}
+                        onSelect={this.props.onSelect}
                         inventory_zero={this.state.inventory_zero}
                         syncMessage="Syncing from this screen not done yet…"
                         canSync={false}

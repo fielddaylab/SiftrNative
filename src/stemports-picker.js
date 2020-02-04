@@ -678,12 +678,13 @@ export class StemportsPicker extends React.Component {
             )
           }
           canSync={this.state.queueNotes && !this.state.syncing}
+          location={this.props.location}
         />
       );
     }
 
     if (!this.state.gameModal) {
-      if (!this.state.listOpen) {
+      if (this.props.mode !== 'list') {
         // show map
         const {height, width} = Dimensions.get('window');
         return (
@@ -745,7 +746,7 @@ export class StemportsPicker extends React.Component {
             />
             <View pointerEvents="box-none" style={{
               flexDirection: 'row',
-              justifyContent: 'space-between',
+              justifyContent: 'flex-start',
               alignItems: 'center',
               position: 'absolute',
               bottom: 0,
@@ -764,18 +765,6 @@ export class StemportsPicker extends React.Component {
               }}>
                 <Text>home</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() =>
-                this.setState({listOpen: true})
-              } style={{
-                padding: 8,
-                backgroundColor: 'white',
-                borderColor: 'black',
-                borderWidth: 1,
-                borderRadius: 5,
-                margin: 10,
-              }}>
-                <Text>list</Text>
-              </TouchableOpacity>
             </View>
           </View>
         );
@@ -784,7 +773,7 @@ export class StemportsPicker extends React.Component {
       const gamesByDistance = gameList.slice(0);
       gamesByDistance.sort((a, b) => a.distance - b.distance);
       return (
-        <View style={{flex: 1}}>
+        <View style={{flex: 1, backgroundColor: 'white'}}>
           <Text style={{margin: 10, fontSize: 25}}>
             Get to a Science Station
           </Text>
@@ -824,12 +813,10 @@ export class StemportsPicker extends React.Component {
           </ScrollView>
           <View style={{
             flexDirection: 'row',
-            justifyContent: 'space-between',
+            justifyContent: 'flex-start',
             alignItems: 'center',
           }}>
-            <TouchableOpacity onPress={() =>
-              this.setState({player: true})
-            } style={{
+            <TouchableOpacity onPress={this.props.onClose} style={{
               padding: 8,
               backgroundColor: 'white',
               borderColor: 'black',
@@ -837,19 +824,7 @@ export class StemportsPicker extends React.Component {
               borderRadius: 5,
               margin: 10,
             }}>
-              <Text>player</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() =>
-              this.setState({listOpen: false})
-            } style={{
-              padding: 8,
-              backgroundColor: 'white',
-              borderColor: 'black',
-              borderWidth: 1,
-              borderRadius: 5,
-              margin: 10,
-            }}>
-              <Text>map</Text>
+              <Text>close</Text>
             </TouchableOpacity>
           </View>
         </View>

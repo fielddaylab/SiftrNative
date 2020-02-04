@@ -62,7 +62,6 @@ export var SiftrNative = createClass({
       menuOpen: false,
       online: true,
       screen: null,
-      settings: false,
       recent: null,
     };
   },
@@ -653,6 +652,14 @@ export var SiftrNative = createClass({
                   ref={ref => {
                     this.siftrView = ref;
                   }}
+                  onSelect={(game, quest) =>
+                    this.setState({
+                      game: null,
+                      aris: false
+                    }, () => {
+                      this.loadGamePosition(game, {quest: quest});
+                    })
+                  }
                 />
               </SafeAreaView>
             ) : (
@@ -664,20 +671,9 @@ export var SiftrNative = createClass({
                     this.loadGamePosition(game, {quest: quest})
                   }
                   online={this.state.online}
-                  mine={this.state.games}
-                  followed={this.state.followed}
-                  followGame={this.followGame}
-                  unfollowGame={this.unfollowGame}
                   onChangePassword={this.changePassword}
                   onEditProfile={this.editProfile}
                   queueMessage={this.state.queueMessage}
-                  setScreen={o => {
-                    this.setState(o);
-                  }}
-                  discoverPage={this.state.discoverPage}
-                  settings={this.state.settings}
-                  screen={this.state.screen}
-                  recent={this.state.recent || []}
                   location={this.state.location}
                 />
               </SafeAreaView>

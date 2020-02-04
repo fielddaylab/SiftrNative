@@ -14,6 +14,7 @@ import {
 import { styles, Text } from "./styles";
 import {loadMedia, CacheMedia} from "./media";
 import { StatusSpace } from "./status-space";
+import { StemportsPicker } from "./stemports-picker";
 import { NativeSettings } from "./native-settings";
 import { deserializeGame } from "./aris";
 
@@ -125,6 +126,23 @@ export class StemportsPlayer extends React.Component {
       );
     }
 
+    if (this.state.stationList) {
+      return (
+        <StemportsPicker
+          auth={this.props.auth}
+          onLogout={this.props.onLogout}
+          onSelect={this.props.onSelect}
+          online={this.props.online}
+          onChangePassword={this.props.onChangePassword}
+          onEditProfile={this.props.onEditProfile}
+          queueMessage={this.props.queueMessage}
+          location={this.props.location}
+          onClose={() => this.setState({stationList: false})}
+          mode="list"
+        />
+      );
+    }
+
     const xpStuff = this.currentLevel();
 
     return (
@@ -206,7 +224,9 @@ export class StemportsPlayer extends React.Component {
               backgroundColor: 'rgb(223,230,237)',
               width: 2,
             }} />
-            <TouchableOpacity style={{
+            <TouchableOpacity onPress={() =>
+              this.setState({stationList: true})
+            } style={{
               alignItems: 'center',
               flex: 1,
             }}>
