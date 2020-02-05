@@ -675,6 +675,7 @@ export var SiftrNative = createClass({
                   onEditProfile={this.editProfile}
                   queueMessage={this.state.queueMessage}
                   location={this.state.location}
+                  launchCurrentQuest={true}
                 />
               </SafeAreaView>
             )

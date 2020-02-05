@@ -1241,6 +1241,10 @@ export const SiftrView = createClass({
         });
       }
     }, 2000);
+    RNFS.writeFile(`${RNFS.DocumentDirectoryPath}/siftrs/current-quest.txt`, JSON.stringify({
+      game_id: this.props.game.game_id,
+      quest_id: this.props.currentQuest.quest_id,
+    }));
   },
   componentWillUnmount: function() {
     this.isMounted = false;
@@ -3305,6 +3309,8 @@ export const SiftrView = createClass({
                           });
                         }}
                         warpOn={this.state.warp}
+                        currentQuest={this.props.currentQuest}
+                        game={this.props.game}
                       />
                     );
                     // TODO add a way to go back up via this.props.onExit

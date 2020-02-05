@@ -81,6 +81,16 @@ export class StemportsPicker extends React.Component {
     });
   }
 
+  loadCurrentQuest() {
+    return RNFS.readFile(`${RNFS.DocumentDirectoryPath}/siftrs/current-quest.txt`).then(str => {
+      const currentQuest = JSON.parse(str);
+      this.setState({currentQuest});
+      return currentQuest;
+    }).catch(() => {
+      return null;
+    });
+  }
+
   loadDownloadedGames() {
     let gameToReload;
     this.setState(prevState => {
@@ -91,39 +101,49 @@ export class StemportsPicker extends React.Component {
         return prevState;
       }
     }, () => {
-      RNFS.readDir(`${RNFS.DocumentDirectoryPath}/siftrs`).then(items => {
-        Promise.all(items.map(item => {
-          return RNFS.exists(`${item.path}/download_timestamp.txt`).then(exist => {
-            if (exist) {
-              return Promise.all([
-                RNFS.readFile(`${item.path}/game.txt`),
-                RNFS.readFile(`${item.path}/quests.txt`),
-              ]).then(([json, quests]) => {
-                const game = update(
-                  deserializeGame(JSON.parse(json)),
-                  {quests: {$set: JSON.parse(quests)}}
-                );
-                this.setState(state => update(state, {downloadedGames: {$push: [game]}}));
-                return game;
-              });
-            } else {
-              return null;
+      this.loadCurrentQuest().then(currentQuest => {
+        RNFS.readDir(`${RNFS.DocumentDirectoryPath}/siftrs`).then(items => {
+          Promise.all(items.map(item => {
+            return RNFS.exists(`${item.path}/download_timestamp.txt`).then(exist => {
+              if (exist) {
+                return Promise.all([
+                  RNFS.readFile(`${item.path}/game.txt`),
+                  RNFS.readFile(`${item.path}/quests.txt`),
+                ]).then(([json, quests]) => {
+                  const game = update(
+                    deserializeGame(JSON.parse(json)),
+                    {quests: {$set: JSON.parse(quests)}}
+                  );
+                  if (this.props.launchCurrentQuest && currentQuest && currentQuest.game_id === game.game_id) {
+                    const quest = game.quests.find(q =>
+                      parseInt(q.quest_id) === parseInt(currentQuest.quest_id)
+                    );
+                    if (quest) {
+                      this.props.onSelect(game, quest);
+                    }
+                  }
+                  this.setState(state => update(state, {downloadedGames: {$push: [game]}}));
+                  return game;
+                });
+              } else {
+                return null;
+              }
+            });
+          })).then(games => {
+            if (!gameToReload) return;
+            let foundGame = false;
+            games.forEach(game => {
+              if (!game) return;
+              if (parseInt(game.game_id) === parseInt(gameToReload.game.game_id)) {
+                this.setState({gameModal: update(gameToReload, {offline: {$set: game}})});
+                foundGame = true;
+              }
+            });
+            if (!foundGame) {
+              // probably shouldn't happen, but just to make sure spinner goes away
+              this.setState({gameModal: null});
             }
           });
-        })).then(games => {
-          if (!gameToReload) return;
-          let foundGame = false;
-          games.forEach(game => {
-            if (!game) return;
-            if (parseInt(game.game_id) === parseInt(gameToReload.game.game_id)) {
-              this.setState({gameModal: update(gameToReload, {offline: {$set: game}})});
-              foundGame = true;
-            }
-          });
-          if (!foundGame) {
-            // probably shouldn't happen, but just to make sure spinner goes away
-            this.setState({gameModal: null});
-          }
         });
       });
     });
@@ -640,6 +660,10 @@ export class StemportsPicker extends React.Component {
   }
 
   render() {
+    if (!this.state.currentQuest && this.props.launchCurrentQuest) {
+      return null;
+    }
+
     let games = {};
     this.state.games.forEach(g => {
       if (!games[g.game_id]) games[g.game_id] = {};
@@ -985,11 +1009,6 @@ export class StemportsOutpost extends React.Component {
     });
   }
 
-  launchQuest(game, quest) {
-    const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
-    this.props.onSelect(game, quest);
-  }
-
   render() {
     const game = this.props.game;
     const obj = this.props.obj;
@@ -1093,7 +1112,7 @@ export class StemportsOutpost extends React.Component {
                             }}>
                               <Text style={{flex: 1, margin: 5}}>{quest.name}</Text>
                               <TouchableOpacity onPress={() =>
-                                obj.offline && this.launchQuest(game, quest)
+                                obj.offline && this.props.onSelect(game, quest)
                               } style={{
                                 backgroundColor: 'rgb(101,88,245)',
                                 padding: 5,

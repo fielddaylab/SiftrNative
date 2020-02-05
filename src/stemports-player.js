@@ -184,24 +184,59 @@ export class StemportsPlayer extends React.Component {
             borderBottomWidth: 2,
             borderColor: 'rgb(223,230,237)',
           }}>
-            <Text style={{
-              fontWeight: 'bold',
-              fontSize: 20,
-            }}>
-              {this.props.auth.authToken.display_name || this.props.auth.authToken.username}
-            </Text>
-            <CacheMedia
-              media_id={this.props.auth.authToken.media_id}
-              auth={this.props.auth}
-              online={this.props.online}
-              withURL={url =>
-                <Image source={url} style={{
-                  height: 100,
-                  width: 100,
-                  resizeMode: 'contain',
-                }} />
+            <View style={{flex: 1, alignItems: 'flex-start'}}>
+              <Text style={{
+                fontWeight: 'bold',
+                fontSize: 20,
+              }}>
+                {this.props.auth.authToken.display_name || this.props.auth.authToken.username}
+              </Text>
+              {
+                this.props.currentQuest && (
+                  <View style={{
+                    backgroundColor: 'rgb(101,88,245)',
+                    padding: 5,
+                    borderRadius: 5,
+                    marginTop: 10,
+                    marginBottom: 10,
+                  }}>
+                    <Text style={{color: 'white'}}>
+                      Playing: {this.props.currentQuest.name}
+                    </Text>
+                  </View>
+                )
               }
-            />
+              {
+                this.props.game && (
+                  <View style={{
+                    flexDirection: 'row',
+                  }}>
+                    <Image source={require('../web/assets/img/stemports-station.png')} style={{
+                      width: 70 * 0.5,
+                      height: 66 * 0.5,
+                      marginRight: 5,
+                    }} />
+                    <Text>
+                      at: {this.props.game.name}
+                    </Text>
+                  </View>
+                )
+              }
+            </View>
+            <View style={{flex: 1, alignItems: 'center'}}>
+              <CacheMedia
+                media_id={this.props.auth.authToken.media_id}
+                auth={this.props.auth}
+                online={this.props.online}
+                withURL={url =>
+                  <Image source={url} style={{
+                    height: 100,
+                    width: 100,
+                    resizeMode: 'contain',
+                  }} />
+                }
+              />
+            </View>
           </View>
           <View style={{
             padding: 25,
