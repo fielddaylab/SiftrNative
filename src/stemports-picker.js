@@ -83,9 +83,7 @@ export class StemportsPicker extends React.Component {
 
   loadCurrentQuest() {
     return RNFS.readFile(`${RNFS.DocumentDirectoryPath}/siftrs/current-quest.txt`).then(str => {
-      const currentQuest = JSON.parse(str);
-      this.setState({currentQuest});
-      return currentQuest;
+      return JSON.parse(str);
     }).catch(() => {
       return null;
     });
@@ -145,6 +143,8 @@ export class StemportsPicker extends React.Component {
             }
           });
         });
+      }).finally(() => {
+        this.setState({doneLoadingQuests: true});
       });
     });
   }
@@ -660,7 +660,7 @@ export class StemportsPicker extends React.Component {
   }
 
   render() {
-    if (!this.state.currentQuest && this.props.launchCurrentQuest) {
+    if (!this.state.doneLoadingQuests && this.props.launchCurrentQuest) {
       return null;
     }
 
