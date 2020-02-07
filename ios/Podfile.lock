@@ -265,7 +265,7 @@ DEPENDENCIES:
   - yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  trunk:
     - boost-for-react-native
     - Crashlytics
     - Fabric
@@ -416,4 +416,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: b61fd0bdbd4af6f4100f06c4dc1767d6f2bbdf3e
 
-COCOAPODS: 1.7.1
+COCOAPODS: 1.8.4
