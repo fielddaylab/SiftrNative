@@ -681,10 +681,16 @@ export class StemportsPicker extends React.Component {
       gameList.push(update(obj, {game: {$set: game}, distance: {$set: distance}}));
     }
 
-    if (this.state.player) {
+    if (this.state.player || this.props.mode === 'player') {
       return (
         <StemportsPlayer
-          onClose={() => this.setState({player: false})}
+          onClose={() => {
+            if (this.props.mode === 'player') {
+              this.props.onClose && this.props.onClose();
+            } else {
+              this.setState({player: false});
+            }
+          }}
           onLogout={this.props.onLogout}
           auth={this.props.auth}
           onChangePassword={this.props.onChangePassword}
@@ -703,6 +709,12 @@ export class StemportsPicker extends React.Component {
           }
           canSync={this.state.queueNotes && !this.state.syncing}
           location={this.props.location}
+          inQuest={this.props.inQuest}
+          onToggleWarp={this.props.onToggleWarp}
+          onResetProgress={this.props.onResetProgress}
+          warpOn={this.props.warpOn}
+          currentQuest={this.props.currentQuest}
+          game={this.props.game}
         />
       );
     }

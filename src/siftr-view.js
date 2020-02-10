@@ -44,6 +44,7 @@ import {QuestDetails, QuestDotDetails, GenericModal, TaskComplete} from './quest
 import {evalReqPackage} from './requirements';
 import {GuideLine} from './stemports-picker';
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
+import { StemportsPicker } from "./stemports-picker";
 import { StemportsPlayer } from "./stemports-player";
 // @endif
 
@@ -3266,27 +3267,18 @@ export const SiftrView = createClass({
                       </GenericModal>
                     );
                   } else if (modal.type === 'menu') {
-                    const buttonStyle = {
-                      margin: 10,
-                      backgroundColor: 'white',
-                      borderColor: 'black',
-                      borderRadius: 5,
-                      borderWidth: 2,
-                      padding: 10,
-                    };
                     return (
-                      <StemportsPlayer
-                        onClose={() => this.popModal()}
-                        onLogout={this.props.onLogout}
+                      <StemportsPicker
                         auth={this.props.auth}
+                        onLogout={this.props.onLogout}
+                        onSelect={this.props.onSelect}
+                        online={this.props.online}
                         onChangePassword={this.props.onChangePassword}
                         onEditProfile={this.props.onEditProfile}
                         queueMessage={this.props.queueMessage}
-                        online={this.props.online}
-                        onSelect={this.props.onSelect}
-                        inventory_zero={this.state.inventory_zero}
-                        syncMessage="Syncing from this screen not done yet…"
-                        canSync={false}
+                        location={this.props.location}
+                        mode="player"
+                        onClose={() => this.popModal()}
                         inQuest={true}
                         onToggleWarp={() => {
                           this.setState({warp: !this.state.warp, warpCoords: null, factoryObjects: []});
@@ -3313,7 +3305,6 @@ export const SiftrView = createClass({
                         game={this.props.game}
                       />
                     );
-                    // TODO add a way to go back up via this.props.onExit
                   } else if (modal.type === 'trigger') {
                     if (modal.instance.object_type === 'PLAQUE') {
                       return (
