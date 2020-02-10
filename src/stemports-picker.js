@@ -720,6 +720,49 @@ export class StemportsPicker extends React.Component {
     }
 
     if (!this.state.gameModal) {
+      if (this.props.mode === 'quests') {
+        return (
+          <View style={{flex: 1, backgroundColor: 'white'}}>
+            <View style={{
+              flexDirection: 'row',
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+            }}>
+              <TouchableOpacity onPress={this.props.onClose} style={{
+                padding: 8,
+                backgroundColor: 'white',
+                borderColor: 'black',
+                borderWidth: 1,
+                borderRadius: 5,
+                margin: 10,
+              }}>
+                <Text>close</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={{margin: 10, fontSize: 25}}>
+              My Quests
+            </Text>
+            <ScrollView style={{
+              flex: 1,
+              borderColor: 'black',
+              borderTopWidth: 1,
+            }}>
+              {
+                gameList.map(o =>
+                  <GameQuestList
+                    key={o.game.game_id}
+                    obj={o}
+                    game={o.game}
+                    onSelect={this.props.onSelect}
+                    onlyStarted={true}
+                  />
+                )
+              }
+            </ScrollView>
+          </View>
+        );
+      }
+
       if (this.props.mode !== 'list') {
         // show map
         const {height, width} = Dimensions.get('window');
@@ -1005,7 +1048,7 @@ export class GuideLine extends React.Component {
   }
 }
 
-export class StemportsOutpost extends React.Component {
+class GameQuestList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -1019,6 +1062,88 @@ export class StemportsOutpost extends React.Component {
     }).catch(() => {
       this.setState({sortedQuests: 'unknown'});
     });
+  }
+
+  render() {
+    const obj = this.props.obj;
+    return (
+      <View>
+        {
+          (obj.offline ? obj.offline.quests : obj.online.quests).filter(quest =>
+            !parseInt(quest.parent_quest_id)
+          ).map(quest => {
+            const details = this.state.sortedQuests &&
+              this.state.sortedQuests.displayInfo &&
+              this.state.sortedQuests.displayInfo.find(o =>
+                parseInt(o.quest.quest_id) === parseInt(quest.quest_id)
+              );
+            const progress = getQuestProgress(details);
+            let done = 0;
+            let total = 0;
+            progress.forEach(sub => {
+              done += sub.done;
+              total += sub.total;
+            });
+            if (done === 0 && this.props.onlyStarted) {
+              return null;
+            }
+            return (
+              <View key={quest.quest_id} style={{
+                flexDirection: 'column',
+                alignItems: 'stretch',
+                borderColor: 'black',
+                borderBottomWidth: 1,
+              }}>
+                <View key={quest.quest_id} style={{
+                  flexDirection: 'row',
+                  padding: 5,
+                  alignItems: 'center',
+                }}>
+                  <Text style={{flex: 1, margin: 5}}>{quest.name}</Text>
+                  <TouchableOpacity onPress={() =>
+                    obj.offline && this.props.onSelect(this.props.game, quest)
+                  } style={{
+                    backgroundColor: 'rgb(101,88,245)',
+                    padding: 5,
+                    margin: 5,
+                  }}>
+                    <Text style={{color: 'white'}}>{done === 0 ? 'start' : 'resume'}</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={{
+                  padding: 10,
+                  alignItems: 'stretch',
+                  flexDirection: 'row',
+                }}>
+                  <View style={{
+                    backgroundColor: 'rgb(66,82,96)',
+                    height: 12,
+                    flex: done,
+                    borderTopLeftRadius: 4,
+                    borderBottomLeftRadius: 4,
+                  }} />
+                  <View style={{
+                    backgroundColor: 'rgb(211,217,223)',
+                    height: 12,
+                    flex: total - done,
+                    borderTopRightRadius: 4,
+                    borderBottomRightRadius: 4,
+                  }} />
+                </View>
+              </View>
+            );
+          }).filter(x => x)
+        }
+      </View>
+    );
+  }
+}
+
+export class StemportsOutpost extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+    };
   }
 
   render() {
@@ -1094,69 +1219,11 @@ export class StemportsOutpost extends React.Component {
               {
                 (
                   <ScrollView style={{flex: 1, borderColor: 'black', borderTopWidth: 1, borderBottomWidth: 1}}>
-                    {
-                      (obj.offline ? obj.offline.quests : obj.online.quests).filter(quest =>
-                        !parseInt(quest.parent_quest_id)
-                      ).map(quest => {
-                        const details = this.state.sortedQuests &&
-                          this.state.sortedQuests.displayInfo &&
-                          this.state.sortedQuests.displayInfo.find(o =>
-                            parseInt(o.quest.quest_id) === parseInt(quest.quest_id)
-                          );
-                        const progress = getQuestProgress(details);
-                        let done = 0;
-                        let total = 0;
-                        progress.forEach(sub => {
-                          done += sub.done;
-                          total += sub.total;
-                        });
-                        return (
-                          <View key={quest.quest_id} style={{
-                            flexDirection: 'column',
-                            alignItems: 'stretch',
-                            borderColor: 'black',
-                            borderBottomWidth: 1,
-                          }}>
-                            <View key={quest.quest_id} style={{
-                              flexDirection: 'row',
-                              padding: 5,
-                              alignItems: 'center',
-                            }}>
-                              <Text style={{flex: 1, margin: 5}}>{quest.name}</Text>
-                              <TouchableOpacity onPress={() =>
-                                obj.offline && this.props.onSelect(game, quest)
-                              } style={{
-                                backgroundColor: 'rgb(101,88,245)',
-                                padding: 5,
-                                margin: 5,
-                              }}>
-                                <Text style={{color: 'white'}}>{done === 0 ? 'start' : 'resume'}</Text>
-                              </TouchableOpacity>
-                            </View>
-                            <View style={{
-                              padding: 10,
-                              alignItems: 'stretch',
-                              flexDirection: 'row',
-                            }}>
-                              <View style={{
-                                backgroundColor: 'rgb(66,82,96)',
-                                height: 12,
-                                flex: done,
-                                borderTopLeftRadius: 4,
-                                borderBottomLeftRadius: 4,
-                              }} />
-                              <View style={{
-                                backgroundColor: 'rgb(211,217,223)',
-                                height: 12,
-                                flex: total - done,
-                                borderTopRightRadius: 4,
-                                borderBottomRightRadius: 4,
-                              }} />
-                            </View>
-                          </View>
-                        );
-                      })
-                    }
+                    <GameQuestList
+                      obj={obj}
+                      game={game}
+                      onSelect={this.props.onSelect}
+                    />
                   </ScrollView>
                 )
               }

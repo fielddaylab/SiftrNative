@@ -143,6 +143,23 @@ export class StemportsPlayer extends React.Component {
       );
     }
 
+    if (this.state.questList) {
+      return (
+        <StemportsPicker
+          auth={this.props.auth}
+          onLogout={this.props.onLogout}
+          onSelect={this.props.onSelect}
+          online={this.props.online}
+          onChangePassword={this.props.onChangePassword}
+          onEditProfile={this.props.onEditProfile}
+          queueMessage={this.props.queueMessage}
+          location={this.props.location}
+          onClose={() => this.setState({questList: false})}
+          mode="quests"
+        />
+      );
+    }
+
     const xpStuff = this.currentLevel();
 
     return (
@@ -210,6 +227,7 @@ export class StemportsPlayer extends React.Component {
                 this.props.game && (
                   <View style={{
                     flexDirection: 'row',
+                    alignItems: 'center',
                   }}>
                     <Image source={require('../web/assets/img/stemports-station.png')} style={{
                       width: 70 * 0.5,
@@ -245,10 +263,17 @@ export class StemportsPlayer extends React.Component {
             flexDirection: 'row',
             alignItems: 'stretch',
           }}>
-            <TouchableOpacity style={{
+            <TouchableOpacity onPress={() =>
+              this.setState({questList: true})
+            } style={{
               alignItems: 'center',
               flex: 1,
             }}>
+              <Image style={{
+                height: 35,
+                margin: 10,
+                resizeMode: 'contain',
+              }} source={require('../web/assets/img/stemports-home-quest.png')} />
               <Text style={{
                 fontSize: 17,
               }}>
@@ -265,6 +290,11 @@ export class StemportsPlayer extends React.Component {
               alignItems: 'center',
               flex: 1,
             }}>
+              <Image style={{
+                height: 35,
+                margin: 10,
+                resizeMode: 'contain',
+              }} source={require('../web/assets/img/stemports-home-station.png')} />
               <Text style={{
                 fontSize: 17,
               }}>
