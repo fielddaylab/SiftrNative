@@ -10,7 +10,8 @@ import {
   Image,
   SafeAreaView,
   ActivityIndicator,
-  Dimensions
+  Dimensions,
+  Linking
 } from "react-native";
 import { styles, Text } from "./styles";
 import {deserializeGame} from "./aris";
@@ -723,23 +724,18 @@ export class StemportsPicker extends React.Component {
       if (this.props.mode === 'quests') {
         return (
           <View style={{flex: 1, backgroundColor: 'white'}}>
-            <View style={{
-              flexDirection: 'row',
-              justifyContent: 'flex-start',
-              alignItems: 'center',
-            }}>
-              <TouchableOpacity onPress={this.props.onClose} style={{
-                padding: 8,
-                backgroundColor: 'white',
-                borderColor: 'black',
-                borderWidth: 1,
-                borderRadius: 5,
-                margin: 10,
-              }}>
-                <Text>close</Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={{margin: 10, fontSize: 25}}>
+            <TouchableOpacity onPress={this.props.onClose}>
+              <Image
+                source={require('../web/assets/img/back-arrow.png')}
+                style={{
+                  resizeMode: 'contain',
+                  width: 108 * 0.25,
+                  height: 150 * 0.25,
+                  margin: 10,
+                }}
+              />
+            </TouchableOpacity>
+            <Text style={{margin: 10, fontSize: 25, fontWeight: 'bold'}}>
               My Quests
             </Text>
             <ScrollView style={{
@@ -853,59 +849,79 @@ export class StemportsPicker extends React.Component {
       gamesByDistance.sort((a, b) => a.distance - b.distance);
       return (
         <View style={{flex: 1, backgroundColor: 'white'}}>
-          <Text style={{margin: 10, fontSize: 25}}>
-            Get to a Science Station
+          <TouchableOpacity onPress={this.props.onClose}>
+            <Image
+              source={require('../web/assets/img/back-arrow.png')}
+              style={{
+                resizeMode: 'contain',
+                width: 108 * 0.25,
+                height: 150 * 0.25,
+                margin: 10,
+              }}
+            />
+          </TouchableOpacity>
+          <Text style={{margin: 10, fontSize: 25, fontWeight: 'bold'}}>
+            Science Stations
           </Text>
-          <GuideLine
-            style={{padding: 5}}
-            text={
-              gamesByDistance.length > 0 && gamesByDistance[0].distance < 1000
-              ? `It looks like you're at the ${gamesByDistance[0].game.name} Science Station. Hit Go to find quests at the station!`
-              : 'You need to be at a science station to start a quest. Here are the closest ones.'
-            }
-          />
+          <Text style={{margin: 10}}>
+            Science stations are where the quests are! Here are the science stations closest to you:
+          </Text>
           <ScrollView style={{flex: 1}}>
             {
               gamesByDistance.map(o =>
-                <View key={o.game.game_id} style={{margin: 10, flexDirection: 'row'}}>
+                <TouchableOpacity
+                  key={o.game.game_id}
+                  style={{
+                    margin: 10,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    borderColor: 'rgb(120,136,150)',
+                    borderWidth: 2,
+                    padding: 5,
+                  }}
+                  onPress={() => this.setState({gameModal: o})}
+                >
+                  <Image
+                    style={{
+                      resizeMode: 'contain',
+                      width: 136 * 0.25,
+                      height: 128 * 0.25,
+                      margin: 15,
+                    }}
+                    source={require('../web/assets/img/stemports-home-station.png')}
+                  />
                   <View style={{flex: 1}}>
-                    <Text style={{fontWeight: 'bold', margin: 5}}>
+                    <Text style={{margin: 5}}>
                       {o.game.name}
                     </Text>
-                    <Text style={{fontStyle: 'italic', margin: 5}}>
-                      {(o.distance / 1000).toFixed(2)} km away
-                    </Text>
+                    <View style={{flexDirection: 'row'}}>
+                      <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
+                        {(o.distance / 1000).toFixed(2)} km away
+                      </Text>
+                      <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
+                        |
+                      </Text>
+                      <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
+                        {o.game.quests.length} {o.game.quests.length === 1 ? 'quest' : 'quests'}
+                      </Text>
+                      <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
+                        |
+                      </Text>
+                      <TouchableOpacity onPress={() =>
+                        Linking.openURL(`maps:0,0?q=${o.game.name}@${o.game.latitude},${o.game.longitude}`)
+                        // TODO on Android this link should look different,
+                        // see https://stackoverflow.com/a/48006762
+                      }>
+                        <Text style={{color: 'rgb(101,88,245)', margin: 5}}>
+                          Map it
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                  <View>
-                    <TouchableOpacity onPress={() => {
-                      this.setState({gameModal: o});
-                    }} style={{
-                      backgroundColor: 'rgb(101,88,245)',
-                      padding: 5,
-                    }}>
-                      <Text style={{color: 'white'}}>Go</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
+                </TouchableOpacity>
               )
             }
           </ScrollView>
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-          }}>
-            <TouchableOpacity onPress={this.props.onClose} style={{
-              padding: 8,
-              backgroundColor: 'white',
-              borderColor: 'black',
-              borderWidth: 1,
-              borderRadius: 5,
-              margin: 10,
-            }}>
-              <Text>close</Text>
-            </TouchableOpacity>
-          </View>
         </View>
       );
     }
