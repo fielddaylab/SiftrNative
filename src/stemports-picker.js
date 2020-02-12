@@ -751,6 +751,7 @@ export class StemportsPicker extends React.Component {
                     game={o.game}
                     onSelect={this.props.onSelect}
                     onlyStarted={true}
+                    downloaded={true}
                   />
                 )
               }
@@ -1116,15 +1117,19 @@ class GameQuestList extends React.Component {
                   alignItems: 'center',
                 }}>
                   <Text style={{flex: 1, margin: 5}}>{quest.name}</Text>
-                  <TouchableOpacity onPress={() =>
-                    obj.offline && this.props.onSelect(this.props.game, quest)
-                  } style={{
-                    backgroundColor: 'rgb(101,88,245)',
-                    padding: 5,
-                    margin: 5,
-                  }}>
-                    <Text style={{color: 'white'}}>{done === 0 ? 'start' : 'resume'}</Text>
-                  </TouchableOpacity>
+                  {
+                    this.props.downloaded && (
+                      <TouchableOpacity onPress={() =>
+                        obj.offline && this.props.onSelect(this.props.game, quest)
+                      } style={{
+                        backgroundColor: 'rgb(101,88,245)',
+                        padding: 5,
+                        margin: 5,
+                      }}>
+                        <Text style={{color: 'white'}}>{done === 0 ? 'start' : 'resume'}</Text>
+                      </TouchableOpacity>
+                    )
+                  }
                 </View>
                 <View style={{
                   padding: 10,
@@ -1172,33 +1177,23 @@ export class StemportsOutpost extends React.Component {
         backgroundColor: 'white',
         alignItems: 'stretch',
       }}>
-        <View style={{alignItems: 'center', padding: 10}}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <CacheMedia
-              media_id={game.icon_media_id}
-              auth={this.props.auth}
-              online={true}
-              withURL={(url) =>
-                <View style={{margin: 10, alignItems: 'stretch', alignSelf: 'stretch'}}>
-                  <Image
-                    source={url}
-                    style={{
-                      width: 90,
-                      height: 90,
-                      resizeMode: 'contain',
-                    }}
-                  />
-                </View>
-              }
-            />
-            <View style={{margin: 10, flex: 1}}>
-              <Text style={{fontSize: 25}}>{game.name}</Text>
-            </View>
-          </View>
-          <View style={{margin: 10}}>
-            <Text>{game.description}</Text>
-          </View>
-        </View>
+        <TouchableOpacity onPress={this.props.onClose}>
+          <Image
+            source={require('../web/assets/img/back-arrow.png')}
+            style={{
+              resizeMode: 'contain',
+              width: 108 * 0.25,
+              height: 150 * 0.25,
+              margin: 10,
+            }}
+          />
+        </TouchableOpacity>
+        <Text style={{margin: 10, fontSize: 25, fontWeight: 'bold'}}>
+          {game.name}
+        </Text>
+        <Text style={{margin: 10}}>
+          {game.description}
+        </Text>
         {
           newVersion && (
             <View style={{
@@ -1229,34 +1224,27 @@ export class StemportsOutpost extends React.Component {
             </View>
           )
         }
+        <View style={{flex: 1}}>
+          {
+            (
+              <ScrollView style={{flex: 1, borderColor: 'black', borderTopWidth: 1, borderBottomWidth: 1}}>
+                <GameQuestList
+                  obj={obj}
+                  game={game}
+                  onSelect={this.props.onSelect}
+                  downloaded={obj.offline}
+                />
+              </ScrollView>
+            )
+          }
+        </View>
         {
-          obj.offline ? (
-            <View style={{flex: 1}}>
-              {
-                (
-                  <ScrollView style={{flex: 1, borderColor: 'black', borderTopWidth: 1, borderBottomWidth: 1}}>
-                    <GameQuestList
-                      obj={obj}
-                      game={game}
-                      onSelect={this.props.onSelect}
-                    />
-                  </ScrollView>
-                )
-              }
-            </View>
-          ) : (
-            <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
-              <Text style={{fontSize: 25, margin: 5, textAlign: 'center'}}>
-                Download Quests
-              </Text>
-              <Text style={{margin: 5, textAlign: 'center'}}>
-                It looks like you're at the {game.name} Science Station.
-                Download Quests to get started!
-              </Text>
+          !(obj.offline) && (
+            <View style={{alignItems: 'center', justifyContent: 'center'}}>
               <TouchableOpacity style={{
                 backgroundColor: 'rgb(101,88,245)',
                 padding: 5,
-                margin: 5,
+                margin: 20,
               }} onPress={this.props.onDownload}>
                 <Text style={{color: 'white'}}>
                   Download Quests
@@ -1265,17 +1253,6 @@ export class StemportsOutpost extends React.Component {
             </View>
           )
         }
-        <View style={{alignItems: 'center', padding: 10}}>
-          <TouchableOpacity onPress={this.props.onClose}>
-            <Image
-              style={{
-                width: 140 * 0.45,
-                height: 140 * 0.45,
-              }}
-              source={require("../web/assets/img/quest-close.png")}
-            />
-          </TouchableOpacity>
-        </View>
       </View>
     );
   }
