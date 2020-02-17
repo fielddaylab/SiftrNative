@@ -1108,14 +1108,20 @@ class GameQuestList extends React.Component {
               <View key={quest.quest_id} style={{
                 flexDirection: 'column',
                 alignItems: 'stretch',
-                borderColor: 'black',
-                borderBottomWidth: 1,
+                borderColor: 'rgb(223,230,237)',
+                borderBottomWidth: 2,
               }}>
                 <View key={quest.quest_id} style={{
                   flexDirection: 'row',
                   padding: 5,
                   alignItems: 'center',
                 }}>
+                  <Image source={require('../web/assets/img/stemports-leaf.png')} style={{
+                    width: 58 * 0.5,
+                    height: 60 * 0.5,
+                    resizeMode: 'contain',
+                    margin: 5,
+                  }} />
                   <Text style={{flex: 1, margin: 5}}>{quest.name}</Text>
                   {
                     this.props.downloaded && (
@@ -1123,34 +1129,68 @@ class GameQuestList extends React.Component {
                         obj.offline && this.props.onSelect(this.props.game, quest)
                       } style={{
                         backgroundColor: 'rgb(101,88,245)',
-                        padding: 5,
                         margin: 5,
+                        paddingTop: 5,
+                        paddingBottom: 5,
+                        paddingLeft: 9,
+                        paddingRight: 9,
+                        borderRadius: 5,
                       }}>
                         <Text style={{color: 'white'}}>{done === 0 ? 'start' : 'resume'}</Text>
                       </TouchableOpacity>
                     )
                   }
                 </View>
-                <View style={{
-                  padding: 10,
-                  alignItems: 'stretch',
-                  flexDirection: 'row',
-                }}>
-                  <View style={{
-                    backgroundColor: 'rgb(66,82,96)',
-                    height: 12,
-                    flex: done,
-                    borderTopLeftRadius: 4,
-                    borderBottomLeftRadius: 4,
-                  }} />
-                  <View style={{
-                    backgroundColor: 'rgb(211,217,223)',
-                    height: 12,
-                    flex: total - done,
-                    borderTopRightRadius: 4,
-                    borderBottomRightRadius: 4,
-                  }} />
-                </View>
+                {
+                  done === 0 ? (
+                    <View style={{
+                      padding: 10,
+                      alignItems: 'stretch',
+                      flexDirection: 'row',
+                    }}>
+                      <View style={{
+                        backgroundColor: 'rgb(211,217,223)',
+                        height: 12,
+                        flex: 1,
+                        borderRadius: 4,
+                      }} />
+                    </View>
+                  ) : done === total ? (
+                    <View style={{
+                      padding: 10,
+                      alignItems: 'stretch',
+                      flexDirection: 'row',
+                    }}>
+                      <View style={{
+                        backgroundColor: 'rgb(66,82,96)',
+                        height: 12,
+                        flex: 1,
+                        borderRadius: 4,
+                      }} />
+                    </View>
+                  ) : (
+                    <View style={{
+                      padding: 10,
+                      alignItems: 'stretch',
+                      flexDirection: 'row',
+                    }}>
+                      <View style={{
+                        backgroundColor: 'rgb(66,82,96)',
+                        height: 12,
+                        flex: done,
+                        borderTopLeftRadius: 4,
+                        borderBottomLeftRadius: 4,
+                      }} />
+                      <View style={{
+                        backgroundColor: 'rgb(211,217,223)',
+                        height: 12,
+                        flex: total - done,
+                        borderTopRightRadius: 4,
+                        borderBottomRightRadius: 4,
+                      }} />
+                    </View>
+                  )
+                }
               </View>
             );
           }).filter(x => x)
@@ -1188,12 +1228,20 @@ export class StemportsOutpost extends React.Component {
             }}
           />
         </TouchableOpacity>
-        <Text style={{margin: 10, fontSize: 25, fontWeight: 'bold'}}>
-          {game.name}
-        </Text>
-        <Text style={{margin: 10}}>
-          {game.description}
-        </Text>
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}>
+          <Image source={require('../web/assets/img/stemports-home-station.png')} style={{
+            width: 136 * 0.4,
+            height: 128 * 0.4,
+            resizeMode: 'contain',
+            margin: 15,
+          }} />
+          <Text style={{margin: 15, fontSize: 25, fontWeight: 'bold', flex: 1}}>
+            {game.name}
+          </Text>
+        </View>
         {
           newVersion && (
             <View style={{
@@ -1224,10 +1272,20 @@ export class StemportsOutpost extends React.Component {
             </View>
           )
         }
+        {
+          game.description.length !== 0 && (
+            <Text style={{margin: 15}}>
+              {game.description}
+            </Text>
+          )
+        }
+        <Text style={{margin: 15, fontWeight: 'bold', fontSize: 17}}>
+          Quests:
+        </Text>
         <View style={{flex: 1}}>
           {
             (
-              <ScrollView style={{flex: 1, borderColor: 'black', borderTopWidth: 1, borderBottomWidth: 1}}>
+              <ScrollView style={{flex: 1, borderColor: 'rgb(223,230,237)', borderTopWidth: 2, borderBottomWidth: 2}}>
                 <GameQuestList
                   obj={obj}
                   game={game}
