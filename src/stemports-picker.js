@@ -744,13 +744,12 @@ export class StemportsPicker extends React.Component {
               borderTopWidth: 1,
             }}>
               {
-                gameList.map(o =>
+                gameList.filter(o => o.offline).map(o =>
                   <GameQuestList
                     key={o.game.game_id}
                     obj={o}
                     game={o.game}
                     onSelect={this.props.onSelect}
-                    onlyStarted={true}
                     downloaded={true}
                   />
                 )
@@ -1101,9 +1100,6 @@ class GameQuestList extends React.Component {
               done += sub.done;
               total += sub.total;
             });
-            if (done === 0 && this.props.onlyStarted) {
-              return null;
-            }
             return (
               <View key={quest.quest_id} style={{
                 flexDirection: 'column',
