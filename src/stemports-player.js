@@ -17,6 +17,7 @@ import { StatusSpace } from "./status-space";
 import { StemportsPicker } from "./stemports-picker";
 import { NativeSettings } from "./native-settings";
 import { deserializeGame } from "./aris";
+import ModelView from '../react-native-3d-model-view/lib/ModelView';
 
 const RNFS = require("react-native-fs");
 
@@ -208,21 +209,23 @@ export class StemportsPlayer extends React.Component {
               }}>
                 {this.props.auth.authToken.display_name || this.props.auth.authToken.username}
               </Text>
-              {
-                this.props.currentQuest && (
-                  <View style={{
-                    backgroundColor: 'rgb(101,88,245)',
-                    padding: 5,
-                    borderRadius: 5,
-                    marginTop: 10,
-                    marginBottom: 10,
-                  }}>
-                    <Text style={{color: 'white'}}>
-                      Playing: {this.props.currentQuest.name}
-                    </Text>
-                  </View>
-                )
-              }
+              <TouchableOpacity style={{
+                backgroundColor: 'rgb(101,88,245)',
+                padding: 5,
+                borderRadius: 5,
+                marginTop: 10,
+                marginBottom: 10,
+              }} onPress={() =>
+                this.setState({stationList: true})
+              }>
+                <Text style={{color: 'white'}}>
+                  {
+                    this.props.currentQuest
+                      ? `Playing: ${this.props.currentQuest.name}`
+                      : 'Start a Quest!'
+                  }
+                </Text>
+              </TouchableOpacity>
               {
                 this.props.game && (
                   <View style={{
@@ -241,20 +244,23 @@ export class StemportsPlayer extends React.Component {
                 )
               }
             </View>
-            <View style={{flex: 1, alignItems: 'center'}}>
-              <CacheMedia
-                media_id={this.props.auth.authToken.media_id}
-                auth={this.props.auth}
-                online={this.props.online}
-                withURL={url =>
-                  <Image source={url} style={{
-                    height: 100,
-                    width: 100,
-                    resizeMode: 'contain',
-                  }} />
-                }
-              />
-            </View>
+            <CacheMedia
+              media_id={161}
+              auth={this.props.auth}
+              online={true}
+              withURL={(url) =>
+                <View pointerEvents="none" style={{flex: 1, alignItems: 'center'}}>
+                  <ModelView
+                    source={{ zip: url }}
+                    style={{
+                      width: 100,
+                      height: 150,
+                    }}
+                    autoPlay={true}
+                  />
+                </View>
+              }
+            />
           </View>
           <View style={{
             padding: 25,
