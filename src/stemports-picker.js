@@ -191,7 +191,9 @@ export class StemportsPicker extends React.Component {
 
   initializeGame(game, hasOffline) {
     const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${game.game_id}`;
-    return RNFS.mkdir(siftrDir, {NSURLIsExcludedFromBackupKey: true}).then(() => {
+    return new Promise((resolve, reject) => {
+      this.setState({downloadingGame: game}, resolve);
+    }).then(() => RNFS.mkdir(siftrDir, {NSURLIsExcludedFromBackupKey: true})).then(() => {
       const writeJSON = (name) => {
         return (data) => {
           return RNFS.writeFile(
@@ -603,9 +605,10 @@ export class StemportsPicker extends React.Component {
           return;
         }
 
-      }).then(() =>
-        RNFS.writeFile(`${siftrDir}/download_timestamp.txt`, Date.now())
-      );
+      }).then(() => {
+        this.setState({downloadingGame: null});
+        return RNFS.writeFile(`${siftrDir}/download_timestamp.txt`, Date.now());
+      });
     });
   }
 
@@ -966,6 +969,7 @@ export class StemportsPicker extends React.Component {
                     onClose={() => this.setState({gameModal: null})}
                     onSelect={this.props.onSelect}
                     canSync={!this.state.syncing}
+                    downloadingGame={this.state.downloadingGame}
                   />
                 </SafeAreaView>
               </Modal>
@@ -1299,9 +1303,9 @@ export class StemportsOutpost extends React.Component {
                 backgroundColor: 'rgb(101,88,245)',
                 padding: 5,
                 margin: 20,
-              }} onPress={this.props.onDownload}>
+              }} onPress={this.props.downloadingGame ? undefined : this.props.onDownload}>
                 <Text style={{color: 'white'}}>
-                  Download Quests
+                  {this.props.downloadingGame ? 'Downloading…' : 'Download Quests'}
                 </Text>
               </TouchableOpacity>
             </View>
