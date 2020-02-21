@@ -209,6 +209,8 @@ class SmartMarker extends React.Component {
 }
 // @endif
 
+export const maxPickupDistance = 15; // meters
+
 export class SiftrMap extends React.Component {
   constructor(props) {
     super(props);
@@ -413,7 +415,7 @@ export class SiftrMap extends React.Component {
         this.props.location && (
           <MapView.Circle
             center={this.props.location.coords}
-            radius={10}
+            radius={maxPickupDistance}
             fillColor="rgba(0,100,255,0.2)"
           />
         )

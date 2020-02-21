@@ -72,7 +72,7 @@ import {
 import { timeToARIS } from "./time-slider";
 
 import { SearchNotes } from "./search-notes";
-import { SiftrMap, makeClusters } from "./map";
+import { SiftrMap, makeClusters, maxPickupDistance } from "./map";
 import { SiftrThumbnails } from "./thumbnails";
 import { SiftrNoteView } from "./note-view";
 // @ifdef WEB
@@ -805,7 +805,7 @@ export const SiftrView = createClass({
   addXP: function(n) {
     if (!this.state.guideMentionedXP) {
       this.setState({guideMentionedXP: true});
-      this.queueModal({type: 'generic', message: `You got ${n} XP!`});
+      // this.queueModal({type: 'generic', message: `You got ${n} XP!`});
     }
     this.props.addXP(n);
   },
@@ -1060,6 +1060,7 @@ export const SiftrView = createClass({
         if (   inValidScene
             && now - updated >= parseInt(factory.seconds_per_production) * 1000
             && objects.length < parseInt(factory.max_production)
+            && nextFactoryObjects.length <= 5 // limit all spawns for now
             ) {
           if (Math.random() < parseFloat(factory.production_probability)) {
             // make a new object
@@ -2094,10 +2095,10 @@ export const SiftrView = createClass({
           const location = this.getLocationWithWarp();
           if (!location) return;
           const distance = Math.ceil(meterDistance(o.trigger, location.coords));
-          if (distance > 10 && !this.state.warp) {
+          if (distance > maxPickupDistance && !this.state.warp) {
             Alert.alert(
               'Too far',
-              `You are ${distance}m away. Walk ${distance - 10}m closer`,
+              `You are ${distance}m away. Walk ${distance - maxPickupDistance}m closer`,
               [
                 {text: 'OK'},
               ],
