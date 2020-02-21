@@ -32,6 +32,13 @@ function addTo(xs, f, offset = 1000000) {
   return new_id;
 }
 
+// polyfill for Array.flat, not needed for more recent iOS
+const arrayFlat = function(xs, depth) {
+  return xs.reduce(function(flat, toFlatten) {
+    return flat.concat((Array.isArray(toFlatten) && (depth>1)) ? arrayFlat(toFlatten, depth-1) : toFlatten);
+  }, []);
+};
+
 export class StemportsPicker extends React.Component {
   constructor(props) {
     super(props);
@@ -334,7 +341,7 @@ export class StemportsPicker extends React.Component {
         // organize the data we got for the game
         let allData = {};
         objs.forEach(o => {
-          [o].flat(Infinity).forEach(x => {
+          arrayFlat([o], Infinity).forEach(x => {
             if (x && x.key) {
               allData[x.key] = x.data;
             }
@@ -897,7 +904,7 @@ export class StemportsPicker extends React.Component {
                     <Text style={{margin: 5}}>
                       {o.game.name}
                     </Text>
-                    <View style={{flexDirection: 'row'}}>
+                    <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
                       <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
                         {(o.distance / 1000).toFixed(2)} km away
                       </Text>
@@ -1228,89 +1235,85 @@ export class StemportsOutpost extends React.Component {
             }}
           />
         </TouchableOpacity>
-        <View style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}>
-          <Image source={require('../web/assets/img/stemports-home-station.png')} style={{
-            width: 136 * 0.4,
-            height: 128 * 0.4,
-            resizeMode: 'contain',
-            margin: 15,
-          }} />
-          <Text style={{margin: 15, fontSize: 25, fontWeight: 'bold', flex: 1}}>
-            {game.name}
-          </Text>
-        </View>
-        {
-          newVersion && (
-            <View style={{
-              padding: 15,
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: 'rgb(178,174,248)',
-            }}>
-              <View style={{flex: 1, marginRight: 10}}>
-                <Text style={{
-                  margin: 3,
-                  fontWeight: 'bold',
-                }}>
-                  {this.props.canSync ? "Update Available" : 'Syncing…'}
-                </Text>
-              </View>
-              {
-                this.props.canSync && (
-                  <TouchableOpacity onPress={this.props.onSync} style={{
-                    backgroundColor: 'rgb(101,88,245)',
-                    padding: 10,
-                    borderRadius: 4,
-                  }}>
-                    <Text style={{color: 'white'}}>Download Update</Text>
-                  </TouchableOpacity>
-                )
-              }
-            </View>
-          )
-        }
-        {
-          game.description.length !== 0 && (
-            <Text style={{margin: 15}}>
-              {game.description}
+        <ScrollView style={{flex: 1}}>
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}>
+            <Image source={require('../web/assets/img/stemports-home-station.png')} style={{
+              width: 136 * 0.4,
+              height: 128 * 0.4,
+              resizeMode: 'contain',
+              margin: 15,
+            }} />
+            <Text style={{margin: 15, fontSize: 25, fontWeight: 'bold', flex: 1}}>
+              {game.name}
             </Text>
-          )
-        }
-        <Text style={{margin: 15, fontWeight: 'bold', fontSize: 17}}>
-          Quests:
-        </Text>
-        <View style={{flex: 1}}>
+          </View>
           {
-            (
-              <ScrollView style={{flex: 1, borderColor: 'rgb(223,230,237)', borderTopWidth: 2, borderBottomWidth: 2}}>
-                <GameQuestList
-                  obj={obj}
-                  game={game}
-                  onSelect={this.props.onSelect}
-                  downloaded={obj.offline}
-                />
-              </ScrollView>
+            newVersion && (
+              <View style={{
+                padding: 15,
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: 'rgb(178,174,248)',
+              }}>
+                <View style={{flex: 1, marginRight: 10}}>
+                  <Text style={{
+                    margin: 3,
+                    fontWeight: 'bold',
+                  }}>
+                    {this.props.canSync ? "Update Available" : 'Syncing…'}
+                  </Text>
+                </View>
+                {
+                  this.props.canSync && (
+                    <TouchableOpacity onPress={this.props.onSync} style={{
+                      backgroundColor: 'rgb(101,88,245)',
+                      padding: 10,
+                      borderRadius: 4,
+                    }}>
+                      <Text style={{color: 'white'}}>Download Update</Text>
+                    </TouchableOpacity>
+                  )
+                }
+              </View>
             )
           }
-        </View>
-        {
-          !(obj.offline) && (
-            <View style={{alignItems: 'center', justifyContent: 'center'}}>
-              <TouchableOpacity style={{
-                backgroundColor: 'rgb(101,88,245)',
-                padding: 5,
-                margin: 20,
-              }} onPress={this.props.downloadingGame ? undefined : this.props.onDownload}>
-                <Text style={{color: 'white'}}>
-                  {this.props.downloadingGame ? 'Downloading…' : 'Download Quests'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )
-        }
+          {
+            game.description.length !== 0 && (
+              <Text style={{margin: 15}}>
+                {game.description}
+              </Text>
+            )
+          }
+          <Text style={{margin: 15, fontWeight: 'bold', fontSize: 17}}>
+            Quests:
+          </Text>
+          <View style={{borderColor: 'rgb(223,230,237)', borderTopWidth: 2}}>
+            <GameQuestList
+              obj={obj}
+              game={game}
+              onSelect={this.props.onSelect}
+              downloaded={obj.offline}
+            />
+          </View>
+          {
+            !(obj.offline) && (
+              <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                <TouchableOpacity style={{
+                  backgroundColor: 'rgb(101,88,245)',
+                  padding: 5,
+                  margin: 20,
+                }} onPress={this.props.downloadingGame ? undefined : this.props.onDownload}>
+                  <Text style={{color: 'white'}}>
+                    {this.props.downloadingGame ? 'Downloading…' : 'Download Quests'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )
+          }
+        </ScrollView>
       </View>
     );
   }
