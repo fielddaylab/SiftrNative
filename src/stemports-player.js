@@ -232,9 +232,9 @@ export class StemportsPlayer extends React.Component {
                     flexDirection: 'row',
                     alignItems: 'center',
                   }}>
-                    <Image source={require('../web/assets/img/stemports-station.png')} style={{
-                      width: 70 * 0.5,
-                      height: 66 * 0.5,
+                    <Image source={require('../web/assets/img/stemports-icon-station.png')} style={{
+                      width: 136 * 0.25,
+                      height: 128 * 0.25,
                       marginRight: 5,
                     }} />
                     <Text>
@@ -279,7 +279,7 @@ export class StemportsPlayer extends React.Component {
                 height: 35,
                 margin: 10,
                 resizeMode: 'contain',
-              }} source={require('../web/assets/img/stemports-home-quest.png')} />
+              }} source={require('../web/assets/img/stemports-icon-quest.png')} />
               <Text style={{
                 fontSize: 17,
               }}>
@@ -300,7 +300,7 @@ export class StemportsPlayer extends React.Component {
                 height: 35,
                 margin: 10,
                 resizeMode: 'contain',
-              }} source={require('../web/assets/img/stemports-home-station.png')} />
+              }} source={require('../web/assets/img/stemports-icon-station.png')} />
               <Text style={{
                 fontSize: 17,
               }}>

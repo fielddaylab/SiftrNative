@@ -273,8 +273,8 @@ export class InventoryScreen extends React.Component {
             <Text>{guideMessage}</Text>
           </View>
           <Image
-            style={{width: 36, height: 39, margin: 10}}
-            source={require('../web/assets/img/puffin.png')}
+            style={{margin: 10, width: 197 * 0.3, height: 145 * 0.3}}
+            source={require('../web/assets/img/stemports-puffin-color.png')}
           />
         </View>
         <ScrollView style={{flex: 1, backgroundColor: 'rgb(243,237,225)'}}>

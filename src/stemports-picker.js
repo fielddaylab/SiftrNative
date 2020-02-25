@@ -819,7 +819,7 @@ export class StemportsPicker extends React.Component {
                     description=""
                     pinColor="blue"
                     onPress={() => this.setState({gameModal: o})}
-                    icon={require('../web/assets/img/icon-blaze.png')}
+                    icon={require('../web/assets/img/stemports-icon-station.png')}
                   >
                     <MapView.Callout tooltip={true} />
                   </MapView.Marker>
@@ -856,14 +856,15 @@ export class StemportsPicker extends React.Component {
               <TouchableOpacity onPress={() =>
                 this.setState({player: true})
               } style={{
-                padding: 8,
-                backgroundColor: 'white',
-                borderColor: 'black',
-                borderWidth: 1,
-                borderRadius: 5,
                 margin: 10,
               }}>
-                <Text>home</Text>
+                <Image
+                  source={require('../web/assets/img/stemports-icon-home.png')}
+                  style={{
+                    width: 108 * 0.75,
+                    height: 100 * 0.75,
+                  }}
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -914,7 +915,7 @@ export class StemportsPicker extends React.Component {
                       height: 128 * 0.25,
                       margin: 15,
                     }}
-                    source={require('../web/assets/img/stemports-home-station.png')}
+                    source={require('../web/assets/img/stemports-icon-station.png')}
                   />
                   <View style={{flex: 1}}>
                     <Text style={{margin: 5}}>
@@ -1088,14 +1089,14 @@ export class GuideLine extends React.Component {
             this.props.onPress ? (
               <TouchableOpacity style={{margin: 10}} onPress={this.props.onPress}>
                 <Image
-                  style={{width: 36, height: 39}}
-                  source={require('../web/assets/img/puffin.png')}
+                  style={{margin: 10, width: 197 * 0.3, height: 145 * 0.3}}
+                  source={require('../web/assets/img/stemports-puffin-color.png')}
                 />
               </TouchableOpacity>
             ) : (
               <Image
-                style={{margin: 10, width: 36, height: 39}}
-                source={require('../web/assets/img/puffin.png')}
+                style={{margin: 10, width: 197 * 0.3, height: 145 * 0.3}}
+                source={require('../web/assets/img/stemports-puffin-color.png')}
               />
             )
           }
@@ -1270,7 +1271,7 @@ export class StemportsOutpost extends React.Component {
             flexDirection: 'row',
             alignItems: 'center',
           }}>
-            <Image source={require('../web/assets/img/stemports-home-station.png')} style={{
+            <Image source={require('../web/assets/img/stemports-icon-station.png')} style={{
               width: 136 * 0.4,
               height: 128 * 0.4,
               resizeMode: 'contain',

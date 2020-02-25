@@ -3081,8 +3081,8 @@ export const SiftrView = createClass({
                     }}
                   >
                     <Image
-                      style={{margin: 10, width: 36, height: 39}}
-                      source={require('../web/assets/img/puffin.png')}
+                      style={{margin: 10, width: 197 * 0.3, height: 145 * 0.3}}
+                      source={require('../web/assets/img/stemports-puffin-color.png')}
                     />
                   </TouchableOpacity>
                 ) : (
@@ -3131,22 +3131,20 @@ export const SiftrView = createClass({
                 right: 10,
                 flexDirection: 'row',
                 justifyContent: 'space-between',
-                alignItems: 'center',
+                alignItems: 'flex-end',
               }}>
                 <TouchableOpacity
                   onPress={() => {
                     this.pushModal({type: 'menu'});
                   }}
                 >
-                  <View style={{
-                    padding: 8,
-                    backgroundColor: 'white',
-                    borderColor: 'black',
-                    borderWidth: 1,
-                    borderRadius: 5,
-                  }}>
-                    <Text>home</Text>
-                  </View>
+                  <Image
+                    source={require('../web/assets/img/stemports-icon-home.png')}
+                    style={{
+                      width: 108 * 0.75,
+                      height: 100 * 0.75,
+                    }}
+                  />
                 </TouchableOpacity>
                 {
                   // show if player has collected all this quest's remnants
@@ -3171,10 +3169,10 @@ export const SiftrView = createClass({
                   onPress={() => this.pushModal({type: 'inventory'})}
                 >
                   <Image
-                    source={require('../web/assets/img/stemports-codex.png')}
+                    source={require('../web/assets/img/stemports-icon-fieldguide.png')}
                     style={{
-                      width: 163 * 0.5,
-                      height: 127 * 0.5,
+                      width: 56,
+                      height: 80,
                     }}
                   />
                 </TouchableOpacity>
@@ -3296,6 +3294,7 @@ export const SiftrView = createClass({
                               RNFS.unlink(`${siftrDir}/download_timestamp.txt`).then(() => {
                                 RNFS.unlink(`${siftrDir}/quests-sorted.txt`).then(() => {
                                   this.props.onExit();
+                                  // TODO this isn't actually resetting the player's current quest
                                 });
                               });
                             })
