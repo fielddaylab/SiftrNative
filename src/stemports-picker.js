@@ -769,9 +769,17 @@ export class StemportsPicker extends React.Component {
         );
       }
 
-      if (this.props.mode !== 'list') {
+      const gamesByDistance = gameList.slice(0);
+      gamesByDistance.sort((a, b) => a.distance - b.distance);
+      let atStation = null;
+      if (gamesByDistance.length > 0 && gamesByDistance[0].distance < 1000) {
+        atStation = gamesByDistance[0];
+      }
+
+      if (this.props.mode !== 'list' && !this.state.listFromMap) {
         // show map
         const {height, width} = Dimensions.get('window');
+
         return (
           <View style={{flex: 1}}>
             <MapView
@@ -827,7 +835,14 @@ export class StemportsPicker extends React.Component {
                 left: 10,
                 right: 10,
               }}
-              text="Find a science station to start a quest!"
+              text={atStation
+                ? `It looks like you're at the ${atStation.game.name} Science Station. Tap the station to start a quest!`
+                : "Find a science station to start a quest!"
+              }
+              button={atStation ? undefined : {
+                label: 'Find Science Station',
+                onPress: (() => this.setState({listFromMap: true})),
+              }}
             />
             <View pointerEvents="box-none" style={{
               flexDirection: 'row',
@@ -855,11 +870,12 @@ export class StemportsPicker extends React.Component {
         );
       }
 
-      const gamesByDistance = gameList.slice(0);
-      gamesByDistance.sort((a, b) => a.distance - b.distance);
       return (
         <View style={{flex: 1, backgroundColor: 'white'}}>
-          <TouchableOpacity onPress={this.props.onClose}>
+          <TouchableOpacity onPress={this.state.listFromMap
+            ? (() => this.setState({listFromMap: false}))
+            : this.props.onClose
+          }>
             <Image
               source={require('../web/assets/img/back-arrow.png')}
               style={{
@@ -1049,10 +1065,24 @@ export class GuideLine extends React.Component {
             paddingRight: 7,
             borderColor: 'black',
             borderWidth: 1,
+            alignItems: 'flex-start',
           }}>
             <Text>
               {this.state.text.slice(0, this.state.chars)}
             </Text>
+            {
+              this.props.button ? (
+                <TouchableOpacity onPress={this.props.button.onPress} style={{
+                  backgroundColor: 'rgb(101,88,245)',
+                  padding: 5,
+                  borderRadius: 5,
+                  marginTop: 10,
+                  marginBottom: 10,
+                }}>
+                  <Text style={{color: 'white'}}>{this.props.button.label}</Text>
+                </TouchableOpacity>
+              ) : null
+            }
           </View>
           {
             this.props.onPress ? (
