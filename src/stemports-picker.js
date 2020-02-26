@@ -397,7 +397,7 @@ export class StemportsPicker extends React.Component {
               game_id: game.game_id,
               name: 'Collect',
               description: `Collect the ${quest.name} field notes and visit the stops.`,
-              prompt: `The first thing you need to do is collect the ${quest.name} field notes, and visit all the tour stops.`,
+              prompt: 'Start collecting notes and visiting the tour stops!',
               stars: 0,
               quest_type: 'QUEST',
               parent_quest_id: quest.quest_id,
