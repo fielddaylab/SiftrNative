@@ -113,6 +113,14 @@ export class StemportsPlayer extends React.Component {
   }
 
   render() {
+    if (this.state.viewingComic) {
+      return (
+        <ComicView
+          onClose={() => this.setState({viewingComic: false})}
+        />
+      );
+    }
+
     if (this.state.settings) {
       return (
         <NativeSettings
@@ -344,6 +352,18 @@ export class StemportsPlayer extends React.Component {
               )
             }
           </View>
+          <View style={{
+            alignItems: 'center',
+          }}>
+            <TouchableOpacity style={{
+              backgroundColor: 'rgb(101,88,245)',
+              padding: 10,
+              borderRadius: 5,
+              margin: 20
+            }} onPress={() => this.setState({viewingComic: true})}>
+              <Text style={{color: 'white'}}>Intro Comic</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
         <View style={{
           alignItems: 'center',
@@ -397,6 +417,59 @@ export class StemportsPlayer extends React.Component {
           )
         }
       </View>
+    );
+  }
+}
+
+const ComicPages = [
+  require('../web/assets/img/comic/01.jpg'),
+  require('../web/assets/img/comic/02.jpg'),
+  require('../web/assets/img/comic/03.jpg'),
+  require('../web/assets/img/comic/04.jpg'),
+  require('../web/assets/img/comic/05.jpg'),
+  require('../web/assets/img/comic/06.jpg'),
+  require('../web/assets/img/comic/07.jpg'),
+  require('../web/assets/img/comic/08.jpg'),
+  require('../web/assets/img/comic/09.jpg'),
+  require('../web/assets/img/comic/10.jpg'),
+  require('../web/assets/img/comic/11.jpg'),
+  require('../web/assets/img/comic/12.jpg'),
+  require('../web/assets/img/comic/13.jpg'),
+  require('../web/assets/img/comic/14.jpg'),
+];
+
+export class ComicView extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      page: 0,
+    };
+  }
+
+  render() {
+    return (
+      <TouchableOpacity onPress={() => {
+        if (this.state.page >= ComicPages.length - 1) {
+          this.props.onClose();
+        } else {
+          this.setState(prevState => {
+            const newPage = prevState.page + 1;
+            if (newPage > ComicPages.length) {
+              newPage = ComicPages.length - 1;
+            }
+            return update(prevState, {page: {$set: newPage}});
+          });
+        }
+      }} style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <Image
+          style={{flex: 1, resizeMode: 'contain'}}
+          source={ComicPages[this.state.page]}
+        />
+      </TouchableOpacity>
     );
   }
 }

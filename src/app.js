@@ -17,7 +17,8 @@ import {
   BackHandler,
   Platform,
   AppState,
-  SafeAreaView
+  SafeAreaView,
+  Image
 } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
 import { UploadQueue } from "./upload-queue";
@@ -30,6 +31,7 @@ import { NativeLogin } from "./native-login";
 import { NativeHome, Loading } from "./native-home";
 import Orientation from 'react-native-orientation-locker';
 import Geolocation from '@react-native-community/geolocation';
+import { ComicView } from './stemports-player';
 import { StemportsPicker } from './stemports-picker';
 // @endif
 
@@ -48,6 +50,7 @@ import { parseUri } from "./parse-uri";
 
 // @ifdef NATIVE
 const recentlyOpened = `${RNFS.DocumentDirectoryPath}/recent.json`;
+const seenComic = `${RNFS.DocumentDirectoryPath}/seencomic.txt`;
 // @endif
 
 export var SiftrNative = createClass({
@@ -63,6 +66,7 @@ export var SiftrNative = createClass({
       online: true,
       screen: null,
       recent: null,
+      viewingComic: false,
     };
   },
 
@@ -80,6 +84,11 @@ export var SiftrNative = createClass({
 
   // @ifdef NATIVE
   componentDidMount: function() {
+    RNFS.readFile(seenComic, 'utf8').then(() => {
+      // do nothing
+    }).catch((err) => {
+      this.setState({viewingComic: true});
+    })
     RNFS.readFile(recentlyOpened, 'utf8').then((str) => {
       this.setState({recent: JSON.parse(str)});
     }).catch((err) => {
@@ -602,7 +611,16 @@ export var SiftrNative = createClass({
           }}
         >
           {this.state.auth.authToken != null ? (
-            this.state.game != null ? (
+            this.state.viewingComic ? (
+              <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+                <ComicView
+                  onClose={() => {
+                    this.setState({viewingComic: false});
+                    RNFS.writeFile(seenComic, 'true', 'utf8');
+                  }}
+                />
+              </SafeAreaView>
+            ) : this.state.game != null ? (
               <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
                 <SiftrViewPW
                   game={this.state.game}
