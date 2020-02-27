@@ -113,10 +113,11 @@ export class StemportsPlayer extends React.Component {
   }
 
   render() {
-    if (this.state.viewingComic) {
+    if (this.state.viewingComic != null) {
       return (
         <ComicView
-          onClose={() => this.setState({viewingComic: false})}
+          startPage={this.state.viewingComic}
+          onClose={() => this.setState({viewingComic: null})}
         />
       );
     }
@@ -352,17 +353,28 @@ export class StemportsPlayer extends React.Component {
               )
             }
           </View>
+          <Text style={{margin: 20, textAlign: 'center', fontWeight: 'bold'}}>Intro Comic</Text>
           <View style={{
-            alignItems: 'center',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            flexDirection: 'row',
           }}>
-            <TouchableOpacity style={{
-              backgroundColor: 'rgb(101,88,245)',
-              padding: 10,
-              borderRadius: 5,
-              margin: 20
-            }} onPress={() => this.setState({viewingComic: true})}>
-              <Text style={{color: 'white'}}>Intro Comic</Text>
-            </TouchableOpacity>
+            {
+              ComicPages.map((page, i) =>
+                <TouchableOpacity key={i} style={{
+                  margin: 10,
+                }} onPress={() => this.setState({viewingComic: i})}>
+                  <Image
+                    style={{
+                      width: 80,
+                      height: 100,
+                      resizeMode: 'contain',
+                    }}
+                    source={page}
+                  />
+                </TouchableOpacity>
+              )
+            }
           </View>
         </ScrollView>
         <View style={{
@@ -442,7 +454,7 @@ export class ComicView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      page: 0,
+      page: props.startPage || 0,
     };
   }
 
