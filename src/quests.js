@@ -18,6 +18,7 @@ export const getQuestProgress = (details) => {
     // this is all hacked for now, to match how generated quests look
     const requirement = root.req.ands[0].atoms[0].requirement;
     let done = root.ands[0].atoms.filter(o => o.bool).length;
+    let halfDone = root.ands[0].atoms.filter(o => o.bool === null).length;
     let total = root.ands[0].atoms.length;
     if (requirement === 'PLAYER_HAS_NOTE_WITH_QUEST') {
       done = root.ands[0].atoms[0].qty;
@@ -29,13 +30,10 @@ export const getQuestProgress = (details) => {
     } else if (subquestLabel === 'PLAYER_HAS_NOTE_WITH_QUEST') {
       subquestLabel = `Make ${total} Observations`;
     }
-    let circles = [];
-    for (let i = 0; i < total; i++) {
-      circles.push(i < done);
-    }
     progress.push({
       subquestLabel: subquestLabel,
       done: done,
+      halfDone: halfDone,
       total: total,
       root: root,
     });
@@ -77,10 +75,13 @@ export const QuestDotDetails = function(props) {
                 );
               const progress = getQuestProgress(details);
               return progress.map((o, i) => {
-                const {subquestLabel, done, total, root} = o;
+                const {subquestLabel, done, halfDone, total, root} = o;
                 let circles = [];
                 for (let i = 0; i < total; i++) {
-                  circles.push(i < done);
+                  let halves = 0;
+                  if (i < done + halfDone) halves++;
+                  if (i < done) halves++;
+                  circles.push(halves);
                 }
                 return (
                   <View key={root.req.requirement_root_package_id} style={{
@@ -96,19 +97,35 @@ export const QuestDotDetails = function(props) {
                       {subquestLabel}
                     </Text>
                     <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                      {circles.map((b, i) =>
-                        <View
-                          key={i}
-                          style={{
-                            backgroundColor: b ? 'rgb(178,172,250)' : 'white',
-                            borderColor: 'black',
-                            borderWidth: 2,
-                            width: 20,
-                            height: 20,
-                            borderRadius: 10,
-                            margin: 3,
-                          }}
-                        />
+                      {circles.map((halves, i) =>
+                        halves === 1 ? (
+                          <Image
+                            key={i}
+                            source={require('../web/assets/img/stemports-dot-half.png')}
+                            style={{
+                              borderColor: 'black',
+                              borderWidth: 2,
+                              width: 20,
+                              height: 20,
+                              borderRadius: 10,
+                              margin: 3,
+                              resizeMode: 'contain',
+                            }}
+                          />
+                        ) : (
+                          <View
+                            key={i}
+                            style={{
+                              backgroundColor: halves >= 2 ? 'rgb(178,172,250)' : 'white',
+                              borderColor: 'black',
+                              borderWidth: 2,
+                              width: 20,
+                              height: 20,
+                              borderRadius: 10,
+                              margin: 3,
+                            }}
+                          />
+                        )
                       )}
                     </View>
                   </View>

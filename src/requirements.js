@@ -26,18 +26,36 @@ function playerCompletedQuest(atom, log) {
   );
 }
 
-function playerHasItem(atom, instances, pickedUpRemnants) {
+const ITEM_NONE = false;
+const ITEM_PICKED_UP = null;
+const ITEM_PLACED = true;
+
+function playerHasItem(atom, instances, pickedUpRemnants, onlyNeedPickup) {
   pickedUpRemnants = pickedUpRemnants.map(x => parseInt(x));
   const pickedUpQty = (item_id) => (
     pickedUpRemnants.indexOf(parseInt(item_id)) === -1 ? 0 : 1
   );
-  return instances.some(instance =>
+  const instance = instances.find(instance =>
        instance.owner_type === 'USER'
     // && instance.owner_id === (player's user id)
     && instance.object_type === 'ITEM'
     && parseInt(instance.object_id) === parseInt(atom.content_id)
-    && parseInt(instance.qty) + pickedUpQty(instance.object_id) >= parseInt(atom.qty)
   );
+  if (!instance) return ITEM_NONE;
+  const placed = parseInt(instance.qty);
+  const pickedUp = pickedUpQty(instance.object_id);
+  const need = parseInt(atom.qty);
+  if (onlyNeedPickup) {
+    return placed + pickedUp >= need;
+  } else {
+    if (placed >= need) {
+      return ITEM_PLACED;
+    } else if (placed + pickedUp >= need) {
+      return ITEM_PICKED_UP;
+    } else {
+      return ITEM_NONE;
+    }
+  }
 }
 
 function playerHasNoteWithQuest(atom, env) {
@@ -103,14 +121,23 @@ function evalReqAtom(atom, env) {
   let qty = 0;
   const bool = (() => {
     const bool_operator = !!(atom.bool_operator);
-    const {log, instances, notes, pickedUpRemnants, quest_id} = env;
+    const {log, instances, notes, pickedUpRemnants, quest_id, onlyNeedPickup} = env;
     switch (atom.requirement) {
       case 'ALWAYS_TRUE':
         return bool_operator;
       case 'ALWAYS_FALSE':
         return !bool_operator;
       case 'PLAYER_HAS_ITEM':
-        return bool_operator == playerHasItem(atom, instances, pickedUpRemnants);
+        const result = playerHasItem(atom, instances, pickedUpRemnants, onlyNeedPickup);
+        if (result === ITEM_PICKED_UP) {
+          if (bool_operator) {
+            return null; // treated as false but the dot will be half-filled
+          } else {
+            return true;
+          }
+        } else {
+          return bool_operator == result;
+        }
       case 'PLAYER_HAS_TAGGED_ITEM':
         return !bool_operator; // TODO
       case 'GAME_HAS_ITEM':

@@ -866,7 +866,8 @@ export const SiftrView = createClass({
     return evalReqPackage(root, {
       log: this.state.logs,
       instances: this.state.inventory,
-      pickedUpRemnants: reqType === 'quest' ? [] : this.state.pickedUpRemnants,
+      pickedUpRemnants: this.state.pickedUpRemnants,
+      onlyNeedPickup: reqType !== 'quest',
       notes: (() => {
         let notes = this.props.notes;
         if (this.props.pendingNotes) {
