@@ -325,6 +325,7 @@ const LOAD_OBJECTS = [
   {name: 'requirement_atoms'},
   {name: 'logs'},
   {name: 'inventory'},
+  {name: 'pickedUpRemnants'},
   {name: 'instances'},
   {name: 'factories'},
   {name: 'triggers'},
@@ -352,6 +353,8 @@ class SiftrViewLoader extends React.Component {
       }
       RNFS.readFile(`${siftrDir}/${name}.txt`).then(str => {
         this.setState({[name]: load(JSON.parse(str))});
+      }).catch(err => {
+        this.setState({[name]: null});
       });
     });
     RNFS.readFile(`${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`).then(str => {
@@ -364,7 +367,7 @@ class SiftrViewLoader extends React.Component {
   }
 
   render() {
-    if (LOAD_OBJECTS.some(({name}) => this.state[name] == null)) {
+    if (LOAD_OBJECTS.some(({name}) => !(name in this.state))) {
       return null;
     } else if (this.state.inventory_zero == null) {
       return null;
@@ -773,7 +776,7 @@ export const SiftrView = createClass({
       inventory: this.props.inventory,
       factoryObjects: [],
       factoryProductionTimestamps: {},
-      pickedUpRemnants: [],
+      pickedUpRemnants: this.props.pickedUpRemnants || [],
       guideLine: null,
       guideMentionedRemnant: false,
       guideMentionedXP: false,
@@ -2781,6 +2784,7 @@ export const SiftrView = createClass({
       this.props.game.game_id
     }`;
     RNFS.writeFile(`${siftrDir}/inventory.txt`, JSON.stringify(this.state.inventory));
+    RNFS.writeFile(`${siftrDir}/pickedUpRemnants.txt`, JSON.stringify(this.state.pickedUpRemnants));
   },
   checkReadyToPlace: function() {
     const complete = this.areRemnantsComplete(false);
@@ -3359,7 +3363,10 @@ export const SiftrView = createClass({
                                 pickedUpRemnants: {$set: rems},
                                 guideMentionedRemnant: {$set: true},
                               });
-                            }, () => this.checkReadyToPlace());
+                            }, () => {
+                              this.checkReadyToPlace();
+                              this.saveInventory(); // save pickups
+                            });
                           }}
                         />
                       );
@@ -3397,7 +3404,10 @@ export const SiftrView = createClass({
                                   ),
                                 },
                               });
-                            }, () => this.checkReadyToPlace());
+                            }, () => {
+                              this.checkReadyToPlace();
+                              this.saveInventory(); // save pickups
+                            });
                           }}
                         />
                       );
