@@ -3329,7 +3329,7 @@ export const SiftrView = createClass({
                           onSelectNote={this.selectNote}
                           eventPackages={this.props.event_packages}
                           items={this.props.items}
-                          onClose={() => {
+                          onCheckin={() => {
                             this.addLog({
                               event_type: 'VIEW_PLAQUE',
                               game_id: this.props.game.game_id,
@@ -3342,8 +3342,8 @@ export const SiftrView = createClass({
                               content_id: modal.plaque.plaque_id,
                             });
                             */
-                            this.popModal();
                           }}
+                          onClose={() => this.popModal()}
                           onPickup={events => {
                             this.addXP(2);
                             this.setState(state => {
@@ -3356,11 +3356,6 @@ export const SiftrView = createClass({
                                 item_id => rems.indexOf(item_id) === -1
                               );
                               rems = update(rems, {$push: item_ids});
-                              if (!state.guideMentionedRemnant) {
-                                setTimeout(() => (
-                                  this.queueModal({type: 'generic', message: 'You picked up a field note!'})
-                                ), 0);
-                              }
                               return update(state, {
                                 pickedUpRemnants: {$set: rems},
                                 guideMentionedRemnant: {$set: true},

@@ -13,12 +13,14 @@ import {
 , webViewBoilerplate
 } from './items';
 import {CacheMedia} from './media';
+import {ItemScreen} from './items';
 
 export class PlaqueScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       checkedIn: false,
+      showingItem: null,
     };
   }
 
@@ -33,6 +35,27 @@ export class PlaqueScreen extends React.Component {
       if (!trigger) return;
       return parseInt(trigger.cluster_id) === parseInt(this.props.trigger.trigger_id)
     });
+
+    if (this.state.showingItem != null) {
+      const event = events[this.state.showingItem];
+      const item = this.props.items.find(item => parseInt(item.item_id) === parseInt(event.content_id));
+      return (
+        <ItemScreen
+          type="inventory"
+          item={item}
+          auth={this.props.auth}
+          onClose={() => {
+            const nextItem = this.state.showingItem + 1;
+            if (nextItem >= events.length) {
+              this.props.onClose();
+            } else {
+              this.setState({showingItem: nextItem});
+            }
+          }}
+        />
+      );
+    }
+
     return (
       <View style={{
         flex: 1,
@@ -105,33 +128,38 @@ export class PlaqueScreen extends React.Component {
               />
             )
           }
-          {
-            events.length > 0 && (
-              <View>
-                <TouchableOpacity onPress={() => {
-                  if (this.state.checkedIn) {
-                    this.props.onPickup(events);
-                    this.props.onClose();
-                  } else {
-                    this.setState({checkedIn: true});
-                  }
-                }} style={{
-                  margin: 25,
-                  backgroundColor: 'rgb(101,88,245)',
-                  padding: 10,
-                  borderRadius: 6,
-                  marginBottom: 35,
-                  textAlign: 'center',
-                  paddingLeft: 30,
-                  paddingRight: 30,
-                }}>
-                  <Text style={{color: 'white'}}>
-                    {this.state.checkedIn ? 'collect' : 'check in'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )
-          }
+          <View>
+            <TouchableOpacity onPress={() => {
+              if (this.state.checkedIn) {
+                if (events.length === 0) {
+                  this.props.onClose();
+                } else {
+                  this.props.onPickup(events);
+                  this.setState({showingItem: 0});
+                }
+              } else {
+                this.props.onCheckin();
+                if (events.length === 0) {
+                  this.props.onClose();
+                } else {
+                  this.setState({checkedIn: true});
+                }
+              }
+            }} style={{
+              margin: 25,
+              backgroundColor: 'rgb(101,88,245)',
+              padding: 10,
+              borderRadius: 6,
+              marginBottom: 35,
+              textAlign: 'center',
+              paddingLeft: 30,
+              paddingRight: 30,
+            }}>
+              <Text style={{color: 'white'}}>
+                {this.state.checkedIn ? (events.length === 0 ? 'Close' : 'Collect Field Notes') : 'Check in'}
+              </Text>
+            </TouchableOpacity>
+          </View>
           {
             notes.length > 0 && (
               <View>
@@ -144,24 +172,6 @@ export class PlaqueScreen extends React.Component {
                     </TouchableOpacity>
                   )
                 }
-              </View>
-            )
-          }
-          {
-            !(this.state.checkedIn) && (
-              <View style={{
-                margin: 15,
-                alignItems: 'center',
-              }}>
-                <TouchableOpacity onPress={this.props.onClose}>
-                  <Image
-                    style={{
-                      width: 140 * 0.45,
-                      height: 140 * 0.45,
-                    }}
-                    source={require("../web/assets/img/quest-close.png")}
-                  />
-                </TouchableOpacity>
               </View>
             )
           }

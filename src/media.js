@@ -133,16 +133,37 @@ export class CacheMedia extends React.Component {
     };
   }
 
-  componentDidMount() {
-    this._isMounted = true;
+  propsEqual(x, y) {
+    return x && y &&
+      x.url === y.url &&
+      x.media_id === y.media_id &&
+      x.size === y.size;
+  }
+
+  startLoad() {
+    const currentProps = this.props;
+    if (this.propsEqual(this._loadingProps, currentProps)) {
+      return; // already loading/loaded this media
+    }
+    this._loadingProps = currentProps;
     loadMedia(this.props, (res) => {
       if (!this._isMounted) return;
+      if (!this.propsEqual(this._loadingProps, currentProps)) return; // started loading newer media
       this.setState({localURL: res});
     });
   }
 
+  componentDidMount() {
+    this._isMounted = true;
+    this.startLoad();
+  }
+
   componentWillUnmount() {
     this._isMounted = false;
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    this.startLoad();
   }
 
   render() {
@@ -174,6 +195,7 @@ export class CacheMedias extends React.Component {
     this._isMounted = false;
   }
 
+  // TODO this does not work if medias change entirely!
   componentDidUpdate(prevProps, prevState, snapshot) {
     // fire off loads for the newly added ones on the end
     this.props.medias.slice(prevProps.medias.length).forEach((media, i) => {
