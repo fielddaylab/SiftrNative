@@ -1064,7 +1064,7 @@ export const SiftrView = createClass({
         if (   inValidScene
             && now - updated >= parseInt(factory.seconds_per_production) * 1000
             && objects.length < parseInt(factory.max_production)
-            && nextFactoryObjects.length <= 5 // limit all spawns for now
+            && nextFactoryObjects.length <= 10 // limit all spawns for now
             ) {
           if (Math.random() < parseFloat(factory.production_probability)) {
             // make a new object
@@ -3286,7 +3286,7 @@ export const SiftrView = createClass({
                         onClose={() => this.popModal()}
                         inQuest={true}
                         onToggleWarp={() => {
-                          this.setState({warp: !this.state.warp, warpCoords: null, factoryObjects: []});
+                          this.setState({warp: !this.state.warp, warpCoords: null, factoryObjects: [], factoryProductionTimestamps: {}});
                         }}
                         onResetProgress={() => {
                           this.props.auth.call('client.logPlayerResetGame', {
