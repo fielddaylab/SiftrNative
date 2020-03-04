@@ -118,6 +118,7 @@ export class StemportsPlayer extends React.Component {
         <ComicView
           startPage={this.state.viewingComic}
           onClose={() => this.setState({viewingComic: null})}
+          closeButton={true}
         />
       );
     }
@@ -460,28 +461,48 @@ export class ComicView extends React.Component {
 
   render() {
     return (
-      <TouchableOpacity onPress={() => {
-        if (this.state.page >= ComicPages.length - 1) {
-          this.props.onClose();
-        } else {
-          this.setState(prevState => {
-            const newPage = prevState.page + 1;
-            if (newPage > ComicPages.length) {
-              newPage = ComicPages.length - 1;
-            }
-            return update(prevState, {page: {$set: newPage}});
-          });
+      <View style={{flex: 1, backgroundColor: 'white'}}>
+        <TouchableOpacity onPress={() => {
+          if (this.state.page >= ComicPages.length - 1) {
+            this.props.onClose();
+          } else {
+            this.setState(prevState => {
+              const newPage = prevState.page + 1;
+              if (newPage > ComicPages.length) {
+                newPage = ComicPages.length - 1;
+              }
+              return update(prevState, {page: {$set: newPage}});
+            });
+          }
+        }} style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <Image
+            style={{flex: 1, resizeMode: 'contain'}}
+            source={ComicPages[this.state.page]}
+          />
+        </TouchableOpacity>
+        {
+          this.props.closeButton && (
+            <View style={{
+              alignItems: 'center',
+            }}>
+              <TouchableOpacity onPress={this.props.onClose}>
+                <Image
+                  style={{
+                    width: 140 * 0.45,
+                    height: 140 * 0.45,
+                    margin: 5,
+                  }}
+                  source={require("../web/assets/img/quest-close.png")}
+                />
+              </TouchableOpacity>
+            </View>
+          )
         }
-      }} style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
-        <Image
-          style={{flex: 1, resizeMode: 'contain'}}
-          source={ComicPages[this.state.page]}
-        />
-      </TouchableOpacity>
+      </View>
     );
   }
 }
