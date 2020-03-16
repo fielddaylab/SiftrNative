@@ -368,6 +368,9 @@ export class StemportsPicker extends React.Component {
             const fields = guides.map(guide =>
               allData.fields.find(field => parseInt(field.field_id) === parseInt(guide.field_id))
             );
+            const stops = allData.plaques.filter(plaque =>
+              !(plaque.quest_id) || parseInt(plaque.quest_id) === parseInt(quest.quest_id)
+            );
 
             // make the "get the remnants" subquest
             const remnant_root_id = addTo(new_requirement_root_packages, root_id => ({
@@ -391,6 +394,16 @@ export class StemportsPicker extends React.Component {
                   qty: 1,
                 }))
               );
+            });
+            stops.forEach(stop => {
+              addTo(new_requirement_atoms, atom_id => ({
+                requirement_atom_id: atom_id,
+                game_id: game.game_id,
+                requirement_and_package_id: remnant_and_id,
+                bool_operator: 1,
+                requirement: 'PLAYER_VIEWED_PLAQUE',
+                content_id: stop.plaque_id,
+              }));
             });
             addTo(new_quests, quest_id => ({
               quest_id: quest_id,

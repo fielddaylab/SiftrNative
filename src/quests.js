@@ -14,29 +14,49 @@ import {GuideLine} from './stemports-picker';
 export const getQuestProgress = (details) => {
   let progress = [];
   details && details.reqRoots.forEach(root => {
-    if (!root.req) return;
     // this is all hacked for now, to match how generated quests look
-    const requirement = root.req.ands[0].atoms[0].requirement;
-    let done = root.ands[0].atoms.filter(o => o.bool).length;
-    let halfDone = root.ands[0].atoms.filter(o => o.bool === null).length;
-    let total = root.ands[0].atoms.length;
-    if (requirement === 'PLAYER_HAS_NOTE_WITH_QUEST') {
-      done = root.ands[0].atoms[0].qty;
-      total = root.ands[0].atoms[0].atom.qty;
+    if (!root.ands) return;
+    const and = root.ands[0];
+
+    // get field notes
+    const fieldNoteAtoms = and.atoms.filter(atom => atom.atom.requirement === 'PLAYER_HAS_ITEM');
+    if (fieldNoteAtoms.length > 0) {
+      progress.push({
+        subquestLabel: 'Explore and Collect Field Notes',
+        done: fieldNoteAtoms.filter(o => o.bool).length,
+        halfDone: fieldNoteAtoms.filter(o => o.bool === null).length,
+        total: fieldNoteAtoms.length,
+        root: root,
+        keyIndex: 1,
+      });
     }
-    let subquestLabel = root.req.ands[0].atoms[0].requirement;
-    if (subquestLabel === 'PLAYER_HAS_ITEM') {
-      subquestLabel = 'Explore and Collect Field Notes';
-    } else if (subquestLabel === 'PLAYER_HAS_NOTE_WITH_QUEST') {
-      subquestLabel = `Make ${total} Observations`;
+
+    // go to tour stops
+    const tourStopAtoms = and.atoms.filter(atom => atom.atom.requirement === 'PLAYER_VIEWED_PLAQUE');
+    if (tourStopAtoms.length > 0) {
+      progress.push({
+        subquestLabel: 'Visit Tour Stops',
+        done: tourStopAtoms.filter(o => o.bool).length,
+        halfDone: 0,
+        total: tourStopAtoms.length,
+        root: root,
+        keyIndex: 2,
+      });
     }
-    progress.push({
-      subquestLabel: subquestLabel,
-      done: done,
-      halfDone: halfDone,
-      total: total,
-      root: root,
-    });
+
+    // make observations
+    const observationAtoms = and.atoms.filter(atom => atom.atom.requirement === 'PLAYER_HAS_NOTE_WITH_QUEST');
+    if (observationAtoms.length > 0) {
+      const total = observationAtoms.map(o => o.atom.qty).reduce((a, b) => a + b, 0)
+      progress.push({
+        subquestLabel: `Make ${total} Observations`,
+        done: observationAtoms.map(o => o.qty).reduce((a, b) => a + b, 0),
+        halfDone: 0,
+        total: total,
+        root: root,
+        keyIndex: 3,
+      });
+    }
   });
   return progress;
 };
@@ -59,11 +79,13 @@ export const QuestDotDetails = function(props) {
         paddingTop: 10,
       }}>
         <ScrollView style={{flex: 1, padding: 5}}>
+          <Text style={{flex: 1, margin: 10, fontSize: 20, fontWeight: 'bold'}}>Quest Progress:</Text>
+          <Text style={{flex: 1, margin: 10, fontSize: 20}}>{props.currentQuest.name}</Text>
           <View style={{
-            flexDirection: 'row',
-          }}>
-            <Text style={{flex: 1, margin: 10, fontSize: 20}}>{props.currentQuest.name}</Text>
-          </View>
+            padding: 5,
+            borderColor: 'gray',
+            borderTopWidth: 1,
+          }} />
           {
             (() => {
               if (!props.quests) return;
@@ -75,7 +97,7 @@ export const QuestDotDetails = function(props) {
                 );
               const progress = getQuestProgress(details);
               return progress.map((o, i) => {
-                const {subquestLabel, done, halfDone, total, root} = o;
+                const {subquestLabel, done, halfDone, total, root, keyIndex} = o;
                 let circles = [];
                 for (let i = 0; i < total; i++) {
                   let halves = 0;
@@ -84,14 +106,10 @@ export const QuestDotDetails = function(props) {
                   circles.push(halves);
                 }
                 return (
-                  <View key={root.req.requirement_root_package_id} style={{
-                    padding: 15,
-                    borderColor: 'black',
-                    borderTopWidth: 1,
+                  <View key={root.req.requirement_root_package_id * 10 + keyIndex} style={{
+                    padding: 5,
                     marginLeft: 10,
                     marginRight: 10,
-                    paddingLeft: 5,
-                    paddingRight: 5,
                   }}>
                     <Text style={{margin: 5}}>
                       {subquestLabel}
