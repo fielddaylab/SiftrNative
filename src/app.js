@@ -32,6 +32,7 @@ import { NativeHome, Loading } from "./native-home";
 import Orientation from 'react-native-orientation-locker';
 import Geolocation from '@react-native-community/geolocation';
 import { StemportsPicker } from './stemports-picker';
+import { StemportsWizard } from './stemports-wizard';
 // @endif
 
 import { Auth, Game, displayError } from "./aris";
@@ -50,6 +51,7 @@ import { parseUri } from "./parse-uri";
 // @ifdef NATIVE
 const recentlyOpened = `${RNFS.DocumentDirectoryPath}/recent.json`;
 const seenComic = `${RNFS.DocumentDirectoryPath}/seencomic.txt`;
+const seenWizard = `${RNFS.DocumentDirectoryPath}/seenwizard.txt`;
 // @endif
 
 export var SiftrNative = createClass({
@@ -87,6 +89,11 @@ export var SiftrNative = createClass({
       // do nothing
     }).catch((err) => {
       this.setState({viewingComic: true});
+    })
+    RNFS.readFile(seenWizard, 'utf8').then(() => {
+      // do nothing
+    }).catch((err) => {
+      this.setState({viewingWizard: true});
     })
     RNFS.readFile(recentlyOpened, 'utf8').then((str) => {
       this.setState({recent: JSON.parse(str)});
@@ -611,65 +618,76 @@ export var SiftrNative = createClass({
         >
           {this.state.auth.authToken != null ? (
             this.state.game != null ? (
-              <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-                <SiftrViewPW
-                  game={this.state.game}
-                  currentQuest={this.state.quest}
-                  bounds={this.state.bounds}
-                  auth={this.state.auth}
-                  isAdmin={this.gameBelongsToUser(this.state.game)}
-                  aris={this.state.aris}
-                  location={this.state.location}
-                  onExit={() => {
-                    if (this.state.aris) {
-                      if (Platform.OS === "android") {
-                        BackHandler.exitApp(); // Linking.openURL "ARIS://"
+              this.state.viewingWizard ? (
+                <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+                  <StemportsWizard
+                    onClose={() => {
+                      this.setState({viewingWizard: false});
+                      RNFS.writeFile(seenWizard, 'true', 'utf8');
+                    }}
+                  />
+                </SafeAreaView>
+              ) : (
+                <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+                  <SiftrViewPW
+                    game={this.state.game}
+                    currentQuest={this.state.quest}
+                    bounds={this.state.bounds}
+                    auth={this.state.auth}
+                    isAdmin={this.gameBelongsToUser(this.state.game)}
+                    aris={this.state.aris}
+                    location={this.state.location}
+                    onExit={() => {
+                      if (this.state.aris) {
+                        if (Platform.OS === "android") {
+                          BackHandler.exitApp(); // Linking.openURL "ARIS://"
+                        } else {
+                          return;
+                        }
+                      } else if (this.props.viola) {
+                        this.props.backToViola();
                       } else {
-                        return;
+                        this.setState({
+                          game: null,
+                          aris: false
+                        });
                       }
-                    } else if (this.props.viola) {
-                      this.props.backToViola();
-                    } else {
+                    }}
+                    onPromptLogin={() => {
+                      this.setState({
+                        menuOpen: true
+                      });
+                    }}
+                    nomenData={this.state.nomenData}
+                    clearNomenData={this.clearNomenData}
+                    createOnLaunch={this.state.createOnLaunch}
+                    clearCreate={() => this.setState({createOnLaunch: false})}
+                    online={this.state.online}
+                    followed={this.state.followed}
+                    followGame={this.followGame}
+                    unfollowGame={this.unfollowGame}
+                    queueMessage={this.state.queueMessage}
+                    viola={this.props.viola}
+                    onViolaIdentify={this.props.onViolaIdentify}
+                    onLogout={this.logout}
+                    onChangePassword={this.changePassword}
+                    onEditProfile={this.editProfile}
+                    saved_note={this.state.saved_note}
+                    pendingNotes={this.state.pendingNotes}
+                    ref={ref => {
+                      this.siftrView = ref;
+                    }}
+                    onSelect={(game, quest) =>
                       this.setState({
                         game: null,
                         aris: false
-                      });
+                      }, () => {
+                        this.loadGamePosition(game, {quest: quest});
+                      })
                     }
-                  }}
-                  onPromptLogin={() => {
-                    this.setState({
-                      menuOpen: true
-                    });
-                  }}
-                  nomenData={this.state.nomenData}
-                  clearNomenData={this.clearNomenData}
-                  createOnLaunch={this.state.createOnLaunch}
-                  clearCreate={() => this.setState({createOnLaunch: false})}
-                  online={this.state.online}
-                  followed={this.state.followed}
-                  followGame={this.followGame}
-                  unfollowGame={this.unfollowGame}
-                  queueMessage={this.state.queueMessage}
-                  viola={this.props.viola}
-                  onViolaIdentify={this.props.onViolaIdentify}
-                  onLogout={this.logout}
-                  onChangePassword={this.changePassword}
-                  onEditProfile={this.editProfile}
-                  saved_note={this.state.saved_note}
-                  pendingNotes={this.state.pendingNotes}
-                  ref={ref => {
-                    this.siftrView = ref;
-                  }}
-                  onSelect={(game, quest) =>
-                    this.setState({
-                      game: null,
-                      aris: false
-                    }, () => {
-                      this.loadGamePosition(game, {quest: quest});
-                    })
-                  }
-                />
-              </SafeAreaView>
+                  />
+                </SafeAreaView>
+              )
             ) : (
               <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
                 <StemportsPicker
