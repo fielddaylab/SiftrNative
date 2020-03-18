@@ -22,6 +22,7 @@ import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import {addXP, meterDistance} from './siftr-view';
 import {loadQueue, uploadNote} from './upload-queue';
 import {getQuestProgress} from './quests';
+import { ComicView } from './stemports-player';
 
 const RNFS = require("react-native-fs");
 
@@ -45,6 +46,7 @@ export class StemportsPicker extends React.Component {
     this.state = {
       games: [],
       downloadedGames: [],
+      introSequence: 'welcome',
     };
   }
 
@@ -684,6 +686,63 @@ export class StemportsPicker extends React.Component {
   }
 
   render() {
+    let puffinHi = false;
+    if (this.props.viewComic) {
+      if (this.state.introSequence === 'welcome') {
+        return (
+          <View style={{
+            backgroundColor: 'white',
+            alignItems: 'center',
+            justifyContent: 'space-around',
+            flex: 1,
+          }}>
+            <View style={{
+              alignItems: 'center',
+            }}>
+              <Text style={{
+                margin: 10,
+                fontSize: 26,
+                fontWeight: 'bold',
+              }}>
+                Welcome to Stemports
+              </Text>
+              <Text style={{
+                margin: 10,
+                fontSize: 20,
+              }}>
+                Be mindful of your surroundings
+              </Text>
+            </View>
+            <TouchableOpacity onPress={() => this.setState({introSequence: 'puffin-hi'})} style={{
+              backgroundColor: 'rgb(101,88,245)',
+              padding: 10,
+              borderRadius: 5,
+              marginTop: 10,
+              marginBottom: 10,
+              paddingLeft: 15,
+              paddingRight: 15,
+            }}>
+              <Text style={{
+                color: 'white',
+                fontSize: 18,
+              }}>
+                Start
+              </Text>
+            </TouchableOpacity>
+          </View>
+        );
+      } else if (this.state.introSequence === 'puffin-hi') {
+        // show map but have special puffin button for comic, and nothing else to click
+        puffinHi = true;
+      } else {
+        return (
+          <ComicView
+            onClose={this.props.onCloseComic}
+          />
+        );
+      }
+    }
+
     if (!this.state.doneLoadingQuests && this.props.launchCurrentQuest) {
       return null;
     }
@@ -819,7 +878,7 @@ export class StemportsPicker extends React.Component {
               }}
             >
               {
-                gameList.map(o =>
+                !puffinHi && gameList.map(o =>
                   <MapView.Marker
                     key={o.game.game_id}
                     tracksViewChanges={false}
@@ -848,38 +907,50 @@ export class StemportsPicker extends React.Component {
                 left: 10,
                 right: 10,
               }}
-              text={atStation
-                ? `It looks like you're at the ${atStation.game.name} Science Station. Tap the station to start a quest!`
+              text={puffinHi
+                ? "Hi there, I'm Puff. My friend sent me to help you on your journey. Looks like I found you just in time!"
+                : atStation
+                ? `It looks like you're near the ${atStation.game.name} Science Station. Tap the station to start a quest!`
                 : "Find a science station to start a quest!"
               }
-              button={atStation ? undefined : {
-                label: 'Find Science Station',
-                onPress: (() => this.setState({listFromMap: true})),
-              }}
+              button={puffinHi
+                ? { label: 'View Story'
+                  , onPress: (() => this.setState({introSequence: 'comic'}))
+                  }
+                : atStation
+                ? undefined
+                : { label: 'Find Science Station'
+                  , onPress: (() => this.setState({listFromMap: true}))
+                  }
+              }
             />
-            <View pointerEvents="box-none" style={{
-              flexDirection: 'row',
-              justifyContent: 'flex-start',
-              alignItems: 'center',
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-            }}>
-              <TouchableOpacity onPress={() =>
-                this.setState({player: true})
-              } style={{
-                margin: 10,
-              }}>
-                <Image
-                  source={require('../web/assets/img/stemports-icon-home.png')}
-                  style={{
-                    width: 108 * 0.75,
-                    height: 100 * 0.75,
-                  }}
-                />
-              </TouchableOpacity>
-            </View>
+            {
+              !puffinHi && (
+                <View pointerEvents="box-none" style={{
+                  flexDirection: 'row',
+                  justifyContent: 'flex-start',
+                  alignItems: 'center',
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                }}>
+                  <TouchableOpacity onPress={() =>
+                    this.setState({player: true})
+                  } style={{
+                    margin: 10,
+                  }}>
+                    <Image
+                      source={require('../web/assets/img/stemports-icon-home.png')}
+                      style={{
+                        width: 108 * 0.75,
+                        height: 100 * 0.75,
+                      }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              )
+            }
           </View>
         );
       }

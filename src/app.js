@@ -31,7 +31,6 @@ import { NativeLogin } from "./native-login";
 import { NativeHome, Loading } from "./native-home";
 import Orientation from 'react-native-orientation-locker';
 import Geolocation from '@react-native-community/geolocation';
-import { ComicView } from './stemports-player';
 import { StemportsPicker } from './stemports-picker';
 // @endif
 
@@ -611,16 +610,7 @@ export var SiftrNative = createClass({
           }}
         >
           {this.state.auth.authToken != null ? (
-            this.state.viewingComic ? (
-              <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-                <ComicView
-                  onClose={() => {
-                    this.setState({viewingComic: false});
-                    RNFS.writeFile(seenComic, 'true', 'utf8');
-                  }}
-                />
-              </SafeAreaView>
-            ) : this.state.game != null ? (
+            this.state.game != null ? (
               <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
                 <SiftrViewPW
                   game={this.state.game}
@@ -694,6 +684,11 @@ export var SiftrNative = createClass({
                   queueMessage={this.state.queueMessage}
                   location={this.state.location}
                   launchCurrentQuest={true}
+                  viewComic={this.state.viewingComic}
+                  onCloseComic={() => {
+                    this.setState({viewingComic: false});
+                    RNFS.writeFile(seenComic, 'true', 'utf8');
+                  }}
                 />
               </SafeAreaView>
             )
