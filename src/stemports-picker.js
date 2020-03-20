@@ -665,7 +665,7 @@ export class StemportsPicker extends React.Component {
     this.setState({syncing: true}, () => {
       const promise = this.uploadGame(game).then(() => this.initializeGame(game, game));
       return promise.then(() => {
-        this.setState({syncing: false, gameModal: null});
+        this.setState({syncing: false});
         this.loadDownloadedGames();
       });
     });
@@ -844,7 +844,7 @@ export class StemportsPicker extends React.Component {
       const gamesByDistance = gameList.slice(0);
       gamesByDistance.sort((a, b) => a.distance - b.distance);
       let atStation = null;
-      if (gamesByDistance.length > 0 && gamesByDistance[0].distance < 1000) {
+      if (gamesByDistance.length > 0 && gamesByDistance[0].distance < 100) {
         atStation = gamesByDistance[0];
       }
 
