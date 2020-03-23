@@ -2158,6 +2158,8 @@ export const SiftrView = createClass({
         onPress={o => {
           this.setState({warpCoords: o.nativeEvent.coordinate});
         }}
+        trackDirection={this.state.trackDirection}
+        onRotate={() => this.setState({trackDirection: false})}
       />
     );
   },
@@ -3106,6 +3108,19 @@ export const SiftrView = createClass({
                   />
                 )
               }
+              <TouchableOpacity onPress={() => {
+                this.setState({trackDirection: !this.state.trackDirection});
+              }} style={{
+                position: 'absolute',
+                top: 100,
+                right: 30,
+              }}>
+                <Image source={require('../web/assets/img/stemports-compass.png')} style={{
+                  width: 50,
+                  height: 50,
+                  opacity: this.state.trackDirection ? 1 : 0.5,
+                }} />
+              </TouchableOpacity>
               <CacheMedia
                 media_id={161}
                 auth={this.props.auth}

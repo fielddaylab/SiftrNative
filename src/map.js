@@ -349,9 +349,11 @@ export class SiftrMap extends React.Component {
       && prevProps.location.coords.longitude === this.props.location.coords.longitude
     ) return;
 
-    this.refs.theMapView.setCamera({
-      center: this.props.location.coords,
-    });
+    let o = {center: this.props.location.coords};
+    if (this.props.trackDirection) {
+      o.heading = this.props.location.coords.heading;
+    }
+    this.refs.theMapView.setCamera(o);
   }
 
   moveToPoint(center) {
@@ -405,6 +407,7 @@ export class SiftrMap extends React.Component {
         zoom: 20.5,
         altitude: 0, // not used
       }}
+      onPanDrag={this.props.onRotate}
       showsUserLocation={false}
       showsBuildings={false}
       customMapStyle={this.getMapStyles()}
