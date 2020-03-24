@@ -705,6 +705,8 @@ export class SiftrMap extends React.Component {
   }
 
   render() {
+    const pinField = (this.props.fields || []).find(f => f.field_id === this.props.game.field_id_pin);
+    const tags = pinField ? pinField.options : null;
     return <div className="siftr-map" ref="mapContainer">
       <GoogleMap
         center={this.props.center}
@@ -733,14 +735,14 @@ export class SiftrMap extends React.Component {
         </a>
         <div className="legend-wrap">
           {
-            this.props.tags ? (
-              this.props.tags.map((tag) =>
-                <span className="siftr-map-legend-tag" key={tag.tag_id}>
+            tags ? (
+              tags.map((tag) =>
+                <span className="siftr-map-legend-tag" key={tag.field_option_id}>
                   <div
                     className="siftr-thumbnail-dot"
                     style={{backgroundColor: this.props.getColor(tag)}}
                   />
-                  {tag.tag}
+                  {tag.option}
                 </span>
               )
             ) : null
