@@ -983,12 +983,15 @@ export class StemportsPicker extends React.Component {
                 <TouchableOpacity
                   key={o.game.game_id}
                   style={{
-                    margin: 10,
+                    margin: 13,
                     flexDirection: 'row',
                     alignItems: 'center',
-                    borderColor: 'rgb(120,136,150)',
-                    borderWidth: 2,
-                    padding: 5,
+                    padding: 10,
+                    shadowColor: 'black',
+                    shadowOpacity: 0.25,
+                    shadowRadius: 8,
+                    shadowOffset: {width: 0, height: 3},
+                    backgroundColor: 'white',
                   }}
                   onPress={() => this.setState({gameModal: o})}
                 >
@@ -1007,17 +1010,16 @@ export class StemportsPicker extends React.Component {
                     </Text>
                     <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
                       <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
-                        {(o.distance / 1000).toFixed(2)} km away
-                      </Text>
-                      <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
-                        |
-                      </Text>
-                      <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
                         {o.game.quests.length} {o.game.quests.length === 1 ? 'quest' : 'quests'}
                       </Text>
                       <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
                         |
                       </Text>
+                      <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
+                        {(o.distance / 1000).toFixed(2)} km away
+                      </Text>
+                    </View>
+                    <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
                       <TouchableOpacity onPress={() =>
                         Linking.openURL(`maps:0,0?q=${o.game.name}@${o.game.latitude},${o.game.longitude}`)
                         // TODO on Android this link should look different,
