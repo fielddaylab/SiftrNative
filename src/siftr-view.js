@@ -2159,6 +2159,7 @@ export const SiftrView = createClass({
           this.setState({warpCoords: o.nativeEvent.coordinate});
         }}
         trackDirection={this.state.trackDirection}
+        showStops={this.state.showStops}
         onRotate={() => this.setState({trackDirection: false})}
       />
     );
@@ -3119,6 +3120,19 @@ export const SiftrView = createClass({
                   width: 50,
                   height: 50,
                   opacity: this.state.trackDirection ? 1 : 0.5,
+                }} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => {
+                this.setState({showStops: !this.state.showStops});
+              }} style={{
+                position: 'absolute',
+                top: 170,
+                right: 35,
+              }}>
+                <Image source={require('../web/assets/img/stemports-zoom-out.png')} style={{
+                  width: 40,
+                  height: 40,
+                  opacity: this.state.showStops ? 1 : 0.5,
                 }} />
               </TouchableOpacity>
               <CacheMedia

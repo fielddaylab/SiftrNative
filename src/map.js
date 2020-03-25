@@ -347,13 +347,44 @@ export class SiftrMap extends React.Component {
       && this.props.location
       && prevProps.location.coords.latitude === this.props.location.coords.latitude
       && prevProps.location.coords.longitude === this.props.location.coords.longitude
+      && prevProps.showStops == this.props.showStops
+      && prevProps.trackDirection == this.props.trackDirection
     ) return;
 
-    let o = {center: this.props.location.coords};
-    if (this.props.trackDirection) {
-      o.heading = this.props.location.coords.heading;
+    if (this.props.showStops) {
+      const coordinates = this.props.triggers.map((trigger) => {
+        const inst = this.props.instances.find(inst => parseInt(inst.instance_id) === parseInt(trigger.instance_id));
+        if (!inst) return;
+        if (inst.object_type !== 'PLAQUE') return;
+        const plaque = this.props.plaques.find(p => parseInt(p.plaque_id) === parseInt(inst.object_id));
+        if (!plaque) return;
+        return {
+          latitude: parseFloat(trigger.latitude),
+          longitude: parseFloat(trigger.longitude),
+        };
+      }).filter(x => x);
+      const options = {
+        edgePadding: {
+          top: 25,
+          bottom: 25,
+          left: 25,
+          right: 25,
+        },
+        animated: true,
+      };
+      this.refs.theMapView.fitToCoordinates(coordinates, options);
+    } else {
+      let o = {
+        center: this.props.location.coords,
+        pitch: 90,
+        zoom: 20.5,
+        altitude: 0, // not used on ios; need to set for android
+      };
+      if (this.props.trackDirection) {
+        o.heading = this.props.location.coords.heading;
+      }
+      this.refs.theMapView.setCamera(o);
     }
-    this.refs.theMapView.setCamera(o);
   }
 
   moveToPoint(center) {
@@ -405,7 +436,7 @@ export class SiftrMap extends React.Component {
         heading: 0,
         pitch: 90,
         zoom: 20.5,
-        altitude: 0, // not used
+        altitude: 0, // not used on ios; need to set for android
       }}
       onPanDrag={this.props.onRotate}
       showsUserLocation={false}
