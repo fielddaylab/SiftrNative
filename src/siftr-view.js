@@ -3105,7 +3105,11 @@ export const SiftrView = createClass({
                       right: 10,
                     }}
                     onPress={() => this.pushModal({type: 'quests'})}
-                    text={this.state.guideLine}
+                    text={
+                      this.state.showStops
+                      ? `I can see the whole area from up here. It looks like there are ${this.props.plaques.length} stops total.`
+                      : this.state.guideLine
+                    }
                   />
                 )
               }
@@ -3119,7 +3123,6 @@ export const SiftrView = createClass({
                 <Image source={require('../web/assets/img/stemports-compass.png')} style={{
                   width: 50,
                   height: 50,
-                  opacity: this.state.trackDirection ? 1 : 0.5,
                 }} />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => {
@@ -3129,36 +3132,42 @@ export const SiftrView = createClass({
                 top: 170,
                 right: 35,
               }}>
-                <Image source={require('../web/assets/img/stemports-zoom-out.png')} style={{
+                <Image source={this.state.showStops
+                  ? require('../web/assets/img/stemports-zoom-in.png')
+                  : require('../web/assets/img/stemports-zoom-out.png')
+                } style={{
                   width: 40,
                   height: 40,
-                  opacity: this.state.showStops ? 1 : 0.5,
                 }} />
               </TouchableOpacity>
-              <CacheMedia
-                media_id={161}
-                auth={this.props.auth}
-                online={true}
-                withURL={(url) =>
-                  <View pointerEvents="none" style={{
-                    position: 'absolute',
-                    bottom: 100,
-                    left: 0,
-                    right: 0,
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                  }}>
-                    <ModelView
-                      source={{ zip: url }}
-                      style={{
-                        width: 200,
-                        height: 150,
-                      }}
-                      autoPlay={true}
-                    />
-                  </View>
-                }
-              />
+              {
+                !this.state.showStops && (
+                  <CacheMedia
+                    media_id={161}
+                    auth={this.props.auth}
+                    online={true}
+                    withURL={(url) =>
+                      <View pointerEvents="none" style={{
+                        position: 'absolute',
+                        bottom: 100,
+                        left: 0,
+                        right: 0,
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                      }}>
+                        <ModelView
+                          source={{ zip: url }}
+                          style={{
+                            width: 200,
+                            height: 150,
+                          }}
+                          autoPlay={true}
+                        />
+                      </View>
+                    }
+                  />
+                )
+              }
               <View pointerEvents="box-none" style={{
                 position: 'absolute',
                 bottom: 10,
