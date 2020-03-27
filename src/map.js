@@ -229,10 +229,10 @@ export class SiftrMap extends React.Component {
     ];
     const options = {
       edgePadding: {
-        top: 25,
-        bottom: 25,
-        left: 25,
-        right: 25,
+        top: 35,
+        bottom: 35,
+        left: 35,
+        right: 35,
       },
       animated: true,
     };
@@ -425,6 +425,7 @@ export class SiftrMap extends React.Component {
       scrollEnabled={false}
       pitchEnabled={false}
       zoomEnabled={false}
+      rotateEnabled={false}
       mapPadding={{
         top: height * 0.45,
       }}
@@ -438,7 +439,26 @@ export class SiftrMap extends React.Component {
         zoom: 20.5,
         altitude: 0, // not used on ios; need to set for android
       }}
-      onPanDrag={this.props.onRotate}
+      onPanDrag={(e) => {
+        this.props.onRotate();
+        const fingerXY = e.nativeEvent.position;
+        const relativeX = fingerXY.x - width * 0.5;
+        const relativeY = fingerXY.y - height * (0.45 + 0.55 / 2); // since mapPadding is height * 0.45
+        const thisDegrees = -1 * Math.atan2(relativeY, relativeX) * 180 / Math.PI;
+        const bigMovement = ((a, b) => Math.abs(a - b) > 30);
+        // there's no "drag end" event so this is a hack
+        if (!this.lastDrag || bigMovement(relativeX, this.lastDrag.x) || bigMovement(relativeY, this.lastDrag.y)) {
+          // new drag
+          this.refs.theMapView.getCamera().then(cam => {
+            this.lastDrag = {x: relativeX, y: relativeY, degs: thisDegrees, heading: cam.heading};
+          })
+        } else {
+          // assume continuing drag
+          const newHeading = this.lastDrag.heading + (thisDegrees - this.lastDrag.degs);
+          this.refs.theMapView.setCamera({heading: newHeading});
+          this.lastDrag = {x: relativeX, y: relativeY, degs: thisDegrees, heading: newHeading};
+        }
+      }}
       showsUserLocation={false}
       showsBuildings={false}
       customMapStyle={this.getMapStyles()}
