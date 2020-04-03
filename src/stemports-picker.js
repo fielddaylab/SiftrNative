@@ -576,7 +576,7 @@ export class StemportsPicker extends React.Component {
                 location_bound_type: 'PLAYER',
                 min_production_distance: 10,
                 max_production_distance: 40,
-                requirement_root_package_id: 0,
+                requirement_root_package_id: factory_root_id, // was never used by aris! but we use to pass the id to trigger
                 trigger_latitude: 0,
                 trigger_longitude: 0,
                 trigger_distance: 25,
@@ -603,6 +603,7 @@ export class StemportsPicker extends React.Component {
               factory_id: 0,
               owner_type: 'GAME_CONTENT',
               owner_id: 0,
+              requirement_root_package_id: fact.requirement_root_package_id, // pass to trigger
             }));
           });
           new_instances.forEach(inst => {
@@ -611,7 +612,7 @@ export class StemportsPicker extends React.Component {
               game_id: game.game_id,
               instance_id: inst.instance_id,
               scene_id: 1,
-              requirement_root_package_id: 0,
+              requirement_root_package_id: inst.requirement_root_package_id,
               type: 'IMMEDIATE',
             }));
           });

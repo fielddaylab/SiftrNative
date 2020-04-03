@@ -1049,9 +1049,12 @@ export const SiftrView = createClass({
       let nextFactoryProductionTimestamps = {};
       this.props.factories.forEach(factory => {
         let objects = oldState.factoryObjects.filter(o => o.instance.factory_id === factory.factory_id);
-        // delete any expired
+        // delete any expired or locked
         objects = objects.filter(o =>
           now - new Date(o.instance.created).getTime() < parseInt(factory.produce_expiration_time) * 1000
+          && this.evalReqPackage(o.trigger.requirement_root_package_id, 'trigger')
+          // lock eval might not be valid generally, but for us it only applies to
+          // "player got a field note, so those triggers will be permanently hidden"
         );
         // create any new
         // this doesn't actually use scenes but named to match the PHP code
