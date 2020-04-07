@@ -15,15 +15,15 @@ import { GuideLine } from "./stemports-picker";
 const WizardLines = [
   {
     header: "First, Collect Violet's Field Notes",
-    body: ((quest) => quest.tutorial_1),
+    body: ((quest) => quest.tutorial_1 || "Violet left her field notes all over the place! Find and collect them so you can add them to your own field guide."),
   },
   {
     header: "Then, Visit Tour Stops",
-    body: ((quest) => quest.tutorial_2),
+    body: ((quest) => quest.tutorial_2 || "Find all the tour stops along the way, and visit each one. You'll learn new things, and collect extra field notes!"),
   },
   {
     header: "Finally, we'll make our own scientific observations!",
-    body: ((quest) => quest.tutorial_3),
+    body: ((quest) => quest.tutorial_3 || "Once you create your own Field Guide, you'll be able to find new examples and document them!"),
   },
 ];
 

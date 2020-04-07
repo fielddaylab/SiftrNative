@@ -3338,11 +3338,14 @@ export const SiftrView = createClass({
                               game_id: this.props.game.game_id,
                             }, (res2) => {
                               const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
-                              RNFS.unlink(`${siftrDir}/download_timestamp.txt`).then(() => {
-                                RNFS.unlink(`${siftrDir}/quests-sorted.txt`).then(() => {
-                                  this.props.onExit();
-                                  // TODO this isn't actually resetting the player's current quest
-                                });
+                              RNFS.unlink(`${siftrDir}/download_timestamp.txt`).then(() =>
+                                RNFS.unlink(`${siftrDir}/quests-sorted.txt`)
+                              ).then(() =>
+                                RNFS.unlink(`${RNFS.DocumentDirectoryPath}/seenwizard.txt`)
+                              ).then(() =>
+                                RNFS.unlink(`${RNFS.DocumentDirectoryPath}/siftrs/current-quest.txt`)
+                              ).then(() => {
+                                this.props.onExit(true);
                               });
                             })
                           });

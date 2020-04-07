@@ -639,21 +639,12 @@ export var SiftrNative = createClass({
                     isAdmin={this.gameBelongsToUser(this.state.game)}
                     aris={this.state.aris}
                     location={this.state.location}
-                    onExit={() => {
-                      if (this.state.aris) {
-                        if (Platform.OS === "android") {
-                          BackHandler.exitApp(); // Linking.openURL "ARIS://"
-                        } else {
-                          return;
-                        }
-                      } else if (this.props.viola) {
-                        this.props.backToViola();
-                      } else {
-                        this.setState({
-                          game: null,
-                          aris: false
-                        });
+                    onExit={(clearData = false) => {
+                      let o = {game: null};
+                      if (clearData) {
+                        o.viewingWizard = true;
                       }
+                      this.setState(o);
                     }}
                     onPromptLogin={() => {
                       this.setState({
