@@ -621,6 +621,8 @@ export var SiftrNative = createClass({
               this.state.viewingWizard ? (
                 <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
                   <StemportsWizard
+                    game={this.state.game}
+                    quest={this.state.quest}
                     onClose={() => {
                       this.setState({viewingWizard: false});
                       RNFS.writeFile(seenWizard, 'true', 'utf8');

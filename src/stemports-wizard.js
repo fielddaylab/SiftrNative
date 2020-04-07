@@ -15,15 +15,15 @@ import { GuideLine } from "./stemports-picker";
 const WizardLines = [
   {
     header: "First, Collect Violet's Field Notes",
-    body: "Violet left notes about Emerald Ash Borers all over the place! Find and Collect them so you can add them to your own field guide.",
+    body: ((quest) => quest.tutorial_1),
   },
   {
     header: "Then, Visit Tour Stops",
-    body: "There are all kinds of trees along the path. Some are healthy, some arent. Visit all the trees and learn how the ash borer is effecting our trees.",
+    body: ((quest) => quest.tutorial_2),
   },
   {
-    header: "Finally, We'll make our own scientific observations!",
-    body: "Once you create your own Field Guide you'll be able to observe effects of the emerald ash borer yourself!!",
+    header: "Finally, we'll make our own scientific observations!",
+    body: ((quest) => quest.tutorial_3),
   },
 ];
 
@@ -59,7 +59,7 @@ export class StemportsWizard extends React.Component {
           <Text style={{
             margin: 10,
           }}>
-            {body}
+            {body(this.props.quest)}
           </Text>
         </ScrollView>
         <View style={{
