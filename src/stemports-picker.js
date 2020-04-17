@@ -52,7 +52,7 @@ export class StemportsPicker extends React.Component {
 
   componentDidMount() {
     RNFS.mkdir(`${RNFS.DocumentDirectoryPath}/siftrs`, {NSURLIsExcludedFromBackupKey: true}).then(() => {
-      this.getGames(1, 0);
+      this.getGames();
       this.loadDownloadedGames();
     });
     this.loadXP();
@@ -71,22 +71,10 @@ export class StemportsPicker extends React.Component {
     );
   }
 
-  getGames(game_id, missed) {
-    if (missed >= 20) {
-      return;
-    }
-    this.props.auth.getGame({game_id}, res => {
+  getGames() {
+    this.props.auth.call('games.getAllStemportsStations', {}, res => {
       if (res.returnCode === 0) {
-        let game = res.data;
-        this.props.auth.call('quests.getQuestsForGame', {game_id}, resQuests => {
-          if (resQuests.returnCode === 0) {
-            game = update(game, {quests: {$set: resQuests.data}});
-          }
-          this.setState(state => update(state, {games: {$push: [game]}}));
-          this.getGames(game_id + 1, 0);
-        });
-      } else {
-        this.getGames(game_id + 1, missed + 1);
+        this.setState({games: res.data});
       }
     });
   }
