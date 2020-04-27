@@ -1042,6 +1042,9 @@ export const SiftrView = createClass({
   getObjectInstances: function(object_type, object_id) {
     return this.getInstances().filter(inst => inst.object_type === object_type && parseInt(inst.object_id) === parseInt(object_id));
   },
+  getPlaques: function() {
+    return this.props.plaques.filter(plaque => parseInt(plaque.quest_id) === parseInt(this.props.currentQuest.quest_id));
+  },
   tickTriggersOffline: function() {
     this.setState(oldState => {
       const now = Date.now();
@@ -2094,7 +2097,7 @@ export const SiftrView = createClass({
         })}
         triggers={this.getTriggers()}
         instances={this.getInstances()}
-        plaques={this.props.plaques}
+        plaques={this.getPlaques()}
         items={this.props.items}
         auth={this.props.auth}
         logs={this.state.logs}
@@ -3110,7 +3113,7 @@ export const SiftrView = createClass({
                     onPress={() => this.pushModal({type: 'quests'})}
                     text={
                       this.state.showStops
-                      ? `I can see the whole area from up here. It looks like there are ${this.props.plaques.length} stops total.`
+                      ? `I can see the whole area from up here. It looks like there are ${this.getPlaques().length} stops total.`
                       : this.state.guideLine
                     }
                   />
