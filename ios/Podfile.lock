@@ -1,4 +1,5 @@
 PODS:
+  - "@react-native-mapbox-gl-mapbox-static (5.8.0)"
   - boost-for-react-native (1.63.0)
   - Crashlytics (3.13.4):
     - Fabric (~> 1.10.2)
@@ -80,6 +81,9 @@ PODS:
     - GoogleUtilities/Logger
   - GoogleUtilities/UserDefaults (6.2.3):
     - GoogleUtilities/Logger
+  - Mapbox-iOS-SDK (5.8.0):
+    - MapboxMobileEvents (= 0.10.2)
+  - MapboxMobileEvents (0.10.2)
   - nanopb (0.3.901):
     - nanopb/decode (= 0.3.901)
     - nanopb/encode (= 0.3.901)
@@ -159,6 +163,20 @@ PODS:
     - GoogleMaps (= 3.1.0)
     - React
   - react-native-image-picker (1.0.1):
+    - React
+  - react-native-mapbox-gl (8.0.0):
+    - "@react-native-mapbox-gl-mapbox-static (~> 5.7)"
+    - Mapbox-iOS-SDK (~> 5.7)
+    - React
+    - react-native-mapbox-gl/DynamicLibrary (= 8.0.0)
+    - react-native-mapbox-gl/StaticLibraryFixer (= 8.0.0)
+  - react-native-mapbox-gl/DynamicLibrary (8.0.0):
+    - "@react-native-mapbox-gl-mapbox-static (~> 5.7)"
+    - Mapbox-iOS-SDK (~> 5.7)
+    - React
+  - react-native-mapbox-gl/StaticLibraryFixer (8.0.0):
+    - "@react-native-mapbox-gl-mapbox-static (~> 5.7)"
+    - Mapbox-iOS-SDK (~> 5.7)
     - React
   - react-native-maps (0.25.0):
     - React
@@ -241,6 +259,7 @@ DEPENDENCIES:
   - "react-native-geolocation (from `../node_modules/@react-native-community/geolocation`)"
   - react-native-google-maps (from `../node_modules/react-native-maps`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
+  - "react-native-mapbox-gl (from `../node_modules/@react-native-mapbox-gl/maps`)"
   - react-native-maps (from `../node_modules/react-native-maps`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-orientation-locker (from `../node_modules/react-native-orientation-locker`)
@@ -266,6 +285,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - "@react-native-mapbox-gl-mapbox-static"
     - boost-for-react-native
     - Crashlytics
     - Fabric
@@ -277,6 +297,8 @@ SPEC REPOS:
     - GoogleAppMeasurement
     - GoogleMaps
     - GoogleUtilities
+    - Mapbox-iOS-SDK
+    - MapboxMobileEvents
     - nanopb
     - SSZipArchive
 
@@ -315,6 +337,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-maps"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
+  react-native-mapbox-gl:
+    :path: "../node_modules/@react-native-mapbox-gl/maps"
   react-native-maps:
     :path: "../node_modules/react-native-maps"
   react-native-netinfo:
@@ -361,6 +385,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
+  "@react-native-mapbox-gl-mapbox-static": e247172bc43f47757f47d6cec1b325b1ab3e9287
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   Crashlytics: 2dfd686bcb918dc10ee0e76f7f853fe42c7bd552
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
@@ -375,6 +400,8 @@ SPEC CHECKSUMS:
   GoogleAppMeasurement: 1e45fa601e6280c180880d57010390f6679cd971
   GoogleMaps: 5c13302e6fe6bb6e686b267196586b91cd594225
   GoogleUtilities: d2b0e277a95962e09bb27f5cd42f5f0b6a506c7d
+  Mapbox-iOS-SDK: 02590a60fe300810c55432219a0caaa1338fbafb
+  MapboxMobileEvents: 2bc0ca2eedb627b73cf403258dce2b2fa98074a6
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
   RCT3DModel: 25a59c19d5741236251dcf4da4abc02afcf63c93
   React: ff7ee2ae5ee1c1d9ae2183b4111045b25294bb01
@@ -390,6 +417,7 @@ SPEC CHECKSUMS:
   react-native-geolocation: a7b94614afbd5fd8350e0233a2025c8228fc8041
   react-native-google-maps: 88d750ad441b19c24885f20d43a55ecac25939b5
   react-native-image-picker: c9bddc819f4fd46b6f37f2861712497e920192d9
+  react-native-mapbox-gl: 77b87a1dd2d7b41b6b77018c0f3bed5f8ee55c81
   react-native-maps: 190c02ca533fddac5bb49cf17bdece3644612107
   react-native-netinfo: 88a4003f68c6f979c1f439e7bd7c5c0b2e819160
   react-native-orientation-locker: 23918c400376a7043e752c639c122fcf6bce8f1c

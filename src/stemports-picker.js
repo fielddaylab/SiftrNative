@@ -18,11 +18,14 @@ import {deserializeGame} from "./aris";
 import {loadMedia, CacheMedia} from "./media";
 import { StatusSpace } from "./status-space";
 import { StemportsPlayer } from "./stemports-player";
-import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
+// import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import {addXP, meterDistance} from './siftr-view';
 import {loadQueue, uploadNote} from './upload-queue';
 import {getQuestProgress} from './quests';
 import { ComicView } from './stemports-player';
+import MapboxGL from "@react-native-mapbox-gl/maps";
+
+MapboxGL.setAccessToken("pk.eyJ1IjoiZmllbGRkYXlsYWIiLCJhIjoiY2s3ejh3cHNrMDNtMTNlcnk2dmxnZzhidyJ9.-Kt-a2vKYZ49CjY_no1P9A");
 
 const RNFS = require("react-native-fs");
 
@@ -660,19 +663,19 @@ export class StemportsPicker extends React.Component {
     });
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (!this.refs.theMapView) return;
-    if (!prevProps.location && !this.props.location) return;
-    if ( prevProps.location
-      && this.props.location
-      && prevProps.location.coords.latitude === this.props.location.coords.latitude
-      && prevProps.location.coords.longitude === this.props.location.coords.longitude
-    ) return;
+  // componentDidUpdate(prevProps, prevState, snapshot) {
+  //   if (!this.refs.theMapView) return;
+  //   if (!prevProps.location && !this.props.location) return;
+  //   if ( prevProps.location
+  //     && this.props.location
+  //     && prevProps.location.coords.latitude === this.props.location.coords.latitude
+  //     && prevProps.location.coords.longitude === this.props.location.coords.longitude
+  //   ) return;
 
-    this.refs.theMapView.setCamera({
-      center: this.props.location.coords,
-    });
-  }
+  //   this.refs.theMapView.setCamera({
+  //     center: this.props.location.coords,
+  //   });
+  // }
 
   render() {
     let puffinHi = false;
@@ -841,52 +844,76 @@ export class StemportsPicker extends React.Component {
         // show map
         const {height, width} = Dimensions.get('window');
 
+        /*
+          <MapView
+            ref="theMapView"
+            showsUserLocation={true}
+          >
+            {
+              !puffinHi && gameList.map(o =>
+                <MapView.Marker
+                  key={o.game.game_id}
+                  tracksViewChanges={false}
+                  coordinate={{
+                    latitude: parseFloat(o.game.latitude),
+                    longitude: parseFloat(o.game.longitude),
+                  }}
+                  anchor={{x: 0.5, y: 0.5}}
+                  title=""
+                  description=""
+                  pinColor="blue"
+                  onPress={() => this.setState({gameModal: o})}
+                  icon={require('../web/assets/img/stemports-icon-station.png')}
+                >
+                  <MapView.Callout tooltip={true} />
+                </MapView.Marker>
+              )
+            }
+          </MapView>
+        */
+
         return (
           <View style={{flex: 1}}>
-            <MapView
-              provider={PROVIDER_GOOGLE}
-              ref="theMapView"
-              initialCamera={{
-                center: this.props.location ? this.props.location.coords : {
-                  latitude: 0,
-                  longitude: 0,
-                },
-                heading: 0,
-                pitch: 90,
-                zoom: 20.5,
-                altitude: 0, // not used
-              }}
-              showsUserLocation={true}
-              showsBuildings={false}
-              scrollEnabled={false}
-              pitchEnabled={false}
-              zoomEnabled={false}
+
+            <MapboxGL.MapView
               style={{flex: 1}}
-              mapPadding={{
-                top: height * 0.45,
-              }}
             >
+              <MapboxGL.Camera
+                centerCoordinate={
+                  this.props.location
+                    ? (x => [x.latitude, x.longitude])(this.props.location.coords)
+                    : [0, 0]
+                }
+                followPitch={60}
+                followZoomLevel={20.5}
+                followUserLocation={true}
+                paddingTop={height * 0.45}
+              />
               {
                 !puffinHi && gameList.map(o =>
-                  <MapView.Marker
+                  <MapboxGL.PointAnnotation
+                    id={o.game.game_id}
                     key={o.game.game_id}
-                    tracksViewChanges={false}
-                    coordinate={{
-                      latitude: parseFloat(o.game.latitude),
-                      longitude: parseFloat(o.game.longitude),
-                    }}
+                    coordinate={[parseFloat(o.game.latitude), parseFloat(o.game.longitude)]}
+                    title="Test marker"
                     anchor={{x: 0.5, y: 0.5}}
-                    title=""
-                    description=""
-                    pinColor="blue"
-                    onPress={() => this.setState({gameModal: o})}
-                    icon={require('../web/assets/img/stemports-icon-station.png')}
+                    onSelected={() => this.setState({gameModal: o})}
                   >
-                    <MapView.Callout tooltip={true} />
-                  </MapView.Marker>
+                    <View>
+                      <Image
+                        source={require('../web/assets/img/stemports-icon-station.png')}
+                        style={{
+                          width: 136,
+                          height: 128,
+                        }}
+                      />
+                    </View>
+                    <MapboxGL.Callout title="This is a sample" />
+                  </MapboxGL.PointAnnotation>
                 )
               }
-            </MapView>
+            </MapboxGL.MapView>
+
             <GuideLine
               style={{
                 flexDirection: 'column',
