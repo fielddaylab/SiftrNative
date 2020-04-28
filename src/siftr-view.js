@@ -1023,9 +1023,20 @@ export const SiftrView = createClass({
   getTriggers: function() {
     return this.props.triggers.concat(
       this.state.factoryObjects.map(x => x.trigger)
-    ).filter(trig =>
-      this.evalReqPackage(trig.requirement_root_package_id, 'trigger')
-    );
+    ).filter(trig => {
+      if (!this.evalReqPackage(trig.requirement_root_package_id, 'trigger')) {
+        return false;
+      }
+      const instance = this.getInstances().find(inst => parseInt(inst.instance_id) === parseInt(trig.instance_id));
+      if (instance && instance.object_type === 'PLAQUE') {
+        const plaque = this.getPlaques().find(plaque => parseInt(plaque.plaque_id) === parseInt(instance.object_id));
+        // ^ getPlaques is filtered by quest
+        if (!plaque) {
+          return false; // probably plaque for a different quest
+        }
+      }
+      return true;
+    });
   },
   getInstances: function() {
     return this.props.instances.concat(this.state.factoryObjects.map(x => x.instance));
