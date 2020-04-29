@@ -330,7 +330,7 @@ export class InventoryScreen extends React.Component {
                             isPlaced && this.setState({viewing: {item: o.item, instance: o.instance}})
                           }>
                             <CacheMedia
-                              media_id={o.item.icon_media_id || o.item.media_id}
+                              media_id={parseInt(o.item.icon_media_id) || parseInt(o.item.media_id)}
                               auth={this.props.auth}
                               online={true}
                               withURL={(url) => (
@@ -510,7 +510,7 @@ export class DraggableItem extends React.Component {
         style={{transform: this._pan.getTranslateTransform()}}
       >
         <CacheMedia
-          media_id={this.props.item.icon_media_id || this.props.item.media_id}
+          media_id={parseInt(this.props.item.icon_media_id) || parseInt(this.props.item.media_id)}
           auth={this.props.auth}
           online={true}
           withURL={(url) => (
