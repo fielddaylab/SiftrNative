@@ -663,20 +663,6 @@ export class StemportsPicker extends React.Component {
     });
   }
 
-  // componentDidUpdate(prevProps, prevState, snapshot) {
-  //   if (!this.refs.theMapView) return;
-  //   if (!prevProps.location && !this.props.location) return;
-  //   if ( prevProps.location
-  //     && this.props.location
-  //     && prevProps.location.coords.latitude === this.props.location.coords.latitude
-  //     && prevProps.location.coords.longitude === this.props.location.coords.longitude
-  //   ) return;
-
-  //   this.refs.theMapView.setCamera({
-  //     center: this.props.location.coords,
-  //   });
-  // }
-
   render() {
     let puffinHi = false;
     if (this.props.viewComic) {
@@ -844,58 +830,32 @@ export class StemportsPicker extends React.Component {
         // show map
         const {height, width} = Dimensions.get('window');
 
-        /*
-          <MapView
-            ref="theMapView"
-            showsUserLocation={true}
-          >
-            {
-              !puffinHi && gameList.map(o =>
-                <MapView.Marker
-                  key={o.game.game_id}
-                  tracksViewChanges={false}
-                  coordinate={{
-                    latitude: parseFloat(o.game.latitude),
-                    longitude: parseFloat(o.game.longitude),
-                  }}
-                  anchor={{x: 0.5, y: 0.5}}
-                  title=""
-                  description=""
-                  pinColor="blue"
-                  onPress={() => this.setState({gameModal: o})}
-                  icon={require('../web/assets/img/stemports-icon-station.png')}
-                >
-                  <MapView.Callout tooltip={true} />
-                </MapView.Marker>
-              )
-            }
-          </MapView>
-        */
-
         return (
           <View style={{flex: 1}}>
 
             <MapboxGL.MapView
               style={{flex: 1}}
+              zoomEnabled={true}
+              scrollEnabled={false}
+              rotateEnabled={true}
+              pitchEnabled={false}
             >
               <MapboxGL.Camera
-                centerCoordinate={
-                  this.props.location
-                    ? (x => [x.latitude, x.longitude])(this.props.location.coords)
-                    : [0, 0]
-                }
-                followPitch={60}
-                followZoomLevel={20.5}
-                followUserLocation={true}
-                paddingTop={height * 0.45}
+                zoomLevel={22}
+                pitch={70}
+                animationDuration={300}
+                centerCoordinate={this.props.location && [
+                  this.props.location.coords.longitude,
+                  this.props.location.coords.latitude,
+                ]}
               />
               {
                 !puffinHi && gameList.map(o =>
                   <MapboxGL.PointAnnotation
                     id={o.game.game_id}
                     key={o.game.game_id}
-                    coordinate={[parseFloat(o.game.latitude), parseFloat(o.game.longitude)]}
-                    title="Test marker"
+                    coordinate={[parseFloat(o.game.longitude), parseFloat(o.game.latitude)]}
+                    title={o.game.name}
                     anchor={{x: 0.5, y: 0.5}}
                     onSelected={() => this.setState({gameModal: o})}
                   >
@@ -903,15 +863,17 @@ export class StemportsPicker extends React.Component {
                       <Image
                         source={require('../web/assets/img/stemports-icon-station.png')}
                         style={{
-                          width: 136,
-                          height: 128,
+                          width: 136 * 0.5,
+                          height: 128 * 0.5,
                         }}
                       />
                     </View>
-                    <MapboxGL.Callout title="This is a sample" />
                   </MapboxGL.PointAnnotation>
                 )
               }
+              <MapboxGL.UserLocation
+                visible={true}
+              />
             </MapboxGL.MapView>
 
             <GuideLine
