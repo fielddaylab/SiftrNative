@@ -110,6 +110,8 @@ function hexToRGBA(hex) {
   }
 }
 
+const maxSpawns = 3;
+
 // @ifdef NATIVE
 const SiftrInfo = createClass({
   displayName: "SiftrInfo",
@@ -1081,7 +1083,7 @@ export const SiftrView = createClass({
         if (   inValidScene
             && now - updated >= parseInt(factory.seconds_per_production) * 1000
             && objects.length < parseInt(factory.max_production)
-            && nextFactoryObjects.length <= 10 // limit all spawns for now
+            && nextFactoryObjects.length <= maxSpawns // limit all spawns for now
             ) {
           if (Math.random() < parseFloat(factory.production_probability)) {
             // make a new object
