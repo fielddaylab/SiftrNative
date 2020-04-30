@@ -21,6 +21,7 @@ import Svg, {
 , Text as SvgText
 } from 'react-native-svg';
 import {CacheMedia} from './media';
+import MapboxGL from "@react-native-mapbox-gl/maps";
 // @endif
 
 // @ifdef WEB
@@ -95,12 +96,14 @@ class MapNote extends React.Component {
   render() {
     return (
       <SmartMarker
+        id={'n' + this.props.note.note_id}
         coordinate={{
           latitude: this.props.lat,
           longitude: this.props.lng,
         }}
         onPress={() => this.props.onSelect(this.props.note)}
         icon={require('../web/assets/img/icon-flag.png')}
+        iconSize={[74, 110]}
       />
     );
   }
@@ -192,18 +195,22 @@ class SmartMarker extends React.Component {
 
   render() {
     return (
-      <MapView.Marker
-        tracksViewChanges={false}
-        coordinate={this.props.coordinate}
+      <MapboxGL.PointAnnotation
+        id={this.props.id}
+        coordinate={[parseFloat(this.props.coordinate.longitude), parseFloat(this.props.coordinate.latitude)]}
         anchor={{x: 0.5, y: 0.5}}
-        title=""
-        description=""
-        pinColor="blue"
-        onPress={this.props.onPress}
-        icon={this.props.icon}
+        onSelected={this.props.onPress}
       >
-        <MapView.Callout tooltip={true} />
-      </MapView.Marker>
+        <View>
+          <Image
+            source={this.props.icon}
+            style={{
+              width: this.props.iconSize[0] * 0.5,
+              height: this.props.iconSize[1] * 0.5,
+            }}
+          />
+        </View>
+      </MapboxGL.PointAnnotation>
     );
   }
 }
@@ -340,53 +347,6 @@ export class SiftrMap extends React.Component {
   }
 
   // @ifdef NATIVE
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (!this.refs.theMapView) return;
-    if (!prevProps.location && !this.props.location) return;
-    if ( prevProps.location
-      && this.props.location
-      && prevProps.location.coords.latitude === this.props.location.coords.latitude
-      && prevProps.location.coords.longitude === this.props.location.coords.longitude
-      && prevProps.showStops == this.props.showStops
-      && prevProps.trackDirection == this.props.trackDirection
-    ) return;
-
-    if (this.props.showStops) {
-      const coordinates = this.props.triggers.map((trigger) => {
-        const inst = this.props.instances.find(inst => parseInt(inst.instance_id) === parseInt(trigger.instance_id));
-        if (!inst) return;
-        if (inst.object_type !== 'PLAQUE') return;
-        const plaque = this.props.plaques.find(p => parseInt(p.plaque_id) === parseInt(inst.object_id));
-        if (!plaque) return;
-        return {
-          latitude: parseFloat(trigger.latitude),
-          longitude: parseFloat(trigger.longitude),
-        };
-      }).filter(x => x);
-      const options = {
-        edgePadding: {
-          top: 25,
-          bottom: 25,
-          left: 25,
-          right: 25,
-        },
-        animated: true,
-      };
-      this.refs.theMapView.fitToCoordinates(coordinates, options);
-    } else {
-      let o = {
-        center: this.props.location.coords,
-        pitch: 90,
-        zoom: 20.5,
-        altitude: 0, // not used on ios; need to set for android
-      };
-      if (this.props.trackDirection) {
-        o.heading = this.props.location.coords.heading;
-      }
-      this.refs.theMapView.setCamera(o);
-    }
-  }
-
   moveToPoint(center) {
     // removed
   }
@@ -394,27 +354,9 @@ export class SiftrMap extends React.Component {
   render() {
     if (!this.props.theme) return null; // wait for theme to load
     const {height, width} = Dimensions.get('window');
-    return <MapView
-      provider={PROVIDER_GOOGLE}
-      ref="theMapView"
-      onMapReady={() => {
-        // this is a hack, because of a problem with react-native-maps.
-        // see https://github.com/airbnb/react-native-maps/issues/1577
-        if (Platform.OS === 'ios' && false) {
-          this.refs.theMapView.animateToRegion({
-            latitude: this.props.center.lat,
-            longitude: this.props.center.lng,
-            latitudeDelta: this.props.delta.lat,
-            longitudeDelta: this.props.delta.lng,
-          }, 1);
-        }
-      }}
-      onLayout={(...args) => {
-        setTimeout(() => {
-          this.setState({isMapReady: true});
-        }, 500);
-        this.props.onLayout(...args);
-      }}
+    return <MapboxGL.MapView
+      ref={r => (this.theMapView = r)}
+      onLayout={this.props.onLayout}
       style={{
         position: 'absolute',
         top: 0,
@@ -422,64 +364,64 @@ export class SiftrMap extends React.Component {
         left: 0,
         right: 0,
       }}
+      zoomEnabled={true}
       scrollEnabled={false}
+      rotateEnabled={true}
       pitchEnabled={false}
-      zoomEnabled={false}
-      rotateEnabled={false}
-      mapPadding={{
-        top: height * 0.45,
+      contentInset={[height * 0.45, 0, 0, 0]}
+      onPress={e => {
+        const [longitude, latitude] = e.geometry.coordinates;
+        this.props.onPress({latitude, longitude});
       }}
-      initialCamera={{
-        center: this.props.location ? this.props.location.coords : {
-          latitude: 0,
-          longitude: 0,
-        },
-        heading: 0,
-        pitch: 90,
-        zoom: 20.5,
-        altitude: 0, // not used on ios; need to set for android
-      }}
-      onPanDrag={(e) => {
-        this.props.onRotate();
-        const fingerXY = e.nativeEvent.position;
-        const relativeX = fingerXY.x - width * 0.5;
-        const relativeY = fingerXY.y - height * (0.45 + 0.55 / 2); // since mapPadding is height * 0.45
-        const thisDegrees = -1 * Math.atan2(relativeY, relativeX) * 180 / Math.PI;
-        const bigMovement = ((a, b) => Math.abs(a - b) > 30);
-        // there's no "drag end" event so this is a hack
-        if (!this.lastDrag || bigMovement(relativeX, this.lastDrag.x) || bigMovement(relativeY, this.lastDrag.y)) {
-          // new drag
-          this.refs.theMapView.getCamera().then(cam => {
-            this.lastDrag = {x: relativeX, y: relativeY, degs: thisDegrees, heading: cam.heading};
-          })
-        } else {
-          // assume continuing drag
-          const newHeading = this.lastDrag.heading + (thisDegrees - this.lastDrag.degs);
-          this.refs.theMapView.setCamera({heading: newHeading});
-          this.lastDrag = {x: relativeX, y: relativeY, degs: thisDegrees, heading: newHeading};
-        }
-      }}
-      showsUserLocation={false}
-      showsBuildings={false}
-      customMapStyle={this.getMapStyles()}
-      mapType={this.props.game.map_type === 'STREET' ? 'standard' : 'hybrid'}
-      onPress={this.props.onPress}
     >
-      {
-        this.props.location && (
-          <MapView.Circle
-            center={this.props.location.coords}
-            radius={maxPickupDistance}
-            fillColor="rgba(0,100,255,0.2)"
-          />
-        )
-      }
+      <MapboxGL.Camera
+        ref={r => (this.theMapCamera = r)}
+        zoomLevel={this.props.showStops ? undefined : 22}
+        pitch={this.props.showStops ? 0 : 60}
+        animationDuration={300}
+        centerCoordinate={this.props.showStops ? undefined : (this.props.location && [
+          parseFloat(this.props.location.coords.longitude),
+          parseFloat(this.props.location.coords.latitude),
+        ])}
+        heading={this.props.trackDirection && !this.props.showStops
+          ? this.props.location.coords.heading
+          : undefined
+        }
+        bounds={
+          this.props.showStops ? (() => {
+            const coordinates = this.props.triggers.map((trigger) => {
+              const inst = this.props.instances.find(inst => parseInt(inst.instance_id) === parseInt(trigger.instance_id));
+              if (!inst) return;
+              if (inst.object_type !== 'PLAQUE') return;
+              const plaque = this.props.plaques.find(p => parseInt(p.plaque_id) === parseInt(inst.object_id));
+              if (!plaque) return;
+              return {
+                latitude: parseFloat(trigger.latitude),
+                longitude: parseFloat(trigger.longitude),
+              };
+            }).filter(x => x);
+            const minLatitude = Math.min(...(coordinates.map(x => x.latitude)));
+            const maxLatitude = Math.max(...(coordinates.map(x => x.latitude)));
+            const minLongitude = Math.min(...(coordinates.map(x => x.longitude)));
+            const maxLongitude = Math.max(...(coordinates.map(x => x.longitude)));
+            return {
+              ne: [maxLongitude, maxLatitude],
+              sw: [minLongitude, minLatitude],
+              paddingLeft: 25,
+              paddingRight: 25,
+              paddingTop: 25,
+              paddingBottom: 25,
+            };
+          })() : undefined
+        }
+      />
       {this.renderNotes()}
       {
         this.props.triggers && this.props.instances && this.props.triggers.map((trigger) => {
           const inst = this.props.instances.find(inst => parseInt(inst.instance_id) === parseInt(trigger.instance_id));
           if (!inst) return;
           let icon;
+          let iconSize;
           let plaque;
           let item;
           if (inst.object_type === 'PLAQUE') {
@@ -489,9 +431,11 @@ export class SiftrMap extends React.Component {
             icon = visited ? 
               require('../web/assets/img/icon-blaze-visited.png') :
               require('../web/assets/img/icon-blaze.png');
+            iconSize=[58, 110];
             plaque = this.props.plaques.find(p => parseInt(p.plaque_id) === parseInt(inst.object_id));
           } else if (inst.object_type === 'ITEM') {
             icon = require('../web/assets/img/icon-chest.png');
+            iconSize=[62, 46];
             item = this.props.items.find(p => parseInt(p.item_id) === parseInt(inst.object_id));
           } else {
             return;
@@ -500,6 +444,7 @@ export class SiftrMap extends React.Component {
 
           return (
             <SmartMarker
+              id={'t' + trigger.trigger_id}
               key={trigger.trigger_id}
               coordinate={{
                 latitude: parseFloat(trigger.latitude),
@@ -507,11 +452,12 @@ export class SiftrMap extends React.Component {
               }}
               onPress={() => this.props.onSelectItem(select)}
               icon={icon}
+              iconSize={iconSize}
             />
           );
         })
       }
-    </MapView>;
+    </MapboxGL.MapView>;
   }
   // @endif
 
@@ -575,6 +521,7 @@ export class SiftrMap extends React.Component {
   // @endif
 }
 
+/*
 SiftrMap.propTypes = {
   center: T.shape({
     lat: T.number.isRequired,
@@ -599,6 +546,7 @@ SiftrMap.propTypes = {
   getColor: T.func,
   colors: T.any, // only used to rerender map when colors are loaded
 };
+*/
 
 SiftrMap.defaultProps = {
   map_notes: [],

@@ -115,7 +115,7 @@ const SiftrInfo = createClass({
   displayName: "SiftrInfo",
   propTypes: function() {
     return {
-      game: T.instanceOf(Game),
+      game: T.any,
       tags: T.arrayOf(T.instanceOf(Tag)),
       notes: T.arrayOf(T.instanceOf(Note)),
       isOpen: T.bool,
@@ -2158,8 +2158,8 @@ export const SiftrView = createClass({
         tags={this.props.tags}
         game={this.props.game}
         fields={this.props.fields}
-        onPress={o => {
-          this.setState({warpCoords: o.nativeEvent.coordinate});
+        onPress={coords => {
+          this.setState({warpCoords: coords});
         }}
         trackDirection={this.state.trackDirection}
         showStops={this.state.showStops}

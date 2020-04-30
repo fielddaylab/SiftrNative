@@ -839,14 +839,15 @@ export class StemportsPicker extends React.Component {
               scrollEnabled={false}
               rotateEnabled={true}
               pitchEnabled={false}
+              contentInset={[height * 0.45, 0, 0, 0]}
             >
               <MapboxGL.Camera
                 zoomLevel={22}
-                pitch={70}
+                pitch={60}
                 animationDuration={300}
                 centerCoordinate={this.props.location && [
-                  this.props.location.coords.longitude,
-                  this.props.location.coords.latitude,
+                  parseFloat(this.props.location.coords.longitude),
+                  parseFloat(this.props.location.coords.latitude),
                 ]}
               />
               {
