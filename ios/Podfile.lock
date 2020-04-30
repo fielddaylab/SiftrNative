@@ -1,31 +1,45 @@
 PODS:
   - "@react-native-mapbox-gl-mapbox-static (5.8.0)"
   - boost-for-react-native (1.63.0)
-  - Crashlytics (3.13.4):
+  - Crashlytics (3.14.0):
     - Fabric (~> 1.10.2)
   - DoubleConversion (1.1.6)
   - Fabric (1.10.2)
-  - Firebase/Core (6.4.0):
+  - Firebase/Core (6.16.0):
     - Firebase/CoreOnly
-    - FirebaseAnalytics (= 6.0.3)
-  - Firebase/CoreOnly (6.4.0):
-    - FirebaseCore (= 6.0.4)
-  - FirebaseAnalytics (6.0.3):
-    - FirebaseCore (~> 6.0)
-    - FirebaseInstanceID (~> 4.2)
-    - GoogleAppMeasurement (= 6.0.3)
+    - FirebaseAnalytics (= 6.2.2)
+  - Firebase/CoreOnly (6.16.0):
+    - FirebaseCore (= 6.6.1)
+  - FirebaseAnalytics (6.2.2):
+    - FirebaseCore (~> 6.6)
+    - FirebaseInstanceID (~> 4.3)
+    - GoogleAppMeasurement (= 6.2.2)
     - GoogleUtilities/AppDelegateSwizzler (~> 6.0)
     - GoogleUtilities/MethodSwizzler (~> 6.0)
     - GoogleUtilities/Network (~> 6.0)
     - "GoogleUtilities/NSData+zlib (~> 6.0)"
-    - nanopb (~> 0.3)
-  - FirebaseCore (6.0.4):
-    - GoogleUtilities/Environment (~> 6.0)
-    - GoogleUtilities/Logger (~> 6.0)
-  - FirebaseInstanceID (4.2.1):
-    - FirebaseCore (~> 6.0)
-    - GoogleUtilities/Environment (~> 6.0)
-    - GoogleUtilities/UserDefaults (~> 6.0)
+    - nanopb (= 0.3.9011)
+  - FirebaseCore (6.6.1):
+    - FirebaseCoreDiagnostics (~> 1.2)
+    - FirebaseCoreDiagnosticsInterop (~> 1.2)
+    - GoogleUtilities/Environment (~> 6.5)
+    - GoogleUtilities/Logger (~> 6.5)
+  - FirebaseCoreDiagnostics (1.2.4):
+    - FirebaseCoreDiagnosticsInterop (~> 1.2)
+    - GoogleDataTransportCCTSupport (~> 3.0)
+    - GoogleUtilities/Environment (~> 6.5)
+    - GoogleUtilities/Logger (~> 6.5)
+    - nanopb (~> 0.3.901)
+  - FirebaseCoreDiagnosticsInterop (1.2.0)
+  - FirebaseInstallations (1.1.1):
+    - FirebaseCore (~> 6.6)
+    - GoogleUtilities/UserDefaults (~> 6.5)
+    - PromisesObjC (~> 1.2)
+  - FirebaseInstanceID (4.3.0):
+    - FirebaseCore (~> 6.6)
+    - FirebaseInstallations (~> 1.0)
+    - GoogleUtilities/Environment (~> 6.5)
+    - GoogleUtilities/UserDefaults (~> 6.5)
   - Folly (2018.10.22.00):
     - boost-for-react-native
     - DoubleConversion
@@ -36,59 +50,43 @@ PODS:
     - DoubleConversion
     - glog
   - glog (0.3.5)
-  - Google-Maps-iOS-Utils (2.1.0):
-    - Google-Maps-iOS-Utils/Clustering (= 2.1.0)
-    - Google-Maps-iOS-Utils/Geometry (= 2.1.0)
-    - Google-Maps-iOS-Utils/Heatmap (= 2.1.0)
-    - Google-Maps-iOS-Utils/QuadTree (= 2.1.0)
-    - GoogleMaps
-  - Google-Maps-iOS-Utils/Clustering (2.1.0):
-    - Google-Maps-iOS-Utils/QuadTree
-    - GoogleMaps
-  - Google-Maps-iOS-Utils/Geometry (2.1.0):
-    - GoogleMaps
-  - Google-Maps-iOS-Utils/Heatmap (2.1.0):
-    - Google-Maps-iOS-Utils/QuadTree
-    - GoogleMaps
-  - Google-Maps-iOS-Utils/QuadTree (2.1.0):
-    - GoogleMaps
-  - GoogleAppMeasurement (6.0.3):
+  - GoogleAppMeasurement (6.2.2):
     - GoogleUtilities/AppDelegateSwizzler (~> 6.0)
     - GoogleUtilities/MethodSwizzler (~> 6.0)
     - GoogleUtilities/Network (~> 6.0)
     - "GoogleUtilities/NSData+zlib (~> 6.0)"
-    - nanopb (~> 0.3)
-  - GoogleMaps (3.1.0):
-    - GoogleMaps/Maps (= 3.1.0)
-  - GoogleMaps/Base (3.1.0)
-  - GoogleMaps/Maps (3.1.0):
-    - GoogleMaps/Base
-  - GoogleUtilities/AppDelegateSwizzler (6.2.3):
+    - nanopb (= 0.3.9011)
+  - GoogleDataTransport (6.0.0)
+  - GoogleDataTransportCCTSupport (3.0.0):
+    - GoogleDataTransport (~> 6.0)
+    - nanopb (~> 0.3.901)
+  - GoogleUtilities/AppDelegateSwizzler (6.5.1):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
     - GoogleUtilities/Network
-  - GoogleUtilities/Environment (6.2.3)
-  - GoogleUtilities/Logger (6.2.3):
+  - GoogleUtilities/Environment (6.5.1)
+  - GoogleUtilities/Logger (6.5.1):
     - GoogleUtilities/Environment
-  - GoogleUtilities/MethodSwizzler (6.2.3):
+  - GoogleUtilities/MethodSwizzler (6.5.1):
     - GoogleUtilities/Logger
-  - GoogleUtilities/Network (6.2.3):
+  - GoogleUtilities/Network (6.5.1):
     - GoogleUtilities/Logger
     - "GoogleUtilities/NSData+zlib"
     - GoogleUtilities/Reachability
-  - "GoogleUtilities/NSData+zlib (6.2.3)"
-  - GoogleUtilities/Reachability (6.2.3):
+  - "GoogleUtilities/NSData+zlib (6.5.1)"
+  - GoogleUtilities/Reachability (6.5.1):
     - GoogleUtilities/Logger
-  - GoogleUtilities/UserDefaults (6.2.3):
+  - GoogleUtilities/UserDefaults (6.5.1):
     - GoogleUtilities/Logger
   - Mapbox-iOS-SDK (5.8.0):
     - MapboxMobileEvents (= 0.10.2)
   - MapboxMobileEvents (0.10.2)
-  - nanopb (0.3.901):
-    - nanopb/decode (= 0.3.901)
-    - nanopb/encode (= 0.3.901)
-  - nanopb/decode (0.3.901)
-  - nanopb/encode (0.3.901)
+  - nanopb (0.3.9011):
+    - nanopb/decode (= 0.3.9011)
+    - nanopb/encode (= 0.3.9011)
+  - nanopb/decode (0.3.9011)
+  - nanopb/encode (0.3.9011)
+  - PromisesObjC (1.2.8)
   - RCT3DModel (1.2.0):
     - RCT3DModel/AFNetworking (= 1.2.0)
     - RCT3DModel/Core (= 1.2.0)
@@ -158,10 +156,6 @@ PODS:
     - React
   - react-native-geolocation (1.4.2):
     - React
-  - react-native-google-maps (0.25.0):
-    - Google-Maps-iOS-Utils (= 2.1.0)
-    - GoogleMaps (= 3.1.0)
-    - React
   - react-native-image-picker (1.0.1):
     - React
   - react-native-mapbox-gl (8.0.0):
@@ -177,8 +171,6 @@ PODS:
   - react-native-mapbox-gl/StaticLibraryFixer (8.0.0):
     - "@react-native-mapbox-gl-mapbox-static (~> 5.7)"
     - Mapbox-iOS-SDK (~> 5.7)
-    - React
-  - react-native-maps (0.25.0):
     - React
   - react-native-netinfo (4.1.2):
     - React
@@ -243,8 +235,6 @@ DEPENDENCIES:
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
-  - Google-Maps-iOS-Utils
-  - GoogleMaps
   - RCT3DModel (from `../node_modules/react-native-3d-model-view`)
   - React (from `../node_modules/react-native/`)
   - React-Core (from `../node_modules/react-native/React`)
@@ -257,10 +247,8 @@ DEPENDENCIES:
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-geocoder (from `../node_modules/react-native-geocoder`)
   - "react-native-geolocation (from `../node_modules/@react-native-community/geolocation`)"
-  - react-native-google-maps (from `../node_modules/react-native-maps`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - "react-native-mapbox-gl (from `../node_modules/@react-native-mapbox-gl/maps`)"
-  - react-native-maps (from `../node_modules/react-native-maps`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-orientation-locker (from `../node_modules/react-native-orientation-locker`)
   - react-native-webview (from `../node_modules/react-native-webview`)
@@ -292,14 +280,18 @@ SPEC REPOS:
     - Firebase
     - FirebaseAnalytics
     - FirebaseCore
+    - FirebaseCoreDiagnostics
+    - FirebaseCoreDiagnosticsInterop
+    - FirebaseInstallations
     - FirebaseInstanceID
-    - Google-Maps-iOS-Utils
     - GoogleAppMeasurement
-    - GoogleMaps
+    - GoogleDataTransport
+    - GoogleDataTransportCCTSupport
     - GoogleUtilities
     - Mapbox-iOS-SDK
     - MapboxMobileEvents
     - nanopb
+    - PromisesObjC
     - SSZipArchive
 
 EXTERNAL SOURCES:
@@ -333,14 +325,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-geocoder"
   react-native-geolocation:
     :path: "../node_modules/@react-native-community/geolocation"
-  react-native-google-maps:
-    :path: "../node_modules/react-native-maps"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-mapbox-gl:
     :path: "../node_modules/@react-native-mapbox-gl/maps"
-  react-native-maps:
-    :path: "../node_modules/react-native-maps"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-orientation-locker:
@@ -387,22 +375,26 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   "@react-native-mapbox-gl-mapbox-static": e247172bc43f47757f47d6cec1b325b1ab3e9287
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  Crashlytics: 2dfd686bcb918dc10ee0e76f7f853fe42c7bd552
+  Crashlytics: 540b7e5f5da5a042647227a5e3ac51d85eed06df
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
   Fabric: 706c8b8098fff96c33c0db69cbf81f9c551d0d74
-  Firebase: 9445469655a98e9010737f4bc4720e5bda465873
-  FirebaseAnalytics: 69fe25866d2ec87c6f02d72c3c9a82bce9c065a0
-  FirebaseCore: 7ea99e200f0024262650be56623fbe6a7bef1707
-  FirebaseInstanceID: 9782fcfb89e4d7da76cc28eac4b8543dc7be4a4b
+  Firebase: 497158b816d0a86fc31babbd05546fcd7e6083ff
+  FirebaseAnalytics: cf95d3aab897612783020fbd98401d5366f135ee
+  FirebaseCore: 85064903ed6c28e47fec9c7bd149d94ba1b6b6e7
+  FirebaseCoreDiagnostics: b59c024493a409f8aecba02c99928d0d8431d159
+  FirebaseCoreDiagnosticsInterop: 296e2c5f5314500a850ad0b83e9e7c10b011a850
+  FirebaseInstallations: acb3216eb9784d3b1d2d2d635ff74fa892cc0c44
+  FirebaseInstanceID: 6668efc1655a4052c083f287a7141f1ead12f9c2
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
-  Google-Maps-iOS-Utils: c32891ff472eaaa1fca032beedafa1a013af7875
-  GoogleAppMeasurement: 1e45fa601e6280c180880d57010390f6679cd971
-  GoogleMaps: 5c13302e6fe6bb6e686b267196586b91cd594225
-  GoogleUtilities: d2b0e277a95962e09bb27f5cd42f5f0b6a506c7d
+  GoogleAppMeasurement: d0560d915abf15e692e8538ba1d58442217b6aff
+  GoogleDataTransport: 061fe7d9b476710e3cd8ea51e8e07d8b67c2b420
+  GoogleDataTransportCCTSupport: 0f39025e8cf51f168711bd3fb773938d7e62ddb5
+  GoogleUtilities: 06eb53bb579efe7099152735900dd04bf09e7275
   Mapbox-iOS-SDK: 02590a60fe300810c55432219a0caaa1338fbafb
   MapboxMobileEvents: 2bc0ca2eedb627b73cf403258dce2b2fa98074a6
-  nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
+  nanopb: 18003b5e52dab79db540fe93fe9579f399bd1ccd
+  PromisesObjC: c119f3cd559f50b7ae681fa59dc1acd19173b7e6
   RCT3DModel: 25a59c19d5741236251dcf4da4abc02afcf63c93
   React: ff7ee2ae5ee1c1d9ae2183b4111045b25294bb01
   React-Core: 8e0ea421cae5609d2562850f98421b15030476fa
@@ -415,10 +407,8 @@ SPEC CHECKSUMS:
   react-native-camera: 53e453fd5e6501afbac79d6b21a5fbfd84950eda
   react-native-geocoder: 757427682892bb256f3b3745858cc90eba148a8e
   react-native-geolocation: a7b94614afbd5fd8350e0233a2025c8228fc8041
-  react-native-google-maps: 88d750ad441b19c24885f20d43a55ecac25939b5
   react-native-image-picker: c9bddc819f4fd46b6f37f2861712497e920192d9
   react-native-mapbox-gl: 77b87a1dd2d7b41b6b77018c0f3bed5f8ee55c81
-  react-native-maps: 190c02ca533fddac5bb49cf17bdece3644612107
   react-native-netinfo: 88a4003f68c6f979c1f439e7bd7c5c0b2e819160
   react-native-orientation-locker: 23918c400376a7043e752c639c122fcf6bce8f1c
   react-native-webview: d1b30cc9128256ec1a9c6d10fb572231bd371337
@@ -442,6 +432,6 @@ SPEC CHECKSUMS:
   SSZipArchive: fa16b8cc4cdeceb698e5e5d9f67e9558532fbf23
   yoga: c2c050f6ae6e222534760cc82f559b89214b67e2
 
-PODFILE CHECKSUM: b61fd0bdbd4af6f4100f06c4dc1767d6f2bbdf3e
+PODFILE CHECKSUM: 8c2af9d9a9c7a86b2a1fc9815e6cb5e1c2403c16
 
 COCOAPODS: 1.8.4

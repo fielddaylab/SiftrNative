@@ -33,9 +33,6 @@ target 'Siftr' do
     # Pods for testing
   end
 
-  pod 'react-native-google-maps', path: '../node_modules/react-native-maps'
-  pod 'GoogleMaps'
-  pod 'Google-Maps-iOS-Utils'
   use_native_modules!
 end
 

@@ -13,7 +13,6 @@ import {
 , ImageBackground
 , Dimensions
 } from 'react-native';
-import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import {styles} from './styles';
 import Svg, {
   Path

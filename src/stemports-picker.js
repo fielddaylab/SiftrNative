@@ -18,7 +18,6 @@ import {deserializeGame} from "./aris";
 import {loadMedia, CacheMedia} from "./media";
 import { StatusSpace } from "./status-space";
 import { StemportsPlayer } from "./stemports-player";
-// import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import {addXP, meterDistance} from './siftr-view';
 import {loadQueue, uploadNote} from './upload-queue';
 import {getQuestProgress} from './quests';
