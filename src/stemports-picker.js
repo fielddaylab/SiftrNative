@@ -75,7 +75,7 @@ export class StemportsPicker extends React.Component {
   }
 
   getGames() {
-    this.props.auth.call('games.getAllStemportsStations', {}, res => {
+    this.props.auth.getAllStemportsStations(res => {
       if (res.returnCode === 0) {
         this.setState({games: res.data});
       }

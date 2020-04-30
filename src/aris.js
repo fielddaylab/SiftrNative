@@ -37,6 +37,7 @@ export const Game = class Game {
       this.field_id_caption = parseInt(json.field_id_caption) || null;
       this.force_new_format = parseInt(json.force_new_format) ? true : false;
       this.version = parseInt(json.version);
+      this.quests = json.quests; // present in getAllStemportsStations
     } else {
       this.game_id = null;
       this.name = null;
@@ -950,6 +951,12 @@ export const Auth = class Auth {
     this.callWrapped("client.getNearbyGamesForPlayer", json, cb, function(
       data
     ) {
+      return data.map(o => new Game(o));
+    });
+  }
+
+  getAllStemportsStations(cb) {
+    this.callWrapped("games.getAllStemportsStations", {}, cb, function(data) {
       return data.map(o => new Game(o));
     });
   }
