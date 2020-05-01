@@ -350,6 +350,58 @@ export class SiftrMap extends React.Component {
     // removed
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.showStops && !prevProps.showStops) {
+      const allCoordinates = this.props.triggers.map((trigger) => {
+        const inst = this.props.instances.find(inst => parseInt(inst.instance_id) === parseInt(trigger.instance_id));
+        if (!inst) return;
+        if (inst.object_type !== 'PLAQUE') return;
+        const plaque = this.props.plaques.find(p => parseInt(p.plaque_id) === parseInt(inst.object_id));
+        if (!plaque) return;
+        return {
+          latitude: parseFloat(trigger.latitude),
+          longitude: parseFloat(trigger.longitude),
+        };
+      }).filter(x => x);
+      let minLatitude = Math.min(...(allCoordinates.map(x => x.latitude)));
+      let maxLatitude = Math.max(...(allCoordinates.map(x => x.latitude)));
+      let minLongitude = Math.min(...(allCoordinates.map(x => x.longitude)));
+      let maxLongitude = Math.max(...(allCoordinates.map(x => x.longitude)));
+      // if (minLatitude === maxLatitude) {
+      //   minLatitude -= 0.01;
+      //   maxLatitude += 0.01;
+      // }
+      // if (minLongitude === maxLongitude) {
+      //   minLongitude -= 0.01;
+      //   maxLongitude += 0.01;
+      // }
+      const stopBounds = {
+        ne: [maxLongitude, maxLatitude],
+        sw: [minLongitude, minLatitude],
+        paddingLeft: 35,
+        paddingRight: 35,
+        paddingTop: 35,
+        paddingBottom: 35,
+      };
+
+      this.theMapCamera.setCamera({
+        bounds: stopBounds,
+        pitch: 0,
+        heading: 0,
+        minZoomLevel: 0,
+        animationDuration: 300,
+      });
+    } else if (this.props.warp) {
+      this.theMapCamera.setCamera({
+        centerCoordinate: [
+          parseFloat(this.props.location.coords.longitude),
+          parseFloat(this.props.location.coords.latitude),
+        ],
+        animationDuration: 300,
+      });
+    }
+  }
+
   render() {
     if (!this.props.theme) return null; // wait for theme to load
     const {height, width} = Dimensions.get('window');
@@ -363,9 +415,9 @@ export class SiftrMap extends React.Component {
         left: 0,
         right: 0,
       }}
-      zoomEnabled={true}
+      zoomEnabled={!this.props.showStops}
       scrollEnabled={false}
-      rotateEnabled={true}
+      rotateEnabled={!this.props.showStops}
       pitchEnabled={false}
       contentInset={[height * 0.45, 0, 0, 0]}
       onPress={e => {
@@ -375,44 +427,26 @@ export class SiftrMap extends React.Component {
     >
       <MapboxGL.Camera
         ref={r => (this.theMapCamera = r)}
-        zoomLevel={this.props.showStops ? undefined : 22}
-        pitch={this.props.showStops ? 0 : 60}
+        defaultSettings={{
+          zoomLevel: 22,
+          centerCoordinate: (this.props.location && [
+            parseFloat(this.props.location.coords.longitude),
+            parseFloat(this.props.location.coords.latitude),
+          ]),
+          pitch: 60,
+        }}
         animationDuration={300}
-        centerCoordinate={this.props.showStops ? undefined : (this.props.location && [
-          parseFloat(this.props.location.coords.longitude),
-          parseFloat(this.props.location.coords.latitude),
-        ])}
-        heading={this.props.trackDirection && !this.props.showStops
-          ? this.props.location.coords.heading
-          : undefined
+        centerCoordinate={this.props.showStops ? undefined
+          : this.props.warp ? (this.props.location && [
+              parseFloat(this.props.location.coords.longitude),
+              parseFloat(this.props.location.coords.latitude),
+              ])
+          : undefined /* use followUserLocation */
         }
-        bounds={
-          this.props.showStops ? (() => {
-            const coordinates = this.props.triggers.map((trigger) => {
-              const inst = this.props.instances.find(inst => parseInt(inst.instance_id) === parseInt(trigger.instance_id));
-              if (!inst) return;
-              if (inst.object_type !== 'PLAQUE') return;
-              const plaque = this.props.plaques.find(p => parseInt(p.plaque_id) === parseInt(inst.object_id));
-              if (!plaque) return;
-              return {
-                latitude: parseFloat(trigger.latitude),
-                longitude: parseFloat(trigger.longitude),
-              };
-            }).filter(x => x);
-            const minLatitude = Math.min(...(coordinates.map(x => x.latitude)));
-            const maxLatitude = Math.max(...(coordinates.map(x => x.latitude)));
-            const minLongitude = Math.min(...(coordinates.map(x => x.longitude)));
-            const maxLongitude = Math.max(...(coordinates.map(x => x.longitude)));
-            return {
-              ne: [maxLongitude, maxLatitude],
-              sw: [minLongitude, minLatitude],
-              paddingLeft: 25,
-              paddingRight: 25,
-              paddingTop: 25,
-              paddingBottom: 25,
-            };
-          })() : undefined
-        }
+        followUserLocation={!(this.props.showStops || this.props.warp)}
+        followUserMode={this.props.trackDirection ? 'compass' : 'normal'}
+        pitch={this.props.showStops ? 0 : 60}
+        followPitch={60}
       />
       {this.renderNotes()}
       {

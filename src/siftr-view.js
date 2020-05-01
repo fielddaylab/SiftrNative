@@ -2114,6 +2114,7 @@ export const SiftrView = createClass({
         items={this.props.items}
         auth={this.props.auth}
         logs={this.state.logs}
+        warp={this.state.warp}
         onSelectItem={(o) => {
           const location = this.getLocationWithWarp();
           if (!location) return;
@@ -2179,7 +2180,6 @@ export const SiftrView = createClass({
         }}
         trackDirection={this.state.trackDirection}
         showStops={this.state.showStops}
-        onRotate={() => this.setState({trackDirection: false})}
       />
     );
   },
