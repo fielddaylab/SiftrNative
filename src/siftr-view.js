@@ -40,7 +40,7 @@ import {CacheMedia} from './media';
 import ProgressCircle from 'react-native-progress-circle';
 import {ItemScreen, InventoryScreen} from './items';
 import {PlaqueScreen} from './plaques';
-import {QuestDetails, QuestDotDetails, GenericModal, TaskComplete} from './quests';
+import {QuestDetails, QuestDotDetails, GenericModal, TaskComplete, QuestComplete} from './quests';
 import {evalReqPackage} from './requirements';
 import {GuideLine} from './stemports-picker';
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
@@ -901,11 +901,10 @@ export const SiftrView = createClass({
     if (!this.isMounted) {
       // do nothing
     } else {
-      let active = [];
-      let complete = [];
-      let displayInfo = [];
+      let activeAll = [];
+      let completeAll = [];
+      let displayInfoAll = [];
       this.props.quests.forEach(quest => {
-        if (this.props.currentQuest && parseInt(this.props.currentQuest.quest_id) !== parseInt(quest.quest_id)) return;
         if (parseInt(quest.parent_quest_id)) return;
         const is_active = this.evalReqPackage(quest.active_requirement_root_package_id, 'quest');
         if (!is_active) return;
@@ -932,17 +931,23 @@ export const SiftrView = createClass({
         }
         const is_complete = reqRoots.every(o => o.bool);
         if (is_complete) {
-          complete.push(quest);
+          completeAll.push(quest);
         } else {
-          active.push(quest);
+          activeAll.push(quest);
         }
-        displayInfo.push({quest: quest, reqRoots: reqRoots});
+        displayInfoAll.push({quest: quest, reqRoots: reqRoots});
       });
+      const currentQuestID = parseInt(this.props.currentQuest.quest_id);
+      const active = activeAll.filter(quest => parseInt(quest.quest_id) === currentQuestID);
+      const complete = completeAll.filter(quest => parseInt(quest.quest_id) === currentQuestID);
+      const displayInfo = displayInfoAll.filter(o => parseInt(o.quest.quest_id) === currentQuestID);
+
       const oldQuests = this.state.quests;
+      const newQuestsAll = {active: activeAll, complete: completeAll, displayInfo: displayInfoAll};
       const newQuests = {active: active, complete: complete, displayInfo: displayInfo};
       const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
-      RNFS.writeFile(`${siftrDir}/quests-sorted.txt`, JSON.stringify(newQuests));
-      let o = {quests: newQuests};
+      RNFS.writeFile(`${siftrDir}/quests-sorted.txt`, JSON.stringify(newQuestsAll));
+      let o = {quests: newQuests, questsAll: newQuestsAll};
       if (this.props.currentQuest && !newQuests.active.some(q => q.quest_id === this.props.currentQuest.quest_id)) {
         // TODO close this quest because it's complete?
       }
@@ -3261,12 +3266,12 @@ export const SiftrView = createClass({
                     );
                   } else if (modal.type === 'quest-complete') {
                     return (
-                      <QuestDetails
-                        quest={modal.quest}
-                        message="Quest complete!"
+                      <QuestComplete
+                        questsAll={this.state.questsAll}
+                        onExitQuest={hasMore => {
+                          this.props.onExitQuest(hasMore);
+                        }}
                         onClose={this.popModal/*.bind(this)*/}
-                        status="complete"
-                        auth={this.props.auth}
                       />
                     );
                   } else if (modal.type === 'subquest-complete') {

@@ -49,6 +49,12 @@ export class StemportsPicker extends React.Component {
       games: [],
       downloadedGames: [],
       introSequence: 'welcome',
+      gameModal: props.currentStation ? {
+        game: props.currentStation,
+        online: props.currentStation,
+        offline: props.currentStation,
+        distance: Infinity,
+      } : undefined,
     };
   }
 

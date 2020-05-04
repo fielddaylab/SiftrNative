@@ -301,6 +301,59 @@ const QuestEntry = function(props) {
   );
 };
 
+export const QuestComplete = (props) => {
+  const hasMoreQuests = props.questsAll.active.length !== 0;
+  return (
+    <View style={{
+      flex: 1,
+      backgroundColor: 'white',
+    }}>
+      <GuideLine
+        style={{padding: 5}}
+        text={hasMoreQuests
+          ? 'You did it! Now you can start another quest.'
+          : 'You did it! You finished all the quests at this Science Station. Now you can find another station!'
+        }
+      />
+      <View style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <Text style={{fontSize: 30}}>Quest Complete!</Text>
+      </View>
+      <View style={{
+        padding: 30,
+        alignItems: 'center',
+      }}>
+        <TouchableOpacity onPress={() => props.onExitQuest(hasMoreQuests)} style={{
+          backgroundColor: 'rgb(98,97,241)',
+          padding: 10,
+          borderRadius: 4,
+        }}>
+          <Text style={{color: 'white'}}>
+            {hasMoreQuests ? 'Start Next Quest' : 'View Science Stations'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <View style={{
+        margin: 15,
+        alignItems: 'center',
+      }}>
+        <TouchableOpacity onPress={props.onClose}>
+          <Image
+            style={{
+              width: 140 * 0.45,
+              height: 140 * 0.45,
+            }}
+            source={require("../web/assets/img/quest-close.png")}
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
 export const TaskComplete = (props) => {
   return (
     <View style={{

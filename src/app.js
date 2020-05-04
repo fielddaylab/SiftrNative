@@ -646,6 +646,13 @@ export var SiftrNative = createClass({
                       }
                       this.setState(o);
                     }}
+                    onExitQuest={(reopenStation) => {
+                      this.setState({
+                        game: null,
+                        reopenStation: reopenStation ? this.state.game : undefined,
+                        didFinish: true,
+                      });
+                    }}
                     onPromptLogin={() => {
                       this.setState({
                         menuOpen: true
@@ -694,12 +701,13 @@ export var SiftrNative = createClass({
                   onEditProfile={this.editProfile}
                   queueMessage={this.state.queueMessage}
                   location={this.state.location}
-                  launchCurrentQuest={true}
+                  launchCurrentQuest={!this.state.didFinish}
                   viewComic={this.state.viewingComic}
                   onCloseComic={() => {
                     this.setState({viewingComic: false});
                     RNFS.writeFile(seenComic, 'true', 'utf8');
                   }}
+                  currentStation={this.state.reopenStation}
                 />
               </SafeAreaView>
             )
