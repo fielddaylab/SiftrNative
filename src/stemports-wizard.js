@@ -2,6 +2,7 @@
 
 import React from "react";
 import update from "immutability-helper";
+import {CacheMedia} from './media';
 import {
   View,
   TouchableOpacity,
@@ -14,15 +15,18 @@ import { GuideLine } from "./stemports-picker";
 
 const WizardLines = [
   {
-    header: "First, Collect Violet's Field Notes",
+    header: ((quest) => quest.tutorial_1_title || "First, Collect Violet's Field Notes"),
+    media_id: ((quest) => parseInt(quest.tutorial_1_media_id) || 0),
     body: ((quest) => quest.tutorial_1 || "Violet left her field notes all over the place! Find and collect them so you can add them to your own field guide."),
   },
   {
-    header: "Then, Visit Tour Stops",
+    header: ((quest) => quest.tutorial_2_title || "Then, Visit Tour Stops"),
+    media_id: ((quest) => parseInt(quest.tutorial_2_media_id) || 0),
     body: ((quest) => quest.tutorial_2 || "Find all the tour stops along the way, and visit each one. You'll learn new things, and collect extra field notes!"),
   },
   {
-    header: "Finally, we'll make our own scientific observations!",
+    header: ((quest) => quest.tutorial_3_title || "Finally, we'll make our own scientific observations!"),
+    media_id: ((quest) => parseInt(quest.tutorial_3_media_id) || 0),
     body: ((quest) => quest.tutorial_3 || "Once you create your own Field Guide, you'll be able to find new examples and document them!"),
   },
 ];
@@ -36,30 +40,39 @@ export class StemportsWizard extends React.Component {
   }
 
   render() {
-    const header = WizardLines[this.state.lineIndex].header;
-    const body = WizardLines[this.state.lineIndex].body;
+    const line = WizardLines[this.state.lineIndex];
     const isLastLine = this.state.lineIndex === WizardLines.length - 1;
     return (
       <View style={{
         flex: 1,
         alignItems: 'stretch',
       }}>
-        <GuideLine
-          style={{margin: 10}}
-          text="Yay, let's get started! Here's what we'll do on this quest."
-        />
-        <Text style={{
-          margin: 10,
-          fontSize: 24,
-          fontWeight: 'bold',
-        }}>
-          {header}
-        </Text>
         <ScrollView style={{flex: 1}}>
           <Text style={{
             margin: 10,
+            fontSize: 24,
+            fontWeight: 'bold',
           }}>
-            {body(this.props.quest)}
+            {line.header(this.props.quest)}
+          </Text>
+          <CacheMedia
+            media_id={line.media_id(this.props.quest)}
+            auth={this.props.auth}
+            online={this.props.online}
+            withURL={(url) => (
+              <Image
+                source={url}
+                style={{
+                  height: 200,
+                  resizeMode: 'contain',
+                }}
+              />
+            )}
+          />
+          <Text style={{
+            margin: 10,
+          }}>
+            {line.body(this.props.quest)}
           </Text>
         </ScrollView>
         <View style={{
