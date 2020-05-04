@@ -1308,7 +1308,7 @@ class GameQuestList extends React.Component {
   }
 }
 
-export class StemportsOutpost extends React.Component {
+export class StemportsQuest extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -1316,6 +1316,81 @@ export class StemportsOutpost extends React.Component {
   }
 
   render() {
+    return (
+      <View style={{
+        flex: 1,
+        backgroundColor: 'white',
+        alignItems: 'stretch',
+      }}>
+        <TouchableOpacity onPress={this.props.onClose}>
+          <Image
+            source={require('../web/assets/img/back-arrow.png')}
+            style={{
+              resizeMode: 'contain',
+              width: 108 * 0.25,
+              height: 150 * 0.25,
+              margin: 10,
+            }}
+          />
+        </TouchableOpacity>
+        <ScrollView style={{flex: 1}}>
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}>
+            <Image source={require('../web/assets/img/stemports-icon-station.png')} style={{
+              width: 136 * 0.4,
+              height: 128 * 0.4,
+              resizeMode: 'contain',
+              margin: 15,
+            }} />
+            <Text style={{margin: 15, fontSize: 25, fontWeight: 'bold', flex: 1}}>
+              {this.props.quest.name}
+            </Text>
+          </View>
+          {
+            this.props.quest.description.length !== 0 && (
+              <Text style={{margin: 15}}>
+                {this.props.quest.description}
+              </Text>
+            )
+          }
+        </ScrollView>
+        <View style={{alignItems: 'center', justifyContent: 'center'}}>
+          <TouchableOpacity style={{
+            backgroundColor: 'rgb(101,88,245)',
+            padding: 5,
+            margin: 20,
+          }} onPress={this.props.onStart}>
+            <Text style={{color: 'white'}}>
+              Start Quest
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+}
+
+export class StemportsOutpost extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      showingQuest: null,
+    };
+  }
+
+  render() {
+    if (this.state.showingQuest) {
+      return (
+        <StemportsQuest
+          onStart={() => this.props.onSelect(this.props.game, this.state.showingQuest)}
+          onClose={() => this.setState({showingQuest: null})}
+          quest={this.state.showingQuest}
+        />
+      );
+    }
+
     const game = this.props.game;
     const obj = this.props.obj;
     const newVersion = obj.online && obj.offline && obj.online.version !== obj.offline.version;
@@ -1395,7 +1470,7 @@ export class StemportsOutpost extends React.Component {
             <GameQuestList
               obj={obj}
               game={game}
-              onSelect={this.props.onSelect}
+              onSelect={(game, quest) => this.setState({showingQuest: quest})}
               downloaded={obj.offline}
             />
           </View>
