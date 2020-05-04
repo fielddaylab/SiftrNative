@@ -368,6 +368,7 @@ export const Field = class Field {
       this.max_color = json.max_color;
       this.quest_id = parseInt(json.quest_id);
       this.field_option_id = parseInt(json.field_option_id);
+      this.instruction = json.instruction;
     }
   }
 };

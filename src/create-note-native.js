@@ -1065,6 +1065,15 @@ export const CreateData = createClass({
                             {field.label}{field.required ? ' *' : ''}
                           </Text>
                         </View>
+                        <View style={styles.settingsHeader}>
+                          <Text style={[
+                            styles.settingsHeaderText,
+                            this.state.alertFields.indexOf(field) !== -1 ? {color: 'red'} : {},
+                            {fontSize: 15, color: 'black', textAlign: 'center'},
+                          ]}>
+                            {field.instruction}
+                          </Text>
+                        </View>
                         {function() {
                           var ref2;
                           onChangeData = newData => {
