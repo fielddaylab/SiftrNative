@@ -764,11 +764,13 @@ export const CreateData = createClass({
     }
   },
   finishForm: function() {
+    // TODO replace this whole thing with checking each step as you go
     var field, field_data, files, i, len, ref, ref1, ref2, ref3;
     field_data = (ref = this.props.createNote.field_data) != null ? ref : [];
     files = (ref1 = this.props.createNote.files) != null ? ref1 : [];
     ref2 = this.props.fields;
     let missingFields = [];
+    // TODO this needs to ignore fields from other quests
     for (i = 0, len = ref2.length; i < len; i++) {
       field = ref2[i];
       if (field.field_type === "SINGLESELECT") {

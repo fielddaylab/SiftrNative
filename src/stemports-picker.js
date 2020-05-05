@@ -858,7 +858,7 @@ export class StemportsPicker extends React.Component {
               {
                 !puffinHi && gameList.map(o =>
                   <MapboxGL.PointAnnotation
-                    id={o.game.game_id}
+                    id={'' + o.game.game_id}
                     key={o.game.game_id}
                     coordinate={[parseFloat(o.game.longitude), parseFloat(o.game.latitude)]}
                     title={o.game.name}
@@ -1334,20 +1334,27 @@ export class StemportsQuest extends React.Component {
           />
         </TouchableOpacity>
         <ScrollView style={{flex: 1}}>
-          <View style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}>
-            <Image source={require('../web/assets/img/stemports-icon-station.png')} style={{
-              width: 136 * 0.4,
-              height: 128 * 0.4,
-              resizeMode: 'contain',
-              margin: 15,
-            }} />
-            <Text style={{margin: 15, fontSize: 25, fontWeight: 'bold', flex: 1}}>
-              {this.props.quest.name}
-            </Text>
-          </View>
+          <Text style={{margin: 15, fontSize: 25, fontWeight: 'bold', flex: 1}}>
+            {this.props.quest.name}
+          </Text>
+          {
+            parseInt(this.props.quest.active_icon_media_id) ? (
+              <CacheMedia
+                media_id={this.props.quest.active_icon_media_id}
+                auth={this.props.auth}
+                online={this.props.online}
+                withURL={(url) => (
+                  <Image
+                    source={url}
+                    style={{
+                      height: 200,
+                      resizeMode: 'contain',
+                    }}
+                  />
+                )}
+              />
+            ) : null
+          }
           {
             this.props.quest.description.length !== 0 && (
               <Text style={{margin: 15}}>
