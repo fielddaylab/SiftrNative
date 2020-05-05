@@ -4,7 +4,6 @@ import React from 'react';
 import T from 'prop-types';
 import update from 'immutability-helper';
 
-// @ifdef NATIVE
 import {
   Text
 , View
@@ -21,12 +20,6 @@ import Svg, {
 } from 'react-native-svg';
 import {CacheMedia} from './media';
 import MapboxGL from "@react-native-mapbox-gl/maps";
-// @endif
-
-// @ifdef WEB
-import GoogleMap from 'google-map-react';
-import {ConicGradient} from './conic-gradient';
-// @endif
 
 import {fitBounds} from 'google-map-react/utils';
 
@@ -34,22 +27,6 @@ import {
   Note
 , Colors
 } from './aris';
-
-import {clicker} from './utils';
-
-// @ifdef WEB
-// Cache of gradient PNG data URLs
-const allConicGradients = {};
-const getConicGradient = function(opts) {
-  const key = `${opts.stops}_${opts.size}`;
-  let grad = allConicGradients[key];
-  if (grad == null) {
-    grad = new ConicGradient(opts).png;
-    allConicGradients[key] = grad;
-  }
-  return grad;
-};
-// @endif
 
 const toWord8 = function(n) {
   let s = n.toString(16);
@@ -91,7 +68,6 @@ class MapNote extends React.Component {
     return props.thumbHover && props.thumbHover == this.props.note.note_id;
   }
 
-  // @ifdef NATIVE
   render() {
     return (
       <SmartMarker
@@ -106,26 +82,7 @@ class MapNote extends React.Component {
       />
     );
   }
-  // @endif
 
-  // @ifdef WEB
-  render() {
-    let className = 'siftr-map-note';
-    if (this.thumbFocused()) {
-      className += ' hybrid-hover';
-    }
-    return <div className={className}>
-      <div className="siftr-map-note-shadow" />
-      <div
-        className="siftr-map-note-pin"
-        style={{backgroundColor: this.props.getColor(this.props.note)}}
-        onClick={clicker(() => this.props.onSelect(this.props.note))}
-        onMouseEnter={() => this.props.onMouseEnter(this.props.note)}
-        onMouseLeave={() => this.props.onMouseLeave(this.props.note)}
-      />
-    </div>;
-  }
-  // @endif
 }
 
 MapNote.propTypes = {
@@ -186,7 +143,6 @@ function stringToColorCode(str) {
     return (str in color_codes) ? color_codes[str] : (color_codes[str] = '#'+ ('000000' + (Math.random()*0xFFFFFF<<0).toString(16)).slice(-6));
 }
 
-// @ifdef NATIVE
 class SmartMarker extends React.Component {
   constructor(props) {
     super(props);
@@ -213,7 +169,6 @@ class SmartMarker extends React.Component {
     );
   }
 }
-// @endif
 
 export const maxPickupDistance = 15; // meters
 
@@ -226,7 +181,6 @@ export class SiftrMap extends React.Component {
     };
   }
 
-  // @ifdef NATIVE
   openCluster(cluster) {
     return; // disable cluster zoom in stemports
     const coordinates = [
@@ -244,74 +198,10 @@ export class SiftrMap extends React.Component {
     };
     this.refs.theMapView.fitToCoordinates(coordinates, options);
   }
-  // @endif
 
-  // @ifdef WEB
-  openCluster(cluster) {
-    const close = (x, y) => (Math.abs(x - y) < 0.00005);
-    if (close(cluster.min_latitude, cluster.max_latitude) && close(cluster.min_longitude, cluster.min_longitude)) {
-      // Calling fitBounds on a single point breaks for some reason
-      this.props.onMove({
-        center: {
-          lat: (cluster.min_latitude  + cluster.max_latitude ) / 2,
-          lng: (cluster.min_longitude + cluster.max_longitude) / 2,
-        },
-        zoom: 21,
-      });
-      return;
-    }
-    // adjust bounds if all the points are on a single orthogonal line
-    // (fitBounds also breaks in this case)
-    let bounds;
-    if (close(cluster.min_latitude, cluster.max_latitude)) {
-      bounds = {
-        nw: {
-          lat: cluster.max_latitude + 0.0005,
-          lng: cluster.min_longitude,
-        },
-        se: {
-          lat: cluster.min_latitude - 0.0005,
-          lng: cluster.max_longitude,
-        },
-      };
-    } else if (close(cluster.min_longitude, cluster.max_longitude)) {
-      bounds = {
-        nw: {
-          lat: cluster.max_latitude,
-          lng: cluster.min_longitude - 0.0005,
-        },
-        se: {
-          lat: cluster.min_latitude,
-          lng: cluster.max_longitude + 0.0005,
-        },
-      };
-    } else {
-      bounds = {
-        nw: {
-          lat: cluster.max_latitude,
-          lng: cluster.min_longitude,
-        },
-        se: {
-          lat: cluster.min_latitude,
-          lng: cluster.max_longitude,
-        },
-      };
-    }
-    const size = {
-      width: this.refs.mapContainer.clientWidth * 0.9,
-      height: this.refs.mapContainer.clientHeight * 0.9,
-      // we shrink the stated map size a bit,
-      // to make sure we end up with some buffer around the points
-    };
-    const {center, zoom} = fitBounds(bounds, size);
-    this.props.onMove({center, zoom});
-  }
-  // @endif
 
   renderNotes() {
-    // @ifdef NATIVE
     if (!this.state.isMapReady) return null;
-    // @endif
     return this.props.map_notes.map((map_note) =>
       <MapNote
         key={map_note.note_id}
@@ -345,7 +235,6 @@ export class SiftrMap extends React.Component {
     }).filter((x) => x != null));
   }
 
-  // @ifdef NATIVE
   moveToPoint(center) {
     // removed
   }
@@ -492,66 +381,11 @@ export class SiftrMap extends React.Component {
       }
     </MapboxGL.MapView>;
   }
-  // @endif
 
   getMapStyles(props = this.props) {
     return makeMapStyles(props.game, props.theme);
   }
 
-  // @ifdef WEB
-  moveMapWeb({center: {lat, lng}, zoom, bounds: {nw, se}}) {
-    this.props.onMove({
-      center: {lat, lng},
-      zoom: zoom,
-      bounds: {nw, se},
-    });
-  }
-
-  render() {
-    return <div className="siftr-map" ref="mapContainer">
-      <GoogleMap
-        center={this.props.center}
-        zoom={this.props.zoom}
-        bootstrapURLKeys={{
-          key: 'AIzaSyDlMWLh8Ho805A5LxA_8FgPOmnHI0AL9vw'
-        }}
-        onChange={this.moveMapWeb.bind(this)}
-        options={(maps) => {
-          return {
-            fullscreenControl: false,
-            styles: this.getMapStyles(),
-            mapTypeId: this.props.game.map_type === 'STREET' ? maps.MapTypeId.ROADMAP : maps.MapTypeId.HYBRID,
-          };
-        }}
-      >
-        {this.renderNotes()}
-      </GoogleMap>
-      <div className={`siftr-map-legend ${this.state.legendOpen ? 'selected' : ''}`}>
-        <a href="#" className="legendtoggle" onClick={(e) => {
-          e.preventDefault();
-          this.setState((oldState) => update(oldState, {legendOpen: {$apply: (x) => !x}}));
-        }}>
-          Legend
-        </a>
-        <div className="legend-wrap">
-          {
-            this.props.tags ? (
-              this.props.tags.map((tag) =>
-                <span className="siftr-map-legend-tag" key={tag.tag_id}>
-                  <div
-                    className="siftr-thumbnail-dot"
-                    style={{backgroundColor: this.props.getColor(tag)}}
-                  />
-                  {tag.tag}
-                </span>
-              )
-            ) : null
-          }
-        </div>
-      </div>
-    </div>;
-  }
-  // @endif
 }
 
 /*
@@ -560,17 +394,10 @@ SiftrMap.propTypes = {
     lat: T.number.isRequired,
     lng: T.number.isRequired,
   }).isRequired,
-  // @ifdef NATIVE
   delta: T.shape({
     lat: T.number.isRequired,
     lng: T.number.isRequired,
   }).isRequired,
-  // @endif
-  // @ifdef WEB
-  zoom: T.number.isRequired,
-  onMouseEnter: T.func,
-  onMouseLeave: T.func,
-  // @endif
   map_notes: T.arrayOf(T.instanceOf(Note)),
   map_clusters: T.array,
   onMove: T.func,

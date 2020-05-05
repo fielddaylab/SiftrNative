@@ -5,9 +5,7 @@ import T from 'prop-types';
 
 import {Note} from './aris';
 import {CacheMedia} from './media';
-import {clicker} from './utils';
 
-// @ifdef NATIVE
 import { Text } from "./styles";
 import
 { View
@@ -17,16 +15,11 @@ import
 , Dimensions
 } from 'react-native';
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
-// @endif
 
-// @ifdef WEB
-import InfiniteScroll from 'react-infinite-scroller';
-// @endif
 
 // TODO: if the initial batch of thumbnails fits on screen,
 // the infinite scroll view isn't attempting to load the next batch
 
-// @ifdef NATIVE
 class NoteCard extends React.Component {
   constructor(props) {
     super(props);
@@ -105,7 +98,6 @@ class NoteCard extends React.Component {
     );
   }
 }
-// @endif
 
 export class SiftrThumbnails extends React.Component {
   constructor(props) {
@@ -113,7 +105,6 @@ export class SiftrThumbnails extends React.Component {
     this.state = {};
   }
 
-  // @ifdef NATIVE
   scrollTop() {
     if (this.refs.scroll != null) {
       this.refs.scroll.scrollTo({y: 0, animated: false});
@@ -261,72 +252,7 @@ export class SiftrThumbnails extends React.Component {
       </View>
     </InfiniteScrollView>;
   }
-  // @endif
 
-  // @ifdef WEB
-  scrollTop() {
-    if (this.refs.scroll != null) {
-      this.refs.scroll.scrollTop = 0;
-    }
-  }
-
-  render() {
-    return <div className="siftr-thumbs" ref="scroll">
-      <InfiniteScroll
-        hasMore={this.props.hasMore}
-        loadMore={this.props.loadMore}
-        useWindow={false}
-        initialLoad={false}
-      >
-        {
-          this.props.notes.map((note) =>
-            <a
-              className={
-                "siftr-thumbnail-card" +
-                (this.props.mapHover.indexOf(note.note_id) !== -1 ? ' hybrid-hover' : '')
-              }
-              key={note.note_id}
-              href="#"
-              onClick={clicker(() => this.props.onSelectNote(note))}
-              onMouseEnter={() => this.props.onMouseEnter(note)}
-              onMouseLeave={() => this.props.onMouseLeave(note)}
-            >
-              {
-                this.props.game.field_id_preview && (
-                  <CacheMedia
-                    media_id={note.field_data[this.props.game.field_id_preview]}
-                    size="big_thumb_url"
-                    auth={this.props.auth}
-                    withURL={(url) => (
-                      <div
-                        className="siftr-thumbnail"
-                        style={{backgroundImage: url ? `url(${url})` : undefined}}
-                      />
-                    )}
-                  />
-                )
-              }
-              <div className="siftr-thumbnail-info">
-                <div className="siftr-thumbnail-username">{note.user.display_name}</div>
-                <div
-                  className="siftr-thumbnail-dot"
-                  style={{backgroundColor: this.props.getColor(note)}}
-                />
-              </div>
-              {
-                this.props.game.field_id_caption && (
-                  <div className="siftr-thumbnail-caption">
-                    {note.field_data[this.props.game.field_id_caption]}
-                  </div>
-                )
-              }
-            </a>
-          )
-        }
-      </InfiniteScroll>
-    </div>
-  }
-  // @endif
 }
 
 SiftrThumbnails.propTypes = {

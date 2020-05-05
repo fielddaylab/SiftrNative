@@ -1,13 +1,10 @@
 'use strict';
 
-// @ifdef NATIVE
 import ImagePicker from 'react-native-image-picker';
 import {Platform} from 'react-native';
-// @endif
 import {withSuccess} from './utils';
 import EXIF from 'exif-js';
 
-// @ifdef NATIVE
 
 export function requestImage(onlyGallery, cb) {
   ImagePicker[onlyGallery ? 'launchImageLibrary' : 'showImagePicker']({
@@ -52,16 +49,9 @@ export function requestImage(onlyGallery, cb) {
   });
 }
 
-// @endif
 
 export function uploadImage(file, auth, game, updateProgress, cb) {
-  // @ifdef WEB
-  const ext = file.name.slice(file.name.indexOf('.') + 1);
-  const name = `upload.${ext}`;
-  // @endif
-  // @ifdef NATIVE
   const name = file.name;
-  // @endif
   updateProgress(0);
   auth.rawUpload(file, updateProgress, withSuccess((raw_upload_id) => {
     auth.call('media.createMediaFromRawUpload', {
@@ -72,12 +62,7 @@ export function uploadImage(file, auth, game, updateProgress, cb) {
     }, withSuccess((media) => {
       cb({
         media: media,
-        // @ifdef WEB
-        exif: EXIF.getAllTags(file),
-        // @endif
-        // @ifdef NATIVE
         exif: {},
-        // @endif
       });
     }));
   }));

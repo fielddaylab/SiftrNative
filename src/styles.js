@@ -1,6 +1,5 @@
 'use strict';
 
-// @ifdef NATIVE
 
 import React from 'react';
 import RN, {StyleSheet} from 'react-native';
@@ -187,5 +186,3 @@ export const styles = StyleSheet.create({
   },
 
 });
-
-// @endif

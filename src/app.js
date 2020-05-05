@@ -7,7 +7,6 @@ import T from "prop-types";
 import createClass from "create-react-class";
 import update from "immutability-helper";
 
-// @ifdef NATIVE
 import {
   View,
   TextInput,
@@ -33,26 +32,17 @@ import Orientation from 'react-native-orientation-locker';
 import Geolocation from '@react-native-community/geolocation';
 import { StemportsPicker } from './stemports-picker';
 import { StemportsWizard } from './stemports-wizard';
-// @endif
 
 import { Auth, Game, displayError } from "./aris";
-// @ifdef NATIVE
 import { SiftrViewPW, downloadGame } from "./siftr-view";
-// @endif
-// @ifdef WEB
-import { SiftrView } from "./siftr-view";
-import { WebNav } from "./web-nav";
-// @endif
 
 import { withSuccess } from "./utils";
 
 import { parseUri } from "./parse-uri";
 
-// @ifdef NATIVE
 const recentlyOpened = `${RNFS.DocumentDirectoryPath}/recent.json`;
 const seenComic = `${RNFS.DocumentDirectoryPath}/seencomic.txt`;
 const seenWizard = `${RNFS.DocumentDirectoryPath}/seenwizard.txt`;
-// @endif
 
 export var SiftrNative = createClass({
   displayName: "SiftrNative",
@@ -77,13 +67,7 @@ export var SiftrNative = createClass({
     };
   },
 
-  // @ifdef WEB
-  componentDidMount: function() {
-    this.login();
-  },
-  // @endif
 
-  // @ifdef NATIVE
   componentDidMount: function() {
     RNFS.readFile(seenComic, 'utf8').then(() => {
       // do nothing
@@ -296,7 +280,6 @@ export var SiftrNative = createClass({
       });
     }
   },
-  // @endif
   updateGames: function() {
     this.state.auth.getGamesForUser(
       {order: 'recent'},
@@ -308,7 +291,6 @@ export var SiftrNative = createClass({
     );
   },
   updateFollowed: function() {
-    // @ifdef NATIVE
     const storeFollowed = `${RNFS.DocumentDirectoryPath}/siftrs/followed.txt`;
     if (this.state.online) {
       const thisUpdate = this.lastUpdate = Date.now();
@@ -336,7 +318,6 @@ export var SiftrNative = createClass({
         this.setState({followed: siftrs});
       });
     }
-    // @endif
   },
   followGame: function(game, cb) {
     this.state.auth.call(
@@ -362,47 +343,6 @@ export var SiftrNative = createClass({
       })
     );
   },
-  // @ifdef WEB
-  tryLoadGame: function(
-    auth,
-    game,
-    password = (ref1 = auth.password) != null ? ref1 : game.password
-  ) {
-    auth.searchNotes(
-      {
-        game_id: game.game_id,
-        note_count: 1,
-        password: password
-      },
-      result => {
-        var newPassword;
-        if (result.returnCode === 0) {
-          this.setState(
-            {
-              auth: update(auth, {
-                password: {
-                  $set: password
-                }
-              })
-            },
-            () => {
-              this.loadGamePosition(game);
-            }
-          );
-        } else {
-          newPassword = prompt(
-            password != null
-              ? "Incorrect password."
-              : "This Siftr requires a password to access."
-          );
-          if (newPassword != null) {
-            this.tryLoadGame(auth, game, newPassword);
-          }
-        }
-      }
-    );
-  },
-  // @endif
   loadGamePosition: function(game, {create, quest}) {
     this.setState({
       game,
@@ -432,47 +372,11 @@ export var SiftrNative = createClass({
           games: null,
           followed: null
         });
-        // @ifdef WEB
-        siftr_id = 0;
-        siftr_url = window.location.search.replace("?", "");
-        if (siftr_url.length === 0 || siftr_url.match(/aris=1/)) {
-          siftr_url = window.location.pathname.replace(/\//g, "");
-        }
-        if (!siftr_url.match(/[^0-9]/)) {
-          siftr_id = parseInt(siftr_url);
-          siftr_url = null;
-        }
-        if (siftr_url != null) {
-          newAuth.searchSiftrs(
-            {
-              siftr_url: siftr_url
-            },
-            withSuccess(games => {
-              if (games.length === 1) {
-                this.tryLoadGame(newAuth, games[0]);
-              }
-            })
-          );
-        } else if (siftr_id) {
-          newAuth.getGame(
-            {
-              game_id: siftr_id
-            },
-            withSuccess(game => {
-              if (game != null) {
-                this.tryLoadGame(newAuth, game);
-              }
-            })
-          );
-        }
-        // @endif
         if (newAuth.authToken != null) {
-          // @ifdef NATIVE
           firebase.analytics().logEvent("login", {
             username: newAuth.authToken.username,
             user_id: newAuth.authToken.user_id
           });
-          // @endif
           if (this.state.online) {
             this.updateGames();
             this.updateFollowed();
@@ -605,7 +509,6 @@ export var SiftrNative = createClass({
     }
   },
 
-  // @ifdef NATIVE
   render: function() {
     if (this.state.auth != null) {
       return (
@@ -737,64 +640,6 @@ export var SiftrNative = createClass({
       return <Loading queueMessage={this.state.queueMessage} />;
     }
   },
-  // @endif
 
-  // @ifdef WEB
-  render: function() {
-    if (this.state.auth != null) {
-      return (
-        <WebNav
-          auth={this.state.auth}
-          onLogin={this.login}
-          onRegister={this.registerNow}
-          onLogout={this.logout}
-          hasBrowserButton={this.state.game != null}
-          onBrowserButton={() => {
-            this.setState({
-              game: null
-            });
-          }}
-          onMenuMove={b => {
-            this.setState({
-              menuOpen: b
-            });
-          }}
-          menuOpen={this.state.menuOpen}
-          online={this.state.online}
-        >
-          {this.state.game != null ? (
-            <SiftrView
-              game={this.state.game}
-              auth={this.state.auth}
-              isAdmin={this.gameBelongsToUser(this.state.game)}
-              onExit={() => {
-                this.setState({
-                  game: null,
-                  password: null
-                });
-              }}
-              onPromptLogin={() => {
-                this.setState({
-                  menuOpen: true
-                });
-              }}
-              nomenData={this.state.nomenData}
-              clearNomenData={this.clearNomenData}
-              online={this.state.online}
-              followed={this.state.followed}
-              followGame={this.followGame}
-              unfollowGame={this.unfollowGame}
-              bounds={this.state.bounds}
-            />
-          ) : (
-            undefined
-          )}
-        </WebNav>
-      );
-    } else {
-      return <p>Loading...</p>;
-    }
-  },
-  // @endif
 
 });

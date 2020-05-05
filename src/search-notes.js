@@ -4,7 +4,6 @@ import React from 'react';
 import T from 'prop-types';
 import update from 'immutability-helper';
 
-// @ifdef NATIVE
 import
 { TouchableOpacity
 , View
@@ -14,7 +13,6 @@ import
 , Switch
 } from 'react-native';
 import {styles, Text} from './styles';
-// @endif
 
 import
 { Auth
@@ -22,14 +20,8 @@ import
 , Game
 } from './aris';
 
-// @ifdef WEB
-import {ToggleSwitch} from './toggle';
-// @endif
-
 import {TimeSlider} from './time-slider';
-import {clicker} from './utils';
 
-// @ifdef NATIVE
 class FilterHeader extends React.Component {
   constructor(props) {
     super(props);
@@ -61,7 +53,6 @@ class FilterHeader extends React.Component {
     );
   }
 }
-// @endif
 
 export class SearchNotes extends React.Component {
 
@@ -131,7 +122,6 @@ export class SearchNotes extends React.Component {
     }
   }
 
-  // @ifdef NATIVE
   render() {
     let {sort, mine, tags, text, min_time, max_time} = this.props.searchParams
     if (sort == null) sort = 'recent';
@@ -264,7 +254,6 @@ export class SearchNotes extends React.Component {
       </View>
     </ScrollView>
   }
-  // @endif
 
   getTagCount(tag) {
     if (this.props.allNotes == null) return '...';
@@ -289,86 +278,6 @@ export class SearchNotes extends React.Component {
     return this.cachedCounts[this.tagID(tag)];
   }
 
-  // @ifdef WEB
-  render() {
-    let {sort, mine, tags, text, min_time, max_time} = this.props.searchParams
-    if (sort == null) sort = 'recent';
-    if (mine == null) mine = false;
-    if (tags == null) tags = [];
-    if (text == null) text = '';
-    if (min_time == null) min_time = 'min';
-    if (max_time == null) max_time = 'max';
-    return <div className="siftr-search">
-      <p>
-        <input type="text"
-          placeholder="Search…"
-          defaultValue={text}
-          onChange={(e) => this.userTyped(e.target.value)}
-          className="search-text"
-        />
-      </p>
-      <div className="create-select-parent">
-        <div className="create-select-div">
-          <select
-            value={sort}
-            onChange={(event) => {
-              switch (event.target.value) {
-                case 'recent':
-                  this.clickRecent();
-                  break;
-                case 'popular':
-                  this.clickPopular();
-                  break;
-              }
-            }}
-          >
-            <option value="recent" key="recent">
-              Sort by recent
-            </option>
-            <option value="popular" key="popular">
-              Sort by popular
-            </option>
-          </select>
-        </div>
-      </div>
-      {
-        this.props.auth.authToken !== null ?
-          <p className="my-notes">
-            <ToggleSwitch checked={mine} onClick={this.clickMine.bind(this)}>
-              Only show my notes
-            </ToggleSwitch>
-          </p>
-        : undefined
-      }
-      <h2>Date range:</h2>
-      <TimeSlider
-        minBound={this.props.game.created.getTime()}
-        maxBound={Date.now()}
-        p1={min_time}
-        p2={max_time}
-        onChange={this.changeDates.bind(this)}
-      />
-      <h2>Categories:</h2>
-      {
-        this.props.tags.map((tag) => {
-          const checked = this.tagChecked(tag);
-          const color = this.props.getColor(tag);
-          return (
-            <p className="tag-toggle" key={this.tagID(tag)}>
-              <ToggleSwitch checked={checked} onClick={() => this.clickTag(tag)}>
-                <span className="tag-badge" style={{backgroundColor: color}}>
-                  { this.getTagCount(tag) }
-                </span>
-                {' '}
-                {tag.tag || tag.option}
-              </ToggleSwitch>
-            </p>
-          );
-        })
-      }
-    </div>
-  }
-  // @endif
 
 }
 

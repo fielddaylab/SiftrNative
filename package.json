@@ -5,8 +5,7 @@
   "scripts": {
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint .",
-    "build": "webpack"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@ptomasroos/react-native-multi-slider": "^1.0.0",

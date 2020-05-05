@@ -1,18 +1,14 @@
 'use strict';
 
 import React from 'react';
-// @ifdef NATIVE
 import {Platform} from 'react-native';
 import RNFS from 'react-native-fs';
-// @endif
 import update from "immutability-helper";
 
 import {Auth, arisHTTPS} from './aris';
 import {withSuccess} from './utils';
 
-// @ifdef NATIVE
 const mediaDir = `${RNFS.DocumentDirectoryPath}/media`;
-// @endif
 
 // D. J. Bernstein hash function
 function djb_hash(str) {
@@ -23,7 +19,6 @@ function djb_hash(str) {
   return hash;
 }
 
-// @ifdef NATIVE
 export function loadMedia(props, cb) {
   const online = (props.online == null ? true : props.online);
 
@@ -107,23 +102,7 @@ export function loadMedia(props, cb) {
     loadURL(props.url)
   }
 }
-// @endif
 
-// @ifdef WEB
-export function loadMedia(props, cb) {
-  if (props.url == null) {
-    if (props.media_id) {
-      props.auth.call('media.getMedia', {
-        media_id: props.media_id,
-      }, withSuccess((media) => {
-        cb(arisHTTPS(media[props.size || 'url']));
-      }));
-    }
-  } else {
-    cb(arisHTTPS(props.url));
-  }
-}
-// @endif
 
 export class CacheMedia extends React.Component {
   constructor(props) {
