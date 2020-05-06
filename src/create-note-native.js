@@ -764,15 +764,9 @@ export const CreateData = createClass({
     }
   },
   finishForm: function() {
-    // TODO replace this whole thing with checking each step as you go
-    var field, field_data, files, i, len, ref, ref1, ref2, ref3;
-    field_data = (ref = this.props.createNote.field_data) != null ? ref : [];
-    files = (ref1 = this.props.createNote.files) != null ? ref1 : [];
-    ref2 = this.props.fields;
-    let missingFields = [];
-    // TODO this needs to ignore fields from other quests
-    for (i = 0, len = ref2.length; i < len; i++) {
-      field = ref2[i];
+    let field_data = this.props.createNote.field_data;
+    if (field_data == null) field_data = [];
+    this.props.fields.forEach(field => {
       if (field.field_type === "SINGLESELECT") {
         if (field_data.some(data => data.field_id === field.field_id)) {
           // singleselect has something selected
@@ -786,28 +780,8 @@ export const CreateData = createClass({
             })
           );
         }
-      } else if (
-        field.required &&
-        ((ref3 = field.field_type) === "TEXT" || ref3 === "TEXTAREA")
-      ) {
-        const match = field_data.filter(data => data.field_id === field.field_id);
-        if (match.length === 0 || !(match[0].field_data)) {
-          missingFields.push(field);
-        }
-      } else if (field.required && field.field_type === "MEDIA" && !this.props.createNote.note_id) {
-        if (!files.some(file => file.field_id === field.field_id)) {
-          missingFields.push(field);
-        }
       }
-    }
-    if (missingFields.length > 0) {
-      this.setState({alertFields: missingFields});
-      this.scrollToField(missingFields[0].field_id);
-      return;
-    }
-    if (this.props.progress != null) {
-      return;
-    }
+    });
     // remove any fields that are for other quests
     let current_quest_id = this.props.currentQuest && parseInt(this.props.currentQuest.quest_id);
     if (current_quest_id) {
@@ -1416,7 +1390,39 @@ export const CreateData = createClass({
                 }}
               />
               <TouchableOpacity
-                onPress={this.state.fieldIndex >= visibleFields.length - 1 ? this.finishForm/*.bind(this)*/ : nextField}
+                onPress={() => {
+                  const field = visibleFields[this.state.fieldIndex];
+                  const field_data = this.props.createNote.field_data || [];
+                  let canAdvance = true;
+                  if (field.required) {
+                    if (field.field_type === 'TEXT' || field.field_type === 'TEXTAREA') {
+                      const match = field_data.filter(data => data.field_id === field.field_id);
+                      if (match.length === 0 || !(match[0].field_data)) {
+                        canAdvance = false;
+                      }
+                    } else if (field.field_type === 'MEDIA' && !this.props.createNote.note_id) {
+                      let files = this.props.createNote.files;
+                      if (files == null) files = [];
+                      if (!files.some(file => file.field_id === field.field_id)) {
+                        canAdvance = false;
+                      }
+                    } else if (field.field_type === 'SINGLESELECT' || field.field_type === 'MULTISELECT') {
+                      if (!field_data.some(data => data.field_id === field.field_id)) {
+                        canAdvance = false;
+                      }
+                    }
+                  }
+                  if (!canAdvance) {
+                    this.setState({alertFields: [field]});
+                    this.scrollToField(field.field_id);
+                    return;
+                  }
+                  if (this.state.fieldIndex >= visibleFields.length - 1) {
+                    this.finishForm();
+                  } else {
+                    nextField();
+                  }
+                }}
                 style={{
                   flex: 1,
                   alignItems: "center"
