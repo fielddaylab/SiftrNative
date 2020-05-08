@@ -2043,7 +2043,7 @@ export const SiftrView = createClass({
           const location = this.getLocationWithWarp();
           if (!location) return;
           const distance = Math.ceil(meterDistance(o.trigger, location.coords));
-          const wiggleRoom = 2; // to make sure stuff on the edge is clickable
+          const wiggleRoom = 4; // to make sure stuff on the edge is clickable
           if (distance > maxPickupDistance + wiggleRoom && !this.state.warp) {
             Alert.alert(
               'Too far',

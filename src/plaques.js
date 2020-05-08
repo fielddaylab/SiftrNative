@@ -91,7 +91,7 @@ export class PlaqueScreen extends React.Component {
             margin: 15,
             fontSize: 24,
           }}>
-            {this.state.checkedIn ? 'Nice! You earned:' : this.props.plaque.name}
+            {this.state.checkedIn ? 'Nice! You found:' : this.props.plaque.name}
           </Text>
           {
             this.state.checkedIn ? (
