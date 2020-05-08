@@ -280,12 +280,14 @@ export class SiftrMap extends React.Component {
         minZoomLevel: 0,
         animationDuration: 300,
       });
-    } else if (this.props.warp) {
+    } else if (this.props.warp && !this.props.showStops) {
       this.theMapCamera.setCamera({
         centerCoordinate: [
           parseFloat(this.props.location.coords.longitude),
           parseFloat(this.props.location.coords.latitude),
         ],
+        pitch: 60,
+        zoomLevel: prevProps.showStops ? 22 : undefined,
         animationDuration: 300,
       });
     }
@@ -336,6 +338,7 @@ export class SiftrMap extends React.Component {
         followUserMode={this.props.trackDirection ? 'compass' : 'normal'}
         pitch={this.props.showStops ? 0 : 60}
         followPitch={60}
+        followZoomLevel={22}
       />
       {this.renderNotes()}
       {
