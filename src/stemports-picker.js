@@ -847,13 +847,20 @@ export class StemportsPicker extends React.Component {
               contentInset={[height * 0.45, 0, 0, 0]}
             >
               <MapboxGL.Camera
-                zoomLevel={22}
+                defaultSettings={{
+                  zoomLevel: 22,
+                  centerCoordinate: (this.props.location && [
+                    parseFloat(this.props.location.coords.longitude),
+                    parseFloat(this.props.location.coords.latitude),
+                  ]),
+                  pitch: 60,
+                }}
                 pitch={60}
                 animationDuration={300}
-                centerCoordinate={this.props.location && [
-                  parseFloat(this.props.location.coords.longitude),
-                  parseFloat(this.props.location.coords.latitude),
-                ]}
+                followUserLocation={true}
+                followUserMode="normal"
+                followPitch={60}
+                followZoomLevel={22}
               />
               {
                 !puffinHi && gameList.map(o =>
