@@ -140,7 +140,7 @@ export var SiftrNative = createClass({
           enableHighAccuracy: true,
           maximumAge: 0,
           distanceFilter: 0,
-          useSignificantChanges: true,
+          useSignificantChanges: false,
         });
       }
     });

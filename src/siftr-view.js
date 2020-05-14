@@ -2024,7 +2024,10 @@ export const SiftrView = createClass({
     }
   },
   getLocationFromMap: function(cb) {
-    if (this.theSiftrMap) {
+    if (this.state.showStops) {
+      const loc = this.getLocationWithWarp();
+      cb(loc && loc.coords);
+    } else if (this.theSiftrMap) {
       this.theSiftrMap.getCenter(cb);
     } else {
       cb(null);

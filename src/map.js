@@ -281,10 +281,10 @@ export class SiftrMap extends React.Component {
       const stopBounds = {
         ne: [maxLongitude, maxLatitude],
         sw: [minLongitude, minLatitude],
-        paddingLeft: 35,
-        paddingRight: 35,
-        paddingTop: 35,
-        paddingBottom: 35,
+        paddingLeft: 100,
+        paddingRight: 100,
+        paddingTop: 100,
+        paddingBottom: 100,
       };
 
       this.theMapCamera.setCamera({
