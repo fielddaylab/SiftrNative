@@ -1008,104 +1008,105 @@ export const SiftrView = createClass({
     return this.props.plaques.filter(plaque => parseInt(plaque.quest_id) === parseInt(this.props.currentQuest.quest_id));
   },
   tickTriggersOffline: function() {
-    this.setState(oldState => {
-      const now = Date.now();
-      let nextFactoryObjects = [];
-      let nextFactoryProductionTimestamps = {};
-      this.props.factories.forEach(factory => {
-        let objects = oldState.factoryObjects.filter(o => o.instance.factory_id === factory.factory_id);
-        // delete any expired or locked
-        objects = objects.filter(o =>
-          now - new Date(o.instance.created).getTime() < parseInt(factory.produce_expiration_time) * 1000
-          && this.evalReqPackage(o.trigger.requirement_root_package_id, 'trigger')
-          // lock eval might not be valid generally, but for us it only applies to
-          // "player got a field note, so those triggers will be permanently hidden"
-        );
-        // create any new
-        // this doesn't actually use scenes but named to match the PHP code
-        const inValidScene = this.getObjectInstances('FACTORY', factory.factory_id).some(inst =>
-          this.getTriggersForInstance(inst).some(trig =>
-            this.evalReqPackage(trig.requirement_root_package_id, 'factory')
-          )
-        );
-        let updated = oldState.factoryProductionTimestamps[factory.factory_id] || 0;
-        if (   inValidScene
-            && now - updated >= parseInt(factory.seconds_per_production) * 1000
-            && objects.length < parseInt(factory.max_production)
-            && nextFactoryObjects.length <= maxSpawns // limit all spawns for now
-            ) {
-          if (Math.random() < parseFloat(factory.production_probability)) {
-            // make a new object
-            let lat = 0;
-            let lon = 0;
-            if (factory.location_bound_type === 'PLAYER') {
-              const playerLoc = this.getLocationWithWarp();
-              if (playerLoc) {
-                lat = playerLoc.coords.latitude;
-                lon = playerLoc.coords.longitude;
+    this.getLocationFromMap(playerLoc => {
+      this.setState(oldState => {
+        const now = Date.now();
+        let nextFactoryObjects = [];
+        let nextFactoryProductionTimestamps = {};
+        this.props.factories.forEach(factory => {
+          let objects = oldState.factoryObjects.filter(o => o.instance.factory_id === factory.factory_id);
+          // delete any expired or locked
+          objects = objects.filter(o =>
+            now - new Date(o.instance.created).getTime() < parseInt(factory.produce_expiration_time) * 1000
+            && this.evalReqPackage(o.trigger.requirement_root_package_id, 'trigger')
+            // lock eval might not be valid generally, but for us it only applies to
+            // "player got a field note, so those triggers will be permanently hidden"
+          );
+          // create any new
+          // this doesn't actually use scenes but named to match the PHP code
+          const inValidScene = this.getObjectInstances('FACTORY', factory.factory_id).some(inst =>
+            this.getTriggersForInstance(inst).some(trig =>
+              this.evalReqPackage(trig.requirement_root_package_id, 'factory')
+            )
+          );
+          let updated = oldState.factoryProductionTimestamps[factory.factory_id] || 0;
+          if (   inValidScene
+              && now - updated >= parseInt(factory.seconds_per_production) * 1000
+              && objects.length < parseInt(factory.max_production)
+              && nextFactoryObjects.length <= maxSpawns // limit all spawns for now
+              ) {
+            if (Math.random() < parseFloat(factory.production_probability)) {
+              // make a new object
+              let lat = 0;
+              let lon = 0;
+              if (factory.location_bound_type === 'PLAYER') {
+                if (playerLoc) {
+                  lat = playerLoc.latitude;
+                  lon = playerLoc.longitude;
+                }
+              } else if (factory.location_bound_type === 'LOCATION') {
+                lat = factory.trigger_latitude;
+                lon = factory.trigger_longitude;
               }
-            } else if (factory.location_bound_type === 'LOCATION') {
-              lat = factory.trigger_latitude;
-              lon = factory.trigger_longitude;
+
+              const dist = (Math.random() * (factory.max_production_distance-factory.min_production_distance)) + factory.min_production_distance;
+              const theta = (Math.random() * 360) / (2 * Math.PI);
+              let latdelta = dist * Math.sin(theta);
+              let londelta = dist * Math.cos(theta);
+
+              latdelta /= 111111;
+              londelta /= 111111 * Math.cos(lat + latdelta);
+
+              lat += latdelta;
+              lon += londelta;
+
+              const instance_id = Math.random() * 100000000000; // TODO do this better
+              const trigger_id = Math.random() * 100000000000; // TODO do this better
+              objects.push({
+                instance: {
+                  instance_id: instance_id,
+                  game_id: this.props.game.game_id,
+                  object_id: factory.object_id,
+                  object_type: factory.object_type,
+                  qty: 1,
+                  infinite_qty: 0,
+                  factory_id: factory.factory_id,
+                  created: new Date(), // TODO make actual string
+                },
+                trigger: {
+                  trigger_id: trigger_id,
+                  game_id: this.props.game.game_id,
+                  instance_id: instance_id,
+                  scene_id: 0, // doesn't matter currently
+                  requirement_root_package_id: factory.trigger_requirement_root_package_id,
+                  type: 'LOCATION',
+                  name: factory.trigger_title,
+                  title: factory.trigger_title,
+                  latitude: lat,
+                  longitude: lon,
+                  distance: factory.trigger_distance,
+                  infinite_distance: factory.trigger_infinite_distance,
+                  wiggle: factory.trigger_wiggle,
+                  show_title: factory.trigger_show_title,
+                  hidden: factory.trigger_hidden,
+                  trigger_on_enter: factory.trigger_on_enter,
+                  icon_media_id: factory.trigger_icon_media_id,
+                  created: new Date(), // TODO make actual string
+                },
+              });
             }
-
-            const dist = (Math.random() * (factory.max_production_distance-factory.min_production_distance)) + factory.min_production_distance;
-            const theta = (Math.random() * 360) / (2 * Math.PI);
-            let latdelta = dist * Math.sin(theta);
-            let londelta = dist * Math.cos(theta);
-
-            latdelta /= 111111;
-            londelta /= 111111 * Math.cos(lat + latdelta);
-
-            lat += latdelta;
-            lon += londelta;
-
-            const instance_id = Math.random() * 100000000000; // TODO do this better
-            const trigger_id = Math.random() * 100000000000; // TODO do this better
-            objects.push({
-              instance: {
-                instance_id: instance_id,
-                game_id: this.props.game.game_id,
-                object_id: factory.object_id,
-                object_type: factory.object_type,
-                qty: 1,
-                infinite_qty: 0,
-                factory_id: factory.factory_id,
-                created: new Date(), // TODO make actual string
-              },
-              trigger: {
-                trigger_id: trigger_id,
-                game_id: this.props.game.game_id,
-                instance_id: instance_id,
-                scene_id: 0, // doesn't matter currently
-                requirement_root_package_id: factory.trigger_requirement_root_package_id,
-                type: 'LOCATION',
-                name: factory.trigger_title,
-                title: factory.trigger_title,
-                latitude: lat,
-                longitude: lon,
-                distance: factory.trigger_distance,
-                infinite_distance: factory.trigger_infinite_distance,
-                wiggle: factory.trigger_wiggle,
-                show_title: factory.trigger_show_title,
-                hidden: factory.trigger_hidden,
-                trigger_on_enter: factory.trigger_on_enter,
-                icon_media_id: factory.trigger_icon_media_id,
-                created: new Date(), // TODO make actual string
-              },
-            });
+            updated = now;
           }
-          updated = now;
-        }
-        nextFactoryObjects = nextFactoryObjects.concat(objects);
-        nextFactoryProductionTimestamps[factory.factory_id] = updated;
+          nextFactoryObjects = nextFactoryObjects.concat(objects);
+          nextFactoryProductionTimestamps[factory.factory_id] = updated;
+        });
+        return update(oldState, {
+          factoryObjects: {$set: nextFactoryObjects},
+          factoryProductionTimestamps: {$set: nextFactoryProductionTimestamps},
+        });
+      }, () => {
+        setTimeout(this.tickTriggersOffline/*.bind(this)*/, 5000);
       });
-      return update(oldState, {
-        factoryObjects: {$set: nextFactoryObjects},
-        factoryProductionTimestamps: {$set: nextFactoryProductionTimestamps},
-      });
-    }, () => {
-      setTimeout(this.tickTriggersOffline/*.bind(this)*/, 5000);
     });
   },
   tickTriggers: function() {
@@ -1204,7 +1205,7 @@ export const SiftrView = createClass({
     }
     setTimeout(() => {
       if (this.props.location) {
-        this.refs.theSiftrMap.moveToPoint({
+        this.theSiftrMap.moveToPoint({
           lat: this.props.location.coords.latitude,
           lng: this.props.location.coords.longitude,
         });
@@ -2022,10 +2023,18 @@ export const SiftrView = createClass({
       return this.props.location;
     }
   },
+  getLocationFromMap: function(cb) {
+    if (this.theSiftrMap) {
+      this.theSiftrMap.getCenter(cb);
+    } else {
+      cb(null);
+    }
+  },
   renderMap: function() {
     var ref;
     return (
       <SiftrMap
+        ref={r => (this.theSiftrMap = r)}
         location={this.getLocationWithWarp()}
         map_notes={this.props.notes.filter(note => {
           if (note.user.user_id !== this.props.auth.authToken.user_id) return false;
@@ -2040,21 +2049,22 @@ export const SiftrView = createClass({
         logs={this.state.logs}
         warp={this.state.warp}
         onSelectItem={(o) => {
-          const location = this.getLocationWithWarp();
-          if (!location) return;
-          const distance = Math.ceil(meterDistance(o.trigger, location.coords));
-          const wiggleRoom = 4; // to make sure stuff on the edge is clickable
-          if (distance > maxPickupDistance + wiggleRoom && !this.state.warp) {
-            Alert.alert(
-              'Too far',
-              `You are ${distance}m away. Walk ${distance - maxPickupDistance}m closer`,
-              [
-                {text: 'OK'},
-              ],
-            );
-          } else {
-            this.pushModal(update(o, {type: {$set: 'trigger'}}));
-          }
+          this.getLocationFromMap(location => {
+            if (!location) return;
+            const distance = Math.ceil(meterDistance(o.trigger, location));
+            const wiggleRoom = 4; // to make sure stuff on the edge is clickable
+            if (distance > maxPickupDistance + wiggleRoom && !this.state.warp) {
+              Alert.alert(
+                'Too far',
+                `You are ${distance}m away. Walk ${distance - maxPickupDistance}m closer`,
+                [
+                  {text: 'OK'},
+                ],
+              );
+            } else {
+              this.pushModal(update(o, {type: {$set: 'trigger'}}));
+            }
+          });
         }}
         pendingNotes={(() => {
           if (this.state.createNote != null && this.state.createStep > 1) {
@@ -2077,7 +2087,6 @@ export const SiftrView = createClass({
         theme={this.props.theme}
         onSelectNote={this.selectNote}
         key={1}
-        ref="theSiftrMap"
         onMouseEnter={obj => {
           this.setState({
             mapHover: obj
@@ -2205,8 +2214,8 @@ export const SiftrView = createClass({
     this.locateNote(exif, center => {
       if (!this.isMounted) return;
       this.setState({center});
-      if (this.refs.theSiftrMap) {
-        this.refs.theSiftrMap.moveToPoint(center);
+      if (this.theSiftrMap) {
+        this.theSiftrMap.moveToPoint(center);
       }
     });
   },
@@ -2239,7 +2248,7 @@ export const SiftrView = createClass({
         obj.center = loc;
         setTimeout(() => {
           var ref;
-          return (ref = this.refs.theSiftrMap) != null
+          return (ref = this.theSiftrMap) != null
             ? ref.moveToPoint(loc)
             : void 0;
         }, 1000);
@@ -2334,8 +2343,8 @@ export const SiftrView = createClass({
           onStartLocation={(center) => {
             if (center) {
               this.setState({center});
-              if (this.refs.theSiftrMap) {
-                this.refs.theSiftrMap.moveToPoint(center);
+              if (this.theSiftrMap) {
+                this.theSiftrMap.moveToPoint(center);
               }
             }
           }}

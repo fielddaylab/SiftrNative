@@ -146,6 +146,9 @@ function stringToColorCode(str) {
 class SmartMarker extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      forceSelect: false,
+    };
   }
 
   render() {
@@ -154,7 +157,18 @@ class SmartMarker extends React.Component {
         id={this.props.id}
         coordinate={[parseFloat(this.props.coordinate.longitude), parseFloat(this.props.coordinate.latitude)]}
         anchor={{x: 0.5, y: 0.5}}
-        onSelected={this.props.onPress}
+        onSelected={arg => {
+          // Mapbox doesn't just let you listen for "onPress",
+          // instead markers are either selected or not.
+          // onSelected fires if an unselected marker is tapped.
+          // So we have to manually set it to true, and then false shortly after.
+          this.setState({forceSelect: true});
+          this.props.onPress(arg);
+          setTimeout(() => {
+            this.setState({forceSelect: false});
+          }, 100);
+        }}
+        selected={this.state.forceSelect}
       >
         <View>
           <Image
@@ -291,6 +305,19 @@ export class SiftrMap extends React.Component {
         animationDuration: 300,
       });
     }
+  }
+
+  getCenter(cb) {
+    if (!this.theMapView) {
+      cb(null);
+      return;
+    }
+    this.theMapView.getCenter().then(loc => cb({
+      longitude: loc[0],
+      latitude: loc[1],
+    })).catch(err => {
+      cb(null)
+    });
   }
 
   render() {
