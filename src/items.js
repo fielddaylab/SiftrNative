@@ -209,7 +209,9 @@ export class InventoryScreen extends React.Component {
       && parseInt(inst.qty) > 0
     );
 
-    const tags = (this.props.tags || []).map(tag => {
+    const tags = (this.props.tags || []).filter(tag =>
+      parseInt(tag.quest_id) === parseInt(this.props.quest_id)
+    ).map(tag => {
       let taggedItems = [];
       (this.props.object_tags || []).forEach(object_tag => {
         if (object_tag.object_type !== 'ITEM') return;
@@ -299,10 +301,6 @@ export class InventoryScreen extends React.Component {
             tags.map(o => {
               const tag = o.tag;
               const items = o.items;
-              const quest_id = parseInt(tag.quest_id);
-              if (quest_id && quest_id !== parseInt(this.props.quest_id)) {
-                return; // skip tag because it's not for this quest
-              }
               return (
                 <View key={tag.tag_id} ref={slot => this._itemSlots[tag.tag_id] = slot} style={{
                   borderColor: 'black',
