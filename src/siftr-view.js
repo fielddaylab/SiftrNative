@@ -2921,59 +2921,63 @@ export const SiftrView = createClass({
                   />
                 )
               }
-              <View pointerEvents="box-none" style={{
-                position: 'absolute',
-                bottom: 10,
-                left: 10,
-                right: 10,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'flex-end',
-              }}>
-                <TouchableOpacity
-                  onPress={() => {
-                    this.pushModal({type: 'menu'});
-                  }}
-                >
-                  <Image
-                    source={require('../web/assets/img/stemports-icon-home.png')}
-                    style={{
-                      width: 108 * 0.75,
-                      height: 100 * 0.75,
-                    }}
-                  />
-                </TouchableOpacity>
-                {
-                  // show if player has collected all this quest's remnants
-                  this.areRemnantsComplete() && (
+              {
+                !(this.state.showStops) && (
+                  <View pointerEvents="box-none" style={{
+                    position: 'absolute',
+                    bottom: 10,
+                    left: 10,
+                    right: 10,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-end',
+                  }}>
                     <TouchableOpacity
-                      style={{
-                        padding: 10
+                      onPress={() => {
+                        this.pushModal({type: 'menu'});
                       }}
-                      onPress={this.startCreate}
                     >
                       <Image
-                        source={require('../web/assets/img/stemports-plus.png')}
+                        source={require('../web/assets/img/stemports-icon-home.png')}
                         style={{
-                          width: 122 * 0.5,
-                          height: 124 * 0.5,
+                          width: 108 * 0.75,
+                          height: 100 * 0.75,
                         }}
                       />
                     </TouchableOpacity>
-                  )
-                }
-                <TouchableOpacity
-                  onPress={() => this.pushModal({type: 'inventory'})}
-                >
-                  <Image
-                    source={require('../web/assets/img/stemports-icon-fieldguide.png')}
-                    style={{
-                      width: 56,
-                      height: 80,
-                    }}
-                  />
-                </TouchableOpacity>
-              </View>
+                    {
+                      // show if player has collected all this quest's remnants
+                      this.areRemnantsComplete() && (
+                        <TouchableOpacity
+                          style={{
+                            padding: 10
+                          }}
+                          onPress={this.startCreate}
+                        >
+                          <Image
+                            source={require('../web/assets/img/stemports-plus.png')}
+                            style={{
+                              width: 122 * 0.5,
+                              height: 124 * 0.5,
+                            }}
+                          />
+                        </TouchableOpacity>
+                      )
+                    }
+                    <TouchableOpacity
+                      onPress={() => this.pushModal({type: 'inventory'})}
+                    >
+                      <Image
+                        source={require('../web/assets/img/stemports-icon-fieldguide.png')}
+                        style={{
+                          width: 56,
+                          height: 80,
+                        }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                )
+              }
               {this.renderNoteView()}
               {this.renderCreateNote()}
               {
