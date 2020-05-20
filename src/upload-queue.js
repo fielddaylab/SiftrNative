@@ -57,6 +57,10 @@ export function loadQueue() {
   });
 }
 
+export function deleteQueuedNotes(notes) {
+  return Promise.all(notes.map(({dir, json}) => RNFS.unlink(dir.path)));
+}
+
 export function uploadNote(auth, {dir, json}) {
   json = JSON.parse(json);
   if (!json.files) json.files = [];

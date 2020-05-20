@@ -20,7 +20,7 @@ import {
   Image
 } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
-import { UploadQueue } from "./upload-queue";
+import { UploadQueue, deleteQueuedNotes } from "./upload-queue";
 import { styles, Text } from "./styles";
 import { Terms } from "./native-terms";
 import RNFS from "react-native-fs";
@@ -546,6 +546,17 @@ export var SiftrNative = createClass({
                       let o = {game: null};
                       if (clearData) {
                         o.viewingWizard = true;
+                        if (this.state.pendingNotes) {
+                          const game_id = parseInt(this.state.game.game_id);
+                          const thisStationNotes = this.state.pendingNotes.filter(({dir, json}) =>
+                            parseInt(JSON.parse(json).game_id) === game_id
+                          );
+                          const otherNotes = this.state.pendingNotes.filter(({dir, json}) =>
+                            parseInt(JSON.parse(json).game_id) !== game_id
+                          );
+                          o.pendingNotes = otherNotes;
+                          deleteQueuedNotes(thisStationNotes);
+                        }
                       }
                       this.setState(o);
                     }}
