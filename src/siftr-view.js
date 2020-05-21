@@ -24,12 +24,12 @@ import {
   Keyboard,
   Platform,
   SafeAreaView,
-  Alert
+  Alert,
+  KeyboardAvoidingView
 } from "react-native";
 const RNFS = require("react-native-fs");
 import { styles, Text } from "./styles";
 import { StatusSpace } from "./status-space";
-import { KeyboardAwareView } from "react-native-keyboard-aware-view";
 import SideMenu from "react-native-side-menu";
 import Markdown from "react-native-simple-markdown";
 import firebase from "react-native-firebase";
@@ -424,7 +424,7 @@ export class SiftrViewPW extends React.Component {
       );
     } else if (this.state.asking) {
       return (
-        <KeyboardAwareView style={{
+        <KeyboardAvoidingView behavior="padding" style={{
           alignItems: 'stretch',
           flex: 1,
         }}>
@@ -543,7 +543,7 @@ export class SiftrViewPW extends React.Component {
               }
             </View>
           </View>
-        </KeyboardAwareView>
+        </KeyboardAvoidingView>
       );
     } else {
       return null;
@@ -2637,7 +2637,8 @@ export const SiftrView = createClass({
       authorNames = this.props.authors.join(', ');
     }
     return (
-      <KeyboardAwareView
+      <KeyboardAvoidingView
+        behavior="padding"
         style={{
           flexDirection: "column",
           flex: 1,
@@ -3287,7 +3288,7 @@ export const SiftrView = createClass({
             </View>
           </SiftrInfo>
         }
-      </KeyboardAwareView>
+      </KeyboardAvoidingView>
     );
   },
 

@@ -14,10 +14,10 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Alert,
-  Dimensions
+  Dimensions,
+  KeyboardAvoidingView
 } from "react-native";
 import { styles, Text } from "./styles";
-import { KeyboardAwareView } from "react-native-keyboard-aware-view";
 import Hyperlink from 'react-native-hyperlink';
 
 export var NativeLogin = createClass({
@@ -81,8 +81,8 @@ export var NativeLogin = createClass({
     ({ height } = Dimensions.get("window"));
     tablet = height > 900;
     return (
-      <KeyboardAwareView
-        animated={true}
+      <KeyboardAvoidingView
+        behavior="padding"
         style={{
           flex: 1,
           flexDirection: "column"
@@ -429,7 +429,7 @@ export var NativeLogin = createClass({
               );
           }
         }.call(this)}
-      </KeyboardAwareView>
+      </KeyboardAvoidingView>
     );
   }
 });
