@@ -972,19 +972,27 @@ export const SiftrView = createClass({
     });
   },
   getTriggers: function() {
-    return this.props.triggers.concat(
+    const instances = this.getInstances();
+    let instanceMap = {};
+    instances.forEach(inst => {
+      instanceMap[parseInt(inst.instance_id)] = inst;
+    })
+    const plaques = this.getPlaques();
+    const triggers = this.props.triggers.concat(
       this.state.factoryObjects.map(x => x.trigger)
-    ).filter(trig => {
-      if (!this.evalReqPackage(trig.requirement_root_package_id, 'trigger')) {
-        return false;
-      }
-      const instance = this.getInstances().find(inst => parseInt(inst.instance_id) === parseInt(trig.instance_id));
+    );
+    return triggers.filter(trig => {
+      const instance = instanceMap[parseInt(trig.instance_id)];
+      if (!instance) return false;
       if (instance && instance.object_type === 'PLAQUE') {
-        const plaque = this.getPlaques().find(plaque => parseInt(plaque.plaque_id) === parseInt(instance.object_id));
+        const plaque = plaques.find(plaque => parseInt(plaque.plaque_id) === parseInt(instance.object_id));
         // ^ getPlaques is filtered by quest
         if (!plaque) {
-          return false; // probably plaque for a different quest
+          return false; // probably plaque for a different quest, or deleted plaque
         }
+      }
+      if (!this.evalReqPackage(trig.requirement_root_package_id, 'trigger')) {
+        return false;
       }
       return true;
     });
