@@ -281,7 +281,7 @@ export class InventoryScreen extends React.Component {
         </View>
         <ScrollView style={{flex: 1, backgroundColor: 'rgb(243,237,225)'}}>
           {
-            untaggedInstances.map(inst => {
+            false /* disabling for now */ && untaggedInstances.map(inst => {
               const item = (this.props.items || []).find(x => parseInt(x.item_id) === parseInt(inst.object_id));
               return (
                 <TouchableOpacity key={inst.instance_id} onPress={() =>
@@ -373,12 +373,12 @@ export class InventoryScreen extends React.Component {
           }
         </ScrollView>
         <View style={{
-          height: 100,
+          height: 120,
           alignItems: 'stretch',
           borderColor: 'black',
           borderTopWidth: 1,
         }}>
-          <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'stretch'}}>
+          <ScrollView scrollEnabled={!this.state.dragging} disableScrollViewPanResponder={true} horizontal={true} style={{flex: 1, overflow: 'visible'}}>
             {
               this.props.pickedUpRemnants.map(item_id => {
                 const item = (this.props.items || []).find(x => parseInt(x.item_id) === parseInt(item_id));
@@ -393,7 +393,11 @@ export class InventoryScreen extends React.Component {
                     key={item_id}
                     auth={this.props.auth}
                     item={item}
+                    onStartDrag={() => {
+                      this.setState({dragging: true});
+                    }}
                     onRelease={(gestureState, cb) => {
+                      this.setState({dragging: false});
                       if (this._itemSlots[tag_id]) {
                         this._itemSlots[tag_id].measure((ox, oy, width, height, px, py) => {
                           const inBounds =
@@ -413,7 +417,7 @@ export class InventoryScreen extends React.Component {
                 );
               })
             }
-          </View>
+          </ScrollView>
         </View>
         <View style={{
           margin: 8,
@@ -477,7 +481,10 @@ export class DraggableItem extends React.Component {
     this._pan.setValue({x: 0, y: 0});
     this._panResponder = PanResponder.create({
       onStartShouldSetPanResponder: (evt, gestureState) => true,
-      onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
+      onStartShouldSetPanResponderCapture: (evt, gestureState) => {
+        this.props.onStartDrag();
+        return true;
+      },
       onMoveShouldSetPanResponder: (evt, gestureState) => true,
       onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
       onPanResponderMove: (evt, gestureState) => {
@@ -505,7 +512,13 @@ export class DraggableItem extends React.Component {
     return (
       <Animated.View
         {...this._panResponder.panHandlers}
-        style={{transform: this._pan.getTranslateTransform()}}
+        style={{
+          transform: this._pan.getTranslateTransform(),
+          margin: 13,
+          marginTop: 20,
+          backgroundColor: 'white',
+          borderRadius: 4,
+        }}
       >
         <CacheMedia
           media_id={parseInt(this.props.item.icon_media_id) || parseInt(this.props.item.media_id)}
@@ -516,14 +529,16 @@ export class DraggableItem extends React.Component {
               source={url}
               style={{
                 flex: 1,
-                margin: 10,
+                margin: 5,
                 resizeMode: 'contain',
+                minWidth: 60,
               }}
             />
           )}
         />
         <Text style={{
-          margin: 10,
+          margin: 5,
+          textAlign: 'center',
         }}>
           {this.props.item.name}
         </Text>
