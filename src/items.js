@@ -396,13 +396,16 @@ export class InventoryScreen extends React.Component {
                     onStartDrag={() => {
                       this.setState({dragging: true});
                     }}
-                    onRelease={(gestureState, cb) => {
+                    onRelease={(obj, cb) => {
                       this.setState({dragging: false});
+                      if (Math.abs(obj.gestureState.dx) < 10 && Math.abs(obj.gestureState.dy) < 10) {
+                        this.setState({viewing: {item: item, instance: null}});
+                      }
                       if (this._itemSlots[tag_id]) {
                         this._itemSlots[tag_id].measure((ox, oy, width, height, px, py) => {
                           const inBounds =
-                            px <= gestureState.moveX && gestureState.moveX <= px + width &&
-                            py <= gestureState.moveY && gestureState.moveY <= py + height;
+                            px <= obj.moveX && obj.moveX <= px + width &&
+                            py <= obj.moveY && obj.moveY <= py + height;
                           if (inBounds) {
                             this.props.onPlace(item_id);
                             this.setState({niceModal: true});
@@ -496,7 +499,7 @@ export class DraggableItem extends React.Component {
       },
       onPanResponderTerminationRequest: (evt, gestureState) => true,
       onPanResponderRelease: (evt, gestureState) => {
-        this.props.onRelease({moveX: this._lastMoveX, moveY: this._lastMoveY}, (inBounds) => {
+        this.props.onRelease({moveX: this._lastMoveX, moveY: this._lastMoveY, gestureState: gestureState}, (inBounds) => {
           if (!inBounds) {
             Animated.spring(this._pan, {
               toValue: { x: 0, y: 0 },
