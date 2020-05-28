@@ -3034,6 +3034,8 @@ export const SiftrView = createClass({
                         object_tags={this.props.object_tags}
                         pickedUpRemnants={this.state.pickedUpRemnants}
                         quest_id={this.props.currentQuest.quest_id}
+                        setGuideTab={(tab) => this.setState({guideTab: tab})}
+                        guideTab={this.state.guideTab}
                         onPlace={item_id => {
                           this.addXP(2);
                           this.setState(state => update(state, {
@@ -3053,6 +3055,11 @@ export const SiftrView = createClass({
                             },
                           }), () => this.saveInventory());
                         }}
+                        online={this.props.online}
+                        notes={this.props.notes}
+                        pendingNotes={this.props.pendingNotes || []}
+                        getColor={this.getColor/*.bind(this)*/}
+                        onSelectNote={this.selectNote/*.bind(this)*/}
                       />
                     );
                   } else if (modal.type === 'quests') {

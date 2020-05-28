@@ -27,6 +27,20 @@ class NoteCard extends React.Component {
 
   render() {
     // console.log('mtnc: ' + JSON.stringify(this.props.note.user))
+
+    let caption = null;
+    if (this.props.game.field_id_caption) {
+      caption = this.props.note.field_data[this.props.game.field_id_caption];
+    } else if (Array.isArray(this.props.note.field_data)) {
+      this.props.note.field_data.some(data => {
+        if (data.field_data) {
+          caption = data.field_data;
+          return true;
+        }
+      })
+    }
+    // TODO probably need to handle uploaded observations (.field_data is key-value object)
+
     return (
       <TouchableOpacity onPress={() => this.props.onSelectNote(this.props.note)} style={{
         borderRadius: 5,
@@ -88,9 +102,9 @@ class NoteCard extends React.Component {
           }} />
         </View>
         {
-          this.props.game.field_id_caption && (
+          caption && (
             <Text style={{margin: 7}} numberOfLines={this.props.expand ? 4 : 1}>
-              {this.props.note.field_data[this.props.game.field_id_caption]}
+              {caption}
             </Text>
           )
         }

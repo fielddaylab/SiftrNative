@@ -16,6 +16,7 @@ import {CacheMedia} from './media';
 import {WebView} from 'react-native-webview';
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
 import update from "immutability-helper";
+import {SiftrThumbnails} from './thumbnails';
 
 export class FullWidthWebView extends React.Component {
   constructor(props) {
@@ -187,6 +188,7 @@ export class InventoryScreen extends React.Component {
     this.state = {
       viewing: null,
       niceModal: false,
+      observations: this.props.guideTab === 'observations',
     };
     this._itemSlots = {};
   }
@@ -246,12 +248,100 @@ export class InventoryScreen extends React.Component {
     );
 
     let guideMessage = '';
-    if (tags.every(o => o.items.every(o => o.instance))) {
+    if (this.state.observations) {
+      guideMessage = "Here are all the observations you've made.";
+    } else if (tags.every(o => o.items.every(o => o.instance))) {
       guideMessage = "Congratulations, you've completed these field notes!";
     } else if (this.props.pickedUpRemnants.length !== 0) {
       guideMessage = "You've found some field notes. Now, place them in the right areas of your guide!";
     } else {
       guideMessage = "Go find more field notes to fill in the empty spaces in your guide!";
+    }
+
+    const makeTabs = () => (
+      <View style={{flexDirection: 'row'}}>
+        <TouchableOpacity onPress={() => {
+          this.props.setGuideTab('notes')
+          this.setState({observations: false});
+        }} style={{
+          flex: 1,
+          padding: 10,
+          borderBottomColor: (this.state.observations ? '#ccc' : 'black'),
+          borderBottomWidth: 2,
+          alignItems: 'center',
+        }}>
+          <Text>Field Notes</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => {
+          this.props.setGuideTab('observations')
+          this.setState({observations: true});
+        }} style={{
+          flex: 1,
+          padding: 10,
+          borderBottomColor: (this.state.observations ? 'black' : '#ccc'),
+          borderBottomWidth: 2,
+          alignItems: 'center',
+        }}>
+          <Text>My Observations</Text>
+        </TouchableOpacity>
+      </View>
+    );
+
+    if (this.state.observations) {
+      return (
+        <View style={{
+          backgroundColor: '#b2c6ea',
+          flex: 1,
+          alignItems: 'stretch',
+        }}>
+          <View style={{flexDirection: 'row', padding: 10}}>
+            <View style={{
+              flex: 1,
+              backgroundColor: 'white',
+              borderRadius: 5,
+              paddingTop: 3,
+              paddingBottom: 3,
+              paddingLeft: 7,
+              paddingRight: 7,
+              borderColor: 'black',
+              borderWidth: 1,
+            }}>
+              <Text>{guideMessage}</Text>
+            </View>
+            <Image
+              style={{margin: 10, width: 197 * 0.3, height: 145 * 0.3}}
+              source={require('../web/assets/img/stemports-puffin-color.png')}
+            />
+          </View>
+          {makeTabs()}
+          <View style={{flex: 1}}>
+            <SiftrThumbnails
+              hasMore={false}
+              pendingNotes={this.props.pendingNotes}
+              notes={this.props.notes}
+              game={this.props.game}
+              auth={this.props.auth}
+              online={this.props.online}
+              onSelectNote={this.props.onSelectNote}
+              getColor={this.props.getColor}
+            />
+          </View>
+          <View style={{
+            margin: 8,
+            alignItems: 'center',
+          }}>
+            <TouchableOpacity onPress={this.props.onClose}>
+              <Image
+                style={{
+                  width: 140 * 0.45,
+                  height: 140 * 0.45,
+                }}
+                source={require("../web/assets/img/quest-close.png")}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
     }
 
     return (
@@ -279,6 +369,7 @@ export class InventoryScreen extends React.Component {
             source={require('../web/assets/img/stemports-puffin-color.png')}
           />
         </View>
+        {makeTabs()}
         <ScrollView style={{flex: 1, backgroundColor: 'rgb(243,237,225)'}}>
           {
             false /* disabling for now */ && untaggedInstances.map(inst => {
