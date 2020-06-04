@@ -72,7 +72,7 @@ function writeParagraphs(text) {
 }
 
 
-const SquareImage = class SquareImage extends React.Component {
+export const SquareImage = class SquareImage extends React.Component {
   // horizontally scrolling box of images that sets the height equal to the width
   constructor(props) {
     super(props);
@@ -273,7 +273,7 @@ OptionsModal = function() {
   return OptionsModal;
 }.call(this);
 
-class GalleryModal extends React.Component {
+export class GalleryModal extends React.Component {
   render() {
     return (
       <Modal onRequestClose={this.props.onClose}>

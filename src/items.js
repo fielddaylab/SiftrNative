@@ -12,11 +12,12 @@ import {
 , Modal
 , TouchableWithoutFeedback
 } from 'react-native';
-import {CacheMedia} from './media';
+import {CacheMedia, CacheMedias} from './media';
 import {WebView} from 'react-native-webview';
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
 import update from "immutability-helper";
 import {SiftrThumbnails} from './thumbnails';
+import {SquareImage, GalleryModal} from './note-view';
 
 export class FullWidthWebView extends React.Component {
   constructor(props) {
@@ -54,7 +55,7 @@ export function webViewBoilerplate(str) {
       html { margin:0; padding:0; }
       body {
           color:#000000;
-          font-size:25px;
+          font-size:20px;
           font-family:HelveticaNeue-Light;
           margin:0;
           padding:10;
@@ -68,105 +69,138 @@ export function webViewBoilerplate(str) {
   `;
 }
 
-export const ItemScreen = (props) => (
-  <View style={{
-    flex: 1,
-    backgroundColor: 'rgb(149,169,153)',
-    flexDirection: 'column',
-    paddingLeft: 10,
-    paddingRight: 10,
-  }}>
-    <CacheMedia
-      media_id={props.item.media_id}
-      auth={props.auth}
-      online={true}
-      withURL={(url) => {
-        if (url && url.uri && url.uri.match(/\.zip$/)) {
-          return (
-            <View style={{marginTop: 20, marginBottom: 20, flexDirection: 'column', alignItems: 'center'}}>
-              <ModelView
-                source={{ zip: url }}
-                style={{
-                  width: 200,
-                  height: 150,
-                }}
-                autoPlay={true}
-              />
-            </View>
-          );
-        } else {
-          return (
-            <View style={{marginTop: 20, marginBottom: 20}}>
-              <Image
-                source={url}
-                style={{
-                  height: 150,
-                  resizeMode: 'contain',
-                }}
-              />
-            </View>
-          );
-        }
-      }}
-    />
-    <View style={{
-      backgroundColor: 'white',
-      flex: 1,
-      borderTopLeftRadius: 10,
-      borderTopRightRadius: 10,
-      alignItems: 'center',
-    }}>
-      <Text style={{
-        margin: 15,
-        fontSize: 24,
+export class ItemScreen extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
+  render() {
+    return (
+      <View style={{
+        flex: 1,
+        backgroundColor: 'rgb(149,169,153)',
+        flexDirection: 'column',
       }}>
-        {props.item.name}
-      </Text>
-      <FullWidthWebView
-        style={{
+        <View style={{
+          backgroundColor: 'white',
           flex: 1,
-          alignSelf: 'stretch',
-          margin: 10,
-        }}
-        source={{html: webViewBoilerplate(props.item.description)}}
-        originWhitelist={["*"]}
-      />
-      {
-        props.type === 'trigger' ? (
-          <View style={{alignItems: 'center'}}>
-            <TouchableOpacity onPress={() => {
-              props.onPickUp(props.trigger);
-              props.onClose();
-            }} style={{
-              margin: 15,
-              padding: 10,
-              backgroundColor: 'rgb(114,236,222)',
-              borderRadius: 10,
-              fontSize: 20,
-            }}>
-              <Text>Add to Field Notes</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={{
+          alignItems: 'center',
+        }}>
+          <Text style={{
             margin: 15,
-            alignItems: 'center',
+            fontSize: 24,
           }}>
-            <TouchableOpacity onPress={props.onClose}>
-              <Image
-                style={{
-                  width: 140 * 0.45,
-                  height: 140 * 0.45,
-                }}
-                source={require("../web/assets/img/quest-close.png")}
-              />
-            </TouchableOpacity>
+            {this.props.item.name}
+          </Text>
+          <View style={{flexDirection: 'row', alignItems: 'stretch'}}>
+            <CacheMedias
+              medias={[this.props.item.media_id, this.props.item.media_id_2, this.props.item.media_id_3].filter(x => parseInt(x)).map(media_id =>
+                ({media_id: media_id, auth: this.props.auth, online: true})
+              )}
+              withURLs={(urls) => {
+                const url = urls[0];
+                if (url && url.uri && url.uri.match(/\.zip$/)) {
+                  return (
+                    <View style={{marginTop: 20, marginBottom: 20, flexDirection: 'column', alignItems: 'center'}}>
+                      <ModelView
+                        source={{ zip: url }}
+                        style={{
+                          width: 200,
+                          height: 150,
+                        }}
+                        autoPlay={true}
+                      />
+                    </View>
+                  );
+                } else if (url && url.uri) {
+                  return <React.Fragment>
+                    <SquareImage
+                      sources={[url]}
+                      onGallery={({uri}) => this.setState({gallery: uri})}
+                    />
+                    {
+                      this.state.gallery != null && (
+                        <GalleryModal
+                          onClose={() => this.setState({gallery: null})}
+                          initialPage={urls.indexOf(this.state.gallery)}
+                          images={urls.map((url) => ({source: url}))}
+                        />
+                      )
+                    }
+                  </React.Fragment>;
+                } else {
+                  return null;
+                }
+              }}
+            />
+            {
+              true /* if has more photos */ && (
+                <TouchableOpacity style={{
+                  backgroundColor: 'rgb(223,230,237)',
+                  marginLeft: 10,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <Image
+                    source={require('../web/assets/img/see-more-photos.png')}
+                    style={{
+                      width: 92 * 0.3,
+                      height: 100 * 0.3,
+                      margin: 8,
+                    }}
+                  />
+                </TouchableOpacity>
+              )
+            }
           </View>
-        )
-      }
-    </View>
-  </View>
-);
+          <FullWidthWebView
+            style={{
+              flex: 1,
+              alignSelf: 'stretch',
+              margin: 10,
+            }}
+            source={{html: webViewBoilerplate(this.props.item.description)}}
+            originWhitelist={["*"]}
+          />
+          {
+            this.props.type === 'trigger' ? (
+              <View style={{alignItems: 'center'}}>
+                <TouchableOpacity onPress={() => {
+                  this.props.onPickUp(this.props.trigger);
+                  this.props.onClose();
+                }} style={{
+                  margin: 15,
+                  padding: 10,
+                  backgroundColor: 'rgb(114,236,222)',
+                  borderRadius: 10,
+                  fontSize: 20,
+                }}>
+                  <Text>Add to Field Notes</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={{
+                margin: 15,
+                alignItems: 'center',
+              }}>
+                <TouchableOpacity onPress={this.props.onClose}>
+                  <Image
+                    style={{
+                      width: 140 * 0.45,
+                      height: 140 * 0.45,
+                    }}
+                    source={require("../web/assets/img/quest-close.png")}
+                  />
+                </TouchableOpacity>
+              </View>
+            )
+          }
+        </View>
+      </View>
+    );
+  }
+};
 
 export function groupBy(n, xs) {
   let ys = [];
