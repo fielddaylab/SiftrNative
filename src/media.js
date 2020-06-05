@@ -174,12 +174,21 @@ export class CacheMedias extends React.Component {
     this._isMounted = false;
   }
 
-  // TODO this does not work if medias change entirely!
   componentDidUpdate(prevProps, prevState, snapshot) {
-    // fire off loads for the newly added ones on the end
-    this.props.medias.slice(prevProps.medias.length).forEach((media, i) => {
-      this.startLoad(media, i + prevProps.medias.length);
+    // for any new or changed media IDs, clear the url and start loading the new ID
+    this.props.medias.forEach((media, i) => {
+      const oldMedia = prevProps.medias[i];
+      if (!oldMedia || parseInt(media.media_id) !== parseInt(oldMedia.media_id)) {
+        this.setState(state => update(state, {urls: {[i]: {$set: null}}}));
+        this.startLoad(media, i);
+      }
     });
+    // truncate the list if we now have fewer medias than before
+    if (this.props.medias.length !== prevProps.medias.length) {
+      this.setState(state => update(state, {
+        urls: (ary) => ary.slice(0, this.props.medias.length),
+      }));
+    }
   }
 
   render() {
