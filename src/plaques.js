@@ -14,6 +14,7 @@ import {
 } from './items';
 import {CacheMedia} from './media';
 import {ItemScreen} from './items';
+import Markdown from "react-native-simple-markdown";
 
 export class PlaqueScreen extends React.Component {
   constructor(props) {
@@ -117,15 +118,11 @@ export class PlaqueScreen extends React.Component {
                 }
               </ScrollView>
             ) : (
-              <FullWidthWebView
-                style={{
-                  flex: 1,
-                  alignSelf: 'stretch',
-                  margin: 10,
-                }}
-                source={{html: webViewBoilerplate(this.props.plaque.description)}}
-                originWhitelist={["*"]}
-              />
+              <ScrollView style={{flex: 1, alignSelf: 'stretch', margin: 10}}>
+                <Markdown>
+                  {this.props.plaque.description}
+                </Markdown>
+              </ScrollView>
             )
           }
           <View>

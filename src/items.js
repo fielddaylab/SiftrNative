@@ -18,6 +18,7 @@ import ModelView from '../react-native-3d-model-view/lib/ModelView';
 import update from "immutability-helper";
 import {SiftrThumbnails} from './thumbnails';
 import {SquareImage, GalleryModal} from './note-view';
+import Markdown from "react-native-simple-markdown";
 
 export class FullWidthWebView extends React.Component {
   constructor(props) {
@@ -119,6 +120,21 @@ export class ItemScreen extends React.Component {
                       sources={[url]}
                       onGallery={({uri}) => this.setState({gallery: uri})}
                     />
+                    <TouchableOpacity onPress={() => this.setState({gallery: url})} style={{
+                      backgroundColor: 'rgb(223,230,237)',
+                      marginLeft: 10,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                      <Image
+                        source={require('../web/assets/img/see-more-photos.png')}
+                        style={{
+                          width: 92 * 0.3,
+                          height: 100 * 0.3,
+                          margin: 8,
+                        }}
+                      />
+                    </TouchableOpacity>
                     {
                       this.state.gallery != null && (
                         <GalleryModal
@@ -134,35 +150,12 @@ export class ItemScreen extends React.Component {
                 }
               }}
             />
-            {
-              true /* if has more photos */ && (
-                <TouchableOpacity style={{
-                  backgroundColor: 'rgb(223,230,237)',
-                  marginLeft: 10,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                  <Image
-                    source={require('../web/assets/img/see-more-photos.png')}
-                    style={{
-                      width: 92 * 0.3,
-                      height: 100 * 0.3,
-                      margin: 8,
-                    }}
-                  />
-                </TouchableOpacity>
-              )
-            }
           </View>
-          <FullWidthWebView
-            style={{
-              flex: 1,
-              alignSelf: 'stretch',
-              margin: 10,
-            }}
-            source={{html: webViewBoilerplate(this.props.item.description)}}
-            originWhitelist={["*"]}
-          />
+          <ScrollView style={{flex: 1, alignSelf: 'stretch', margin: 10}}>
+            <Markdown>
+              {this.props.item.description}
+            </Markdown>
+          </ScrollView>
           {
             this.props.type === 'trigger' ? (
               <View style={{alignItems: 'center'}}>
