@@ -23,6 +23,7 @@ import {loadQueue, uploadNote} from './upload-queue';
 import {getQuestProgress} from './quests';
 import { ComicView } from './stemports-player';
 import MapboxGL from "@react-native-mapbox-gl/maps";
+import Markdown from "react-native-simple-markdown";
 
 MapboxGL.setAccessToken("pk.eyJ1IjoiZmllbGRkYXlsYWIiLCJhIjoiY2s3ejh3cHNrMDNtMTNlcnk2dmxnZzhidyJ9.-Kt-a2vKYZ49CjY_no1P9A");
 
@@ -1364,9 +1365,9 @@ export class StemportsQuest extends React.Component {
           }
           {
             this.props.quest.description.length !== 0 && (
-              <Text style={{margin: 15}}>
-                {this.props.quest.description}
-              </Text>
+              <View style={{margin: 15}}>
+                <Markdown>{this.props.quest.description}</Markdown>
+              </View>
             )
           }
         </ScrollView>
@@ -1472,9 +1473,9 @@ export class StemportsOutpost extends React.Component {
           }
           {
             game.description.length !== 0 && (
-              <Text style={{margin: 15}}>
-                {game.description}
-              </Text>
+              <View style={{margin: 15}}>
+                <Markdown>{game.description}</Markdown>
+              </View>
             )
           }
           <Text style={{margin: 15, fontWeight: 'bold', fontSize: 17}}>

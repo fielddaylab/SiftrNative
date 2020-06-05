@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { styles, Text } from "./styles";
 import { GuideLine } from "./stemports-picker";
+import Markdown from "react-native-simple-markdown";
 
 const WizardLines = [
   {
@@ -69,11 +70,11 @@ export class StemportsWizard extends React.Component {
               />
             )}
           />
-          <Text style={{
+          <View style={{
             margin: 10,
           }}>
-            {line.body(this.props.quest)}
-          </Text>
+            <Markdown>{line.body(this.props.quest)}</Markdown>
+          </View>
         </ScrollView>
         <View style={{
           flexDirection: 'row',
