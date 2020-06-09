@@ -760,11 +760,7 @@ export const SiftrView = createClass({
   },
   setGuideLine: function(line) {
     this.setState(prevState => {
-      if (prevState.modals.length > 0) {
-        return update(prevState, {pendingGuideLine: {$set: line}});
-      } else {
-        return update(prevState, {guideLine: {$set: line}});
-      }
+      return update(prevState, {guideLine: {$set: line}});
     });
   },
   addLog: function(logEntry) {
@@ -841,7 +837,7 @@ export const SiftrView = createClass({
     });
     return update(root, {ands: {$set: ands}});
   },
-  checkQuestsOffline: function() {
+  checkQuestsOffline: function(loop = true) {
     if (!this.isMounted) {
       // do nothing
     } else {
@@ -910,6 +906,9 @@ export const SiftrView = createClass({
                 }
               });
               this.setGuideLine(quest.sub_active[0].prompt);
+            } else if (quest.sub_active && !loop) {
+              // Ensure that we don't keep the "sort field guide" message
+              this.setGuideLine(quest.sub_active[0].prompt);
             }
           }
         });
@@ -940,7 +939,9 @@ export const SiftrView = createClass({
         }
       }
     }
-    setTimeout(() => this.checkQuestsOffline(), 5000);
+    if (loop) {
+      setTimeout(() => this.checkQuestsOffline(), 5000);
+    }
   },
   checkQuests: function() {
     if (!this.isMounted) return;
@@ -2017,10 +2018,6 @@ export const SiftrView = createClass({
       let o = {
         modals: {$apply: (ary) => ary.slice(1)},
       };
-      if (old.pendingGuideLine && old.modals.length === 1) {
-        o.guideLine = {$set: old.pendingGuideLine};
-        o.pendingGuideLine = {$set: null};
-      }
       return update(old, o);
     });
   },
@@ -2565,6 +2562,8 @@ export const SiftrView = createClass({
       } else {
         this.setGuideLine(`You have ${remaining} more field ${remaining === 1 ? 'note' : 'notes'} to find!`);
       }
+    } else {
+      this.checkQuestsOffline(false); // check quests once but don't loop
     }
   },
   getRemnantProgress: function(considerPickedUp = false) {
