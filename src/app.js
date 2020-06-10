@@ -58,6 +58,7 @@ export var SiftrNative = createClass({
       screen: null,
       recent: null,
       viewingComic: false,
+      seenWizardForQuestIDs: [],
     };
   },
 
@@ -74,10 +75,13 @@ export var SiftrNative = createClass({
     }).catch((err) => {
       this.setState({viewingComic: true});
     })
-    RNFS.readFile(seenWizard, 'utf8').then(() => {
-      // do nothing
+    RNFS.readFile(seenWizard, 'utf8').then((s) => {
+      const res = JSON.parse(s);
+      if (Array.isArray(res)) {
+        this.setState({seenWizardForQuestIDs: res});
+      }
     }).catch((err) => {
-      this.setState({viewingWizard: true});
+      // do nothing
     })
     RNFS.readFile(recentlyOpened, 'utf8').then((str) => {
       this.setState({recent: JSON.parse(str)});
@@ -521,14 +525,15 @@ export var SiftrNative = createClass({
         >
           {this.state.auth.authToken != null ? (
             this.state.game != null ? (
-              this.state.viewingWizard ? (
+              this.state.seenWizardForQuestIDs.indexOf(parseInt(this.state.quest.quest_id)) === -1 ? (
                 <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
                   <StemportsWizard
                     game={this.state.game}
                     quest={this.state.quest}
                     onClose={() => {
-                      this.setState({viewingWizard: false});
-                      RNFS.writeFile(seenWizard, 'true', 'utf8');
+                      const newSeen = this.state.seenWizardForQuestIDs.concat([parseInt(this.state.quest.quest_id)]);
+                      this.setState({seenWizardForQuestIDs: newSeen});
+                      RNFS.writeFile(seenWizard, JSON.stringify(newSeen), 'utf8');
                     }}
                   />
                 </SafeAreaView>
