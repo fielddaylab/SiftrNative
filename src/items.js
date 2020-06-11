@@ -117,29 +117,16 @@ export class ItemScreen extends React.Component {
                 } else if (url && url.uri) {
                   return <React.Fragment>
                     <SquareImage
-                      sources={[url]}
+                      sources={urls}
+                      margin={urls.length > 1 ? 10 : 0}
+                      peek={urls.length > 1 ? 20 : 0}
                       onGallery={({uri}) => this.setState({gallery: uri})}
                     />
-                    <TouchableOpacity onPress={() => this.setState({gallery: url})} style={{
-                      backgroundColor: 'rgb(223,230,237)',
-                      marginLeft: 10,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                      <Image
-                        source={require('../web/assets/img/see-more-photos.png')}
-                        style={{
-                          width: 92 * 0.3,
-                          height: 100 * 0.3,
-                          margin: 8,
-                        }}
-                      />
-                    </TouchableOpacity>
                     {
                       this.state.gallery != null && (
                         <GalleryModal
                           onClose={() => this.setState({gallery: null})}
-                          initialPage={urls.indexOf(this.state.gallery)}
+                          initialPage={urls.map(x => x.uri).indexOf(this.state.gallery)}
                           images={urls.map((url) => ({source: url}))}
                         />
                       )

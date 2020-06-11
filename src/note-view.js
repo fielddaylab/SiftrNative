@@ -80,8 +80,12 @@ export const SquareImage = class SquareImage extends React.Component {
   }
 
   render() {
-    let width = this.state.width;
-    if (width == null) width = undefined;
+    const margin = (this.props.margin || 0);
+    const peek = (this.props.peek || 0);
+    let imageWidth = undefined;
+    if (this.state.width != null) {
+      imageWidth = this.state.width - margin - peek;
+    }
     return (
       <ScrollView
         horizontal={true}
@@ -109,8 +113,9 @@ export const SquareImage = class SquareImage extends React.Component {
                 source={source}
                 style={{
                   resizeMode: "cover",
-                  width: width,
-                  height: width,
+                  width: imageWidth,
+                  height: imageWidth,
+                  marginRight: margin,
                 }}
               />
             </TouchableWithoutFeedback>
