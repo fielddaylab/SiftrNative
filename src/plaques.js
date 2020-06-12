@@ -12,9 +12,10 @@ import {
   FullWidthWebView
 , webViewBoilerplate
 } from './items';
-import {CacheMedia} from './media';
+import {CacheMedia, CacheMedias} from './media';
 import {ItemScreen} from './items';
 import Markdown from "react-native-simple-markdown";
+import {SquareImage, GalleryModal} from './note-view';
 
 export class PlaqueScreen extends React.Component {
   constructor(props) {
@@ -62,30 +63,10 @@ export class PlaqueScreen extends React.Component {
         flex: 1,
         backgroundColor: 'rgb(149,169,153)',
         flexDirection: 'column',
-        paddingLeft: 10,
-        paddingRight: 10,
       }}>
-        <CacheMedia
-          media_id={this.props.plaque.media_id}
-          auth={this.props.auth}
-          online={true}
-          withURL={(url) => (
-            <View style={{marginTop: 20, marginBottom: 20}}>
-              <Image
-                source={url}
-                style={{
-                  height: 150,
-                  resizeMode: 'contain',
-                }}
-              />
-            </View>
-          )}
-        />
         <View style={{
           backgroundColor: 'white',
           flex: 1,
-          borderTopLeftRadius: 10,
-          borderTopRightRadius: 10,
           alignItems: 'center',
         }}>
           <Text style={{
@@ -94,6 +75,50 @@ export class PlaqueScreen extends React.Component {
           }}>
             {this.state.checkedIn ? 'Nice! You found:' : this.props.plaque.name}
           </Text>
+          <View style={{flexDirection: 'row', alignItems: 'stretch'}}>
+            <CacheMedias
+              medias={[this.props.plaque.media_id, this.props.plaque.media_id_2, this.props.plaque.media_id_3].filter(x => parseInt(x)).map(media_id =>
+                ({media_id: media_id, auth: this.props.auth, online: true})
+              )}
+              withURLs={(urls) => {
+                const url = urls[0];
+                if (url && url.uri && url.uri.match(/\.zip$/)) {
+                  return (
+                    <View style={{marginTop: 20, marginBottom: 20, flexDirection: 'column', alignItems: 'center'}}>
+                      <ModelView
+                        source={{ zip: url }}
+                        style={{
+                          width: 200,
+                          height: 150,
+                        }}
+                        autoPlay={true}
+                      />
+                    </View>
+                  );
+                } else if (url && url.uri) {
+                  return <React.Fragment>
+                    <SquareImage
+                      sources={urls}
+                      margin={urls.length > 1 ? 10 : 0}
+                      peek={urls.length > 1 ? 20 : 0}
+                      onGallery={({uri}) => this.setState({gallery: uri})}
+                    />
+                    {
+                      this.state.gallery != null && (
+                        <GalleryModal
+                          onClose={() => this.setState({gallery: null})}
+                          initialPage={urls.map(x => x.uri).indexOf(this.state.gallery)}
+                          images={urls.map((url) => ({source: url}))}
+                        />
+                      )
+                    }
+                  </React.Fragment>;
+                } else {
+                  return null;
+                }
+              }}
+            />
+          </View>
           {
             this.state.checkedIn ? (
               <ScrollView style={{flex: 1}}>
