@@ -18,7 +18,7 @@ import ModelView from '../react-native-3d-model-view/lib/ModelView';
 import update from "immutability-helper";
 import {SiftrThumbnails} from './thumbnails';
 import {SquareImage, GalleryModal} from './note-view';
-import Markdown from "react-native-simple-markdown";
+import {FixedMarkdown} from './styles';
 
 export class FullWidthWebView extends React.Component {
   constructor(props) {
@@ -139,9 +139,7 @@ export class ItemScreen extends React.Component {
             />
           </View>
           <ScrollView style={{flex: 1, alignSelf: 'stretch', margin: 10}}>
-            <Markdown>
-              {this.props.item.description}
-            </Markdown>
+            <FixedMarkdown text={this.props.item.description.replace(/\n/g, (m) => (m + m))} />
           </ScrollView>
           {
             this.props.type === 'trigger' ? (

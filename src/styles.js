@@ -4,6 +4,7 @@
 import React from 'react';
 import RN, {StyleSheet} from 'react-native';
 import createClass from 'create-react-class';
+import Markdown from "react-native-simple-markdown";
 
 export const Text = createClass({
   displayName: 'Text',
@@ -18,6 +19,20 @@ export const Text = createClass({
     );
   },
 });
+
+export const FixedMarkdown = (props) => (
+  <Markdown styles={{
+    paragraph: {
+      flexWrap: 'wrap',
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'flex-start',
+      marginBottom: 15,
+    },
+  }}>
+    {props.text && props.text.replace(/\n/g, (m) => (m + m))}
+  </Markdown>
+);
 
 export const styles = StyleSheet.create({
 

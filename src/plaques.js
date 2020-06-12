@@ -14,7 +14,7 @@ import {
 } from './items';
 import {CacheMedia, CacheMedias} from './media';
 import {ItemScreen} from './items';
-import Markdown from "react-native-simple-markdown";
+import {FixedMarkdown} from './styles';
 import {SquareImage, GalleryModal} from './note-view';
 
 export class PlaqueScreen extends React.Component {
@@ -144,9 +144,7 @@ export class PlaqueScreen extends React.Component {
               </ScrollView>
             ) : (
               <ScrollView style={{flex: 1, alignSelf: 'stretch', margin: 10}}>
-                <Markdown>
-                  {this.props.plaque.description}
-                </Markdown>
+                <FixedMarkdown text={this.props.plaque.description} />
               </ScrollView>
             )
           }

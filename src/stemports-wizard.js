@@ -10,9 +10,8 @@ import {
   Image,
   SafeAreaView
 } from "react-native";
-import { styles, Text } from "./styles";
+import { styles, Text, FixedMarkdown } from "./styles";
 import { GuideLine } from "./stemports-picker";
-import Markdown from "react-native-simple-markdown";
 
 const WizardLines = [
   {
@@ -73,7 +72,7 @@ export class StemportsWizard extends React.Component {
           <View style={{
             margin: 10,
           }}>
-            <Markdown>{line.body(this.props.quest)}</Markdown>
+            <FixedMarkdown text={line.body(this.props.quest)} />
           </View>
         </ScrollView>
         <View style={{

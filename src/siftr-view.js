@@ -31,7 +31,6 @@ const RNFS = require("react-native-fs");
 import { styles, Text } from "./styles";
 import { StatusSpace } from "./status-space";
 import SideMenu from "react-native-side-menu";
-import Markdown from "react-native-simple-markdown";
 import firebase from "react-native-firebase";
 import { NativeSettings } from "./native-settings";
 import { NativeCard } from "./native-browser";
