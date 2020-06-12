@@ -131,7 +131,7 @@ android {
         applicationId "org.fielddaylab.stemports"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 103
+        versionCode 104
         versionName "1.0"
         missingDimensionStrategy 'react-native-camera', 'general'
 
