@@ -3098,25 +3098,42 @@ export const SiftrView = createClass({
                           this.setState({warp: !this.state.warp, warpCoords: null, factoryObjects: [], factoryProductionTimestamps: {}});
                         }}
                         onResetProgress={() => {
-                          this.props.auth.call('client.logPlayerResetGame', {
-                            game_id: this.props.game.game_id,
-                          }, (res1) => {
-                            this.props.auth.call('notes.deleteUserNotesForGame', {
-                              user_id: this.props.auth.authToken.user_id,
+                          const continueReset = (attempts) => {
+                            if (attempts === 0) {
+                              Alert.alert(
+                                "Unable to clear progress",
+                                "Please ensure you have internet access in order to reset your station progress.",
+                                [
+                                  { text: 'OK', onPress: () => null }
+                                ],
+                              );
+                              return;
+                            }
+                            this.props.auth.call('client.logPlayerResetGame', {
                               game_id: this.props.game.game_id,
-                            }, (res2) => {
-                              const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
-                              RNFS.unlink(`${siftrDir}/download_timestamp.txt`).then(() =>
-                                RNFS.unlink(`${siftrDir}/quests-sorted.txt`)
-                              ).then(() =>
-                                RNFS.unlink(`${RNFS.DocumentDirectoryPath}/seenwizard.txt`)
-                              ).then(() =>
-                                RNFS.unlink(`${RNFS.DocumentDirectoryPath}/siftrs/current-quest.txt`)
-                              ).then(() => {
-                                this.props.onExit(true);
-                              });
-                            })
-                          });
+                            }, (res1) => {
+                              this.props.auth.call('notes.deleteUserNotesForGame', {
+                                user_id: this.props.auth.authToken.user_id,
+                                game_id: this.props.game.game_id,
+                              }, (res2) => {
+                                if (!(res1 && res1.returnCode === 0 && res2 && res2.returnCode === 0)) {
+                                  continueReset(attempts - 1);
+                                  return;
+                                }
+                                const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
+                                RNFS.unlink(`${siftrDir}/download_timestamp.txt`).then(() =>
+                                  RNFS.unlink(`${siftrDir}/quests-sorted.txt`)
+                                ).then(() =>
+                                  RNFS.unlink(`${RNFS.DocumentDirectoryPath}/seenwizard.txt`)
+                                ).then(() =>
+                                  RNFS.unlink(`${RNFS.DocumentDirectoryPath}/siftrs/current-quest.txt`)
+                                ).then(() => {
+                                  this.props.onExit(true);
+                                });
+                              })
+                            });
+                          };
+                          continueReset(3);
                         }}
                         warpOn={this.state.warp}
                         currentQuest={this.props.currentQuest}
