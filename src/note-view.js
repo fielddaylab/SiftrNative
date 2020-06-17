@@ -95,7 +95,7 @@ export const SquareImage = class SquareImage extends React.Component {
         onLayout={this.resize.bind(this)}
       >
         {this.props.sources.map((source, i) => {
-          if (source.uri === null || source.uri === "") {
+          if (!source || source.uri === null || source.uri === "") {
             source = null;
           }
           return (
