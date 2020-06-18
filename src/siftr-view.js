@@ -818,10 +818,10 @@ export const SiftrView = createClass({
         }
         return notes;
       })(),
-      guides: this.props.guides,
       game: this.props.game,
       auth: this.props.auth,
       quest_id: this.props.currentQuest.quest_id,
+      fields: this.props.fields,
     });
   },
   evalReqPackage: function(id, type) {

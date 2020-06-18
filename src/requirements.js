@@ -65,9 +65,9 @@ function playerHasNoteWithQuest(atom, env) {
     const note_user_id = parseInt(note.user_id || (note.user && note.user.user_id));
     return note_user_id === user_id || !note_user_id;
   };
-  const field_ids = env.guides.filter(guide =>
-    parseInt(guide.quest_id) === quest_id
-  ).map(guide => parseInt(guide.field_id));
+  const field_ids = env.fields.filter(field =>
+    parseInt(field.quest_id) === quest_id
+  ).map(field => parseInt(field.field_id));
   const hasQuest = note => {
     if (!note.field_data) {
       return false;
