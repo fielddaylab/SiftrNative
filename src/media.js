@@ -178,6 +178,10 @@ export class CacheMedias extends React.Component {
     // for any new or changed media IDs, clear the url and start loading the new ID
     this.props.medias.forEach((media, i) => {
       const oldMedia = prevProps.medias[i];
+      if (!parseInt(media.media_id)) {
+        // for local (to-be-uploaded) observations parseInt() returns NaN, so the !== below loops forever
+        return;
+      }
       if (!oldMedia || parseInt(media.media_id) !== parseInt(oldMedia.media_id)) {
         this.setState(state => update(state, {urls: {[i]: {$set: null}}}));
         this.startLoad(media, i);

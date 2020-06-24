@@ -1231,7 +1231,7 @@ export const CreateData = createClass({
                                         return option;
                                       }
                                     }
-                                    return filteredOptions[0];
+                                    return null;
                                   })()}
                                   options={filteredOptions}
                                   getColor={this.props.getColor}
