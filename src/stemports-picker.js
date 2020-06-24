@@ -1372,11 +1372,15 @@ export class StemportsQuest extends React.Component {
         </ScrollView>
         <View style={{alignItems: 'center', justifyContent: 'center'}}>
           <TouchableOpacity style={{
-            backgroundColor: 'rgb(101,88,245)',
+            backgroundColor: 'rgb(130,189,181)',
             padding: 5,
             margin: 20,
+            borderRadius: 5,
           }} onPress={this.props.onStart}>
-            <Text style={{color: 'white'}}>
+            <Text style={{
+              color: 'white',
+              textTransform: 'uppercase',
+            }}>
               Start Quest
             </Text>
           </TouchableOpacity>

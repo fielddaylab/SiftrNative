@@ -44,7 +44,8 @@
     "react-native-webview": "^7.5.2",
     "react-native-zip-archive": "^5.0.0",
     "remove-markdown": "^0.3.0",
-    "rn-fetch-blob": "^0.10.16"
+    "rn-fetch-blob": "^0.10.16",
+    "yarn": "^1.22.4"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
