@@ -21,6 +21,7 @@ import { StemportsPlayer } from "./stemports-player";
 import {addXP, meterDistance} from './siftr-view';
 import {loadQueue, uploadNote} from './upload-queue';
 import {getQuestProgress} from './quests';
+import {maxPickupDistance} from './map';
 import { ComicView } from './stemports-player';
 import MapboxGL from "@react-native-mapbox-gl/maps";
 
@@ -452,16 +453,66 @@ export class StemportsPicker extends React.Component {
           }
         });
 
+        /*
+        for each item trigger within range of a plaque trigger:
+          add a req to the item trigger for the player to have been within range of the plaque (IN_PLAQUE_RANGE log entry)
+        */
+        let instanceLookup = {};
+        allData.instances.forEach(instance => {
+          instanceLookup[instance.instance_id] = instance;
+        });
+        const plaqueTriggers = allData.triggers.filter(trigger =>
+          instanceLookup[trigger.instance_id].object_type === 'PLAQUE'
+        );
+        const updatedTriggers = allData.triggers.map(trigger => {
+          if (instanceLookup[trigger.instance_id].object_type === 'ITEM' && !parseInt(trigger.requirement_root_package_id)) {
+            const plaqueTrigger = plaqueTriggers.find(otherTrigger =>
+              meterDistance(trigger, otherTrigger) < maxPickupDistance
+            );
+            if (plaqueTrigger) {
+              // modify trigger so it's only visible after you go to plaqueTrigger
+              const attach_root_id = addTo(new_requirement_root_packages, root_id => ({
+                requirement_root_package_id: root_id,
+                game_id: game.game_id,
+              }));
+              const attach_and_id = addTo(new_requirement_and_packages, and_id => ({
+                requirement_and_package_id: and_id,
+                game_id: game.game_id,
+                requirement_root_package_id: attach_root_id,
+              }));
+              addTo(new_requirement_atoms, atom_id => ({
+                requirement_atom_id: atom_id,
+                game_id: game.game_id,
+                requirement_and_package_id: attach_and_id,
+                bool_operator: 1,
+                requirement: 'PLAYER_BEEN_IN_PLAQUE_RANGE', // custom req type
+                content_id: instanceLookup[plaqueTrigger.instance_id].object_id,
+              }))
+              return update(trigger, {
+                requirement_root_package_id: {
+                  $set: attach_root_id,
+                },
+              });
+            } else {
+              return trigger;
+            }
+          } else {
+            return trigger;
+          }
+        });
+
         if (new_quests.length > 0) {
           return Promise.all([
             writeJSON('quests')(allData.quests.concat(new_quests)),
             writeJSON('requirement_root_packages')(allData.requirement_root_packages.concat(new_requirement_root_packages)),
             writeJSON('requirement_and_packages')(allData.requirement_and_packages.concat(new_requirement_and_packages)),
             writeJSON('requirement_atoms')(allData.requirement_atoms.concat(new_requirement_atoms)),
+            writeJSON('triggers')(updatedTriggers),
           ]).then(() => update(allData, {
             requirement_root_packages: {$push: new_requirement_root_packages},
             requirement_and_packages: {$push: new_requirement_and_packages},
             requirement_atoms: {$push: new_requirement_atoms},
+            triggers: {$set: updatedTriggers},
           }));
         } else {
           return allData; // nothing to do
@@ -521,13 +572,22 @@ export class StemportsPicker extends React.Component {
           let new_requirement_atoms = [];
           allData.events.forEach(event => {
             if (event.event === 'GIVE_ITEM') { // GIVE_ITEM_PLAYER in database
-              event_items.push(parseInt(event.content_id));
+              event_items[event.content_id] = true;
+            }
+          });
+          let trigger_instances = {};
+          allData.triggers.forEach(trigger => {
+            trigger_instances[trigger.instance_id] = true;
+          })
+          allData.instances.forEach(instance => {
+            if (instance.object_type === 'ITEM' && trigger_instances[instance.instance_id]) {
+              event_items[instance.object_id] = true;
             }
           });
           allData.fields.forEach(field => {
             field.options.forEach(opt => {
               if (!opt.remnant_id) return;
-              if (event_items.indexOf(opt.remnant_id) !== -1) return;
+              if (event_items[opt.remnant_id]) return;
               const factory_root_id = addTo(new_requirement_root_packages, root_id => ({
                 requirement_root_package_id: root_id,
                 game_id: game.game_id,

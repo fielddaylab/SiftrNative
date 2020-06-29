@@ -1108,6 +1108,27 @@ export const SiftrView = createClass({
           nextFactoryObjects = nextFactoryObjects.concat(objects);
           nextFactoryProductionTimestamps[factory.factory_id] = updated;
         });
+
+        /*
+        for each plaque that we are in range of:
+          add a log that allows player to see caches attached to it
+        TODO keep track of existing ones to not add duplicates
+        */
+        this.props.plaques.forEach(plaque => {
+          const inRange = this.getObjectInstances('PLAQUE', plaque.plaque_id).some(instance =>
+            this.getTriggersForInstance(instance).some(trigger =>
+              meterDistance(trigger, playerLoc) < maxPickupDistance
+            )
+          )
+          if (inRange) {
+            this.addLog({
+              event_type: 'IN_PLAQUE_RANGE',
+              game_id: this.props.game.game_id,
+              content_id: plaque.plaque_id,
+            });
+          }
+        });
+
         return update(oldState, {
           factoryObjects: {$set: nextFactoryObjects},
           factoryProductionTimestamps: {$set: nextFactoryProductionTimestamps},

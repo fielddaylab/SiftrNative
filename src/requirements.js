@@ -26,6 +26,13 @@ function playerCompletedQuest(atom, log) {
   );
 }
 
+function playerBeenInPlaqueRange(atom, log) {
+  return log.some(logEntry =>
+       logEntry.event_type === 'IN_PLAQUE_RANGE'
+    && logEntry.content_id === atom.content_id
+  );
+}
+
 const ITEM_NONE = false;
 const ITEM_PICKED_UP = null;
 const ITEM_PLACED = true;
@@ -190,6 +197,8 @@ function evalReqAtom(atom, env) {
         return !bool_operator; // TODO
       case 'PLAYER_HAS_GIVEN_NOTE_COMMENTS':
         return !bool_operator; // TODO
+      case 'PLAYER_BEEN_IN_PLAQUE_RANGE':
+        return bool_operator == playerBeenInPlaqueRange(atom, log);
     }
   })();
   return {bool: bool, atom: atom, qty: qty};
