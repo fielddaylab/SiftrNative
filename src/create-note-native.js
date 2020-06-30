@@ -864,7 +864,11 @@ export const CreateData = createClass({
       );
     } else {
 
-      const visibleFields = this.props.fields.filter(field => {
+      let visiblePhotos = [];
+      let visibleFieldNotes = [];
+      let visibleRest = [];
+
+      let visibleFields = this.props.fields.filter(field => {
         if (isEditing && field.field_type === "MEDIA") {
           return false;
         }
@@ -885,6 +889,18 @@ export const CreateData = createClass({
         }
         return true;
       });
+      const guideFieldIDs = this.props.guides.map(guide => parseInt(guide.field_id));
+      visibleFields.forEach(field => {
+        if (field.field_type === 'MEDIA') {
+          visiblePhotos.push(field);
+        } else if (guideFieldIDs.indexOf(parseInt(field.field_id)) !== -1) {
+          visibleFieldNotes.push(field);
+        } else {
+          visibleRest.push(field);
+        }
+      });
+      visibleFields = visiblePhotos.concat(visibleFieldNotes).concat(visibleRest);
+
       const previousField = () => this.setState(prevState =>
         update(prevState, {fieldIndex: {$apply: (x) => x - 1}})
       );

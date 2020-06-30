@@ -2381,6 +2381,7 @@ export const SiftrView = createClass({
           }}
           categories={(ref = this.props.tags) != null ? ref : []}
           fields={this.props.fields || []}
+          guides={this.props.guides || []}
           onFinish={this.finishNoteCreation}
           onCancel={() => {
             this.setState({
