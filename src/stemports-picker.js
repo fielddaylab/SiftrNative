@@ -456,6 +456,7 @@ export class StemportsPicker extends React.Component {
         /*
         for each item trigger within range of a plaque trigger:
           add a req to the item trigger for the player to have been within range of the plaque (IN_PLAQUE_RANGE log entry)
+          (if multiple, pick the closest plaque)
         */
         let instanceLookup = {};
         allData.instances.forEach(instance => {
@@ -466,11 +467,17 @@ export class StemportsPicker extends React.Component {
         );
         const updatedTriggers = allData.triggers.map(trigger => {
           if (instanceLookup[trigger.instance_id].object_type === 'ITEM' && !parseInt(trigger.requirement_root_package_id)) {
-            const plaqueTrigger = plaqueTriggers.find(otherTrigger =>
-              meterDistance(trigger, otherTrigger) < maxPickupDistance
-            );
-            if (plaqueTrigger) {
-              // modify trigger so it's only visible after you go to plaqueTrigger
+            let closestPlaque = null;
+            let closestDistance = maxPickupDistance;
+            plaqueTriggers.forEach(otherTrigger => {
+              const distance = meterDistance(trigger, otherTrigger);
+              if (distance < closestDistance) {
+                closestPlaque = otherTrigger;
+                closestDistance = distance;
+              }
+            });
+            if (closestPlaque) {
+              // modify trigger so it's only visible after you go to closestPlaque
               const attach_root_id = addTo(new_requirement_root_packages, root_id => ({
                 requirement_root_package_id: root_id,
                 game_id: game.game_id,
@@ -486,7 +493,7 @@ export class StemportsPicker extends React.Component {
                 requirement_and_package_id: attach_and_id,
                 bool_operator: 1,
                 requirement: 'PLAYER_BEEN_IN_PLAQUE_RANGE', // custom req type
-                content_id: instanceLookup[plaqueTrigger.instance_id].object_id,
+                content_id: instanceLookup[closestPlaque.instance_id].object_id,
               }))
               return update(trigger, {
                 requirement_root_package_id: {
