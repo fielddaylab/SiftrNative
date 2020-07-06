@@ -200,4 +200,16 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0)',
   },
 
+  button: {
+    padding: 10,
+    backgroundColor: 'rgba(100,112,51,1)',
+    borderRadius: 5,
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+
+  small: {
+    padding: 5,
+  }
+
 });

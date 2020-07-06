@@ -182,8 +182,8 @@ export class StemportsPlayer extends React.Component {
                 <TouchableOpacity onPress={() => this.setState({sideMenu: true})}>
                   <Image
                     style={{
-                      width: 44 * 1,
-                      height: 44 * 1,
+                      width: 30 * 1,
+                      height: 30 * 1,
                       margin: 15,
                     }}
                     source={require("../web/assets/img/menu-black.png")}
@@ -209,8 +209,6 @@ export class StemportsPlayer extends React.Component {
             alignItems: 'center',
             justifyContent: 'space-around',
             padding: 15,
-            borderBottomWidth: 2,
-            borderColor: 'rgb(223,230,237)',
           }}>
             <View style={{flex: 1, alignItems: 'flex-start'}}>
               <Text style={{
@@ -218,6 +216,8 @@ export class StemportsPlayer extends React.Component {
                 fontSize: 30,
                 letterSpacing: 1,
                 color: '#373535',
+                borderBottomWidth: 2,
+                borderColor: 'rgb(223,230,237)',
               }}>
                 {this.props.auth.authToken.display_name || this.props.auth.authToken.username}
               </Text>
@@ -231,7 +231,6 @@ export class StemportsPlayer extends React.Component {
                   fontWeight: 'bold',
                   fontSize: 16,
                   color: 'rgb(106,125,27)',
-                  marginTop:-8,
                 }}>
                   {
                     this.props.currentQuest
@@ -246,15 +245,15 @@ export class StemportsPlayer extends React.Component {
                     flexDirection: 'row',
                     alignItems: 'center',
                   }}>
-                    <Image source={require('../web/assets/img/stemports-icon-station.png')} style={{
-                      width: 136 * 0.25,
-                      height: 128 * 0.25,
+                    <Image source={require('../web/assets/img/pin.png')} style={{
+                      width: 50 * 0.25,
+                      height: 70 * 0.25,
                       marginRight: 5,
                     }} />
                     <Text style={{
                       color: '#B5AEAE',
                     }}>
-                      at: {this.props.game.name}
+                      {this.props.game.name}
                     </Text>
                   </View>
                 )
@@ -279,9 +278,7 @@ export class StemportsPlayer extends React.Component {
             />
           </View>
           <View style={{
-            padding: 25,
-            borderBottomWidth: 2,
-            borderColor: 'rgb(223,230,237)',
+            padding: 15,
             flexDirection: 'row',
             alignItems: 'stretch',
           }}>
@@ -302,7 +299,9 @@ export class StemportsPlayer extends React.Component {
                 resizeMode: 'contain',
               }} source={require('../web/assets/img/illustration-flags.png')} />
               <Text style={{
-                fontSize: 17,
+                fontSize: 16,
+                fontWeight: 'bold',
+                color: '#373535',
               }}>
                 My Quests
               </Text>
@@ -324,25 +323,25 @@ export class StemportsPlayer extends React.Component {
                 resizeMode: 'contain',
               }} source={require('../web/assets/img/illustration-stations.png')} />
               <Text style={{
-                fontSize: 17,
+                fontSize: 16,
+                fontWeight: 'bold',
+                color: '#373535',
               }}>
                 Stations
               </Text>
             </TouchableOpacity>
           </View>
           <View style={{
-            padding: 25,
-            borderBottomWidth: 2,
-            borderColor: 'rgb(223,230,237)',
+            padding: 30,
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: 'rgb(247,249,250)',
           }}>
             <View style={{flex: 1, marginRight: 10}}>
               <Text style={{
-                fontSize: 17,
+                fontSize: 24,
                 margin: 3,
                 fontWeight: 'bold',
+                color: '#373535',
               }}>
                 Game Sync
               </Text>
@@ -357,16 +356,16 @@ export class StemportsPlayer extends React.Component {
                 <TouchableOpacity onPress={this.props.onSync} style={{
                   backgroundColor: 'white',
                   padding: 10,
-                  borderRadius: 4,
-                  borderColor: 'rgb(205,202,248)',
-                  borderWidth: 2,
+                  borderRadius: 5,
+                  backgroundColor: 'rgb(106,125,27)',
                 }}>
-                  <Text style={{color: 'rgb(101,88,245)'}}>Sync Game</Text>
+                  <Text style={{
+                    color: 'rgb(101,88,245)', fontWeight: 'bold', color: '#ffffff',}}>Sync Game</Text>
                 </TouchableOpacity>
               )
             }
           </View>
-          <Text style={{margin: 20, textAlign: 'center', fontWeight: 'bold'}}>Intro Comic</Text>
+          <Text style={{padding: 30, fontSize: 20, fontWeight: 'bold'}}>Story Panels</Text>
           <View style={{
             justifyContent: 'center',
             flexWrap: 'wrap',
