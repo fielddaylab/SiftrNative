@@ -196,8 +196,8 @@ export class StemportsPlayer extends React.Component {
             <TouchableOpacity onPress={() => this.setState({settings: true})}>
               <Image
                 style={{
-                  width: 44 * 1,
-                  height: 44 * 1,
+                  width: 30 * 1,
+                  height: 30 * 1,
                   margin: 15,
                 }}
                 source={require("../web/assets/img/icon-gear.png")}
@@ -205,7 +205,7 @@ export class StemportsPlayer extends React.Component {
             </TouchableOpacity>
           </View>
           <View style={{
-            flexDirection: 'row',
+            flexDirection: 'row-reverse',
             alignItems: 'center',
             justifyContent: 'space-around',
             padding: 15,
@@ -215,23 +215,27 @@ export class StemportsPlayer extends React.Component {
             <View style={{flex: 1, alignItems: 'flex-start'}}>
               <Text style={{
                 fontWeight: 'bold',
-                fontSize: 20,
+                fontSize: 30,
+                letterSpacing: 1,
+                color: '#373535',
               }}>
                 {this.props.auth.authToken.display_name || this.props.auth.authToken.username}
               </Text>
               <TouchableOpacity style={{
-                backgroundColor: 'rgb(101,88,245)',
-                padding: 5,
-                borderRadius: 5,
                 marginTop: 10,
                 marginBottom: 10,
               }} onPress={() =>
                 this.setState({stationList: true})
               }>
-                <Text style={{color: 'white'}}>
+                <Text style={{
+                  fontWeight: 'bold',
+                  fontSize: 16,
+                  color: 'rgb(106,125,27)',
+                  marginTop:-8,
+                }}>
                   {
                     this.props.currentQuest
-                      ? `Playing: ${this.props.currentQuest.name}`
+                      ? `Currently Playing: \n${this.props.currentQuest.name}`
                       : 'Start a Quest!'
                   }
                 </Text>
@@ -247,7 +251,9 @@ export class StemportsPlayer extends React.Component {
                       height: 128 * 0.25,
                       marginRight: 5,
                     }} />
-                    <Text>
+                    <Text style={{
+                      color: '#B5AEAE',
+                    }}>
                       at: {this.props.game.name}
                     </Text>
                   </View>
@@ -284,33 +290,39 @@ export class StemportsPlayer extends React.Component {
             } style={{
               alignItems: 'center',
               flex: 1,
+              padding: 15,
+              borderRadius: 10,
+              backgroundColor: 'rgb(243,235,219)',
+              marginRight: 5,
             }}>
               <Image style={{
-                height: 35,
+                height: 95,
                 margin: 10,
+                marginTop: -10,
                 resizeMode: 'contain',
-              }} source={require('../web/assets/img/stemports-icon-quest.png')} />
+              }} source={require('../web/assets/img/illustration-flags.png')} />
               <Text style={{
                 fontSize: 17,
               }}>
                 My Quests
               </Text>
             </TouchableOpacity>
-            <View style={{
-              backgroundColor: 'rgb(223,230,237)',
-              width: 2,
-            }} />
             <TouchableOpacity onPress={() =>
               this.setState({stationList: true})
             } style={{
               alignItems: 'center',
               flex: 1,
+              padding: 15,
+              borderRadius: 10,
+              backgroundColor: 'rgb(243,235,219)',
+              marginLeft: 5,
             }}>
               <Image style={{
-                height: 35,
+                height: 95,
                 margin: 10,
+                marginTop: -10,
                 resizeMode: 'contain',
-              }} source={require('../web/assets/img/stemports-icon-station.png')} />
+              }} source={require('../web/assets/img/illustration-stations.png')} />
               <Text style={{
                 fontSize: 17,
               }}>
@@ -384,9 +396,11 @@ export class StemportsPlayer extends React.Component {
           <TouchableOpacity onPress={this.props.onClose}>
             <Image
               style={{
-                width: 140 * 0.45,
-                height: 140 * 0.45,
-                margin: 5,
+                width: 100 * 0.45,
+                height: 150 * 0.45,
+                position: 'absolute',
+                bottom:-22,
+                marginLeft: -22,
               }}
               source={require("../web/assets/img/quest-close.png")}
             />
