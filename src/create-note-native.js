@@ -23,6 +23,7 @@ import {
   Alert,
   Animated,
   Slider,
+  ImageBackground,
 } from "react-native";
 import { styles, Text } from "./styles";
 import { RNCamera } from "react-native-camera";
@@ -34,6 +35,7 @@ import { Auth, Game, Tag, Field, FieldData, FieldOption } from "./aris";
 import { requestImage } from "./photos";
 import { groupBy } from "./items";
 import {CacheMedia} from './media';
+import {GuideLine} from './stemports-picker';
 
 // Not used currently
 const SiftrRoll = class SiftrRoll extends React.Component {
@@ -173,73 +175,50 @@ export const CreatePhoto = createClass({
   componentWillUnmount: function() {
     BackHandler.removeEventListener("hardwareBackPress", this.hardwareBack);
   },
+  takePhoto: function() {
+    if (this.camera == null) {
+      return;
+    }
+    const field_id = this.state.field_id;
+    const cameraError = () => {
+      Alert.alert(
+        "Couldn't capture photo",
+        "Please check that Siftr has access to the camera and photo roll in system privacy settings."
+      );
+    };
+    Permissions.checkMultiple(["camera", "photo"]).then(
+      response => {
+        if (
+          response.camera === "authorized" &&
+          response.photo === "authorized"
+        ) {
+          const shutter = new Animated.Value(1);
+          this.setState({shutter}, () => {
+            Animated.timing(shutter, {toValue: 0, duration: 500}).start();
+          });
+          this.camera
+            .takePictureAsync({})
+            .then(({ uri }) => {
+              this.props.onSelectImage({
+                uri: uri,
+                isStatic: true,
+                type: "image/jpeg",
+                name: "upload.jpg"
+              });
+            })
+            .catch(cameraError);
+        } else {
+          cameraError();
+        }
+      }
+    );
+  },
   render: function() {
     return (
-      <View style={styles.overlayWhole}>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            backgroundColor: "white"
-          }}
-        >
-          {
-            this.state.pendingPhoto
-            ? <TouchableOpacity
-                style={{padding: 10, justifyContent: 'center'}}
-                onPress={() => this.setState({pendingPhoto: null, shutter: null})}
-              >
-                <Image
-                  style={{
-                    resizeMode: "contain",
-                    height: 18,
-                  }}
-                  source={require("../web/assets/img/icon-back.png")}
-                />
-              </TouchableOpacity>
-            : <TouchableOpacity
-                style={{padding: 10, justifyContent: 'center'}}
-                onPress={this.props.onCancel}
-              >
-                <Text>cancel</Text>
-              </TouchableOpacity>
-          }
-          <View
-            style={{
-              flex: 1,
-              alignItems: "center",
-              margin: 10,
-            }}
-          >
-            <Text style={{fontWeight: 'bold'}}>
-              <Text style={{fontStyle: 'italic'}}>Posting to</Text>
-              {' '}
-              {this.props.game.name}
-            </Text>
-            <Text style={{marginTop: 4, color: 'gray'}}>
-              {this.props.instruction != null
-                ? this.props.instruction
-                : 'Main image'}
-            </Text>
-          </View>
-          {
-            this.state.pendingPhoto
-            ? <TouchableOpacity style={{padding: 10, justifyContent: 'center'}} onPress={() => {
-                this.props.onSelectImage({
-                  uri: this.state.pendingPhoto,
-                  isStatic: true,
-                  type: "image/jpeg",
-                  name: "upload.jpg"
-                });
-              }}>
-                <Text>next</Text>
-              </TouchableOpacity>
-            : <View style={{padding: 10, justifyContent: 'center'}}>
-                <Text style={{color: 'gray'}}>next</Text>
-              </View>
-          }
-        </View>
+      <View style={{
+        flex: 1,
+        backgroundColor: 'white',
+      }}>
         {function() {
           switch (this.state.source) {
             case "camera":
@@ -364,82 +343,6 @@ export const CreatePhoto = createClass({
                         </TouchableOpacity>
                       )
                     }
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-around",
-                      alignItems: "center"
-                    }}
-                  >
-                    <TouchableOpacity
-                      onPress={() => {
-                        requestImage(true, result => {
-                          if (result != null) {
-                            this.props.onSelectImage(result, result.location);
-                          }
-                        });
-                      }}
-                    >
-                      <Image
-                        style={{
-                          width: 52 * 0.7,
-                          height: 52 * 0.7
-                        }}
-                        source={require("../web/assets/img/icon-from-roll.png")}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => {
-                        var cameraError, field_id;
-                        if (this.camera == null) {
-                          return;
-                        }
-                        field_id = this.state.field_id;
-                        cameraError = () => {
-                          Alert.alert(
-                            "Couldn't capture photo",
-                            "Please check that Siftr has access to the camera and photo roll in system privacy settings."
-                          );
-                        };
-                        Permissions.checkMultiple(["camera", "photo"]).then(
-                          response => {
-                            if (
-                              response.camera === "authorized" &&
-                              response.photo === "authorized"
-                            ) {
-                              const shutter = new Animated.Value(1);
-                              this.setState({shutter}, () => {
-                                Animated.timing(shutter, {toValue: 0, duration: 500}).start();
-                              });
-                              this.camera
-                                .takePictureAsync({})
-                                .then(({ uri }) => {
-                                  this.setState({pendingPhoto: uri});
-                                })
-                                .catch(cameraError);
-                            } else {
-                              cameraError();
-                            }
-                          }
-                        );
-                      }}
-                    >
-                      <Image
-                        source={require("../web/assets/img/icon-take-picture.png")}
-                        style={{
-                          width: 50,
-                          height: 50,
-                          margin: 10
-                        }}
-                      />
-                    </TouchableOpacity>
-                    <View
-                      style={{
-                        width: 52 * 0.7,
-                        height: 52 * 0.7
-                      }}
-                    />
                   </View>
                 </View>
               );
@@ -926,18 +829,6 @@ export const CreateData = createClass({
               backgroundColor: "white"
             }}
           >
-            <TouchableOpacity
-              style={{flex: 1, margin: 10, alignItems: 'flex-start'}}
-              onPress={this.props.onCancel}
-            >
-              <Image
-                style={{
-                  resizeMode: "contain",
-                  height: 18,
-                }}
-                source={require("../web/assets/img/icon-back.png")}
-              />
-            </TouchableOpacity>
             <View
               style={{
                 flex: 4,
@@ -951,7 +842,6 @@ export const CreateData = createClass({
                 {this.props.game.name}
               </Text>
             </View>
-            <View style={{flex: 1, margin: 10, alignItems: 'flex-end'}} />
           </View>
           <View style={{
             flexDirection: 'row',
@@ -1012,6 +902,83 @@ export const CreateData = createClass({
             </View>
           </View>
           {
+            visibleFields[this.state.fieldIndex].field_type === 'MEDIA' ? (() => {
+              const field = visibleFields[this.state.fieldIndex];
+              const field_id = field.field_id;
+              const file = this.props.createNote.files.find(f => f.field_id === field_id);
+              let photoOrCamera = null;
+              let text = '';
+              if (file) {
+                text = 'Nice! If it looks good, press next.';
+                photoOrCamera = (
+                  <ImageBackground
+                    source={file.file}
+                    style={{
+                      flex: 1,
+                      backgroundColor: '#333',
+                      justifyContent: 'flex-end',
+                      alignItems: 'center',
+                    }}
+                    imageStyle={{
+                      resizeMode: 'contain',
+                    }}
+                  >
+                    <TouchableOpacity style={{
+                      backgroundColor: 'white',
+                      margin: 25,
+                      paddingTop: 10,
+                      paddingBottom: 10,
+                      paddingLeft: 20,
+                      paddingRight: 20,
+                      borderRadius: 5,
+                    }} onPress={() => {
+                      this.props.onUpdateNote(update(this.props.createNote, {
+                        files: {$set: this.props.createNote.files.filter(file => file.field_id !== field_id)},
+                      }));
+                    }}>
+                      <Text>Retake</Text>
+                    </TouchableOpacity>
+                  </ImageBackground>
+                );
+              } else {
+                text = field.instruction || 'Take a photo for your observation.';
+                photoOrCamera = (
+                  <CreatePhoto
+                    onSelectImage={(file, location) => {
+                      let newFiles = this.props.createNote.files.filter(file => file.field_id !== field_id);
+                      newFiles.push({ file, field_id });
+                      this.props.onUpdateNote(update(this.props.createNote, {
+                        files: {$set: newFiles},
+                        exif: {$set: location},
+                      }), () => {
+                        this.props.getLocation(loc => {
+                          this.setLocation(loc, 'photo');
+                        });
+                      });
+                      this.setState((oldState) => update(oldState, {
+                        isTakingPhoto: {$set: null},
+                        alertFields: {$apply: (x) => x.filter((fld) => fld.field_id !== field_id)},
+                      }));
+                    }}
+                    game={this.props.game}
+                    instruction={field.label}
+                    ref={(createPhoto) => (this.createPhoto = createPhoto)}
+                  />
+                );
+              }
+              return (
+                <View style={{flex: 1}}>
+                  <GuideLine
+                    style={{
+                      backgroundColor: 'white',
+                      padding: 10,
+                    }}
+                    text={text}
+                  />
+                  {photoOrCamera}
+                </View>
+              )
+            })() : (
             <ScrollView
               ref={(sv) => {
                 this.scrollFields = sv;
@@ -1443,6 +1410,7 @@ export const CreateData = createClass({
                 </View>
               }
             </ScrollView>
+            )
           }
           <Blackout
             keyboardUp={this.state.focusedBox != null}
@@ -1460,13 +1428,30 @@ export const CreateData = createClass({
                   {this.state.fieldIndex === 0 ? 'Cancel' : 'Back'}
                 </Text>
               </TouchableOpacity>
-              <View
-                style={{
-                  width: 2,
-                  height: 20,
-                  backgroundColor: "rgb(237,237,237)"
-                }}
-              />
+              {
+                visibleFields[this.state.fieldIndex].field_type === 'MEDIA' ? (
+                  <TouchableOpacity
+                    onPress={() => this.createPhoto && this.createPhoto.takePhoto()}
+                  >
+                    <Image
+                      source={require("../web/assets/img/icon-take-picture.png")}
+                      style={{
+                        width: 50,
+                        height: 50,
+                        margin: 10
+                      }}
+                    />
+                  </TouchableOpacity>
+                ) : (
+                  <View
+                    style={{
+                      width: 2,
+                      height: 20,
+                      backgroundColor: "rgb(237,237,237)"
+                    }}
+                  />
+                )
+              }
               <TouchableOpacity
                 onPress={() => {
                   const field = visibleFields[this.state.fieldIndex];
