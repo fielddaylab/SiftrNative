@@ -342,15 +342,18 @@ export class InventoryScreen extends React.Component {
             margin: 8,
             alignItems: 'center',
           }}>
-            <TouchableOpacity onPress={this.props.onClose}>
-              <Image
-                style={{
-                  width: 140 * 0.45,
-                  height: 140 * 0.45,
-                }}
-                source={require("../web/assets/img/quest-close.png")}
-              />
-            </TouchableOpacity>
+          <TouchableOpacity onPress={this.props.onClose}>
+            <Image
+              style={{
+                width: 100 * 0.45,
+                height: 150 * 0.45,
+                position: 'absolute',
+                bottom:-22,
+                marginLeft: -22,
+              }}
+              source={require("../web/assets/img/quest-close.png")}
+            />
+          </TouchableOpacity>
           </View>
         </View>
       );

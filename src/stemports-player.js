@@ -12,6 +12,7 @@ import {
   TouchableWithoutFeedback
 } from "react-native";
 import { styles, Text } from "./styles";
+import { globalstyles } from "./global-styles";
 import {loadMedia, CacheMedia} from "./media";
 import { StatusSpace } from "./status-space";
 import { StemportsPicker } from "./stemports-picker";
@@ -354,13 +355,12 @@ export class StemportsPlayer extends React.Component {
             {
               this.props.canSync && (
                 <TouchableOpacity onPress={this.props.onSync} style={{
-                  backgroundColor: 'white',
                   padding: 10,
                   borderRadius: 5,
                   backgroundColor: 'rgb(106,125,27)',
                 }}>
                   <Text style={{
-                    color: 'rgb(101,88,245)', fontWeight: 'bold', color: '#ffffff',}}>Sync Game</Text>
+                    fontWeight: 'bold', color: '#ffffff',}}>Sync Game</Text>
                 </TouchableOpacity>
               )
             }
@@ -394,13 +394,7 @@ export class StemportsPlayer extends React.Component {
         }}>
           <TouchableOpacity onPress={this.props.onClose}>
             <Image
-              style={{
-                width: 100 * 0.45,
-                height: 150 * 0.45,
-                position: 'absolute',
-                bottom:-22,
-                marginLeft: -22,
-              }}
+              style={globalstyles.closeButton}
               source={require("../web/assets/img/quest-close.png")}
             />
           </TouchableOpacity>

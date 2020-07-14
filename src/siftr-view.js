@@ -2869,10 +2869,12 @@ export const SiftrView = createClass({
                       position: 'absolute',
                       top: 10,
                       right: 10,
+                      width: 130,
+                      height: 300,
                     }}
                   >
                     <Image
-                      style={{margin: 10, width: 197 * 0.3, height: 145 * 0.3}}
+                      style={{margin: 10, width: 130, height: 300}}
                       source={require('../web/assets/img/stemports-puffin-color.png')}
                     />
                   </TouchableOpacity>
@@ -2899,12 +2901,12 @@ export const SiftrView = createClass({
                 this.setState({trackDirection: !this.state.trackDirection});
               }} style={{
                 position: 'absolute',
-                top: 100,
-                right: 30,
+                top: 70,
+                right: 5,
               }}>
                 <Image source={require('../web/assets/img/stemports-compass.png')} style={{
-                  width: 50,
-                  height: 50,
+                  width: 100,
+                  height: 100,
                 }} />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => {
@@ -2969,8 +2971,8 @@ export const SiftrView = createClass({
                       <Image
                         source={require('../web/assets/img/stemports-icon-home.png')}
                         style={{
-                          width: 108 * 0.75,
-                          height: 100 * 0.75,
+                          width: 80,
+                          height: 80,
                         }}
                       />
                     </TouchableOpacity>
@@ -2999,7 +3001,7 @@ export const SiftrView = createClass({
                       <Image
                         source={require('../web/assets/img/stemports-icon-fieldguide.png')}
                         style={{
-                          width: 56,
+                          width: 80,
                           height: 80,
                         }}
                       />

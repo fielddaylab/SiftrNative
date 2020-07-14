@@ -380,14 +380,14 @@ export class SiftrMap extends React.Component {
             const visited = this.props.logs && this.props.logs.some(log =>
               log.event_type === 'VIEW_PLAQUE' && parseInt(log.content_id) === parseInt(inst.object_id)
             );
-            icon = visited ? 
+            icon = visited ?
               require('../web/assets/img/icon-blaze-visited.png') :
               require('../web/assets/img/icon-blaze.png');
-            iconSize=[58, 110];
+            iconSize=[108, 140];
             plaque = this.props.plaques.find(p => parseInt(p.plaque_id) === parseInt(inst.object_id));
           } else if (inst.object_type === 'ITEM') {
             icon = require('../web/assets/img/icon-chest.png');
-            iconSize=[62, 46];
+            iconSize=[92, 76];
             item = this.props.items.find(p => parseInt(p.item_id) === parseInt(inst.object_id));
           } else {
             return;
