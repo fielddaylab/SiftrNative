@@ -808,6 +808,24 @@ export const CreateData = createClass({
         this.state.fieldIndex < visiblePhotos.length + visibleFieldNotes.length ? 'current' : 'done');
       const progressRest = (this.state.fieldIndex < visiblePhotos.length + visibleFieldNotes.length ? 'future' : 'current');
 
+      let fieldNoteDots = [];
+      for (let i = visiblePhotos.length; i < visiblePhotos.length + visibleFieldNotes.length; i++) {
+        fieldNoteDots.push(
+          <Image
+            key={i}
+            source={
+              this.state.fieldIndex < i
+                ? require('../web/assets/img/observation-notes-dot-future.png')
+                : require('../web/assets/img/observation-notes-dot-current.png')
+            }
+            style={{
+              width: 26 * 0.5,
+              height: 31 * 0.5,
+            }}
+          />
+        )
+      }
+
       const previousField = () => this.setState(prevState =>
         update(prevState, {fieldIndex: {$apply: (x) => x - 1}})
       );
@@ -856,8 +874,8 @@ export const CreateData = createClass({
                 progressCamera === 'current' ? require('../web/assets/img/observation-camera-current.png')
                   : require('../web/assets/img/observation-camera-done.png')
               } style={{
-                width: 107 * 0.5,
-                height: 103 * 0.5,
+                width: 150 * 0.5,
+                height: 144 * 0.5,
               }} />
               <Text style={{
                 color: 'rgb(36,48,59)',
@@ -869,13 +887,16 @@ export const CreateData = createClass({
               alignItems: 'center',
               margin: 10,
             }}>
+              <View style={{flexDirection: 'row'}}>
+                {fieldNoteDots}
+              </View>
               <Image source={
-                progressFieldNotes === 'current' ? require('../web/assets/img/observation-notes-current.png')
-                  : progressFieldNotes === 'future' ? require('../web/assets/img/observation-notes-future.png')
-                  : require('../web/assets/img/observation-notes-done.png')
+                progressFieldNotes === 'current' ? require('../web/assets/img/observation-notes-book-current.png')
+                  : progressFieldNotes === 'future' ? require('../web/assets/img/observation-notes-book-future.png')
+                  : require('../web/assets/img/observation-notes-book-done.png')
               } style={{
-                width: 107 * 0.5,
-                height: 103 * 0.5,
+                width: 150 * 0.5,
+                height: 113 * 0.5,
               }} />
               <Text style={{
                 color: progressFieldNotes === 'future' ? 'rgb(192,204,214)' : 'rgb(36,48,59)',
@@ -891,8 +912,8 @@ export const CreateData = createClass({
                 progressRest === 'current' ? require('../web/assets/img/observation-rest-current.png')
                   : require('../web/assets/img/observation-rest-future.png')
               } style={{
-                width: 107 * 0.5,
-                height: 103 * 0.5,
+                width: 150 * 0.5,
+                height: 144 * 0.5,
               }} />
               <Text style={{
                 color: progressRest === 'future' ? 'rgb(192,204,214)' : 'rgb(36,48,59)',
