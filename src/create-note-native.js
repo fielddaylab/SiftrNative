@@ -866,77 +866,89 @@ export const CreateData = createClass({
             justifyContent: 'space-between',
             backgroundColor: 'white',
           }}>
-            <TouchableOpacity onPress={() => {
-              this.setState(prevState =>
-                update(prevState, {fieldIndex: {$set: 0}})
-              );
-            }} style={{
-              alignItems: 'center',
-              margin: 10,
-            }}>
-              <Image source={
-                progressCamera === 'current' ? require('../web/assets/img/observation-camera-current.png')
-                  : require('../web/assets/img/observation-camera-done.png')
-              } style={{
-                width: 150 * 0.5,
-                height: 144 * 0.5,
-              }} />
-              <Text style={{
-                color: 'rgb(36,48,59)',
-              }}>
-                camera
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => {
-              if (progressFieldNotes !== 'future') {
-                this.setState(prevState =>
-                  update(prevState, {fieldIndex: {$set: visiblePhotos.length}})
-                );
-              }
-            }} style={{
-              alignItems: 'center',
-              margin: 10,
-            }}>
-              <View style={{flexDirection: 'row'}}>
-                {fieldNoteDots}
-              </View>
-              <Image source={
-                progressFieldNotes === 'current' ? require('../web/assets/img/observation-notes-book-current.png')
-                  : progressFieldNotes === 'future' ? require('../web/assets/img/observation-notes-book-future.png')
-                  : require('../web/assets/img/observation-notes-book-done.png')
-              } style={{
-                width: 150 * 0.5,
-                height: 113 * 0.5,
-              }} />
-              <Text style={{
-                color: progressFieldNotes === 'future' ? 'rgb(192,204,214)' : 'rgb(36,48,59)',
-              }}>
-                field notes
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => {
-              if (progressRest !== 'future') {
-                this.setState(prevState =>
-                  update(prevState, {fieldIndex: {$set: visiblePhotos.length + visibleFieldNotes.length}})
-                );
-              }
-            }} style={{
-              alignItems: 'center',
-              margin: 10,
-            }}>
-              <Image source={
-                progressRest === 'current' ? require('../web/assets/img/observation-rest-current.png')
-                  : require('../web/assets/img/observation-rest-future.png')
-              } style={{
-                width: 150 * 0.5,
-                height: 144 * 0.5,
-              }} />
-              <Text style={{
-                color: progressRest === 'future' ? 'rgb(192,204,214)' : 'rgb(36,48,59)',
-              }}>
-                more
-              </Text>
-            </TouchableOpacity>
+            {
+              visiblePhotos.length > 0 && (
+                <TouchableOpacity onPress={() => {
+                  this.setState(prevState =>
+                    update(prevState, {fieldIndex: {$set: 0}})
+                  );
+                }} style={{
+                  alignItems: 'center',
+                  margin: 10,
+                }}>
+                  <Image source={
+                    progressCamera === 'current' ? require('../web/assets/img/observation-camera-current.png')
+                      : require('../web/assets/img/observation-camera-done.png')
+                  } style={{
+                    width: 150 * 0.5,
+                    height: 144 * 0.5,
+                  }} />
+                  <Text style={{
+                    color: 'rgb(36,48,59)',
+                  }}>
+                    camera
+                  </Text>
+                </TouchableOpacity>
+              )
+            }
+            {
+              visibleFieldNotes.length > 0 && (
+                <TouchableOpacity onPress={() => {
+                  if (progressFieldNotes !== 'future') {
+                    this.setState(prevState =>
+                      update(prevState, {fieldIndex: {$set: visiblePhotos.length}})
+                    );
+                  }
+                }} style={{
+                  alignItems: 'center',
+                  margin: 10,
+                }}>
+                  <View style={{flexDirection: 'row'}}>
+                    {fieldNoteDots}
+                  </View>
+                  <Image source={
+                    progressFieldNotes === 'current' ? require('../web/assets/img/observation-notes-book-current.png')
+                      : progressFieldNotes === 'future' ? require('../web/assets/img/observation-notes-book-future.png')
+                      : require('../web/assets/img/observation-notes-book-done.png')
+                  } style={{
+                    width: 150 * 0.5,
+                    height: 113 * 0.5,
+                  }} />
+                  <Text style={{
+                    color: progressFieldNotes === 'future' ? 'rgb(192,204,214)' : 'rgb(36,48,59)',
+                  }}>
+                    field notes
+                  </Text>
+                </TouchableOpacity>
+              )
+            }
+            {
+              visibleRest.length > 0 && (
+                <TouchableOpacity onPress={() => {
+                  if (progressRest !== 'future') {
+                    this.setState(prevState =>
+                      update(prevState, {fieldIndex: {$set: visiblePhotos.length + visibleFieldNotes.length}})
+                    );
+                  }
+                }} style={{
+                  alignItems: 'center',
+                  margin: 10,
+                }}>
+                  <Image source={
+                    progressRest === 'current' ? require('../web/assets/img/observation-rest-current.png')
+                      : require('../web/assets/img/observation-rest-future.png')
+                  } style={{
+                    width: 150 * 0.5,
+                    height: 144 * 0.5,
+                  }} />
+                  <Text style={{
+                    color: progressRest === 'future' ? 'rgb(192,204,214)' : 'rgb(36,48,59)',
+                  }}>
+                    more
+                  </Text>
+                </TouchableOpacity>
+              )
+            }
           </View>
           {
             visibleFields[this.state.fieldIndex].field_type === 'MEDIA' ? (() => {
