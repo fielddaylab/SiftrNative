@@ -866,7 +866,11 @@ export const CreateData = createClass({
             justifyContent: 'space-between',
             backgroundColor: 'white',
           }}>
-            <View style={{
+            <TouchableOpacity onPress={() => {
+              this.setState(prevState =>
+                update(prevState, {fieldIndex: {$set: 0}})
+              );
+            }} style={{
               alignItems: 'center',
               margin: 10,
             }}>
@@ -882,8 +886,14 @@ export const CreateData = createClass({
               }}>
                 camera
               </Text>
-            </View>
-            <View style={{
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+              if (progressFieldNotes !== 'future') {
+                this.setState(prevState =>
+                  update(prevState, {fieldIndex: {$set: visiblePhotos.length}})
+                );
+              }
+            }} style={{
               alignItems: 'center',
               margin: 10,
             }}>
@@ -903,8 +913,14 @@ export const CreateData = createClass({
               }}>
                 field notes
               </Text>
-            </View>
-            <View style={{
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+              if (progressRest !== 'future') {
+                this.setState(prevState =>
+                  update(prevState, {fieldIndex: {$set: visiblePhotos.length + visibleFieldNotes.length}})
+                );
+              }
+            }} style={{
               alignItems: 'center',
               margin: 10,
             }}>
@@ -920,7 +936,7 @@ export const CreateData = createClass({
               }}>
                 more
               </Text>
-            </View>
+            </TouchableOpacity>
           </View>
           {
             visibleFields[this.state.fieldIndex].field_type === 'MEDIA' ? (() => {
