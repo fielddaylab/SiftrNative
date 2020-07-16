@@ -226,7 +226,9 @@ export class StemportsPlayer extends React.Component {
                 marginTop: 10,
                 marginBottom: 10,
               }} onPress={() =>
-                this.setState({stationList: true})
+                this.props.currentQuest
+                  ? this.props.onClose()
+                  : this.setState({stationList: true})
               }>
                 <Text style={{
                   fontWeight: 'bold',
