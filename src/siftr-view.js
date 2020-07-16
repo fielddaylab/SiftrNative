@@ -3169,6 +3169,7 @@ export const SiftrView = createClass({
                       return (
                         <PlaqueScreen
                           trigger={modal.trigger}
+                          instance={modal.instance}
                           plaque={modal.plaque}
                           auth={this.props.auth}
                           events={this.props.events}
@@ -3182,6 +3183,7 @@ export const SiftrView = createClass({
                           onSelectNote={this.selectNote}
                           eventPackages={this.props.event_packages}
                           items={this.props.items}
+                          logs={this.state.logs}
                           onCheckin={() => {
                             this.addLog({
                               event_type: 'VIEW_PLAQUE',

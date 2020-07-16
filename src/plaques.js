@@ -58,6 +58,10 @@ export class PlaqueScreen extends React.Component {
       );
     }
 
+    const hasCheckinLog = this.props.logs && this.props.instance && this.props.logs.some(log =>
+      log.event_type === 'VIEW_PLAQUE' && parseInt(log.content_id) === parseInt(this.props.instance.object_id)
+    );
+
     return (
       <View style={{
         flex: 1,
@@ -157,6 +161,8 @@ export class PlaqueScreen extends React.Component {
                   this.props.onPickup(events);
                   this.setState({showingItem: 0});
                 }
+              } else if (hasCheckinLog) {
+                this.props.onClose();
               } else {
                 this.props.onCheckin();
                 if (events.length === 0) {
@@ -176,7 +182,10 @@ export class PlaqueScreen extends React.Component {
               paddingRight: 30,
             }}>
               <Text style={{color: 'white'}}>
-                {this.state.checkedIn ? (events.length === 0 ? 'Close' : 'Collect Field Notes') : 'Check in'}
+                {
+                  this.state.checkedIn ? (events.length === 0 ? 'Close' : 'Collect Field Notes')
+                    : hasCheckinLog ? 'Close' : 'Check in'
+                }
               </Text>
             </TouchableOpacity>
           </View>
