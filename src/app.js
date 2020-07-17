@@ -513,6 +513,12 @@ export var SiftrNative = createClass({
     }
   },
 
+  modifySeenWizardQuestIDs: function(modifier) {
+    const newSeen = modifier(this.state.seenWizardForQuestIDs);
+    this.setState({seenWizardForQuestIDs: newSeen});
+    RNFS.writeFile(seenWizard, JSON.stringify(newSeen), 'utf8');
+  },
+
   render: function() {
     if (this.state.auth != null) {
       return (
@@ -531,9 +537,9 @@ export var SiftrNative = createClass({
                     game={this.state.game}
                     quest={this.state.quest}
                     onClose={() => {
-                      const newSeen = this.state.seenWizardForQuestIDs.concat([parseInt(this.state.quest.quest_id)]);
-                      this.setState({seenWizardForQuestIDs: newSeen});
-                      RNFS.writeFile(seenWizard, JSON.stringify(newSeen), 'utf8');
+                      this.modifySeenWizardQuestIDs(ids =>
+                        ids.concat([parseInt(this.state.quest.quest_id)])
+                      );
                     }}
                   />
                 </SafeAreaView>
@@ -550,7 +556,9 @@ export var SiftrNative = createClass({
                     onExit={(clearData = false) => {
                       let o = {game: null};
                       if (clearData) {
-                        o.viewingWizard = true;
+                        this.modifySeenWizardQuestIDs(ids =>
+                          ids.filter(id => parseInt(id) !== parseInt(this.state.quest.quest_id))
+                        );
                         if (this.state.pendingNotes) {
                           const game_id = parseInt(this.state.game.game_id);
                           const thisStationNotes = this.state.pendingNotes.filter(({dir, json}) =>
