@@ -25,7 +25,8 @@ import {
   Platform,
   SafeAreaView,
   Alert,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  Dimensions
 } from "react-native";
 const RNFS = require("react-native-fs");
 import { styles, Text } from "./styles";
@@ -2656,6 +2657,7 @@ export const SiftrView = createClass({
     if (this.props.authors) {
       authorNames = this.props.authors.join(', ');
     }
+    const {height, width} = Dimensions.get('window');
     return (
       <KeyboardAvoidingView
         behavior="padding"
@@ -2933,7 +2935,7 @@ export const SiftrView = createClass({
                     withURL={(url) =>
                       <View pointerEvents="none" style={{
                         position: 'absolute',
-                        bottom: 100,
+                        bottom: (height * 0.55) / 2 - 20,
                         left: 0,
                         right: 0,
                         flexDirection: 'column',

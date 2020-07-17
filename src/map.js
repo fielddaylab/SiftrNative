@@ -409,6 +409,9 @@ export class SiftrMap extends React.Component {
           );
         })
       }
+      <MapboxGL.UserLocation
+        visible={!this.props.showStops}
+      />
     </MapboxGL.MapView>;
   }
 
