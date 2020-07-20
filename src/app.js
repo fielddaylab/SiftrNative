@@ -557,6 +557,7 @@ export var SiftrNative = createClass({
                       let o = {game: null};
                       if (clearData) {
                         this.modifySeenWizardQuestIDs(ids =>
+                          // TODO this should probably actually remove all quests for this station
                           ids.filter(id => parseInt(id) !== parseInt(this.state.quest.quest_id))
                         );
                         if (this.state.pendingNotes) {

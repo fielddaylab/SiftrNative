@@ -259,12 +259,16 @@ export class InventoryScreen extends React.Component {
       !(tags.some(tag => tag.items.some(item => item.instance === inst)))
     );
 
+    const filteredPickups = this.props.pickedUpRemnants.filter(item_id =>
+      tags.some(tag => tag.items.some(item => parseInt(item.item.item_id) === parseInt(item_id)))
+    );
+
     let guideMessage = '';
     if (this.state.observations) {
       guideMessage = "Here are all the observations you've made.";
     } else if (tags.every(o => o.items.every(o => o.instance))) {
       guideMessage = "Congratulations, you've completed these field notes!";
-    } else if (this.props.pickedUpRemnants.length !== 0) {
+    } else if (filteredPickups.length !== 0) {
       guideMessage = "You've found some field notes. Now, place them in the right areas of your guide!";
     } else {
       guideMessage = "Go find more field notes to fill in the empty spaces in your guide!";
@@ -486,7 +490,7 @@ export class InventoryScreen extends React.Component {
         }}>
           <ScrollView scrollEnabled={!this.state.dragging} disableScrollViewPanResponder={true} horizontal={true} style={{flex: 1, overflow: 'visible'}}>
             {
-              this.props.pickedUpRemnants.map(item_id => {
+              filteredPickups.map(item_id => {
                 const item = (this.props.items || []).find(x => parseInt(x.item_id) === parseInt(item_id));
                 if (!item) return null;
                 const object_tag = (this.props.object_tags || []).find(otag =>
