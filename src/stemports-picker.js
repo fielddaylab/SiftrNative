@@ -1233,13 +1233,13 @@ export class GuideLine extends React.Component {
             this.props.onPress ? (
               <TouchableOpacity style={{margin: 10}} onPress={this.props.onPress}>
                 <Image
-                  style={{margin: 10, width: 197 * 0.3, height: 145 * 0.3}}
+                  style={{margin: 10, width: 120 * 0.4, height: 172 * 0.4}}
                   source={require('../web/assets/img/stemports-puffin-color.png')}
                 />
               </TouchableOpacity>
             ) : (
               <Image
-                style={{margin: 10, width: 197 * 0.3, height: 145 * 0.3}}
+                style={{margin: 10, width: 120 * 0.4, height: 172 * 0.4}}
                 source={require('../web/assets/img/stemports-puffin-color.png')}
               />
             )

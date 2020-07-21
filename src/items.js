@@ -19,6 +19,7 @@ import update from "immutability-helper";
 import {SiftrThumbnails} from './thumbnails';
 import {SquareImage, GalleryModal} from './note-view';
 import {FixedMarkdown} from './styles';
+import {GuideLine} from './stemports-picker';
 
 export class FullWidthWebView extends React.Component {
   constructor(props) {
@@ -310,25 +311,12 @@ export class InventoryScreen extends React.Component {
           flex: 1,
           alignItems: 'stretch',
         }}>
-          <View style={{flexDirection: 'row', padding: 10}}>
-            <View style={{
-              flex: 1,
-              backgroundColor: 'white',
-              borderRadius: 5,
-              paddingTop: 3,
-              paddingBottom: 3,
-              paddingLeft: 7,
-              paddingRight: 7,
-              borderColor: 'black',
-              borderWidth: 1,
-            }}>
-              <Text>{guideMessage}</Text>
-            </View>
-            <Image
-              style={{margin: 10, width: 197 * 0.3, height: 145 * 0.3}}
-              source={require('../web/assets/img/stemports-puffin-color.png')}
-            />
-          </View>
+          <GuideLine
+            style={{
+              padding: 10,
+            }}
+            text={guideMessage}
+          />
           {makeTabs()}
           <View style={{flex: 1}}>
             <SiftrThumbnails
@@ -369,25 +357,12 @@ export class InventoryScreen extends React.Component {
         flex: 1,
         alignItems: 'stretch',
       }}>
-        <View style={{flexDirection: 'row', padding: 10}}>
-          <View style={{
-            flex: 1,
-            backgroundColor: 'white',
-            borderRadius: 5,
-            paddingTop: 3,
-            paddingBottom: 3,
-            paddingLeft: 7,
-            paddingRight: 7,
-            borderColor: 'black',
-            borderWidth: 1,
-          }}>
-            <Text>{guideMessage}</Text>
-          </View>
-          <Image
-            style={{margin: 10, width: 197 * 0.3, height: 145 * 0.3}}
-            source={require('../web/assets/img/stemports-puffin-color.png')}
-          />
-        </View>
+        <GuideLine
+          style={{
+            padding: 10,
+          }}
+          text={guideMessage}
+        />
         {makeTabs()}
         <ScrollView style={{flex: 1, backgroundColor: 'rgb(243,237,225)'}}>
           {

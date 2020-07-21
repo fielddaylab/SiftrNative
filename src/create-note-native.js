@@ -1126,24 +1126,13 @@ export const CreateData = createClass({
                           this.fieldChunks[field.field_id] = chunk;
                         }}
                       >
-                        <View style={styles.settingsHeader}>
-                          <Text style={[
-                            styles.settingsHeaderText,
-                            this.state.alertFields.indexOf(field) !== -1 ? {color: 'red'} : {},
-                            {fontSize: 18, color: 'black', textAlign: 'center', fontWeight: 'bold'},
-                          ]}>
-                            {field.label}{field.required ? ' *' : ''}
-                          </Text>
-                        </View>
-                        <View style={styles.settingsHeader}>
-                          <Text style={[
-                            styles.settingsHeaderText,
-                            this.state.alertFields.indexOf(field) !== -1 ? {color: 'red'} : {},
-                            {fontSize: 15, color: 'black', textAlign: 'center'},
-                          ]}>
-                            {field.instruction}
-                          </Text>
-                        </View>
+                        <GuideLine
+                          style={{
+                            backgroundColor: 'white',
+                            padding: 10,
+                          }}
+                          text={field.instruction}
+                        />
                         {function() {
                           var ref2;
                           onChangeData = newData => {

@@ -175,7 +175,7 @@ export const QuestDotDetails = function(props) {
         alignItems: 'center',
       }}>
         <Image
-          style={{width: 197 * 0.5, height: 145 * 0.5}}
+          style={{width: 120 * 0.5, height: 172 * 0.5}}
           source={require('../web/assets/img/stemports-puffin-color.png')}
         />
       </View>
@@ -279,7 +279,7 @@ export const QuestDetails = function(props) {
         alignItems: 'center',
       }}>
         <Image
-          style={{width: 197 * 0.5, height: 145 * 0.5}}
+          style={{width: 120 * 0.5, height: 172 * 0.5}}
           source={require('../web/assets/img/stemports-puffin-color.png')}
         />
       </View>
@@ -430,7 +430,7 @@ export const GenericModal = (props) => {
         alignItems: 'center',
       }}>
         <Image
-          style={{width: 197 * 0.5, height: 145 * 0.5}}
+          style={{width: 120 * 0.5, height: 172 * 0.5}}
           source={require('../web/assets/img/stemports-puffin-color.png')}
         />
       </View>
@@ -531,7 +531,7 @@ export class QuestsScreen extends React.Component {
           alignItems: 'center',
         }}>
           <Image
-            style={{width: 197 * 0.5, height: 145 * 0.5}}
+            style={{width: 120 * 0.5, height: 172 * 0.5}}
             source={require('../web/assets/img/stemports-puffin-color.png')}
           />
         </View>
