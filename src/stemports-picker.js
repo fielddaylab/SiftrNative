@@ -427,6 +427,10 @@ export class StemportsPicker extends React.Component {
               game_id: game.game_id,
               requirement_root_package_id: observe_root_id,
             }));
+            let needObservations = parseInt(quest.stars);
+            if (!needObservations || needObservations < 1) {
+              needObservations = 3;
+            }
             addTo(new_requirement_atoms, atom_id => ({
               requirement_atom_id: atom_id,
               game_id: game.game_id,
@@ -434,7 +438,7 @@ export class StemportsPicker extends React.Component {
               bool_operator: 1,
               requirement: 'PLAYER_HAS_NOTE_WITH_QUEST', // custom req type
               content_id: quest.quest_id,
-              qty: 3,
+              qty: needObservations,
             }))
             let prompt = 'Now you are ready to make 3 observations of your own to complete the quest. Use the plus button to make an observation!';
             if (quest.prompt) prompt = quest.prompt;
