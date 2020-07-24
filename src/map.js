@@ -28,6 +28,8 @@ import {
 , Colors
 } from './aris';
 
+import TestStyle from './mapbox-style.json';
+
 const toWord8 = function(n) {
   let s = n.toString(16);
   if (s.length === 1) {
@@ -366,6 +368,9 @@ export class SiftrMap extends React.Component {
         pitch={this.props.showStops ? 0 : 60}
         followPitch={60}
         followZoomLevel={22}
+      />
+      <MapboxGL.Style
+        json={TestStyle}
       />
       {this.renderNotes()}
       {
