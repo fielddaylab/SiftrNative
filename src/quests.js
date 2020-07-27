@@ -21,41 +21,60 @@ export const getQuestProgress = (details) => {
     // get field notes
     const fieldNoteAtoms = and.atoms.filter(atom => atom.atom.requirement === 'PLAYER_HAS_ITEM');
     if (fieldNoteAtoms.length > 0) {
-      progress.push({
+      let dotRow = {
         subquestLabel: 'Explore and Collect Field Notes',
         done: fieldNoteAtoms.filter(o => o.bool).length,
         halfDone: fieldNoteAtoms.filter(o => o.bool === null).length,
         total: fieldNoteAtoms.length,
         root: root,
         keyIndex: 1,
-      });
+      };
+      if (dotRow.done !== dotRow.total && (dotRow.done !== 0 || dotRow.halfDone !== 0)) {
+        const remainingPickups = dotRow.total - (dotRow.done + dotRow.halfDone);
+        if (remainingPickups === 0) {
+          dotRow.guideLine = 'You have all the notes! Now open your field guide and sort them so you can make observations!';
+        } else {
+          dotRow.guideLine = `You have ${remainingPickups} more field ${remainingPickups === 1 ? 'note' : 'notes'} to find!`;
+        }
+      }
+      progress.push(dotRow);
     }
 
     // go to tour stops
     const tourStopAtoms = and.atoms.filter(atom => atom.atom.requirement === 'PLAYER_VIEWED_PLAQUE');
     if (tourStopAtoms.length > 0) {
-      progress.push({
+      let dotRow = {
         subquestLabel: 'Visit Tour Stops',
         done: tourStopAtoms.filter(o => o.bool).length,
         halfDone: 0,
         total: tourStopAtoms.length,
         root: root,
         keyIndex: 2,
-      });
+      };
+      if (dotRow.done !== dotRow.total && dotRow.done !== 0) {
+        const remainingStops = dotRow.total - dotRow.done;
+        dotRow.guideLine = `You have ${remainingStops} more tour ${remainingStops === 1 ? 'stop' : 'stops'} to find!`;
+      }
+      progress.push(dotRow);
     }
 
     // make observations
     const observationAtoms = and.atoms.filter(atom => atom.atom.requirement === 'PLAYER_HAS_NOTE_WITH_QUEST');
     if (observationAtoms.length > 0) {
       const total = observationAtoms.map(o => o.atom.qty).reduce((a, b) => a + b, 0)
-      progress.push({
+      let dotRow = {
         subquestLabel: `Make ${total} Observations`,
         done: observationAtoms.map(o => o.qty).reduce((a, b) => a + b, 0),
         halfDone: 0,
         total: total,
         root: root,
         keyIndex: 3,
-      });
+      };
+      if (dotRow.done !== dotRow.total && dotRow.done !== 0) {
+        const remainingObservations = dotRow.total - dotRow.done;
+        dotRow.guideLine = `You have ${remainingObservations} more ${remainingObservations === 1 ? 'observation' : 'observations'} to make!`;
+      }
+      progress.push(dotRow);
     }
   });
   return progress;
