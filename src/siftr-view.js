@@ -3140,9 +3140,7 @@ export const SiftrView = createClass({
                                   return;
                                 }
                                 const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
-                                RNFS.unlink(`${siftrDir}/download_timestamp.txt`).then(() =>
-                                  RNFS.unlink(`${siftrDir}/quests-sorted.txt`)
-                                ).then(() =>
+                                RNFS.unlink(siftrDir).then(() =>
                                   RNFS.unlink(`${RNFS.DocumentDirectoryPath}/seenwizard.txt`)
                                 ).then(() =>
                                   RNFS.unlink(`${RNFS.DocumentDirectoryPath}/siftrs/current-quest.txt`)
