@@ -497,16 +497,13 @@ export class ComicView extends React.Component {
           this.props.closeButton && (
             <View style={{
               alignItems: 'center',
+              paddingTop: 30,
             }}>
               <TouchableOpacity onPress={this.props.onClose}>
-                <Image
-                  style={{
-                    width: 140 * 0.45,
-                    height: 140 * 0.45,
-                    margin: 5,
-                  }}
-                  source={require("../web/assets/img/quest-close.png")}
-                />
+              <Image
+                style={globalstyles.closeButton}
+                source={require("../web/assets/img/quest-close.png")}
+              />
               </TouchableOpacity>
             </View>
           )
