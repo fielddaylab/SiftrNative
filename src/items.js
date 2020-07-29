@@ -314,7 +314,9 @@ export class InventoryScreen extends React.Component {
             <SiftrThumbnails
               hasMore={false}
               pendingNotes={this.props.pendingNotes}
-              notes={this.props.notes}
+              notes={this.props.notes.filter(note =>
+                parseInt(note.user.user_id) === parseInt(this.props.auth.authToken.user_id)
+              )}
               game={this.props.game}
               auth={this.props.auth}
               online={this.props.online}
@@ -348,8 +350,7 @@ export class InventoryScreen extends React.Component {
           text={guideMessage}
         />
         {makeTabs()}
-        <ImageBackground source={require('../web/assets/img/paper-texture.jpg')} style={globalstyles.backgroundImage} imageStyle=
-{{opacity:0.8}}>
+        <ImageBackground source={require('../web/assets/img/paper-texture.jpg')} style={globalstyles.backgroundImage} imageStyle={{opacity:0.8}}>
         <ScrollView style={{flex: 1,}}>
           {
             false /* disabling for now */ && untaggedInstances.map(inst => {
