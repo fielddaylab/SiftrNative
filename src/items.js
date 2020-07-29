@@ -391,63 +391,63 @@ export class InventoryScreen extends React.Component {
                     flexDirection: 'row',
                     alignItems: 'flex-start',
                     flexWrap: 'wrap',
+                    justifyContent: 'center',
                   }}>
                     {
                       items.map(o => {
                         const isPlaced = o.instance;
-                        return (
-                          <TouchableOpacity key={o.item.item_id} style={{
-                            alignItems: 'center',
-                            borderRadius: 5,
-                            margin: 5,
-                            width: '22%',
-                            shadowColor: '#5D0D0D',
-                            shadowOpacity: 0.1,
-                            shadowRadius: 12,
-                            shadowOffset: {height: 2},
-                            backgroundColor: '#ffffff',
-                          }} onPress={() =>
-                            isPlaced && this.setState({viewing: {item: o.item, instance: o.instance}})
-                          }>
-                            <CacheMedia
-                              media_id={parseInt(o.item.icon_media_id) || parseInt(o.item.media_id)}
-                              auth={this.props.auth}
-                              online={true}
-                              withURL={(url) => (
-                                isPlaced ? (
-                                  <Image
-                                    source={url}
-                                    style={{
-                                      height: 65,
-                                      width: 65,
-                                      margin: 10,
-                                      resizeMode: 'contain',
-                                    }}
-                                  />
-                                ) : (
-                                    <View
+                        if (isPlaced) {
+                          return (
+                            <TouchableOpacity key={o.item.item_id} onPress={() =>
+                              isPlaced && this.setState({viewing: {item: o.item, instance: o.instance}})
+                            }>
+                              <ImageBackground source={require('../web/assets/img/note-filled.png')} style={{
+                                alignItems: 'center',
+                                borderRadius: 5,
+                                margin: 5,
+                                shadowColor: '#5D0D0D',
+                                shadowOpacity: 0.1,
+                                shadowRadius: 12,
+                                shadowOffset: {height: 2},
+                                width: 200 * 0.5,
+                                height: 280 * 0.5,
+                              }}>
+                                <CacheMedia
+                                  media_id={parseInt(o.item.icon_media_id) || parseInt(o.item.media_id)}
+                                  auth={this.props.auth}
+                                  online={true}
+                                  withURL={(url) => (
+                                    <Image
+                                      source={url}
                                       style={{
                                         height: 65,
                                         width: 65,
                                         margin: 10,
-                                        backgroundColor: 'gray',
-                                        borderRadius: 3,
+                                        marginBottom: 0,
+                                        resizeMode: 'contain',
                                       }}
                                     />
-                                )
-                              )}
-                            />
-                            <Text style={{
-                              margin: 10,
-                              textAlign: 'center',
-                              width: 100,
-                            }}>
-                              {isPlaced ? o.item.name : ''}
-                            </Text>
-                          </TouchableOpacity>
-
-
-                        );
+                                  )}
+                                />
+                                <Text style={{
+                                  margin: 10,
+                                  textAlign: 'center',
+                                  width: 100,
+                                }}>
+                                  {o.item.name}
+                                </Text>
+                              </ImageBackground>
+                            </TouchableOpacity>
+                          );
+                        } else {
+                          return (
+                            <Image key={o.item.item_id} source={require('../web/assets/img/note-space.png')} style={{
+                              width: 200 * 0.5,
+                              height: 280 * 0.5,
+                              margin: 5,
+                            }} />
+                          );
+                        }
                       })
                     }
 
