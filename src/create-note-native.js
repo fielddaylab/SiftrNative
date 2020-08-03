@@ -802,7 +802,10 @@ export const CreateData = createClass({
           visibleRest.push(field);
         }
       });
-      visibleFields = visiblePhotos.concat(visibleFieldNotes).concat(visibleRest);
+      visibleFields = visiblePhotos.concat(visibleFieldNotes).concat(visibleRest.length === 0 ? [] : [visibleRest]);
+      const currentFieldPage = Array.isArray(visibleFields[this.state.fieldIndex]) ?
+        visibleFields[this.state.fieldIndex]   :
+        [visibleFields[this.state.fieldIndex]] ;
       const progressCamera = (this.state.fieldIndex < visiblePhotos.length ? 'current' : 'done');
       const progressFieldNotes = (this.state.fieldIndex < visiblePhotos.length ? 'future' :
         this.state.fieldIndex < visiblePhotos.length + visibleFieldNotes.length ? 'current' : 'done');
@@ -1110,7 +1113,7 @@ export const CreateData = createClass({
                       ))
                     }
                   </Blackout>
-                  {[visibleFields[this.state.fieldIndex]].map(field => {
+                  {currentFieldPage.map(field => {
                     var getText, onChangeData, clearAlert, setText;
                     const field_data = this.props.createNote.field_data || [];
                     return (
@@ -1492,32 +1495,34 @@ export const CreateData = createClass({
               }
               <TouchableOpacity
                 onPress={() => {
-                  const field = visibleFields[this.state.fieldIndex];
                   const field_data = this.props.createNote.field_data || [];
-                  let canAdvance = true;
-                  if (field.required) {
-                    if (field.field_type === 'TEXT' || field.field_type === 'TEXTAREA') {
-                      const match = field_data.filter(data => data.field_id === field.field_id);
-                      if (match.length === 0 || !(match[0].field_data)) {
-                        canAdvance = false;
-                      }
-                    } else if (field.field_type === 'MEDIA' && !this.props.createNote.note_id) {
-                      let files = this.props.createNote.files;
-                      if (files == null) files = [];
-                      if (!files.some(file => file.field_id === field.field_id)) {
-                        canAdvance = false;
-                      }
-                    } else if (field.field_type === 'SINGLESELECT' || field.field_type === 'MULTISELECT') {
-                      if (!field_data.some(data => data.field_id === field.field_id)) {
-                        canAdvance = false;
+                  const stopAdvance = currentFieldPage.some(field => {
+                    let canAdvance = true;
+                    if (field.required) {
+                      if (field.field_type === 'TEXT' || field.field_type === 'TEXTAREA') {
+                        const match = field_data.filter(data => data.field_id === field.field_id);
+                        if (match.length === 0 || !(match[0].field_data)) {
+                          canAdvance = false;
+                        }
+                      } else if (field.field_type === 'MEDIA' && !this.props.createNote.note_id) {
+                        let files = this.props.createNote.files;
+                        if (files == null) files = [];
+                        if (!files.some(file => file.field_id === field.field_id)) {
+                          canAdvance = false;
+                        }
+                      } else if (field.field_type === 'SINGLESELECT' || field.field_type === 'MULTISELECT') {
+                        if (!field_data.some(data => data.field_id === field.field_id)) {
+                          canAdvance = false;
+                        }
                       }
                     }
-                  }
-                  if (!canAdvance) {
-                    this.setState({alertFields: [field]});
-                    this.scrollToField(field.field_id);
-                    return;
-                  }
+                    if (!canAdvance) {
+                      this.setState({alertFields: [field]});
+                      this.scrollToField(field.field_id);
+                      return true;
+                    }
+                  });
+                  if (stopAdvance) return;
                   if (this.state.fieldIndex >= visibleFields.length - 1) {
                     this.finishForm();
                   } else {
