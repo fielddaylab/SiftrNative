@@ -35,6 +35,7 @@ import { Auth, Game, Tag, Field, FieldData, FieldOption } from "./aris";
 import { requestImage } from "./photos";
 import { groupBy } from "./items";
 import {CacheMedia} from './media';
+import {ItemScreen} from './items';
 import {GuideLine} from './stemports-picker';
 
 // Not used currently
@@ -454,79 +455,6 @@ const CreateDataPhotoButton = createClass({
   }
 });
 
-const CreateSingleSelect = createClass({
-  displayName: "CreateSingleSelect",
-  getInitialState: function() {
-    return {};
-  },
-  render: function() {
-    return (
-      <View>
-        {
-          groupBy(4, this.props.options).map((row, i) =>
-            <View key={i} style={{
-              flexDirection: 'row',
-              alignItems: 'stretch',
-            }}>
-              {
-                row.map(option => {
-                  const media_id = this.props.getMediaID(option);
-                  return (
-                    <TouchableOpacity key={this.props.getKey(option)} style={{
-                      flex: 1,
-                      alignItems: 'stretch',
-                    }} onPress={() => this.props.onSelectOption(option)}>
-                      {
-                        media_id ? (
-                          <CacheMedia
-                            media_id={this.props.getMediaID(option)}
-                            auth={this.props.auth}
-                            online={true}
-                            withURL={(url) =>
-                              <Image
-                                source={url}
-                                style={{
-                                  height: 60,
-                                  margin: 10,
-                                  resizeMode: 'contain',
-                                  opacity: option === this.props.current ? 1 : 0.3,
-                                }}
-                              />
-                            }
-                          />
-                        ) : (
-                          <View
-                            style={{
-                              alignSelf: 'center',
-                              height: 60,
-                              width: 60,
-                              borderRadius: 999,
-                              margin: 10,
-                              resizeMode: 'contain',
-                              opacity: option === this.props.current ? 1 : 0.3,
-                              backgroundColor: this.props.getColor(option),
-                            }}
-                          />
-                        )
-                      }
-                      <Text style={{
-                        margin: 10,
-                        textAlign: 'center',
-                      }}>
-                        {this.props.getLabel(option)}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })
-              }
-            </View>
-          )
-        }
-      </View>
-    );
-  }
-});
-
 class NumberInput extends React.Component {
   constructor(props) {
     super(props);
@@ -726,6 +654,15 @@ export const CreateData = createClass({
             </TouchableOpacity>
           </View>
         </View>
+      );
+    } else if (this.state.viewingItem) {
+      return (
+        <ItemScreen
+          type="inventory"
+          item={this.state.viewingItem}
+          auth={this.props.auth}
+          onClose={() => this.setState({viewingItem: null})}
+        />
       );
     } else if (this.state.isTakingPhoto != null) {
       if (this.state.isTakingPhoto === "main") {
@@ -1268,141 +1205,80 @@ export const CreateData = createClass({
                                   return true;
                                 }
                               });
-                              if (!field.required) {
-                                filteredOptions.unshift(new FieldOption({
-                                  field_option_id: 0,
-                                  field_id: field.field_id,
-                                  game_id: this.props.game.game_id,
-                                  option: '(none)',
-                                  sort_index: 0,
-                                  color: 'gray',
-                                  remnant_id: null,
-                                  field_guide_id: null,
-                                }));
-                              }
-                              return (
-                                <CreateSingleSelect
-                                  current={(() => {
-                                    var data,
-                                      field_option_id,
-                                      i,
-                                      j,
-                                      len,
-                                      len1,
-                                      option,
-                                      ref3;
-                                    field_option_id = null;
-                                    for (
-                                      i = 0, len = field_data.length;
-                                      i < len;
-                                      i++
-                                    ) {
-                                      data = field_data[i];
-                                      if (data.field_id === field.field_id) {
-                                        field_option_id = data.field_option_id;
-                                        break;
-                                      }
-                                    }
-                                    ref3 = filteredOptions;
-                                    for (
-                                      j = 0, len1 = ref3.length;
-                                      j < len1;
-                                      j++
-                                    ) {
-                                      option = ref3[j];
-                                      if (
-                                        option.field_option_id ===
-                                        field_option_id
-                                      ) {
-                                        return option;
-                                      }
-                                    }
-                                    return null;
-                                  })()}
-                                  options={filteredOptions}
-                                  getColor={this.props.getColor}
-                                  auth={this.props.auth}
-                                  getMediaID={option => {
-                                    const item = this.props.items.find(item =>
-                                      parseInt(item.item_id) === option.remnant_id
-                                    );
-                                    return item && (item.icon_media_id || item.media_id);
-                                  }}
-                                  getLabel={opt => {
-                                    return opt.option;
-                                  }}
-                                  getKey={opt => {
-                                    return opt.field_option_id;
-                                  }}
-                                  onSelectOption={opt => {
-                                    var newData = field_data.filter(
-                                      data => data.field_id !== field.field_id
-                                    );
-                                    if (opt.field_option_id !== 0) {
-                                      newData.push(
-                                        new FieldData({
-                                          field_id: field.field_id,
-                                          field_option_id: opt.field_option_id
-                                        })
+                              return field.options.map(option => {
+                                const isSelected = field_data.some(data =>
+                                  data.field_id === field.field_id &&
+                                  data.field_option_id ===
+                                    option.field_option_id
+                                );
+                                return (
+                                  <FieldNoteRow
+                                    key={option.field_option_id}
+                                    option={option}
+                                    auth={this.props.auth}
+                                    current={isSelected}
+                                    getColor={this.props.getColor}
+                                    onPress={() => {
+                                      let newData = field_data.filter(
+                                        data => data.field_id !== field.field_id
                                       );
-                                    }
-                                    return onChangeData(newData);
-                                  }}
-                                />
-                              );
+                                      if (!isSelected) {
+                                        newData.push(
+                                          new FieldData({
+                                            field_id: field.field_id,
+                                            field_option_id: option.field_option_id
+                                          })
+                                        );
+                                      }
+                                      onChangeData(newData);
+                                    }}
+                                  />
+                                );
+                              });
                             case "MULTISELECT":
                               return field.options.map(option => {
+                                const isSelected = field_data.some(data =>
+                                  data.field_id === field.field_id &&
+                                  data.field_option_id ===
+                                    option.field_option_id
+                                );
+                                const item = this.props.items.find(item =>
+                                  parseInt(item.item_id) === option.remnant_id
+                                );
                                 return (
-                                  <View
-                                    style={{
-                                      flexDirection: "row",
-                                      backgroundColor: "white",
-                                      alignItems: "center"
-                                    }}
+                                  <FieldNoteRow
                                     key={option.field_option_id}
-                                  >
-                                    <Switch
-                                      value={field_data.some(data => {
-                                        return (
-                                          data.field_id === field.field_id &&
-                                          data.field_option_id ===
-                                            option.field_option_id
-                                        );
-                                      })}
-                                      onValueChange={checked => {
-                                        var newData = field_data.filter(
-                                          data => {
-                                            return !(
-                                              data.field_id ===
-                                                field.field_id &&
-                                              data.field_option_id ===
-                                                option.field_option_id
-                                            );
-                                          }
-                                        );
-                                        if (checked) {
-                                          newData.push(
-                                            new FieldData({
-                                              field_id: field.field_id,
-                                              field_option_id:
-                                                option.field_option_id
-                                            })
+                                    option={option}
+                                    mediaID={item && (item.icon_media_id || item.media_id)}
+                                    auth={this.props.auth}
+                                    current={isSelected}
+                                    getColor={this.props.getColor}
+                                    onPress={() => {
+                                      var newData = field_data.filter(
+                                        data => {
+                                          return !(
+                                            data.field_id ===
+                                              field.field_id &&
+                                            data.field_option_id ===
+                                              option.field_option_id
                                           );
                                         }
-                                        onChangeData(newData);
-                                      }}
-                                      style={{
-                                        margin: 10
-                                      }}
-                                    />
-                                    <Text
-                                      style={{
-                                        margin: 10
-                                      }}
-                                    >
-                                      {option.option}
-                                    </Text>
-                                  </View>
+                                      );
+                                      if (!isSelected) {
+                                        newData.push(
+                                          new FieldData({
+                                            field_id: field.field_id,
+                                            field_option_id:
+                                              option.field_option_id
+                                          })
+                                        );
+                                      }
+                                      onChangeData(newData);
+                                    }}
+                                    onViewItem={item && (() => this.setState({
+                                      viewingItem: item,
+                                    }))}
+                                  />
                                 );
                               });
                             case "MEDIA":
@@ -1545,3 +1421,69 @@ export const CreateData = createClass({
     }
   },
 });
+
+const FieldNoteRow = (props) => {
+  return (
+    <View style={{
+      flexDirection: 'row',
+      alignSelf: 'stretch',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: props.current ? 'rgb(141,215,207)' : 'white',
+      borderTopColor: props.current ? 'rgb(26,174,159)' : 'rgb(223,230,237)',
+      borderBottomColor: props.current ? 'rgb(26,174,159)' : 'rgb(223,230,237)',
+      borderTopWidth: 2,
+      borderBottomWidth: 2,
+    }}>
+      <TouchableOpacity onPress={props.onViewItem} style={{padding: 10}}>
+        {
+          props.mediaID ? (
+            <CacheMedia
+              media_id={props.mediaID}
+              auth={props.auth}
+              online={true}
+              withURL={(url) =>
+                <Image
+                  source={url}
+                  style={{
+                    width: 60,
+                    height: 60,
+                    resizeMode: 'contain',
+                  }}
+                />
+              }
+            />
+          ) : (
+            <View
+              style={{
+                alignSelf: 'center',
+                height: 60,
+                width: 60,
+                borderRadius: 999,
+                resizeMode: 'contain',
+                backgroundColor: props.getColor(props.option),
+                borderColor: 'black',
+                borderWidth: 2,
+              }}
+            />
+          )
+        }
+      </TouchableOpacity>
+      <TouchableOpacity onPress={props.onViewItem} style={{padding: 20}}>
+        <Text style={{
+          textAlign: 'center',
+        }}>
+          {props.option.option}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={props.onPress} style={{padding: 20}}>
+        <Image source={
+          props.current ? require('../web/assets/img/checkmark.png') : require('../web/assets/img/checkmark-empty.png')
+        } style={{
+          width: 48 * 0.5,
+          height: 48 * 0.5,
+        }} />
+      </TouchableOpacity>
+    </View>
+  );
+};
