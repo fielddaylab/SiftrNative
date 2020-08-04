@@ -544,7 +544,6 @@ export const CreateData = createClass({
       noteLocation: null,
       userPickedLocation: false,
       geocodeResult: null,
-      alertFields: [],
       fieldIndex: 0,
     };
   },
@@ -695,7 +694,6 @@ export const CreateData = createClass({
             });
             this.setState((oldState) => update(oldState, {
               isTakingPhoto: {$set: null},
-              alertFields: {$apply: (x) => x.filter((fld) => fld.field_id !== field_id)},
             }));
           }}
           game={this.props.game}
@@ -946,7 +944,6 @@ export const CreateData = createClass({
                       });
                       this.setState((oldState) => update(oldState, {
                         isTakingPhoto: {$set: null},
-                        alertFields: {$apply: (x) => x.filter((fld) => fld.field_id !== field_id)},
                       }));
                     }}
                     game={this.props.game}
@@ -1051,7 +1048,7 @@ export const CreateData = createClass({
                     }
                   </Blackout>
                   {currentFieldPage.map(field => {
-                    var getText, onChangeData, clearAlert, setText;
+                    var getText, onChangeData, setText;
                     const field_data = this.props.createNote.field_data || [];
                     return (
                       <Blackout
@@ -1094,13 +1091,6 @@ export const CreateData = createClass({
                             }
                             return def;
                           };
-                          clearAlert = () => {
-                            if (this.state.alertFields.indexOf(field) !== -1) {
-                              this.setState((oldState) => update(oldState, {
-                                alertFields: {$apply: (x) => x.filter((fld) => fld !== field)},
-                              }));
-                            }
-                          };
                           setText = text => {
                             var newData = field_data.filter(
                               data => data.field_id !== field.field_id
@@ -1112,7 +1102,6 @@ export const CreateData = createClass({
                               })
                             );
                             onChangeData(newData);
-                            clearAlert();
                           };
                           switch (field.field_type) {
                             case "TEXT":
@@ -1372,7 +1361,7 @@ export const CreateData = createClass({
               <TouchableOpacity
                 onPress={() => {
                   const field_data = this.props.createNote.field_data || [];
-                  const stopAdvance = currentFieldPage.some(field => {
+                  const missingField = currentFieldPage.find(field => {
                     let canAdvance = true;
                     if (field.required) {
                       if (field.field_type === 'TEXT' || field.field_type === 'TEXTAREA') {
@@ -1393,12 +1382,19 @@ export const CreateData = createClass({
                       }
                     }
                     if (!canAdvance) {
-                      this.setState({alertFields: [field]});
-                      this.scrollToField(field.field_id);
                       return true;
                     }
                   });
-                  if (stopAdvance) return;
+                  if (missingField) {
+                    Alert.alert(
+                      'Missing info',
+                      `Please fill in the "${missingField.label}" field.`,
+                      [
+                        { text: 'OK' },
+                      ],
+                    )
+                    return;
+                  }
                   if (this.state.fieldIndex >= visibleFields.length - 1) {
                     this.finishForm();
                   } else {
