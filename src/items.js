@@ -11,6 +11,7 @@ import {
 , PanResponder
 , Modal
 , TouchableWithoutFeedback
+, ImageBackground
 } from 'react-native';
 import {CacheMedia, CacheMedias} from './media';
 import {WebView} from 'react-native-webview';
@@ -19,6 +20,7 @@ import update from "immutability-helper";
 import {SiftrThumbnails} from './thumbnails';
 import {SquareImage, GalleryModal} from './note-view';
 import {FixedMarkdown} from './styles';
+import { globalstyles } from "./global-styles";
 import {GuideLine} from './stemports-picker';
 
 export class FullWidthWebView extends React.Component {
@@ -81,7 +83,6 @@ export class ItemScreen extends React.Component {
     return (
       <View style={{
         flex: 1,
-        backgroundColor: 'rgb(149,169,153)',
         flexDirection: 'column',
       }}>
         <View style={{
@@ -151,7 +152,6 @@ export class ItemScreen extends React.Component {
                 }} style={{
                   margin: 15,
                   padding: 10,
-                  backgroundColor: 'rgb(114,236,222)',
                   borderRadius: 10,
                   fontSize: 20,
                 }}>
@@ -160,18 +160,14 @@ export class ItemScreen extends React.Component {
               </View>
             ) : (
               <View style={{
-                margin: 15,
                 alignItems: 'center',
               }}>
-                <TouchableOpacity onPress={this.props.onClose}>
-                  <Image
-                    style={{
-                      width: 140 * 0.45,
-                      height: 140 * 0.45,
-                    }}
-                    source={require("../web/assets/img/quest-close.png")}
-                  />
-                </TouchableOpacity>
+              <TouchableOpacity onPress={this.props.onClose}>
+                <Image
+                  style={globalstyles.closeButton}
+                  source={require("../web/assets/img/quest-close.png")}
+                />
+              </TouchableOpacity>
               </View>
             )
           }
@@ -282,24 +278,20 @@ export class InventoryScreen extends React.Component {
           this.setState({observations: false});
         }} style={{
           flex: 1,
-          padding: 10,
-          borderBottomColor: (this.state.observations ? '#ccc' : 'black'),
-          borderBottomWidth: 2,
+          padding: 15,
           alignItems: 'center',
         }}>
-          <Text>Field Notes</Text>
+          <Text style={{ fontWeight: "bold", color: (this.state.observations ? '#939393' : '#444444'),}}>Field Notes</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => {
           this.props.setGuideTab('observations')
           this.setState({observations: true});
         }} style={{
           flex: 1,
-          padding: 10,
-          borderBottomColor: (this.state.observations ? 'black' : '#ccc'),
-          borderBottomWidth: 2,
+          padding: 15,
           alignItems: 'center',
         }}>
-          <Text>My Observations</Text>
+          <Text style={{ fontWeight: "bold", color: (this.state.observations ? '#444444' : '#939393'),}}> My Observations</Text>
         </TouchableOpacity>
       </View>
     );
@@ -307,7 +299,7 @@ export class InventoryScreen extends React.Component {
     if (this.state.observations) {
       return (
         <View style={{
-          backgroundColor: '#b2c6ea',
+          backgroundColor: '#ffffff',
           flex: 1,
           alignItems: 'stretch',
         }}>
@@ -322,7 +314,9 @@ export class InventoryScreen extends React.Component {
             <SiftrThumbnails
               hasMore={false}
               pendingNotes={this.props.pendingNotes}
-              notes={this.props.notes}
+              notes={this.props.notes.filter(note =>
+                parseInt(note.user.user_id) === parseInt(this.props.auth.authToken.user_id)
+              )}
               game={this.props.game}
               auth={this.props.auth}
               online={this.props.online}
@@ -331,18 +325,11 @@ export class InventoryScreen extends React.Component {
             />
           </View>
           <View style={{
-            margin: 8,
             alignItems: 'center',
           }}>
           <TouchableOpacity onPress={this.props.onClose}>
             <Image
-              style={{
-                width: 100 * 0.45,
-                height: 150 * 0.45,
-                position: 'absolute',
-                bottom:-22,
-                marginLeft: -22,
-              }}
+              style={globalstyles.closeButton}
               source={require("../web/assets/img/quest-close.png")}
             />
           </TouchableOpacity>
@@ -353,9 +340,8 @@ export class InventoryScreen extends React.Component {
 
     return (
       <View style={{
-        backgroundColor: '#b2c6ea',
+        backgroundColor: '#ffffff',
         flex: 1,
-        alignItems: 'stretch',
       }}>
         <GuideLine
           style={{
@@ -364,7 +350,8 @@ export class InventoryScreen extends React.Component {
           text={guideMessage}
         />
         {makeTabs()}
-        <ScrollView style={{flex: 1, backgroundColor: 'rgb(243,237,225)'}}>
+        <ImageBackground source={require('../web/assets/img/paper-texture.jpg')} style={globalstyles.backgroundImage} imageStyle={{opacity:0.8}}>
+        <ScrollView style={{flex: 1,}}>
           {
             false /* disabling for now */ && untaggedInstances.map(inst => {
               const item = (this.props.items || []).find(x => parseInt(x.item_id) === parseInt(inst.object_id));
@@ -373,7 +360,7 @@ export class InventoryScreen extends React.Component {
                   this.setState({viewing: {item: item, instance: inst}})
                 }>
                   <Text style={{
-                    margin: 10,
+                    margin: 20,
                     textAlign: 'center',
                   }}>
                     {inst.qty} x {item ? item.name : '???'}
@@ -388,13 +375,15 @@ export class InventoryScreen extends React.Component {
               const items = o.items;
               return (
                 <View key={tag.tag_id} ref={slot => this._itemSlots[tag.tag_id] = slot} style={{
-                  borderColor: 'black',
-                  borderTopWidth: 1,
+                  borderColor: '#EAD9D9',
+                  borderTopWidth: 2,
+                  paddingBottom: 15,
                 }}>
                   <Text style={{
-                    textAlign: 'center',
-                    margin: 10,
+                    margin: 20,
                     fontWeight: 'bold',
+                    fontSize: 16,
+                    color: '#713F29',
                   }}>
                     {tag.tag}
                   </Text>
@@ -402,66 +391,80 @@ export class InventoryScreen extends React.Component {
                     flexDirection: 'row',
                     alignItems: 'flex-start',
                     flexWrap: 'wrap',
+                    justifyContent: 'center',
                   }}>
                     {
                       items.map(o => {
                         const isPlaced = o.instance;
-                        return (
-                          <TouchableOpacity key={o.item.item_id} style={{
-                            alignItems: 'center',
-                          }} onPress={() =>
-                            isPlaced && this.setState({viewing: {item: o.item, instance: o.instance}})
-                          }>
-                            <CacheMedia
-                              media_id={parseInt(o.item.icon_media_id) || parseInt(o.item.media_id)}
-                              auth={this.props.auth}
-                              online={true}
-                              withURL={(url) => (
-                                isPlaced ? (
-                                  <Image
-                                    source={url}
-                                    style={{
-                                      height: 70,
-                                      width: 70,
-                                      margin: 10,
-                                      resizeMode: 'contain',
-                                    }}
-                                  />
-                                ) : (
-                                  <View
-                                    style={{
-                                      height: 70,
-                                      width: 70,
-                                      margin: 10,
-                                      backgroundColor: 'gray',
-                                      borderRadius: 999,
-                                    }}
-                                  />
-                                )
-                              )}
-                            />
-                            <Text style={{
-                              margin: 10,
-                              textAlign: 'center',
-                              width: 100,
-                            }}>
-                              {isPlaced ? o.item.name : '???'}
-                            </Text>
-                          </TouchableOpacity>
-                        );
+                        if (isPlaced) {
+                          return (
+                            <TouchableOpacity key={o.item.item_id} onPress={() =>
+                              isPlaced && this.setState({viewing: {item: o.item, instance: o.instance}})
+                            }>
+                              <ImageBackground source={require('../web/assets/img/note-filled.png')} style={{
+                                alignItems: 'center',
+                                borderRadius: 5,
+                                margin: 5,
+                                shadowColor: '#5D0D0D',
+                                shadowOpacity: 0.1,
+                                shadowRadius: 12,
+                                shadowOffset: {height: 2},
+                                width: 200 * 0.5,
+                                height: 280 * 0.5,
+                              }}>
+                                <CacheMedia
+                                  media_id={parseInt(o.item.icon_media_id) || parseInt(o.item.media_id)}
+                                  auth={this.props.auth}
+                                  online={true}
+                                  withURL={(url) => (
+                                    <Image
+                                      source={url}
+                                      style={{
+                                        height: 65,
+                                        width: 65,
+                                        margin: 10,
+                                        marginBottom: 0,
+                                        resizeMode: 'contain',
+                                      }}
+                                    />
+                                  )}
+                                />
+                                <Text style={{
+                                  margin: 10,
+                                  textAlign: 'center',
+                                  width: 100,
+                                }}>
+                                  {o.item.name}
+                                </Text>
+                              </ImageBackground>
+                            </TouchableOpacity>
+                          );
+                        } else {
+                          return (
+                            <Image key={o.item.item_id} source={require('../web/assets/img/note-space.png')} style={{
+                              width: 200 * 0.5,
+                              height: 280 * 0.5,
+                              margin: 5,
+                            }} />
+                          );
+                        }
                       })
                     }
+
                   </View>
                 </View>
               );
             }).filter(x => x)
           }
         </ScrollView>
+        </ImageBackground>
         <View style={{
-          height: 120,
+          height: 140,
           alignItems: 'stretch',
-          borderColor: 'black',
-          borderTopWidth: 1,
+          shadowColor: '#5D0D0D',
+          shadowOpacity: 0.2,
+          shadowRadius: 12,
+          shadowOffset: {height: 2},
         }}>
           <ScrollView scrollEnabled={!this.state.dragging} disableScrollViewPanResponder={true} horizontal={true} style={{flex: 1, overflow: 'visible'}}>
             {
@@ -508,18 +511,15 @@ export class InventoryScreen extends React.Component {
           </ScrollView>
         </View>
         <View style={{
-          margin: 8,
           alignItems: 'center',
+          marginBottom: 50,
         }}>
-          <TouchableOpacity onPress={this.props.onClose}>
-            <Image
-              style={{
-                width: 140 * 0.45,
-                height: 140 * 0.45,
-              }}
-              source={require("../web/assets/img/quest-close.png")}
-            />
-          </TouchableOpacity>
+        <TouchableOpacity onPress={this.props.onClose}>
+          <Image
+            style={globalstyles.closeModifier}
+            source={require("../web/assets/img/quest-close.png")}
+          />
+        </TouchableOpacity>
         </View>
         {
           this.state.niceModal && (

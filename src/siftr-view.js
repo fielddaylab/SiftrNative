@@ -39,7 +39,7 @@ import {CacheMedia} from './media';
 import ProgressCircle from 'react-native-progress-circle';
 import {ItemScreen, InventoryScreen} from './items';
 import {PlaqueScreen} from './plaques';
-import {QuestDetails, QuestDotDetails, GenericModal, TaskComplete, QuestComplete} from './quests';
+import {QuestDetails, QuestDotDetails, GenericModal, TaskComplete, QuestComplete, getQuestProgress} from './quests';
 import {evalReqPackage} from './requirements';
 import {GuideLine} from './stemports-picker';
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
@@ -905,10 +905,6 @@ export const SiftrView = createClass({
                   this.pushModal({type: 'subquest-complete', quest: quest, subquest: sub});
                 }
               });
-              this.setGuideLine(quest.sub_active[0].prompt);
-            } else if (quest.sub_active && !loop) {
-              // Ensure that we don't keep the "sort field guide" message
-              this.setGuideLine(quest.sub_active[0].prompt);
             }
           }
         });
@@ -922,20 +918,23 @@ export const SiftrView = createClass({
             });
           }
         });
-        if (newQuests.active.length === 0 && oldQuests.active.length > 0) {
-          this.setGuideLine("Your work here is complete! You've made all the observations we needed. Keep observing or pick another quest.");
-        }
+      }
+
+      // set guide line
+      if (newQuests.active.length === 0) {
+        this.setGuideLine("Your work here is complete! You've made all the observations we needed. Keep observing or pick another quest.");
       } else {
-        // first quest computation since launch
-        if (newQuests.active.length === 0) {
-          this.setGuideLine("You've already completed all the subquests here!");
+        // special lines for remaining numbers of stuff to do
+        const questProgress = getQuestProgress(displayInfo[0]);
+        const rowWithProgress = questProgress.find(dotRow => dotRow.guideLine);
+        if (rowWithProgress) {
+          this.setGuideLine(rowWithProgress.guideLine);
         } else {
-          const quest = newQuests.active[0];
-          if (quest.sub_active && quest.sub_active.length > 0) {
-            this.setGuideLine(quest.sub_active[0].prompt);
-          } else {
-            this.setGuideLine(quest.prompt);
+          let activeQuest = newQuests.active[0];
+          if (activeQuest.sub_active) {
+            activeQuest = activeQuest.sub_active[0];
           }
+          this.setGuideLine(activeQuest.prompt);
         }
       }
     }
@@ -2558,6 +2557,7 @@ export const SiftrView = createClass({
           .catch(err => {
             return console.warn(JSON.stringify(err));
           });
+        // TODO might want to this.checkQuestsOffline(false) but needs to happen after queue updates
       }
     }
   },
@@ -2570,23 +2570,7 @@ export const SiftrView = createClass({
     }`;
     RNFS.writeFile(`${siftrDir}/inventory.txt`, JSON.stringify(this.state.inventory));
     RNFS.writeFile(`${siftrDir}/pickedUpRemnants.txt`, JSON.stringify(this.state.pickedUpRemnants));
-  },
-  checkReadyToPlace: function() {
-    const complete = this.areRemnantsComplete(false);
-    if (!complete) {
-      const progressAfterPlace = this.getRemnantProgress(true);
-      let remaining = 0;
-      progressAfterPlace.guides.forEach(guide => {
-        remaining += guide.remaining;
-      });
-      if (remaining === 0) {
-        this.setGuideLine('You have all the notes! Now open your field guide and sort them so you can make observations!');
-      } else {
-        this.setGuideLine(`You have ${remaining} more field ${remaining === 1 ? 'note' : 'notes'} to find!`);
-      }
-    } else {
-      this.checkQuestsOffline(false); // check quests once but don't loop
-    }
+    this.checkQuestsOffline(false); // check quests once but don't loop
   },
   getRemnantProgress: function(considerPickedUp = false) {
     if (!this.props.currentQuest) return {complete: false, guides: []};
@@ -2891,11 +2875,20 @@ export const SiftrView = createClass({
                       right: 10,
                     }}
                     onPress={() => this.pushModal({type: 'quests'})}
-                    text={
-                      this.state.showStops
-                      ? `I can see the whole area from up here. It looks like there are ${this.getPlaques().length} stops total.`
-                      : this.state.guideLine
-                    }
+                    text={(() => {
+                      if (this.state.showStops) {
+                        const stopCount = this.getPlaques().length;
+                        if (stopCount === 1) {
+                          return "I can see the whole area from up here. There's only one tour stop in this quest!";
+                        } else if (stopCount === 0) {
+                          return "I can see the whole area from up here. No tour stops in this quest!";
+                        } else {
+                          return `I can see the whole area from up here. It looks like there are ${stopCount} stops total.`
+                        }
+                      } else {
+                        return this.state.guideLine;
+                      }
+                    })()}
                   />
                 )
               }
@@ -3147,9 +3140,7 @@ export const SiftrView = createClass({
                                   return;
                                 }
                                 const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
-                                RNFS.unlink(`${siftrDir}/download_timestamp.txt`).then(() =>
-                                  RNFS.unlink(`${siftrDir}/quests-sorted.txt`)
-                                ).then(() =>
+                                RNFS.unlink(siftrDir).then(() =>
                                   RNFS.unlink(`${RNFS.DocumentDirectoryPath}/seenwizard.txt`)
                                 ).then(() =>
                                   RNFS.unlink(`${RNFS.DocumentDirectoryPath}/siftrs/current-quest.txt`)
@@ -3218,7 +3209,6 @@ export const SiftrView = createClass({
                                 guideMentionedRemnant: {$set: true},
                               });
                             }, () => {
-                              this.checkReadyToPlace();
                               this.saveInventory(); // save pickups
                             });
                           }}
@@ -3259,7 +3249,6 @@ export const SiftrView = createClass({
                                 },
                               });
                             }, () => {
-                              this.checkReadyToPlace();
                               this.saveInventory(); // save pickups
                             });
                           }}
