@@ -158,19 +158,19 @@ PODS:
     - React
   - react-native-image-picker (1.0.1):
     - React
-  - react-native-mapbox-gl (8.0.0):
-    - "@react-native-mapbox-gl-mapbox-static (~> 5.7)"
-    - Mapbox-iOS-SDK (~> 5.7)
+  - react-native-mapbox-gl (8.1.0-rc.2):
+    - "@react-native-mapbox-gl-mapbox-static (~> 5.8)"
+    - Mapbox-iOS-SDK (~> 5.8)
     - React
-    - react-native-mapbox-gl/DynamicLibrary (= 8.0.0)
-    - react-native-mapbox-gl/StaticLibraryFixer (= 8.0.0)
-  - react-native-mapbox-gl/DynamicLibrary (8.0.0):
-    - "@react-native-mapbox-gl-mapbox-static (~> 5.7)"
-    - Mapbox-iOS-SDK (~> 5.7)
+    - react-native-mapbox-gl/DynamicLibrary (= 8.1.0-rc.2)
+    - react-native-mapbox-gl/StaticLibraryFixer (= 8.1.0-rc.2)
+  - react-native-mapbox-gl/DynamicLibrary (8.1.0-rc.2):
+    - "@react-native-mapbox-gl-mapbox-static (~> 5.8)"
+    - Mapbox-iOS-SDK (~> 5.8)
     - React
-  - react-native-mapbox-gl/StaticLibraryFixer (8.0.0):
-    - "@react-native-mapbox-gl-mapbox-static (~> 5.7)"
-    - Mapbox-iOS-SDK (~> 5.7)
+  - react-native-mapbox-gl/StaticLibraryFixer (8.1.0-rc.2):
+    - "@react-native-mapbox-gl-mapbox-static (~> 5.8)"
+    - Mapbox-iOS-SDK (~> 5.8)
     - React
   - react-native-netinfo (4.1.2):
     - React
@@ -408,7 +408,7 @@ SPEC CHECKSUMS:
   react-native-geocoder: 757427682892bb256f3b3745858cc90eba148a8e
   react-native-geolocation: a7b94614afbd5fd8350e0233a2025c8228fc8041
   react-native-image-picker: c9bddc819f4fd46b6f37f2861712497e920192d9
-  react-native-mapbox-gl: 77b87a1dd2d7b41b6b77018c0f3bed5f8ee55c81
+  react-native-mapbox-gl: 18785637738ca8b25c3633db431d6614ec7fc9bf
   react-native-netinfo: 88a4003f68c6f979c1f439e7bd7c5c0b2e819160
   react-native-orientation-locker: 23918c400376a7043e752c639c122fcf6bce8f1c
   react-native-webview: d1b30cc9128256ec1a9c6d10fb572231bd371337
