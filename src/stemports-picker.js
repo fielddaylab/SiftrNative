@@ -818,81 +818,85 @@ export class StemportsPicker extends React.Component {
       gameList.push(update(obj, {game: {$set: game}, distance: {$set: distance}}));
     }
 
-    if (this.state.player || this.props.mode === 'player') {
-      return (
-        <StemportsPlayer
-          onClose={() => {
-            if (this.props.mode === 'player') {
-              this.props.onClose && this.props.onClose();
-            } else {
-              this.setState({player: false});
-            }
-          }}
-          onLogout={this.props.onLogout}
-          auth={this.props.auth}
-          onChangePassword={this.props.onChangePassword}
-          onEditProfile={this.props.onEditProfile}
-          queueMessage={this.props.queueMessage}
-          online={this.props.online}
-          onSelect={this.props.onSelect}
-          inventory_zero={this.state.inventory_zero}
-          onSync={() => this.startSync()}
-          syncMessage={
-            this.state.syncing ? 'Syncing…' : (
-              this.state.queueNotes && (
-                `You have ${this.state.queueNotes.length} unsynced observations.`
-              )
+    const playerScreen = (
+      <StemportsPlayer
+        onClose={() => {
+          if (this.props.mode === 'player') {
+            this.props.onClose && this.props.onClose();
+          } else {
+            this.setState({player: false});
+          }
+        }}
+        onLogout={this.props.onLogout}
+        auth={this.props.auth}
+        onChangePassword={this.props.onChangePassword}
+        onEditProfile={this.props.onEditProfile}
+        queueMessage={this.props.queueMessage}
+        online={this.props.online}
+        onSelect={this.props.onSelect}
+        inventory_zero={this.state.inventory_zero}
+        onSync={() => this.startSync()}
+        syncMessage={
+          this.state.syncing ? 'Syncing…' : (
+            this.state.queueNotes && (
+              `You have ${this.state.queueNotes.length} unsynced observations.`
+            )
+          )
+        }
+        canSync={this.state.queueNotes && !this.state.syncing}
+        location={this.props.location}
+        inQuest={this.props.inQuest}
+        onToggleWarp={this.props.onToggleWarp}
+        onResetProgress={this.props.onResetProgress}
+        warpOn={this.props.warpOn}
+        currentQuest={this.props.currentQuest}
+        game={this.props.game}
+      />
+    );
+
+    const questScreen = (
+      <View style={{flex: 1, backgroundColor: 'white'}}>
+        <TouchableOpacity onPress={this.props.onClose}>
+          <Image
+            source={require('../web/assets/img/back-arrow.png')}
+            style={{
+              resizeMode: 'contain',
+              width: 108 * 0.25,
+              height: 150 * 0.25,
+              margin: 10,
+            }}
+          />
+        </TouchableOpacity>
+        <Text style={{margin: 10, fontSize: 25, fontWeight: 'bold'}}>
+          My Quests
+        </Text>
+        <ScrollView style={{
+          flex: 1,
+          borderColor: 'black',
+          borderTopWidth: 1,
+        }}>
+          {
+            gameList.filter(o => o.offline).map(o =>
+              <GameQuestList
+                key={o.game.game_id}
+                obj={o}
+                game={o.game}
+                onSelect={this.props.onSelect}
+                downloaded={true}
+              />
             )
           }
-          canSync={this.state.queueNotes && !this.state.syncing}
-          location={this.props.location}
-          inQuest={this.props.inQuest}
-          onToggleWarp={this.props.onToggleWarp}
-          onResetProgress={this.props.onResetProgress}
-          warpOn={this.props.warpOn}
-          currentQuest={this.props.currentQuest}
-          game={this.props.game}
-        />
-      );
+        </ScrollView>
+      </View>
+    );
+
+    if (this.props.mode === 'player') {
+      return playerScreen;
     }
 
     if (!this.state.gameModal) {
       if (this.props.mode === 'quests') {
-        return (
-          <View style={{flex: 1, backgroundColor: 'white'}}>
-            <TouchableOpacity onPress={this.props.onClose}>
-              <Image
-                source={require('../web/assets/img/back-arrow.png')}
-                style={{
-                  resizeMode: 'contain',
-                  width: 108 * 0.25,
-                  height: 150 * 0.25,
-                  margin: 10,
-                }}
-              />
-            </TouchableOpacity>
-            <Text style={{margin: 10, fontSize: 25, fontWeight: 'bold'}}>
-              My Quests
-            </Text>
-            <ScrollView style={{
-              flex: 1,
-              borderColor: 'black',
-              borderTopWidth: 1,
-            }}>
-              {
-                gameList.filter(o => o.offline).map(o =>
-                  <GameQuestList
-                    key={o.game.game_id}
-                    obj={o}
-                    game={o.game}
-                    onSelect={this.props.onSelect}
-                    downloaded={true}
-                  />
-                )
-              }
-            </ScrollView>
-          </View>
-        );
+        return questScreen;
       }
 
       const gamesByDistance = gameList.slice(0);
@@ -908,6 +912,16 @@ export class StemportsPicker extends React.Component {
 
         return (
           <View style={{flex: 1}}>
+
+            {
+              this.state.player && (
+                <Modal transparent={true} animationType="slide" onRequestClose={() => this.setState({player: false})}>
+                  <SafeAreaView style={{flex: 1}}>
+                    {playerScreen}
+                  </SafeAreaView>
+                </Modal>
+              )
+            }
 
             <MapboxGL.MapView
               style={{flex: 1}}
@@ -1108,43 +1122,33 @@ export class StemportsPicker extends React.Component {
             const obj = this.state.gameModal;
             if (obj === 'loading') {
               return (
-                <Modal transparent={true} onRequestClose={() => this.setState({gameModal: null})}>
-                  <View style={{
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flex: 1,
-                    backgroundColor: 'white',
-                  }}>
-                    <ActivityIndicator
-                      size="large"
-                      color="black"
-                    />
-                  </View>
-                </Modal>
+                <View style={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flex: 1,
+                  backgroundColor: 'white',
+                }}>
+                  <ActivityIndicator
+                    size="large"
+                    color="black"
+                  />
+                </View>
               );
             }
             const game = obj.game;
             return (
-              <Modal transparent={true} onRequestClose={() => this.setState({gameModal: null})}>
-                <SafeAreaView style={{flex: 1}}>
-                  <StatusSpace
-                    backgroundColor="rgba(0,0,0,0)"
-                    leaveBar={true}
-                  />
-                  <StemportsOutpost
-                    game={game}
-                    obj={obj}
-                    auth={this.props.auth}
-                    onSync={() => this.startSyncGame(game)}
-                    onUpload={() => this.uploadGame(game).then(() => this.loadDownloadedGames())}
-                    onDownload={() => this.initializeGame(game, obj.offline).then(() => this.loadDownloadedGames())}
-                    onClose={() => this.setState({gameModal: null})}
-                    onSelect={this.props.onSelect}
-                    canSync={!this.state.syncing}
-                    downloadingGame={this.state.downloadingGame}
-                  />
-                </SafeAreaView>
-              </Modal>
+              <StemportsOutpost
+                game={game}
+                obj={obj}
+                auth={this.props.auth}
+                onSync={() => this.startSyncGame(game)}
+                onUpload={() => this.uploadGame(game).then(() => this.loadDownloadedGames())}
+                onDownload={() => this.initializeGame(game, obj.offline).then(() => this.loadDownloadedGames())}
+                onClose={() => this.setState({gameModal: null})}
+                onSelect={this.props.onSelect}
+                canSync={!this.state.syncing}
+                downloadingGame={this.state.downloadingGame}
+              />
             );
           })()
         }
@@ -1386,7 +1390,7 @@ class GameQuestList extends React.Component {
   }
 }
 
-export class StemportsQuest extends React.Component {
+class StemportsQuest extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -1461,7 +1465,7 @@ export class StemportsQuest extends React.Component {
   }
 }
 
-export class StemportsOutpost extends React.Component {
+class StemportsOutpost extends React.Component {
   constructor(props) {
     super(props);
     this.state = {

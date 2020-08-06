@@ -31,7 +31,6 @@ import {
 const RNFS = require("react-native-fs");
 import { styles, Text } from "./styles";
 import { StatusSpace } from "./status-space";
-import SideMenu from "react-native-side-menu";
 import firebase from "react-native-firebase";
 import { NativeSettings } from "./native-settings";
 import { NativeCard } from "./native-browser";
@@ -44,8 +43,6 @@ import {evalReqPackage} from './requirements';
 import {GuideLine} from './stemports-picker';
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
 import { StemportsPicker } from "./stemports-picker";
-import { StemportsPlayer } from "./stemports-player";
-
 
 import { fitBounds } from "google-map-react/utils";
 
@@ -2359,51 +2356,55 @@ export const SiftrView = createClass({
       );
     } else {
       return (
-        <CreateData
-          game={this.props.game}
-          createNote={this.state.createNote}
-          onUpdateNote={(createNote, cb) => {
-            this.setState({ createNote }, cb);
-          }}
-          getLocation={(cb) => {
-            this.locateNote(this.state.createNote.exif, cb);
-          }}
-          onStartLocation={(center) => {
-            if (center) {
-              this.setState({center});
-              if (this.theSiftrMap) {
-                this.theSiftrMap.moveToPoint(center);
-              }
-            }
-          }}
-          selectLocation={() => {
-            return this.state.center;
-          }}
-          categories={(ref = this.props.tags) != null ? ref : []}
-          fields={this.props.fields || []}
-          guides={this.props.guides || []}
-          onFinish={this.finishNoteCreation}
-          onCancel={() => {
-            this.setState({
-              createNote: null
-            });
-          }}
-          onBack={() => {
-            this.setState({
-              createNote: {},
-              createStep: 1
-            });
-          }}
-          getColor={this.getColor}
-          progress={this.state.progress}
-          onViolaIdentify={this.props.onViolaIdentify}
-          resumedNote={this.state.resumedNote}
-          quests={this.state.quests}
-          isGuideComplete={this.isGuideComplete/*.bind(this)*/}
-          currentQuest={this.props.currentQuest}
-          items={this.props.items}
-          auth={this.props.auth}
-        />
+        <Modal transparent={true} animationType="slide">
+          <SafeAreaView style={{flex: 1}}>
+            <CreateData
+              game={this.props.game}
+              createNote={this.state.createNote}
+              onUpdateNote={(createNote, cb) => {
+                this.setState({ createNote }, cb);
+              }}
+              getLocation={(cb) => {
+                this.locateNote(this.state.createNote.exif, cb);
+              }}
+              onStartLocation={(center) => {
+                if (center) {
+                  this.setState({center});
+                  if (this.theSiftrMap) {
+                    this.theSiftrMap.moveToPoint(center);
+                  }
+                }
+              }}
+              selectLocation={() => {
+                return this.state.center;
+              }}
+              categories={(ref = this.props.tags) != null ? ref : []}
+              fields={this.props.fields || []}
+              guides={this.props.guides || []}
+              onFinish={this.finishNoteCreation}
+              onCancel={() => {
+                this.setState({
+                  createNote: null
+                });
+              }}
+              onBack={() => {
+                this.setState({
+                  createNote: {},
+                  createStep: 1
+                });
+              }}
+              getColor={this.getColor}
+              progress={this.state.progress}
+              onViolaIdentify={this.props.onViolaIdentify}
+              resumedNote={this.state.resumedNote}
+              quests={this.state.quests}
+              isGuideComplete={this.isGuideComplete/*.bind(this)*/}
+              currentQuest={this.props.currentQuest}
+              items={this.props.items}
+              auth={this.props.auth}
+            />
+          </SafeAreaView>
+        </Modal>
       );
     }
   },
@@ -3041,43 +3042,47 @@ export const SiftrView = createClass({
                     );
                   } else if (modal.type === 'inventory') {
                     return (
-                      <InventoryScreen
-                        auth={this.props.auth}
-                        game={this.props.game}
-                        onClose={this.popModal/*.bind(this)*/}
-                        items={this.props.items}
-                        tags={this.props.tags}
-                        inventory={this.state.inventory}
-                        object_tags={this.props.object_tags}
-                        pickedUpRemnants={this.state.pickedUpRemnants}
-                        quest_id={this.props.currentQuest.quest_id}
-                        setGuideTab={(tab) => this.setState({guideTab: tab})}
-                        guideTab={this.state.guideTab}
-                        onPlace={item_id => {
-                          this.addXP(2);
-                          this.setState(state => update(state, {
-                            pickedUpRemnants: {
-                              $apply: remnants => remnants.filter(remnant => remnant !== item_id),
-                            },
-                            inventory: {
-                              $apply: inv => inv.map(inst => {
-                                if (parseInt(inst.object_id) === parseInt(item_id)) {
-                                  return update(inst, {
-                                    qty: {$apply: n => parseInt(n) + 1},
-                                  });
-                                } else {
-                                  return inst;
-                                }
-                              }),
-                            },
-                          }), () => this.saveInventory());
-                        }}
-                        online={this.props.online}
-                        notes={this.props.notes}
-                        pendingNotes={this.props.pendingNotes || []}
-                        getColor={this.getColor/*.bind(this)*/}
-                        onSelectNote={this.selectNote/*.bind(this)*/}
-                      />
+                      <Modal transparent={true} animationType="slide">
+                        <SafeAreaView style={{flex: 1}}>
+                          <InventoryScreen
+                            auth={this.props.auth}
+                            game={this.props.game}
+                            onClose={this.popModal/*.bind(this)*/}
+                            items={this.props.items}
+                            tags={this.props.tags}
+                            inventory={this.state.inventory}
+                            object_tags={this.props.object_tags}
+                            pickedUpRemnants={this.state.pickedUpRemnants}
+                            quest_id={this.props.currentQuest.quest_id}
+                            setGuideTab={(tab) => this.setState({guideTab: tab})}
+                            guideTab={this.state.guideTab}
+                            onPlace={item_id => {
+                              this.addXP(2);
+                              this.setState(state => update(state, {
+                                pickedUpRemnants: {
+                                  $apply: remnants => remnants.filter(remnant => remnant !== item_id),
+                                },
+                                inventory: {
+                                  $apply: inv => inv.map(inst => {
+                                    if (parseInt(inst.object_id) === parseInt(item_id)) {
+                                      return update(inst, {
+                                        qty: {$apply: n => parseInt(n) + 1},
+                                      });
+                                    } else {
+                                      return inst;
+                                    }
+                                  }),
+                                },
+                              }), () => this.saveInventory());
+                            }}
+                            online={this.props.online}
+                            notes={this.props.notes}
+                            pendingNotes={this.props.pendingNotes || []}
+                            getColor={this.getColor/*.bind(this)*/}
+                            onSelectNote={this.selectNote/*.bind(this)*/}
+                          />
+                        </SafeAreaView>
+                      </Modal>
                     );
                   } else if (modal.type === 'quests') {
                     return (
@@ -3101,61 +3106,65 @@ export const SiftrView = createClass({
                     );
                   } else if (modal.type === 'menu') {
                     return (
-                      <StemportsPicker
-                        auth={this.props.auth}
-                        onLogout={this.props.onLogout}
-                        onSelect={this.props.onSelect}
-                        online={this.props.online}
-                        onChangePassword={this.props.onChangePassword}
-                        onEditProfile={this.props.onEditProfile}
-                        queueMessage={this.props.queueMessage}
-                        location={this.props.location}
-                        mode="player"
-                        onClose={() => this.popModal()}
-                        inQuest={true}
-                        onToggleWarp={() => {
-                          this.setState({warp: !this.state.warp, warpCoords: null, factoryObjects: [], factoryProductionTimestamps: {}});
-                        }}
-                        onResetProgress={() => {
-                          const continueReset = (attempts) => {
-                            if (attempts === 0) {
-                              Alert.alert(
-                                "Unable to clear progress",
-                                "Please ensure you have internet access in order to reset your station progress.",
-                                [
-                                  { text: 'OK', onPress: () => null }
-                                ],
-                              );
-                              return;
-                            }
-                            this.props.auth.call('client.logPlayerResetGame', {
-                              game_id: this.props.game.game_id,
-                            }, (res1) => {
-                              this.props.auth.call('notes.deleteUserNotesForGame', {
-                                user_id: this.props.auth.authToken.user_id,
-                                game_id: this.props.game.game_id,
-                              }, (res2) => {
-                                if (!(res1 && res1.returnCode === 0 && res2 && res2.returnCode === 0)) {
-                                  continueReset(attempts - 1);
+                      <Modal transparent={true} animationType="slide">
+                        <SafeAreaView style={{flex: 1}}>
+                          <StemportsPicker
+                            auth={this.props.auth}
+                            onLogout={this.props.onLogout}
+                            onSelect={this.props.onSelect}
+                            online={this.props.online}
+                            onChangePassword={this.props.onChangePassword}
+                            onEditProfile={this.props.onEditProfile}
+                            queueMessage={this.props.queueMessage}
+                            location={this.props.location}
+                            mode="player"
+                            onClose={() => this.popModal()}
+                            inQuest={true}
+                            onToggleWarp={() => {
+                              this.setState({warp: !this.state.warp, warpCoords: null, factoryObjects: [], factoryProductionTimestamps: {}});
+                            }}
+                            onResetProgress={() => {
+                              const continueReset = (attempts) => {
+                                if (attempts === 0) {
+                                  Alert.alert(
+                                    "Unable to clear progress",
+                                    "Please ensure you have internet access in order to reset your station progress.",
+                                    [
+                                      { text: 'OK', onPress: () => null }
+                                    ],
+                                  );
                                   return;
                                 }
-                                const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
-                                RNFS.unlink(siftrDir).then(() =>
-                                  RNFS.unlink(`${RNFS.DocumentDirectoryPath}/seenwizard.txt`)
-                                ).then(() =>
-                                  RNFS.unlink(`${RNFS.DocumentDirectoryPath}/siftrs/current-quest.txt`)
-                                ).then(() => {
-                                  this.props.onExit(true);
+                                this.props.auth.call('client.logPlayerResetGame', {
+                                  game_id: this.props.game.game_id,
+                                }, (res1) => {
+                                  this.props.auth.call('notes.deleteUserNotesForGame', {
+                                    user_id: this.props.auth.authToken.user_id,
+                                    game_id: this.props.game.game_id,
+                                  }, (res2) => {
+                                    if (!(res1 && res1.returnCode === 0 && res2 && res2.returnCode === 0)) {
+                                      continueReset(attempts - 1);
+                                      return;
+                                    }
+                                    const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
+                                    RNFS.unlink(siftrDir).then(() =>
+                                      RNFS.unlink(`${RNFS.DocumentDirectoryPath}/seenwizard.txt`)
+                                    ).then(() =>
+                                      RNFS.unlink(`${RNFS.DocumentDirectoryPath}/siftrs/current-quest.txt`)
+                                    ).then(() => {
+                                      this.props.onExit(true);
+                                    });
+                                  })
                                 });
-                              })
-                            });
-                          };
-                          continueReset(3);
-                        }}
-                        warpOn={this.state.warp}
-                        currentQuest={this.props.currentQuest}
-                        game={this.props.game}
-                      />
+                              };
+                              continueReset(3);
+                            }}
+                            warpOn={this.state.warp}
+                            currentQuest={this.props.currentQuest}
+                            game={this.props.game}
+                          />
+                        </SafeAreaView>
+                      </Modal>
                     );
                   } else if (modal.type === 'trigger') {
                     if (modal.instance.object_type === 'PLAQUE') {

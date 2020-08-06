@@ -24,6 +24,8 @@ import {
   Animated,
   Slider,
   ImageBackground,
+  Modal,
+  SafeAreaView,
 } from "react-native";
 import { styles, Text } from "./styles";
 import { RNCamera } from "react-native-camera";
@@ -654,15 +656,6 @@ export const CreateData = createClass({
           </View>
         </View>
       );
-    } else if (this.state.viewingItem) {
-      return (
-        <ItemScreen
-          type="inventory"
-          item={this.state.viewingItem}
-          auth={this.props.auth}
-          onClose={() => this.setState({viewingItem: null})}
-        />
-      );
     } else if (this.state.isTakingPhoto != null) {
       if (this.state.isTakingPhoto === "main") {
         field = null;
@@ -777,6 +770,20 @@ export const CreateData = createClass({
             flex: 1
           }}
         >
+          {
+            this.state.viewingItem && (
+              <Modal transparent={true} animationType="slide">
+                <SafeAreaView style={{flex: 1}}>
+                  <ItemScreen
+                    type="inventory"
+                    item={this.state.viewingItem}
+                    auth={this.props.auth}
+                    onClose={() => this.setState({viewingItem: null})}
+                  />
+                </SafeAreaView>
+              </Modal>
+            )
+          }
           <View
             style={{
               flexDirection: "row",

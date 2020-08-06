@@ -19,6 +19,7 @@ import { StemportsPicker } from "./stemports-picker";
 import { NativeSettings } from "./native-settings";
 import { deserializeGame } from "./aris";
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
+import SideMenu from 'react-native-side-menu-updated';
 
 const RNFS = require("react-native-fs");
 
@@ -174,271 +175,258 @@ export class StemportsPlayer extends React.Component {
 
     const xpStuff = this.currentLevel();
 
+    const menu = (
+      <View style={{
+        backgroundColor: '#333',
+        flex: 1,
+      }}>
+        <TouchableOpacity onPress={this.props.onToggleWarp} style={{
+          padding: 20,
+        }}>
+          <Text style={{fontSize: 17, color: 'white'}}>
+            {this.props.warpOn ? 'Stop Warping to Station' : 'Warp to Station'}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={this.props.onResetProgress} style={{
+          padding: 20,
+        }}>
+          <Text style={{fontSize: 17, color: 'white'}}>
+            Reset Progress
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+
     return (
-      <View style={{flex: 1, backgroundColor: 'white'}}>
-        <ScrollView style={{flex: 1}}>
-          <View style={{justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center'}}>
-            {
-              this.props.inQuest ? (
-                <TouchableOpacity onPress={() => this.setState({sideMenu: true})}>
-                  <Image
-                    style={{
-                      width: 30 * 1,
-                      height: 30 * 1,
-                      margin: 15,
-                    }}
-                    source={require("../web/assets/img/menu-black.png")}
-                  />
-                </TouchableOpacity>
-              ) : (
-                <View />
-              )
-            }
-            <TouchableOpacity onPress={() => this.setState({settings: true})}>
-              <Image
-                style={{
-                  width: 30 * 1,
-                  height: 30 * 1,
-                  margin: 15,
-                }}
-                source={require("../web/assets/img/icon-gear.png")}
-              />
-            </TouchableOpacity>
-          </View>
-          <View style={{
-            flexDirection: 'row-reverse',
-            alignItems: 'center',
-            justifyContent: 'space-around',
-            padding: 15,
-          }}>
-            <View style={{flex: 1, alignItems: 'flex-start'}}>
-              <Text style={{
-                fontWeight: 'bold',
-                fontSize: 30,
-                letterSpacing: 1,
-                color: '#373535',
-                borderBottomWidth: 2,
-                borderColor: 'rgb(223,230,237)',
-              }}>
-                {this.props.auth.authToken.display_name || this.props.auth.authToken.username}
-              </Text>
-              <TouchableOpacity style={{
-                marginTop: 10,
-                marginBottom: 10,
-              }} onPress={() =>
-                this.props.currentQuest
-                  ? this.props.onClose()
-                  : this.setState({stationList: true})
-              }>
+      <SideMenu menu={menu} isOpen={this.state.sideMenu} onChange={sideMenu => this.setState({sideMenu})}>
+        <View style={{flex: 1, backgroundColor: 'white'}}>
+          <ScrollView style={{flex: 1}}>
+            <View style={{justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center'}}>
+              {
+                this.props.inQuest ? (
+                  <TouchableOpacity onPress={() => this.setState({sideMenu: true})}>
+                    <Image
+                      style={{
+                        width: 30 * 1,
+                        height: 30 * 1,
+                        margin: 15,
+                      }}
+                      source={require("../web/assets/img/menu-black.png")}
+                    />
+                  </TouchableOpacity>
+                ) : (
+                  <View />
+                )
+              }
+              <TouchableOpacity onPress={() => this.setState({settings: true})}>
+                <Image
+                  style={{
+                    width: 30 * 1,
+                    height: 30 * 1,
+                    margin: 15,
+                  }}
+                  source={require("../web/assets/img/icon-gear.png")}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={{
+              flexDirection: 'row-reverse',
+              alignItems: 'center',
+              justifyContent: 'space-around',
+              padding: 15,
+            }}>
+              <View style={{flex: 1, alignItems: 'flex-start'}}>
                 <Text style={{
                   fontWeight: 'bold',
-                  fontSize: 16,
-                  color: 'rgb(106,125,27)',
+                  fontSize: 30,
+                  letterSpacing: 1,
+                  color: '#373535',
+                  borderBottomWidth: 2,
+                  borderColor: 'rgb(223,230,237)',
                 }}>
-                  {
-                    this.props.currentQuest
-                      ? `Currently Playing: \n${this.props.currentQuest.name}`
-                      : 'Start a Quest!'
-                  }
+                  {this.props.auth.authToken.display_name || this.props.auth.authToken.username}
+                </Text>
+                <TouchableOpacity style={{
+                  marginTop: 10,
+                  marginBottom: 10,
+                }} onPress={() =>
+                  this.props.currentQuest
+                    ? this.props.onClose()
+                    : this.setState({stationList: true})
+                }>
+                  <Text style={{
+                    fontWeight: 'bold',
+                    fontSize: 16,
+                    color: 'rgb(106,125,27)',
+                  }}>
+                    {
+                      this.props.currentQuest
+                        ? `Currently Playing: \n${this.props.currentQuest.name}`
+                        : 'Start a Quest!'
+                    }
+                  </Text>
+                </TouchableOpacity>
+                {
+                  this.props.game && (
+                    <View style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                      <Image source={require('../web/assets/img/pin.png')} style={{
+                        width: 50 * 0.25,
+                        height: 70 * 0.25,
+                        marginRight: 5,
+                      }} />
+                      <Text style={{
+                        color: '#B5AEAE',
+                      }}>
+                        {this.props.game.name}
+                      </Text>
+                    </View>
+                  )
+                }
+              </View>
+              <CacheMedia
+                media_id={161}
+                auth={this.props.auth}
+                online={true}
+                withURL={(url) =>
+                  <View pointerEvents="none" style={{flex: 1, alignItems: 'center'}}>
+                    <ModelView
+                      source={{ zip: url }}
+                      style={{
+                        width: 100,
+                        height: 150,
+                      }}
+                      autoPlay={true}
+                    />
+                  </View>
+                }
+              />
+            </View>
+            <View style={{
+              padding: 15,
+              flexDirection: 'row',
+              alignItems: 'stretch',
+            }}>
+              <TouchableOpacity onPress={() =>
+                this.setState({questList: true})
+              } style={{
+                alignItems: 'center',
+                flex: 1,
+                padding: 15,
+                borderRadius: 10,
+                backgroundColor: 'rgb(243,235,219)',
+                marginRight: 5,
+              }}>
+                <Image style={{
+                  height: 95,
+                  margin: 10,
+                  marginTop: -10,
+                  resizeMode: 'contain',
+                }} source={require('../web/assets/img/illustration-flags.png')} />
+                <Text style={{
+                  fontSize: 16,
+                  fontWeight: 'bold',
+                  color: '#373535',
+                }}>
+                  My Quests
                 </Text>
               </TouchableOpacity>
+              <TouchableOpacity onPress={() =>
+                this.setState({stationList: true})
+              } style={{
+                alignItems: 'center',
+                flex: 1,
+                padding: 15,
+                borderRadius: 10,
+                backgroundColor: 'rgb(243,235,219)',
+                marginLeft: 5,
+              }}>
+                <Image style={{
+                  height: 95,
+                  margin: 10,
+                  marginTop: -10,
+                  resizeMode: 'contain',
+                }} source={require('../web/assets/img/illustration-stations.png')} />
+                <Text style={{
+                  fontSize: 16,
+                  fontWeight: 'bold',
+                  color: '#373535',
+                }}>
+                  Stations
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View style={{
+              padding: 30,
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+              <View style={{flex: 1, marginRight: 10}}>
+                <Text style={{
+                  fontSize: 24,
+                  margin: 3,
+                  fontWeight: 'bold',
+                  color: '#373535',
+                }}>
+                  Game Sync
+                </Text>
+                <Text style={{
+                  margin: 3,
+                }}>
+                  {this.props.syncMessage}
+                </Text>
+              </View>
               {
-                this.props.game && (
-                  <View style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
+                this.props.canSync && (
+                  <TouchableOpacity onPress={this.props.onSync} style={{
+                    padding: 10,
+                    borderRadius: 5,
+                    backgroundColor: 'rgb(106,125,27)',
                   }}>
-                    <Image source={require('../web/assets/img/pin.png')} style={{
-                      width: 50 * 0.25,
-                      height: 70 * 0.25,
-                      marginRight: 5,
-                    }} />
                     <Text style={{
-                      color: '#B5AEAE',
-                    }}>
-                      {this.props.game.name}
-                    </Text>
-                  </View>
+                      fontWeight: 'bold', color: '#ffffff',}}>Sync Game</Text>
+                  </TouchableOpacity>
                 )
               }
             </View>
-            <CacheMedia
-              media_id={161}
-              auth={this.props.auth}
-              online={true}
-              withURL={(url) =>
-                <View pointerEvents="none" style={{flex: 1, alignItems: 'center'}}>
-                  <ModelView
-                    source={{ zip: url }}
-                    style={{
-                      width: 100,
-                      height: 150,
-                    }}
-                    autoPlay={true}
-                  />
-                </View>
+            <Text style={{padding: 30, fontSize: 20, fontWeight: 'bold'}}>Story Panels</Text>
+            <View style={{
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              flexDirection: 'row',
+            }}>
+              {
+                ComicPages.map((page, i) =>
+                  <TouchableOpacity key={i} style={{
+                    margin: 10,
+                  }} onPress={() => this.setState({viewingComic: i})}>
+                    <Image
+                      style={{
+                        width: 80,
+                        height: 100,
+                        resizeMode: 'contain',
+                      }}
+                      source={page}
+                    />
+                  </TouchableOpacity>
+                )
               }
-            />
-          </View>
+            </View>
+          </ScrollView>
           <View style={{
-            padding: 15,
-            flexDirection: 'row',
-            alignItems: 'stretch',
-          }}>
-            <TouchableOpacity onPress={() =>
-              this.setState({questList: true})
-            } style={{
-              alignItems: 'center',
-              flex: 1,
-              padding: 15,
-              borderRadius: 10,
-              backgroundColor: 'rgb(243,235,219)',
-              marginRight: 5,
-            }}>
-              <Image style={{
-                height: 95,
-                margin: 10,
-                marginTop: -10,
-                resizeMode: 'contain',
-              }} source={require('../web/assets/img/illustration-flags.png')} />
-              <Text style={{
-                fontSize: 16,
-                fontWeight: 'bold',
-                color: '#373535',
-              }}>
-                My Quests
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() =>
-              this.setState({stationList: true})
-            } style={{
-              alignItems: 'center',
-              flex: 1,
-              padding: 15,
-              borderRadius: 10,
-              backgroundColor: 'rgb(243,235,219)',
-              marginLeft: 5,
-            }}>
-              <Image style={{
-                height: 95,
-                margin: 10,
-                marginTop: -10,
-                resizeMode: 'contain',
-              }} source={require('../web/assets/img/illustration-stations.png')} />
-              <Text style={{
-                fontSize: 16,
-                fontWeight: 'bold',
-                color: '#373535',
-              }}>
-                Stations
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View style={{
-            padding: 30,
-            flexDirection: 'row',
             alignItems: 'center',
           }}>
-            <View style={{flex: 1, marginRight: 10}}>
-              <Text style={{
-                fontSize: 24,
-                margin: 3,
-                fontWeight: 'bold',
-                color: '#373535',
-              }}>
-                Game Sync
-              </Text>
-              <Text style={{
-                margin: 3,
-              }}>
-                {this.props.syncMessage}
-              </Text>
-            </View>
-            {
-              this.props.canSync && (
-                <TouchableOpacity onPress={this.props.onSync} style={{
-                  padding: 10,
-                  borderRadius: 5,
-                  backgroundColor: 'rgb(106,125,27)',
-                }}>
-                  <Text style={{
-                    fontWeight: 'bold', color: '#ffffff',}}>Sync Game</Text>
-                </TouchableOpacity>
-              )
-            }
+            <TouchableOpacity onPress={this.props.onClose}>
+              <Image
+                style={globalstyles.closeButton}
+                source={require("../web/assets/img/quest-close.png")}
+              />
+            </TouchableOpacity>
           </View>
-          <Text style={{padding: 30, fontSize: 20, fontWeight: 'bold'}}>Story Panels</Text>
-          <View style={{
-            justifyContent: 'center',
-            flexWrap: 'wrap',
-            flexDirection: 'row',
-          }}>
-            {
-              ComicPages.map((page, i) =>
-                <TouchableOpacity key={i} style={{
-                  margin: 10,
-                }} onPress={() => this.setState({viewingComic: i})}>
-                  <Image
-                    style={{
-                      width: 80,
-                      height: 100,
-                      resizeMode: 'contain',
-                    }}
-                    source={page}
-                  />
-                </TouchableOpacity>
-              )
-            }
-          </View>
-        </ScrollView>
-        <View style={{
-          alignItems: 'center',
-        }}>
-          <TouchableOpacity onPress={this.props.onClose}>
-            <Image
-              style={globalstyles.closeButton}
-              source={require("../web/assets/img/quest-close.png")}
-            />
-          </TouchableOpacity>
         </View>
-        {
-          this.state.sideMenu && (
-            <Modal transparent={true} onRequestClose={() => this.setState({sideMenu: false})}>
-              <View style={{
-                flexDirection: 'row',
-                alignItems: 'stretch',
-                flex: 1,
-              }}>
-                <View style={{
-                  backgroundColor: 'white',
-                  paddingTop: 50,
-                }}>
-                  <TouchableOpacity onPress={this.props.onToggleWarp} style={{
-                    padding: 20,
-                  }}>
-                    <Text style={{fontSize: 17}}>
-                      {this.props.warpOn ? 'Stop Warping to Station' : 'Warp to Station'}
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={this.props.onResetProgress} style={{
-                    padding: 20,
-                  }}>
-                    <Text style={{fontSize: 17}}>
-                      Reset Progress
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-                <TouchableWithoutFeedback onPress={() => this.setState({sideMenu: false})}>
-                  <View style={{
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                    flex: 1,
-                  }} />
-                </TouchableWithoutFeedback>
-              </View>
-            </Modal>
-          )
-        }
-      </View>
+      </SideMenu>
     );
   }
 }
