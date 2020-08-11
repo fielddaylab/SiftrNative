@@ -64,7 +64,7 @@ import {
 import { timeToARIS } from "./time-slider";
 
 import { SearchNotes } from "./search-notes";
-import { SiftrMap, makeClusters, maxPickupDistance } from "./map";
+import { SiftrMap, makeClusters, maxPickupDistance, meterDistance } from "./map";
 import { SiftrThumbnails } from "./thumbnails";
 import { SiftrNoteView } from "./note-view";
 import { CreatePhoto, CreateData, Blackout } from "./create-note-native";
@@ -582,33 +582,6 @@ export function downloadGame(auth, game, callbacks = {}) {
       RNFS.writeFile(`${siftrDir}/authors.txt`, JSON.stringify(authors));
     }));
   });
-}
-
-
-export function meterDistance(posn1, posn2) {
-  // Haversine formula code from https://stackoverflow.com/a/14561433/509936
-
-  const toRad = function(n) {
-     return n * Math.PI / 180;
-  }
-
-  var lat2 = parseFloat(posn2.latitude);
-  var lon2 = parseFloat(posn2.longitude);
-  var lat1 = parseFloat(posn1.latitude);
-  var lon1 = parseFloat(posn1.longitude);
-
-  var R = 6371; // km
-  var x1 = lat2-lat1;
-  var dLat = toRad(x1);
-  var x2 = lon2-lon1;
-  var dLon = toRad(x2);
-  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                  Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-                  Math.sin(dLon/2) * Math.sin(dLon/2);
-  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  var d = R * c;
-
-  return d * 1000;
 }
 
 export const SiftrView = createClass({
@@ -2104,7 +2077,6 @@ export const SiftrView = createClass({
         onLayout={event => {
           return (this.layout = event.nativeEvent.layout);
         }}
-        center={this.state.center}
         zoom={this.state.zoom}
         delta={this.state.delta}
         getColor={this.getColor}
@@ -2133,6 +2105,11 @@ export const SiftrView = createClass({
         }}
         trackDirection={this.state.trackDirection}
         showStops={this.state.showStops}
+        onUpdateCircle={(centerXY, leftXY, topXY, bottomXY) => {
+          this.setState({
+            circleRange: {centerXY, leftXY, topXY, bottomXY},
+          });
+        }}
       />
     );
   },
@@ -2920,6 +2897,18 @@ export const SiftrView = createClass({
                   height: 40,
                 }} />
               </TouchableOpacity>
+              {
+                !this.state.showStops && this.state.circleRange && (
+                  <Image pointerEvents="none" style={{
+                    position: 'absolute',
+                    left: this.state.circleRange.leftXY[0],
+                    width: (this.state.circleRange.centerXY[0] - this.state.circleRange.leftXY[0]) * 2,
+                    bottom: height - this.state.circleRange.bottomXY[1] - 20,
+                    height: this.state.circleRange.bottomXY[1] - this.state.circleRange.topXY[1],
+                    resizeMode: 'stretch',
+                  }} source={require('../web/assets/img/pickup-radius.png')} />
+                )
+              }
               {
                 !this.state.showStops && (
                   <CacheMedia

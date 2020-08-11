@@ -188,6 +188,32 @@ class SmartMarker extends React.Component {
 
 export const maxPickupDistance = 15; // meters
 
+export function meterDistance(posn1, posn2) {
+  // Haversine formula code from https://stackoverflow.com/a/14561433/509936
+
+  const toRad = function(n) {
+     return n * Math.PI / 180;
+  }
+
+  var lat2 = parseFloat(posn2.latitude);
+  var lon2 = parseFloat(posn2.longitude);
+  var lat1 = parseFloat(posn1.latitude);
+  var lon1 = parseFloat(posn1.longitude);
+
+  var R = 6371; // km
+  var x1 = lat2-lat1;
+  var dLat = toRad(x1);
+  var x2 = lon2-lon1;
+  var dLon = toRad(x2);
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  var d = R * c;
+
+  return d * 1000;
+}
+
 export class SiftrMap extends React.Component {
   constructor(props) {
     super(props);
@@ -343,6 +369,44 @@ export class SiftrMap extends React.Component {
       onPress={e => {
         const [longitude, latitude] = e.geometry.coordinates;
         this.props.onPress({latitude, longitude});
+      }}
+      onRegionIsChanging={async () => {
+        if (!this.theMapView) return;
+        const centerGeo = await this.theMapView.getCenter();
+        const [x, y] = await this.theMapView.getPointInView(centerGeo);
+        // first, find the geo points on the top and left screen edges directly above/left of player
+        const [leftGeo, topGeo] = await Promise.all([
+          this.theMapView.getCoordinateFromView([0, y]),
+          this.theMapView.getCoordinateFromView([x, 0]),
+        ]);
+        // then, find the point in those same directions that is the correct distance away
+        const leftDistance = meterDistance(
+          {latitude: centerGeo[1], longitude: centerGeo[0]},
+          {latitude: leftGeo[1], longitude: leftGeo[0]},
+        );
+        const topDistance = meterDistance(
+          {latitude: centerGeo[1], longitude: centerGeo[0]},
+          {latitude: topGeo[1], longitude: topGeo[0]},
+        );
+        const ellipseLeftGeo = [
+          centerGeo[0] + (leftGeo[0] - centerGeo[0]) * (maxPickupDistance / leftDistance),
+          centerGeo[1] + (leftGeo[1] - centerGeo[1]) * (maxPickupDistance / leftDistance),
+        ];
+        const ellipseTopGeo = [
+          centerGeo[0] + (topGeo[0] - centerGeo[0]) * (maxPickupDistance / topDistance),
+          centerGeo[1] + (topGeo[1] - centerGeo[1]) * (maxPickupDistance / topDistance),
+        ];
+        const ellipseBottomGeo = [
+          centerGeo[0] - (topGeo[0] - centerGeo[0]) * (maxPickupDistance / topDistance),
+          centerGeo[1] - (topGeo[1] - centerGeo[1]) * (maxPickupDistance / topDistance),
+        ];
+        // finally, convert back to XY coordinates
+        const [leftXY, topXY, bottomXY] = await Promise.all([
+          this.theMapView.getPointInView(ellipseLeftGeo),
+          this.theMapView.getPointInView(ellipseTopGeo),
+          this.theMapView.getPointInView(ellipseBottomGeo),
+        ]);
+        this.props.onUpdateCircle && this.props.onUpdateCircle([x, y], leftXY, topXY, bottomXY);
       }}
     >
       <MapboxGL.Camera
