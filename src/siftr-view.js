@@ -2074,9 +2074,6 @@ export const SiftrView = createClass({
         })()}
         map_clusters={[]}
         onMove={this.moveMap}
-        onLayout={event => {
-          return (this.layout = event.nativeEvent.layout);
-        }}
         zoom={this.state.zoom}
         delta={this.state.delta}
         getColor={this.getColor}
@@ -2826,6 +2823,18 @@ export const SiftrView = createClass({
                   : this.renderMap()
               }
               {
+                !this.state.showStops && (
+                  <Image pointerEvents="none" style={{
+                    position: 'absolute',
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    height: height * 0.2,
+                    resizeMode: 'stretch',
+                  }} source={require('../web/assets/img/horizon-fade.png')} />
+                )
+              }
+              {
                 this.state.guideLine == null ? (
                   <TouchableOpacity
                     onPress={() => this.pushModal({type: 'quests'})}
@@ -2903,9 +2912,10 @@ export const SiftrView = createClass({
                     position: 'absolute',
                     left: this.state.circleRange.leftXY[0],
                     width: (this.state.circleRange.centerXY[0] - this.state.circleRange.leftXY[0]) * 2,
-                    bottom: height - this.state.circleRange.bottomXY[1] - 20,
+                    top: this.state.circleRange.topXY[1],
                     height: this.state.circleRange.bottomXY[1] - this.state.circleRange.topXY[1],
                     resizeMode: 'stretch',
+                    opacity: 0.7,
                   }} source={require('../web/assets/img/pickup-radius.png')} />
                 )
               }
