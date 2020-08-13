@@ -2876,6 +2876,7 @@ export const SiftrView = createClass({
                         return this.state.guideLine;
                       }
                     })()}
+                    auth={this.props.auth}
                   />
                 )
               }
@@ -2921,25 +2922,32 @@ export const SiftrView = createClass({
               }
               {
                 !this.state.showStops && (
-                  <View pointerEvents="none" style={{
-                    position: 'absolute',
-                    bottom: (height * 0.55) / 2 - 20,
-                    left: 0,
-                    right: 0,
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                  }}>
-                    <ModelView
-                      source={{
-                        zip: require('../models/Character00/Character00_Walk_Collada/Character00_Walk.zip'),
-                      }}
-                      style={{
-                        width: 200,
-                        height: 150,
-                      }}
-                      autoPlay={true}
-                    />
-                  </View>
+                  <CacheMedia
+                    media_id={916}
+                    auth={this.props.auth}
+                    online={true}
+                    withURL={(url) =>
+                      <View pointerEvents="none" style={{
+                        position: 'absolute',
+                        bottom: (height * 0.55) / 2 - 20,
+                        left: 0,
+                        right: 0,
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                      }}>
+                        <ModelView
+                          source={{
+                            zip: url,
+                          }}
+                          style={{
+                            width: 200,
+                            height: 150,
+                          }}
+                          autoPlay={true}
+                        />
+                      </View>
+                    }
+                  />
                 )
               }
               {
@@ -3026,12 +3034,14 @@ export const SiftrView = createClass({
                           this.props.onExitQuest(hasMore);
                         }}
                         onClose={this.popModal/*.bind(this)*/}
+                        auth={this.props.auth}
                       />
                     );
                   } else if (modal.type === 'subquest-complete') {
                     return (
                       <TaskComplete
                         onClose={this.popModal/*.bind(this)*/}
+                        auth={this.props.auth}
                       />
                     );
                   } else if (modal.type === 'inventory') {

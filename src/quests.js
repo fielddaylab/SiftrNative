@@ -333,6 +333,7 @@ export const QuestComplete = (props) => {
           ? 'You did it! Now you can start another quest.'
           : 'You did it! You finished all the quests at this Science Station. Now you can find another station!'
         }
+        auth={props.auth}
       />
       <View style={{
         flex: 1,
@@ -382,6 +383,7 @@ export const TaskComplete = (props) => {
       <GuideLine
         style={{padding: 5}}
         text="Oh snap you did it!"
+        auth={props.auth}
       />
       <View style={{
         flex: 1,

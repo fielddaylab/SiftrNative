@@ -967,6 +967,7 @@ export const CreateData = createClass({
                       padding: 10,
                     }}
                     text={text}
+                    auth={this.props.auth}
                   />
                   {photoOrCamera}
                 </View>
@@ -1076,6 +1077,7 @@ export const CreateData = createClass({
                             padding: 10,
                           }}
                           text={field.instruction}
+                          auth={this.props.auth}
                         />
                         {function() {
                           var ref2;

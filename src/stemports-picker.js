@@ -1000,6 +1000,7 @@ export class StemportsPicker extends React.Component {
                   , onPress: (() => this.setState({listFromMap: true}))
                   }
               }
+              auth={this.props.auth}
             />
             {
               !puffinHi && (
@@ -1207,16 +1208,23 @@ export class GuideLine extends React.Component {
 
   render() {
     const puffinModel = (
-      <ModelView
-        source={{
-          zip: require('../models/Puffin00/Puffin00_Idle_Collada/Puffin00_Idle.zip'),
-        }}
-        style={{
-          width: 120 * 0.6,
-          height: 172 * 0.6,
-        }}
-        autoPlay={true}
-        scale={1}
+      <CacheMedia
+        media_id={917}
+        auth={this.props.auth}
+        online={true}
+        withURL={(url) =>
+          <ModelView
+            source={{
+              zip: url,
+            }}
+            style={{
+              width: 120 * 0.6,
+              height: 172 * 0.6,
+            }}
+            autoPlay={true}
+            scale={1}
+          />
+        }
       />
     );
 

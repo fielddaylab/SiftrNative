@@ -308,6 +308,7 @@ export class InventoryScreen extends React.Component {
               padding: 10,
             }}
             text={guideMessage}
+            auth={this.props.auth}
           />
           {makeTabs()}
           <View style={{flex: 1}}>
@@ -348,6 +349,7 @@ export class InventoryScreen extends React.Component {
             padding: 10,
           }}
           text={guideMessage}
+          auth={this.props.auth}
         />
         {makeTabs()}
         <ImageBackground source={require('../web/assets/img/paper-texture.jpg')} style={globalstyles.backgroundImage} imageStyle={{opacity:0.8}}>
