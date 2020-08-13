@@ -2883,7 +2883,7 @@ export const SiftrView = createClass({
                 this.setState({trackDirection: !this.state.trackDirection});
               }} style={{
                 position: 'absolute',
-                top: 70,
+                top: 100,
                 right: 5,
               }}>
                 <Image source={require('../web/assets/img/stemports-compass.png')} style={{
@@ -2895,7 +2895,7 @@ export const SiftrView = createClass({
                 this.setState({showStops: !this.state.showStops});
               }} style={{
                 position: 'absolute',
-                top: 170,
+                top: 190,
                 right: 35,
               }}>
                 <Image source={this.state.showStops
@@ -2921,30 +2921,25 @@ export const SiftrView = createClass({
               }
               {
                 !this.state.showStops && (
-                  <CacheMedia
-                    media_id={161}
-                    auth={this.props.auth}
-                    online={true}
-                    withURL={(url) =>
-                      <View pointerEvents="none" style={{
-                        position: 'absolute',
-                        bottom: (height * 0.55) / 2 - 20,
-                        left: 0,
-                        right: 0,
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                      }}>
-                        <ModelView
-                          source={{ zip: url }}
-                          style={{
-                            width: 200,
-                            height: 150,
-                          }}
-                          autoPlay={true}
-                        />
-                      </View>
-                    }
-                  />
+                  <View pointerEvents="none" style={{
+                    position: 'absolute',
+                    bottom: (height * 0.55) / 2 - 20,
+                    left: 0,
+                    right: 0,
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}>
+                    <ModelView
+                      source={{
+                        zip: require('../models/Character00/Character00_Walk_Collada/Character00_Walk.zip'),
+                      }}
+                      style={{
+                        width: 200,
+                        height: 150,
+                      }}
+                      autoPlay={true}
+                    />
+                  </View>
                 )
               }
               {
