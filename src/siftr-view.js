@@ -2923,7 +2923,7 @@ export const SiftrView = createClass({
               {
                 !this.state.showStops && (
                   <CacheMedia
-                    media_id={916}
+                    media_id={920}
                     auth={this.props.auth}
                     online={true}
                     withURL={(url) =>
