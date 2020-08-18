@@ -370,44 +370,6 @@ export class SiftrMap extends React.Component {
         const [longitude, latitude] = e.geometry.coordinates;
         this.props.onPress({latitude, longitude});
       }}
-      onRegionIsChanging={async () => {
-        if (!this.theMapView) return;
-        const centerGeo = await this.theMapView.getCenter();
-        const [x, y] = await this.theMapView.getPointInView(centerGeo);
-        // first, find the geo points on the top and left screen edges directly above/left of player
-        const [leftGeo, topGeo] = await Promise.all([
-          this.theMapView.getCoordinateFromView([0, y]),
-          this.theMapView.getCoordinateFromView([x, 0]),
-        ]);
-        // then, find the point in those same directions that is the correct distance away
-        const leftDistance = meterDistance(
-          {latitude: centerGeo[1], longitude: centerGeo[0]},
-          {latitude: leftGeo[1], longitude: leftGeo[0]},
-        );
-        const topDistance = meterDistance(
-          {latitude: centerGeo[1], longitude: centerGeo[0]},
-          {latitude: topGeo[1], longitude: topGeo[0]},
-        );
-        const ellipseLeftGeo = [
-          centerGeo[0] + (leftGeo[0] - centerGeo[0]) * (maxPickupDistance / leftDistance),
-          centerGeo[1] + (leftGeo[1] - centerGeo[1]) * (maxPickupDistance / leftDistance),
-        ];
-        const ellipseTopGeo = [
-          centerGeo[0] + (topGeo[0] - centerGeo[0]) * (maxPickupDistance / topDistance),
-          centerGeo[1] + (topGeo[1] - centerGeo[1]) * (maxPickupDistance / topDistance),
-        ];
-        const ellipseBottomGeo = [
-          centerGeo[0] - (topGeo[0] - centerGeo[0]) * (maxPickupDistance / topDistance),
-          centerGeo[1] - (topGeo[1] - centerGeo[1]) * (maxPickupDistance / topDistance),
-        ];
-        // finally, convert back to XY coordinates
-        const [leftXY, topXY, bottomXY] = await Promise.all([
-          this.theMapView.getPointInView(ellipseLeftGeo),
-          this.theMapView.getPointInView(ellipseTopGeo),
-          this.theMapView.getPointInView(ellipseBottomGeo),
-        ]);
-        this.props.onUpdateCircle && this.props.onUpdateCircle([x, y], leftXY, topXY, bottomXY);
-      }}
     >
       <MapboxGL.Camera
         ref={r => (this.theMapCamera = r)}
