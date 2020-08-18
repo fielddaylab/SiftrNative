@@ -28,7 +28,7 @@ function playerCompletedQuest(atom, log) {
 
 function playerBeenInPlaqueRange(atom, log) {
   return log.some(logEntry =>
-       logEntry.event_type === 'IN_PLAQUE_RANGE'
+       (logEntry.event_type === 'IN_PLAQUE_RANGE' || logEntry.event_type === 'VIEW_PLAQUE')
     && logEntry.content_id === atom.content_id
   );
 }
@@ -127,7 +127,13 @@ function playerHasNoteWithTag(atom, env) {
 function evalReqAtom(atom, env) {
   let qty = 0;
   const bool = (() => {
-    const bool_operator = !!(atom.bool_operator);
+    const bool_operator = (
+      typeof atom.bool_operator === 'string' ? (
+        !!(parseInt(atom.bool_operator))
+      ) : (
+        !!(atom.bool_operator)
+      )
+    );
     const {log, instances, notes, pickedUpRemnants, quest_id, onlyNeedPickup} = env;
     switch (atom.requirement) {
       case 'ALWAYS_TRUE':

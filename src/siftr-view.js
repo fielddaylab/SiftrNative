@@ -986,7 +986,9 @@ export const SiftrView = createClass({
     return this.props.plaques.filter(plaque => parseInt(plaque.quest_id) === parseInt(this.props.currentQuest.quest_id));
   },
   tickTriggersOffline: function() {
-    this.getLocationFromMap(playerLoc => {
+    const loc = this.getLocationWithWarp();
+    const playerLoc = loc && loc.coords;
+    (() => {
       this.setState(oldState => {
         const now = Date.now();
         let nextFactoryObjects = [];
@@ -1106,7 +1108,7 @@ export const SiftrView = createClass({
       }, () => {
         setTimeout(this.tickTriggersOffline/*.bind(this)*/, 5000);
       });
-    });
+    })();
   },
   tickTriggers: function() {
     if (!this.isMounted) return;

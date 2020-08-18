@@ -471,7 +471,7 @@ export class StemportsPicker extends React.Component {
           instanceLookup[trigger.instance_id].object_type === 'PLAQUE'
         );
         const updatedTriggers = allData.triggers.map(trigger => {
-          if (instanceLookup[trigger.instance_id].object_type === 'ITEM' && !parseInt(trigger.requirement_root_package_id)) {
+          if (instanceLookup[trigger.instance_id].object_type === 'ITEM') {
             let closestPlaque = null;
             let closestDistance = maxPickupDistance;
             plaqueTriggers.forEach(otherTrigger => {
@@ -483,28 +483,46 @@ export class StemportsPicker extends React.Component {
             });
             if (closestPlaque) {
               // modify trigger so it's only visible after you go to closestPlaque
-              const attach_root_id = addTo(new_requirement_root_packages, root_id => ({
-                requirement_root_package_id: root_id,
-                game_id: game.game_id,
-              }));
-              const attach_and_id = addTo(new_requirement_and_packages, and_id => ({
-                requirement_and_package_id: and_id,
-                game_id: game.game_id,
-                requirement_root_package_id: attach_root_id,
-              }));
-              addTo(new_requirement_atoms, atom_id => ({
-                requirement_atom_id: atom_id,
-                game_id: game.game_id,
-                requirement_and_package_id: attach_and_id,
-                bool_operator: 1,
-                requirement: 'PLAYER_BEEN_IN_PLAQUE_RANGE', // custom req type
-                content_id: instanceLookup[closestPlaque.instance_id].object_id,
-              }))
-              return update(trigger, {
-                requirement_root_package_id: {
-                  $set: attach_root_id,
-                },
-              });
+              if (parseInt(trigger.requirement_root_package_id)) {
+                // already a requirement present, so we need to add our atom into that
+                const attach_root_id = parseInt(trigger.requirement_root_package_id);
+                const attach_and_id = allData.requirement_and_packages.find(and =>
+                  parseInt(and.requirement_root_package_id) === attach_root_id
+                ).requirement_and_package_id;
+                console.warn(attach_and_id);
+                addTo(new_requirement_atoms, atom_id => ({
+                  requirement_atom_id: atom_id,
+                  game_id: game.game_id,
+                  requirement_and_package_id: attach_and_id,
+                  bool_operator: 1,
+                  requirement: 'PLAYER_BEEN_IN_PLAQUE_RANGE', // custom req type
+                  content_id: instanceLookup[closestPlaque.instance_id].object_id,
+                }))
+                return trigger;
+              } else {
+                const attach_root_id = addTo(new_requirement_root_packages, root_id => ({
+                  requirement_root_package_id: root_id,
+                  game_id: game.game_id,
+                }));
+                const attach_and_id = addTo(new_requirement_and_packages, and_id => ({
+                  requirement_and_package_id: and_id,
+                  game_id: game.game_id,
+                  requirement_root_package_id: attach_root_id,
+                }));
+                addTo(new_requirement_atoms, atom_id => ({
+                  requirement_atom_id: atom_id,
+                  game_id: game.game_id,
+                  requirement_and_package_id: attach_and_id,
+                  bool_operator: 1,
+                  requirement: 'PLAYER_BEEN_IN_PLAQUE_RANGE', // custom req type
+                  content_id: instanceLookup[closestPlaque.instance_id].object_id,
+                }))
+                return update(trigger, {
+                  requirement_root_package_id: {
+                    $set: attach_root_id,
+                  },
+                });
+              }
             } else {
               return trigger;
             }
