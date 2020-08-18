@@ -286,23 +286,16 @@ export class StemportsPlayer extends React.Component {
                   )
                 }
               </View>
-              <CacheMedia
-                media_id={920}
-                auth={this.props.auth}
-                online={true}
-                withURL={(url) =>
-                  <View pointerEvents="none" style={{flex: 1, alignItems: 'center'}}>
-                    <ModelView
-                      source={{ zip: url }}
-                      style={{
-                        width: 100,
-                        height: 150,
-                      }}
-                      autoPlay={true}
-                    />
-                  </View>
-                }
-              />
+              <View pointerEvents="none" style={{flex: 1, alignItems: 'center'}}>
+                <Image
+                  source={require('../web/assets/img/player-static.png')}
+                  style={{
+                    width: 100,
+                    height: 150,
+                    resizeMode: 'contain',
+                  }}
+                />
+              </View>
             </View>
             <View style={{
               padding: 15,
