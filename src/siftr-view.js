@@ -36,7 +36,7 @@ import { NativeSettings } from "./native-settings";
 import { NativeCard } from "./native-browser";
 import {CacheMedia} from './media';
 import ProgressCircle from 'react-native-progress-circle';
-import {ItemScreen, InventoryScreen} from './items';
+import {InventoryScreen, CacheContents} from './items';
 import {PlaqueScreen} from './plaques';
 import {QuestDetails, QuestDotDetails, GenericModal, TaskComplete, QuestComplete, getQuestProgress} from './quests';
 import {evalReqPackage} from './requirements';
@@ -3231,43 +3231,50 @@ export const SiftrView = createClass({
                       );
                     } else if (modal.instance.object_type === 'ITEM') {
                       return (
-                        <ItemScreen
-                          type="trigger"
-                          trigger={modal.trigger}
-                          instance={modal.instance}
-                          item={modal.item}
-                          auth={this.props.auth}
-                          onClose={this.popModal/*.bind(this)*/}
-                          onPickUp={(trigger) => {
-                            this.addXP(2);
-                            this.setState(state => {
-                              if (!state.guideMentionedRemnant) {
-                                setTimeout(() => (
-                                  this.queueModal({type: 'generic', message: 'You picked up a field note!'})
-                                ), 0);
-                              }
-                              return update(state, {
-                                pickedUpRemnants: {
-                                  $apply: rems => {
-                                    if (rems.indexOf(modal.instance.object_id) === -1) {
-                                      return update(rems, {$push: [modal.instance.object_id]});
-                                    } else {
-                                      return rems;
-                                    }
-                                  },
-                                },
-                                guideMentionedRemnant: {$set: true},
-                                factoryObjects: {
-                                  $apply: objs => objs.filter(obj =>
-                                    parseInt(obj.trigger.trigger_id) != parseInt(modal.trigger.trigger_id)
-                                  ),
-                                },
-                              });
-                            }, () => {
-                              this.saveInventory(); // save pickups
-                            });
-                          }}
-                        />
+                        <Modal
+                          transparent={true}
+                          animationType="fade"
+                          onRequestClose={this.popModal/*.bind(this)*/}
+                        >
+                          <SafeAreaView style={{flex: 1, backgroundColor: 'rgba(0,0,0,0.5)'}}>
+                            <CacheContents
+                              trigger={modal.trigger}
+                              instance={modal.instance}
+                              item={modal.item}
+                              auth={this.props.auth}
+                              onClose={this.popModal/*.bind(this)*/}
+                              onPickUp={(trigger) => {
+                                this.addXP(2);
+                                this.setState(state => {
+                                  if (!state.guideMentionedRemnant) {
+                                    // setTimeout(() => (
+                                    //   this.queueModal({type: 'generic', message: 'You picked up a field note!'})
+                                    // ), 0);
+                                  }
+                                  return update(state, {
+                                    pickedUpRemnants: {
+                                      $apply: rems => {
+                                        if (rems.indexOf(modal.instance.object_id) === -1) {
+                                          return update(rems, {$push: [modal.instance.object_id]});
+                                        } else {
+                                          return rems;
+                                        }
+                                      },
+                                    },
+                                    guideMentionedRemnant: {$set: true},
+                                    factoryObjects: {
+                                      $apply: objs => objs.filter(obj =>
+                                        parseInt(obj.trigger.trigger_id) != parseInt(modal.trigger.trigger_id)
+                                      ),
+                                    },
+                                  });
+                                }, () => {
+                                  this.saveInventory(); // save pickups
+                                });
+                              }}
+                            />
+                          </SafeAreaView>
+                        </Modal>
                       );
                     }
                   }

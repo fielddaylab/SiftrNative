@@ -73,6 +73,172 @@ export function webViewBoilerplate(str) {
   `;
 }
 
+export class CacheContents extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      screen: 'closed',
+      // screen goes: 'closed', 'open', 'note', 'photo'
+    };
+  }
+
+  render() {
+    switch (this.state.screen) {
+      case 'closed':
+        return (
+          <View style={{
+            flex: 1,
+            flexDirection: 'column',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            alignItems: 'center',
+            justifyContent: 'space-around',
+          }}>
+            <Text style={{
+              color: 'white',
+              fontSize: 25,
+              fontWeight: 'bold',
+            }}>
+              CACHE FOUND!
+            </Text>
+            <Image
+              source={require('../web/assets/img/cache-chest-closed.png')}
+              style={{
+                margin: 20,
+                alignSelf: 'stretch',
+                resizeMode: 'contain',
+                width: null,
+                height: 250,
+              }}
+            />
+            <TouchableOpacity onPress={() => this.setState({screen: 'open'})} style={{
+              backgroundColor: 'white',
+              padding: 8,
+              borderRadius: 5,
+            }}>
+              <Text style={{
+                color: '#647033',
+                fontWeight: 'bold',
+                fontSize: 20,
+              }}>
+                OPEN
+              </Text>
+            </TouchableOpacity>
+          </View>
+        );
+      case 'open':
+      case 'note':
+        return (
+          <View style={{
+            flex: 1,
+            flexDirection: 'column',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            alignItems: 'center',
+            justifyContent: 'space-around',
+          }}>
+            <Text style={{
+              color: 'white',
+              fontSize: 25,
+              fontWeight: 'bold',
+            }}>
+              NEW FIELD NOTE!
+            </Text>
+            <TouchableOpacity onPress={() => this.setState({screen: 'note'})}>
+              <ImageBackground source={require('../web/assets/img/cache-field-note-card.png')} style={{
+                alignItems: 'center',
+                borderRadius: 5,
+                margin: 5,
+                shadowColor: '#5D0D0D',
+                shadowOpacity: 0.1,
+                shadowRadius: 12,
+                shadowOffset: {height: 2},
+                width: 476 * 0.5,
+                height: 644 * 0.5,
+              }}>
+                <CacheMedia
+                  media_id={parseInt(this.props.item.icon_media_id) || parseInt(this.props.item.media_id)}
+                  auth={this.props.auth}
+                  online={true}
+                  withURL={(url) => (
+                    <Image
+                      source={url}
+                      style={{
+                        height: 65,
+                        width: 65,
+                        margin: 10,
+                        marginBottom: 0,
+                        resizeMode: 'contain',
+                      }}
+                    />
+                  )}
+                />
+                <Text style={{
+                  margin: 10,
+                  textAlign: 'center',
+                  width: 100,
+                }}>
+                  {this.props.item.name}
+                </Text>
+              </ImageBackground>
+            </TouchableOpacity>
+            {
+              this.state.screen === 'note' && (
+                <Modal
+                  transparent={true}
+                  animationType="slide"
+                  onRequestClose={() => this.setState({screen: 'photo'})}
+                >
+                  <ItemScreen
+                    type="trigger"
+                    trigger={this.props.trigger}
+                    instance={this.props.instance}
+                    item={this.props.item}
+                    auth={this.props.auth}
+                    onClose={() => this.setState({screen: 'photo'})}
+                    onPickUp={this.props.onPickUp}
+                  />
+                </Modal>
+              )
+            }
+          </View>
+        );
+      case 'photo':
+        return (
+          <View style={{
+            flex: 1,
+            flexDirection: 'column',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            alignItems: 'center',
+            justifyContent: 'space-around',
+          }}>
+            <GuideLine
+              style={{
+                padding: 10,
+                alignSelf: 'stretch',
+              }}
+              text={"Hey I remember that! That's when I fell off the canoe and had to fly to shore."}
+              auth={this.props.auth}
+            />
+            <TouchableOpacity onPress={this.props.onClose} style={{
+              backgroundColor: 'white',
+              padding: 8,
+              borderRadius: 5,
+            }}>
+              <Image
+                source={require('../web/assets/img/cache-photo-card.png')}
+                style={{
+                  margin: 20,
+                  resizeMode: 'contain',
+                  width: 540 * 0.5,
+                  height: 564 * 0.5,
+                }}
+              />
+            </TouchableOpacity>
+          </View>
+        );
+    }
+  }
+}
+
 export class ItemScreen extends React.Component {
   constructor(props) {
     super(props);
