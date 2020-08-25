@@ -18,7 +18,7 @@ import {deserializeGame} from "./aris";
 import {loadMedia, CacheMedia} from "./media";
 import { StatusSpace } from "./status-space";
 import { StemportsPlayer } from "./stemports-player";
-import {addXP} from './siftr-view';
+import {saveInventoryZero} from './siftr-view';
 import {loadQueue, uploadNote} from './upload-queue';
 import {getQuestProgress} from './quests';
 import {maxPickupDistance, meterDistance} from './map';
@@ -65,18 +65,18 @@ export class StemportsPicker extends React.Component {
       this.getGames();
       this.loadDownloadedGames();
     });
-    this.loadXP();
+    this.loadInventoryZero();
     loadQueue().then(notes => this.setState({queueNotes: notes}));
   }
 
-  loadXP() {
+  loadInventoryZero() {
     RNFS.readFile(`${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`).then(str => {
       this.setState({inventory_zero: JSON.parse(str)});
     });
   }
 
-  addXP(xp, inv, cb) {
-    addXP(xp, inv, (new_inventory_zero) =>
+  saveInventoryZero(new_inventory_zero, cb) {
+    saveInventoryZero(new_inventory_zero, () =>
       this.setState({inventory_zero: new_inventory_zero}, cb)
     );
   }
@@ -261,9 +261,9 @@ export class StemportsPicker extends React.Component {
             game_id: 0,
             owner_id: this.props.auth.authToken.user_id,
           })
-        ).then(data =>
-          new Promise((resolve, reject) => this.addXP((hasOffline ? 0 : 2), data, resolve))
-        ),
+        ).then(data => new Promise((resolve, reject) =>
+          this.saveInventoryZero(data, resolve)
+        )),
 
         this.props.auth.promise('call', 'instances.getInstancesForGame', {
           game_id: game.game_id,
@@ -489,7 +489,6 @@ export class StemportsPicker extends React.Component {
                 const attach_and_id = allData.requirement_and_packages.find(and =>
                   parseInt(and.requirement_root_package_id) === attach_root_id
                 ).requirement_and_package_id;
-                console.warn(attach_and_id);
                 addTo(new_requirement_atoms, atom_id => ({
                   requirement_atom_id: atom_id,
                   game_id: game.game_id,

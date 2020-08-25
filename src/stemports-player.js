@@ -18,6 +18,7 @@ import { StatusSpace } from "./status-space";
 import { StemportsPicker } from "./stemports-picker";
 import { NativeSettings } from "./native-settings";
 import { deserializeGame } from "./aris";
+import { PhotoItemIDs } from "./siftr-view";
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
 import SideMenu from 'react-native-side-menu-updated';
 
@@ -196,6 +197,13 @@ export class StemportsPlayer extends React.Component {
         </TouchableOpacity>
       </View>
     );
+
+    let globalItems = {};
+    (this.props.inventory_zero || []).forEach(inst => {
+      if (inst.object_type === 'ITEM') {
+        globalItems[inst.object_id] = inst.qty;
+      }
+    });
 
     return (
       <SideMenu menu={menu} isOpen={this.state.sideMenu} onChange={sideMenu => this.setState({sideMenu})}>
@@ -382,6 +390,47 @@ export class StemportsPlayer extends React.Component {
                       fontWeight: 'bold', color: '#ffffff',}}>Sync Game</Text>
                   </TouchableOpacity>
                 )
+              }
+            </View>
+            <Text style={{padding: 30, fontSize: 20, fontWeight: 'bold'}}>Photo Album</Text>
+            <View style={{
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              flexDirection: 'row',
+            }}>
+              {
+                PhotoItemIDs.map((item_id) => {
+                  if (parseInt(globalItems[item_id]) > 0) {
+                    return (
+                      <TouchableOpacity key={item_id} style={{
+                        margin: 10,
+                      }} onPress={() => this.setState({viewingPhoto: item_id})}>
+                        <Image
+                          style={{
+                            width: 80,
+                            height: 100,
+                            resizeMode: 'contain',
+                          }}
+                          source={require('../web/assets/img/cache-photo-card.png')}
+                        />
+                      </TouchableOpacity>
+                    );
+                  } else {
+                    return (
+                      <Image
+                        key={item_id}
+                        style={{
+                          width: 80,
+                          height: 100,
+                          resizeMode: 'contain',
+                          opacity: 0.3,
+                          margin: 10,
+                        }}
+                        source={require('../web/assets/img/cache-photo-card.png')}
+                      />
+                    );
+                  }
+                })
               }
             </View>
             <Text style={{padding: 30, fontSize: 20, fontWeight: 'bold'}}>Story Panels</Text>

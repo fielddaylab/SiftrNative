@@ -12,6 +12,7 @@ import {
 , Modal
 , TouchableWithoutFeedback
 , ImageBackground
+, SafeAreaView
 } from 'react-native';
 import {CacheMedia, CacheMedias} from './media';
 import {WebView} from 'react-native-webview';
@@ -78,8 +79,17 @@ export class CacheContents extends React.Component {
     super(props);
     this.state = {
       screen: 'closed',
-      // screen goes: 'closed', 'open', 'note', 'photo'
+      // screen goes: 'closed', 'open', 'note', 'photo' (optional), 'snacks'
     };
+  }
+
+  checkPhoto() {
+    const photo_id = this.props.selectPhoto();
+    if (photo_id) {
+      this.setState({screen: 'photo', photo_id: photo_id});
+    } else {
+      this.setState({screen: 'snacks'});
+    }
   }
 
   render() {
@@ -153,6 +163,7 @@ export class CacheContents extends React.Component {
                 shadowOffset: {height: 2},
                 width: 476 * 0.5,
                 height: 644 * 0.5,
+                paddingTop: 40,
               }}>
                 <CacheMedia
                   media_id={parseInt(this.props.item.icon_media_id) || parseInt(this.props.item.media_id)}
@@ -162,10 +173,8 @@ export class CacheContents extends React.Component {
                     <Image
                       source={url}
                       style={{
-                        height: 65,
-                        width: 65,
-                        margin: 10,
-                        marginBottom: 0,
+                        height: 150,
+                        width: 150,
                         resizeMode: 'contain',
                       }}
                     />
@@ -185,17 +194,22 @@ export class CacheContents extends React.Component {
                 <Modal
                   transparent={true}
                   animationType="slide"
-                  onRequestClose={() => this.setState({screen: 'photo'})}
+                  onRequestClose={this.checkPhoto.bind(this)}
                 >
-                  <ItemScreen
-                    type="trigger"
-                    trigger={this.props.trigger}
-                    instance={this.props.instance}
-                    item={this.props.item}
-                    auth={this.props.auth}
-                    onClose={() => this.setState({screen: 'photo'})}
-                    onPickUp={this.props.onPickUp}
-                  />
+                  <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+                    <ItemScreen
+                      type="trigger"
+                      trigger={this.props.trigger}
+                      instance={this.props.instance}
+                      item={this.props.item}
+                      auth={this.props.auth}
+                      onClose={this.checkPhoto.bind(this)}
+                      onPickUp={(trigger) => {
+                        this.props.addChip('Added to field guide!');
+                        this.props.onPickUp(trigger);
+                      }}
+                    />
+                  </SafeAreaView>
                 </Modal>
               )
             }
@@ -215,10 +229,14 @@ export class CacheContents extends React.Component {
                 padding: 10,
                 alignSelf: 'stretch',
               }}
-              text={"Hey I remember that! That's when I fell off the canoe and had to fly to shore."}
+              text={`Photo ID ${this.state.photo_id}`}
               auth={this.props.auth}
             />
-            <TouchableOpacity onPress={this.props.onClose} style={{
+            <TouchableOpacity onPress={() => {
+              this.props.givePhoto(this.state.photo_id);
+              this.props.addChip('Added to photo album!');
+              this.setState({screen: 'snacks'});
+            }} style={{
               backgroundColor: 'white',
               padding: 8,
               borderRadius: 5,
@@ -232,6 +250,25 @@ export class CacheContents extends React.Component {
                   height: 564 * 0.5,
                 }}
               />
+            </TouchableOpacity>
+          </View>
+        );
+      case 'snacks':
+        return (
+          <View style={{
+            flex: 1,
+            flexDirection: 'column',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            alignItems: 'center',
+            justifyContent: 'space-around',
+          }}>
+            <Text style={{color: 'white'}}>Puffin snacks!</Text>
+            <TouchableOpacity onPress={this.props.onClose} style={{
+              backgroundColor: 'white',
+              padding: 8,
+              borderRadius: 5,
+            }}>
+              <Text>Collect</Text>
             </TouchableOpacity>
           </View>
         );

@@ -283,19 +283,14 @@ const SiftrInfo = createClass({
   }
 });
 
-export function addXP(xp, inventory_zero, cb) {
-  const new_inventory_zero = inventory_zero.map(inst => {
-    if (inst.object_type === 'ITEM' && parseInt(inst.object_id) === 35) {
-      return update(inst, {qty: {$apply: (cur) => parseInt(cur) + xp}});
-    } else {
-      return inst;
-    }
-  });
+export function saveInventoryZero(inventory_zero, cb) {
   RNFS.writeFile(
     `${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`,
-    JSON.stringify(new_inventory_zero)
-  ).then(() => cb(new_inventory_zero));
+    JSON.stringify(inventory_zero)
+  ).then(() => cb(inventory_zero));
 }
+
+export const PhotoItemIDs = [141588, 141589, 141590, 141591, 141592];
 
 const LOAD_OBJECTS = [
   {name: 'quests'},
@@ -358,9 +353,9 @@ class SiftrViewLoader extends React.Component {
       return <SiftrView
         {...this.props}
         {...this.state}
-        addXP={(xp) =>
-          addXP(xp, this.state.inventory_zero, (new_inventory_zero) =>
-            this.setState({inventory_zero: new_inventory_zero})
+        saveInventoryZero={(data) =>
+          saveInventoryZero(data, () =>
+            this.setState({inventory_zero: data})
           )
         }
         ref={(sv) => this.siftrView = sv}
@@ -720,13 +715,6 @@ export const SiftrView = createClass({
         });
       })
     );
-  },
-  addXP: function(n) {
-    if (!this.state.guideMentionedXP) {
-      this.setState({guideMentionedXP: true});
-      // this.queueModal({type: 'generic', message: `You got ${n} XP!`});
-    }
-    this.props.addXP(n);
   },
   setGuideLine: function(line) {
     this.setState(prevState => {
@@ -2466,7 +2454,6 @@ export const SiftrView = createClass({
         );
       } else {
         // save note for later upload queue
-        this.addXP(2);
         queueDir = `${RNFS.DocumentDirectoryPath}/siftrqueue/${Date.now()}`;
         filesToCopy = [];
         for (i = 0, len = files.length; i < len; i++) {
@@ -2595,6 +2582,64 @@ export const SiftrView = createClass({
       )
     );
   },
+
+  chipView: function(){
+    return !!(this.state.chipMessages && this.state.chipMessages.length) && (
+      <View style={{
+        backgroundColor: 'rgb(110,186,180)',
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        padding: 15,
+      }}>
+        <Text style={{
+          fontSize: 20,
+          fontWeight: 'bold',
+          color: '#FEFBDE',
+        }}>
+          {this.state.chipMessages[0]}
+        </Text>
+      </View>
+    );
+  },
+  addChip: function(message){
+    let queueWasEmpty = false;
+    this.setState((prevState) => update(prevState, {
+      chipMessages: (messages) => {
+        if (messages && messages.length) {
+          return messages.concat([message]);
+        } else {
+          queueWasEmpty = true;
+          return [message];
+        }
+      },
+    }), () => {
+      if (queueWasEmpty) {
+        this.waitThenPopChip();
+      }
+    });
+  },
+  waitThenPopChip: function(){
+    setTimeout(() => {
+      let moreToPop = false;
+      this.setState((prevState) => update(prevState, {
+        chipMessages: (messages) => {
+          if (messages && messages.length > 1) {
+            moreToPop = true;
+            return messages.slice(1);
+          } else {
+            return [];
+          }
+        },
+      }), () => {
+        if (moreToPop) {
+          this.waitThenPopChip();
+        }
+      });
+    }, 3000);
+  },
+
   render: function() {
     var hasOptions, ref2, ref3, ref4;
     if (this.state.settingsInViola) {
@@ -3063,7 +3108,6 @@ export const SiftrView = createClass({
                             setGuideTab={(tab) => this.setState({guideTab: tab})}
                             guideTab={this.state.guideTab}
                             onPlace={item_id => {
-                              this.addXP(2);
                               this.setState(state => update(state, {
                                 pickedUpRemnants: {
                                   $apply: remnants => remnants.filter(remnant => remnant !== item_id),
@@ -3208,7 +3252,6 @@ export const SiftrView = createClass({
                           }}
                           onClose={() => this.popModal()}
                           onPickup={events => {
-                            this.addXP(2);
                             this.setState(state => {
                               let rems = state.pickedUpRemnants;
                               const item_ids = events.filter(
@@ -3243,8 +3286,27 @@ export const SiftrView = createClass({
                               item={modal.item}
                               auth={this.props.auth}
                               onClose={this.popModal/*.bind(this)*/}
+                              addChip={this.addChip/*.bind(this)*/}
+                              selectPhoto={() => {
+                                return PhotoItemIDs.find(photo_id =>
+                                  this.props.inventory_zero.some(inst =>
+                                    inst.object_type === 'ITEM'
+                                      && parseInt(inst.object_id) === photo_id
+                                      && parseInt(inst.qty) === 0
+                                  )
+                                );
+                              }}
+                              givePhoto={(photo_id) => {
+                                const new_inventory_zero = this.props.inventory_zero.map(inst => {
+                                  if (inst.object_type === 'ITEM' && parseInt(inst.object_id) === photo_id) {
+                                    return update(inst, {qty: {$set: 1}});
+                                  } else {
+                                    return inst;
+                                  }
+                                });
+                                this.props.saveInventoryZero(new_inventory_zero);
+                              }}
                               onPickUp={(trigger) => {
-                                this.addXP(2);
                                 this.setState(state => {
                                   if (!state.guideMentionedRemnant) {
                                     // setTimeout(() => (
@@ -3273,6 +3335,7 @@ export const SiftrView = createClass({
                                 });
                               }}
                             />
+                            {this.chipView()}
                           </SafeAreaView>
                         </Modal>
                       );
@@ -3346,6 +3409,9 @@ export const SiftrView = createClass({
                   </View>
                 </View>
               )}
+              {
+                this.chipView()
+              }
             </View>
           </SiftrInfo>
         }
