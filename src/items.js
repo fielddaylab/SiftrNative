@@ -107,8 +107,9 @@ export class CacheContents extends React.Component {
               color: 'white',
               fontSize: 25,
               fontWeight: 'bold',
+              textTransform: 'uppercase',
             }}>
-              CACHE FOUND!
+              Cache found!
             </Text>
             <Image
               source={require('../web/assets/img/cache-chest-closed.png')}
@@ -129,8 +130,9 @@ export class CacheContents extends React.Component {
                 color: '#647033',
                 fontWeight: 'bold',
                 fontSize: 20,
+                textTransform: 'uppercase',
               }}>
-                OPEN
+                Open
               </Text>
             </TouchableOpacity>
           </View>
@@ -149,8 +151,9 @@ export class CacheContents extends React.Component {
               color: 'white',
               fontSize: 25,
               fontWeight: 'bold',
+              textTransform: 'uppercase',
             }}>
-              NEW FIELD NOTE!
+              New field note!
             </Text>
             <TouchableOpacity onPress={() => this.setState({screen: 'note'})}>
               <ImageBackground source={require('../web/assets/img/cache-field-note-card.png')} style={{
@@ -229,7 +232,7 @@ export class CacheContents extends React.Component {
                 padding: 10,
                 alignSelf: 'stretch',
               }}
-              text={`Photo ID ${this.state.photo_id}`}
+              text={"Hey I remember that! That's when I fell off the canoe and had to fly to shore."}
               auth={this.props.auth}
             />
             <TouchableOpacity onPress={() => {
@@ -262,13 +265,35 @@ export class CacheContents extends React.Component {
             alignItems: 'center',
             justifyContent: 'space-around',
           }}>
-            <Text style={{color: 'white'}}>Puffin snacks!</Text>
+            <Text style={{
+              color: 'white',
+              fontSize: 25,
+              fontWeight: 'bold',
+              textTransform: 'uppercase',
+            }}>
+              Puffin snacks!
+            </Text>
+            <Image
+              source={require('../web/assets/img/puffin-snacks.png')}
+              style={{
+                width: 220,
+                height: 220,
+                resizeMode: 'contain',
+              }}
+            />
             <TouchableOpacity onPress={this.props.onClose} style={{
               backgroundColor: 'white',
               padding: 8,
               borderRadius: 5,
             }}>
-              <Text>Collect</Text>
+              <Text style={{
+                color: '#647033',
+                fontSize: 20,
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+              }}>
+                Collect
+              </Text>
             </TouchableOpacity>
           </View>
         );

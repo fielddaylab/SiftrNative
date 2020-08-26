@@ -125,6 +125,15 @@ export class StemportsPlayer extends React.Component {
         />
       );
     }
+    if (this.state.viewingPhoto != null) {
+      return (
+        <PhotoView
+          photoID={this.state.viewingPhoto}
+          items={this.props.items}
+          onClose={() => this.setState({viewingPhoto: null})}
+        />
+      );
+    }
 
     if (this.state.settings) {
       return (
@@ -538,6 +547,41 @@ export class ComicView extends React.Component {
             </View>
           )
         }
+      </View>
+    );
+  }
+}
+
+export class PhotoView extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
+  render() {
+    return (
+      <View style={{flex: 1, backgroundColor: 'white'}}>
+        <View style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <Image
+            style={{flex: 1, resizeMode: 'contain'}}
+            source={require('../web/assets/img/cache-photo-card.png')}
+          />
+        </View>
+        <View style={{
+          alignItems: 'center',
+          paddingTop: 30,
+        }}>
+          <TouchableOpacity onPress={this.props.onClose}>
+          <Image
+            style={globalstyles.closeButton}
+            source={require("../web/assets/img/quest-close.png")}
+          />
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
