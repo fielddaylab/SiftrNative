@@ -290,6 +290,7 @@ export function saveInventoryZero(inventory_zero, cb) {
   ).then(() => cb(inventory_zero));
 }
 
+const PuffinSnacksID = 141587;
 export const PhotoItemIDs = [141588, 141589, 141590, 141591, 141592];
 
 const LOAD_OBJECTS = [
@@ -2664,6 +2665,9 @@ export const SiftrView = createClass({
       authorNames = this.props.authors.join(', ');
     }
     const {height, width} = Dimensions.get('window');
+    const snacksCount = parseInt((this.props.inventory_zero.find(inst =>
+      inst.object_type === 'ITEM' && parseInt(inst.object_id) === PuffinSnacksID
+    ) || {qty: 0}).qty);
     return (
       <KeyboardAvoidingView
         behavior="padding"
@@ -2927,33 +2931,109 @@ export const SiftrView = createClass({
                   />
                 )
               }
-              <TouchableOpacity onPress={() => {
-                this.setState({trackDirection: !this.state.trackDirection});
-              }} style={{
+              <View style={{
                 position: 'absolute',
-                top: 100,
-                right: 5,
+                top: 150,
+                right: -2,
+                backgroundColor: 'rgba(255,255,255,0.4)',
+                alignItems: 'center',
+                borderColor: 'white',
+                borderWidth: 2,
+                borderTopLeftRadius: 12,
+                borderBottomLeftRadius: 12,
+                padding: 5,
               }}>
-                <Image source={require('../web/assets/img/stemports-compass.png')} style={{
-                  width: 100,
-                  height: 100,
+                <View style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                  <Image
+                    source={require('../web/assets/img/puffin-snacks.png')}
+                    style={{
+                      width: 28,
+                      height: 28,
+                      resizeMode: 'contain',
+                      marginRight: 8,
+                    }}
+                  />
+                  <Text style={{
+                    color: 'black',
+                    fontSize: 14,
+                  }}>
+                    {snacksCount}
+                  </Text>
+                </View>
+                {
+                  snacksCount === 0 ? (
+                    <View style={{
+                      backgroundColor: 'white',
+                      padding: 4,
+                      borderRadius: 5,
+                      marginTop: 10,
+                      marginBottom: 10,
+                      opacity: 0.4,
+                    }}>
+                      <Text style={{
+                        color: 'black',
+                        fontSize: 11,
+                      }}>
+                        give snack
+                      </Text>
+                    </View>
+                  ) : (
+                    <TouchableOpacity onPress={() => {
+                      const new_inventory_zero = this.props.inventory_zero.map(inst => {
+                        if (inst.object_type === 'ITEM' && parseInt(inst.object_id) === PuffinSnacksID) {
+                          return update(inst, {qty: (n) => n - 1});
+                        } else {
+                          return inst;
+                        }
+                      });
+                      this.props.saveInventoryZero(new_inventory_zero);
+                    }} style={{
+                      backgroundColor: 'white',
+                      padding: 4,
+                      borderRadius: 5,
+                      marginTop: 10,
+                      marginBottom: 10,
+                    }}>
+                      <Text style={{
+                        color: 'black',
+                        fontSize: 11,
+                      }}>
+                        give snack
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                }
+                <View style={{
+                  backgroundColor: 'white',
+                  width: 75,
+                  height: 2,
                 }} />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => {
-                this.setState({showStops: !this.state.showStops});
-              }} style={{
-                position: 'absolute',
-                top: 190,
-                right: 35,
-              }}>
-                <Image source={this.state.showStops
-                  ? require('../web/assets/img/stemports-zoom-in.png')
-                  : require('../web/assets/img/stemports-zoom-out.png')
-                } style={{
-                  width: 40,
-                  height: 40,
-                }} />
-              </TouchableOpacity>
+                <TouchableOpacity onPress={() => {
+                  this.setState({showStops: !this.state.showStops});
+                }} style={{
+                }}>
+                  <Image source={this.state.showStops
+                    ? require('../web/assets/img/stemports-zoom-in.png')
+                    : require('../web/assets/img/stemports-zoom-out.png')
+                  } style={{
+                    width: 35,
+                    height: 35,
+                    marginTop: 20,
+                  }} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => {
+                  this.setState({trackDirection: !this.state.trackDirection});
+                }} style={{
+                }}>
+                  <Image source={require('../web/assets/img/stemports-compass.png')} style={{
+                    width: 75,
+                    height: 75,
+                  }} />
+                </TouchableOpacity>
+              </View>
               {
                 !this.state.showStops && this.state.circleRange && (
                   <Image pointerEvents="none" style={{
@@ -3300,6 +3380,16 @@ export const SiftrView = createClass({
                                 const new_inventory_zero = this.props.inventory_zero.map(inst => {
                                   if (inst.object_type === 'ITEM' && parseInt(inst.object_id) === photo_id) {
                                     return update(inst, {qty: {$set: 1}});
+                                  } else {
+                                    return inst;
+                                  }
+                                });
+                                this.props.saveInventoryZero(new_inventory_zero);
+                              }}
+                              giveSnack={() => {
+                                const new_inventory_zero = this.props.inventory_zero.map(inst => {
+                                  if (inst.object_type === 'ITEM' && parseInt(inst.object_id) === PuffinSnacksID) {
+                                    return update(inst, {qty: (n) => n + 1});
                                   } else {
                                     return inst;
                                   }

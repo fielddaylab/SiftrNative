@@ -281,7 +281,11 @@ export class CacheContents extends React.Component {
                 resizeMode: 'contain',
               }}
             />
-            <TouchableOpacity onPress={this.props.onClose} style={{
+            <TouchableOpacity onPress={() => {
+              this.props.giveSnack();
+              this.props.addChip('Collected puffin snacks!');
+              this.props.onClose();
+            }} style={{
               backgroundColor: 'white',
               padding: 8,
               borderRadius: 5,
