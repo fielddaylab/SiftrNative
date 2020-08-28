@@ -580,6 +580,77 @@ export function downloadGame(auth, game, callbacks = {}) {
   });
 }
 
+const SnackLines = [
+  "Not bad. Needs mustard.",
+  "Bleh. Yuck. Did she scoop that one out of a fish tank?",
+  "Yum, herring! My favorite.",
+  "More?",
+  "Yum. Finally! I can’t explore on an empty stomach, you know. ",
+  "Do you have any ketchup? Maybe a nice dipping sauce?",
+  "That’s it?! Do I look like a puffling to you?",
+  "I wish May would send some sand eel…",
+  "Yum. Now if only I had my breakfast tea.",
+  "Hmm….tough, a little briny. 2 out of 5 stars.",
+  "Wouldn’t mind something fried next time…",
+  "Next time, how about using that as bait to catch me a bigger fish?",
+  "Yum, that one was packed in oil and garlic!",
+  "Yuck. Too fishy. Even for me.",
+  "Yum. I knew I liked you.",
+  "Keep ‘em coming!",
+  "Dessert please?",
+  "Oooh. Is that garlic I taste?",
+  "Well, now I need a nap.",
+  "Got any tea to wash it down?",
+  "This would go great with some pretzels!",
+  "Ugh. That was tiny!",
+  "Num nums!",
+  "That one was LEGIT.",
+  "Too many bones in that one.",
+  "Do you have any crackers, or maybe a nice brie?",
+  "BWAUK! That one went down sideways.",
+  "Snacks are good, but when do I get to go inside?",
+  "NAAAPPPPP time. No, naps aren’t for babies. ",
+  "Buuuurp. Excuse me. ",
+  "This is appropriate for my refined tastes.",
+  "Is your backpack just full of fish? It must smell delicious.  ",
+  "That’s it? I know you’ve got more in your backpack…. ",
+  "Mmm. That tasted just like the kippers I used to catch as a puffling.",
+  "You walk a lot. You should try flying, it’s much faster.",
+  "Want a bite? No? More for me. ",
+  "Kipper snacks!",
+  "This would go great with the rye toast in my burrow!",
+  "Yum, you should try these, they’re great!",
+  "Buuuuuuurrpp. Thanks.",
+  "Finally! I was getting worried you forgot about me.",
+  "Fish fish fish. Yum yum yum.",
+  "Get in my belly, you silly little fish.",
+  "Did you bring any tasty beverages?",
+  "Here fishy fishy fishy!",
+];
+function shuffle(array) {
+  // https://stackoverflow.com/a/2450976/509936
+  array = [...array];
+  let currentIndex = array.length, temporaryValue, randomIndex;
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+  return array;
+}
+let shuffledSnackLines = [];
+function getSnackLine() {
+  if (shuffledSnackLines.length === 0) {
+    shuffledSnackLines = shuffle(SnackLines);
+  }
+  return shuffledSnackLines.pop();
+}
+
 export const SiftrView = createClass({
   displayName: "SiftrView",
   propTypes: {
@@ -720,6 +791,21 @@ export const SiftrView = createClass({
   setGuideLine: function(line) {
     this.setState(prevState => {
       return update(prevState, {guideLine: {$set: line}});
+    });
+  },
+  setTempGuideLine: function(line) {
+    const thisTime = Date.now();
+    this.lastTempLineTime = thisTime;
+    this.setState({
+      tempGuideLine: line,
+    }, () => {
+      setTimeout(() => {
+        if (this.lastTempLineTime === thisTime) {
+          this.setState({
+            tempGuideLine: null,
+          });
+        }
+      }, 4000);
     });
   },
   addLog: function(logEntry) {
@@ -2885,52 +2971,36 @@ export const SiftrView = createClass({
                   }} source={require('../web/assets/img/horizon-fade.png')} />
                 )
               }
-              {
-                this.state.guideLine == null ? (
-                  <TouchableOpacity
-                    onPress={() => this.pushModal({type: 'quests'})}
-                    style={{
-                      position: 'absolute',
-                      top: 10,
-                      right: 10,
-                      width: 130,
-                      height: 300,
-                    }}
-                  >
-                    <Image
-                      style={{margin: 10, width: 130, height: 300}}
-                      source={require('../web/assets/img/stemports-puffin-color.png')}
-                    />
-                  </TouchableOpacity>
-                ) : (
-                  <GuideLine
-                    style={{
-                      flexDirection: 'column',
-                      alignItems: 'stretch',
-                      position: 'absolute',
-                      top: 10,
-                      left: 10,
-                      right: 10,
-                    }}
-                    onPress={() => this.pushModal({type: 'quests'})}
-                    text={(() => {
-                      if (this.state.showStops) {
-                        const stopCount = this.getPlaques().length;
-                        if (stopCount === 1) {
-                          return "I can see the whole area from up here. There's only one tour stop in this quest!";
-                        } else if (stopCount === 0) {
-                          return "I can see the whole area from up here. No tour stops in this quest!";
-                        } else {
-                          return `I can see the whole area from up here. It looks like there are ${stopCount} stops total.`
-                        }
-                      } else {
-                        return this.state.guideLine;
-                      }
-                    })()}
-                    auth={this.props.auth}
-                  />
-                )
-              }
+              <GuideLine
+                style={{
+                  flexDirection: 'column',
+                  alignItems: 'stretch',
+                  position: 'absolute',
+                  top: 10,
+                  left: 10,
+                  right: 10,
+                }}
+                onPress={() => this.pushModal({type: 'quests'})}
+                text={(() => {
+                  if (this.state.tempGuideLine) {
+                    return this.state.tempGuideLine;
+                  } else if (this.state.showStops) {
+                    const stopCount = this.getPlaques().length;
+                    if (stopCount === 1) {
+                      return "I can see the whole area from up here. There's only one tour stop in this quest!";
+                    } else if (stopCount === 0) {
+                      return "I can see the whole area from up here. No tour stops in this quest!";
+                    } else {
+                      return `I can see the whole area from up here. It looks like there are ${stopCount} stops total.`
+                    }
+                  } else if (this.state.guideLine) {
+                    return this.state.guideLine;
+                  } else {
+                    return '';
+                  }
+                })()}
+                auth={this.props.auth}
+              />
               <View style={{
                 position: 'absolute',
                 top: 150,
@@ -2990,6 +3060,7 @@ export const SiftrView = createClass({
                         }
                       });
                       this.props.saveInventoryZero(new_inventory_zero);
+                      this.setTempGuideLine(getSnackLine());
                     }} style={{
                       backgroundColor: 'white',
                       padding: 4,
