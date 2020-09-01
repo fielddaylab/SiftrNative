@@ -178,7 +178,8 @@ export class StemportsPlayer extends React.Component {
           queueMessage={this.props.queueMessage}
           location={this.props.location}
           onClose={() => this.setState({questList: false})}
-          mode="quests"
+          mode="list"
+          onlyDownloaded={true}
         />
       );
     }
@@ -340,7 +341,7 @@ export class StemportsPlayer extends React.Component {
                   fontWeight: 'bold',
                   color: '#373535',
                 }}>
-                  My Quests
+                  My Stations
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() =>

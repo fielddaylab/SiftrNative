@@ -754,7 +754,7 @@ export const SiftrView = createClass({
       mainView: "map", // 'hybrid', 'map', 'thumbs'
       infoOpen: false,
       primaryMenuOpen: false,
-      modals: [],
+      modals: [{type: 'menu'}],
       logs: this.props.logs,
       inventory: this.props.inventory,
       factoryObjects: [],

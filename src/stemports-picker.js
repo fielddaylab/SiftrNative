@@ -908,6 +908,10 @@ export class StemportsPicker extends React.Component {
       </View>
     );
 
+    if (this.props.onlyDownloaded) {
+      gameList = gameList.filter(o => o.offline);
+    }
+
     if (this.props.mode === 'player') {
       return playerScreen;
     }
@@ -1067,10 +1071,16 @@ export class StemportsPicker extends React.Component {
             />
           </TouchableOpacity>
           <Text style={{margin: 10, fontSize: 25, fontWeight: 'bold'}}>
-            Science Stations
+            {
+              this.props.onlyDownloaded ? 'My Stations' : 'Science Stations'
+            }
           </Text>
           <Text style={{margin: 10}}>
-            Science stations are where the quests are! Here are the science stations closest to you:
+            {
+              this.props.onlyDownloaded
+                ? "These are all the science stations you've downloaded quests from!"
+                : 'Science stations are where the quests are! Here are the science stations closest to you:'
+            }
           </Text>
           <ScrollView style={{flex: 1}}>
             {
