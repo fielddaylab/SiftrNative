@@ -1008,8 +1008,8 @@ export class StemportsPicker extends React.Component {
               text={puffinHi
                 ? "Hi there, I'm Puff. My friend sent me to help you on your journey. Looks like I found you just in time!"
                 : atStation
-                ? `It looks like you're near the ${atStation.game.name} Science Station. Tap the station to start a quest!`
-                : "Find a science station to start a quest!"
+                ? `It looks like you're near the ${atStation.game.name} Research Station. Tap the station to start a quest!`
+                : "Find a Research Station to start a quest!"
               }
               button={puffinHi
                 ? { label: 'View Story'
@@ -1017,7 +1017,7 @@ export class StemportsPicker extends React.Component {
                   }
                 : atStation
                 ? undefined
-                : { label: 'Find Science Station'
+                : { label: 'Find Research Station'
                   , onPress: (() => this.setState({listFromMap: true}))
                   }
               }
@@ -1072,14 +1072,14 @@ export class StemportsPicker extends React.Component {
           </TouchableOpacity>
           <Text style={{margin: 10, fontSize: 25, fontWeight: 'bold'}}>
             {
-              this.props.onlyDownloaded ? 'My Stations' : 'Science Stations'
+              this.props.onlyDownloaded ? 'My Stations' : 'Research Stations'
             }
           </Text>
           <Text style={{margin: 10}}>
             {
               this.props.onlyDownloaded
-                ? "These are all the science stations you've downloaded quests from!"
-                : 'Science stations are where the quests are! Here are the science stations closest to you:'
+                ? "These are all the Research Stations you've downloaded quests from!"
+                : 'Research Stations are where the quests are! Here are the Research Stations closest to you:'
             }
           </Text>
           <ScrollView style={{flex: 1}}>

@@ -331,7 +331,7 @@ export const QuestComplete = (props) => {
         style={{padding: 5}}
         text={hasMoreQuests
           ? 'You did it! Now you can start another quest.'
-          : 'You did it! You finished all the quests at this Science Station. Now you can find another station!'
+          : 'You did it! You finished all the quests at this Research Station. Now you can find another station!'
         }
         auth={props.auth}
       />
@@ -352,7 +352,7 @@ export const QuestComplete = (props) => {
           borderRadius: 4,
         }}>
           <Text style={{color: 'white'}}>
-            {hasMoreQuests ? 'Start Next Quest' : 'View Science Stations'}
+            {hasMoreQuests ? 'Start Next Quest' : 'View Research Stations'}
           </Text>
         </TouchableOpacity>
       </View>

@@ -3460,7 +3460,7 @@ export const SiftrView = createClass({
                               giveSnack={() => {
                                 const new_inventory_zero = this.props.inventory_zero.map(inst => {
                                   if (inst.object_type === 'ITEM' && parseInt(inst.object_id) === PuffinSnacksID) {
-                                    return update(inst, {qty: (n) => n + 1});
+                                    return update(inst, {qty: (n) => n + 3});
                                   } else {
                                     return inst;
                                   }

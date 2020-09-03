@@ -186,7 +186,7 @@ class SmartMarker extends React.Component {
   }
 }
 
-export const maxPickupDistance = 15; // meters
+export const maxPickupDistance = 10; // meters
 
 export function meterDistance(posn1, posn2) {
   // Haversine formula code from https://stackoverflow.com/a/14561433/509936
