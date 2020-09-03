@@ -25,6 +25,7 @@ import {maxPickupDistance, meterDistance} from './map';
 import { ComicView } from './stemports-player';
 import MapboxGL from "@react-native-mapbox-gl/maps";
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
+import TestStyle from './mapbox-style.json';
 
 MapboxGL.setAccessToken("pk.eyJ1IjoiZmllbGRkYXlsYWIiLCJhIjoiY2s3ejh3cHNrMDNtMTNlcnk2dmxnZzhidyJ9.-Kt-a2vKYZ49CjY_no1P9A");
 
@@ -993,6 +994,9 @@ export class StemportsPicker extends React.Component {
               }
               <MapboxGL.UserLocation
                 visible={true}
+              />
+              <MapboxGL.Style
+                json={TestStyle}
               />
             </MapboxGL.MapView>
 
