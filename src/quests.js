@@ -10,6 +10,7 @@ import {
 import {Text} from './styles';
 import {CacheMedia} from './media';
 import {GuideLine} from './stemports-picker';
+import { globalstyles } from "./global-styles";
 
 export const getQuestProgress = (details) => {
   let progress = [];
@@ -171,16 +172,10 @@ export const QuestDotDetails = function(props) {
             })()
           }
         </ScrollView>
-        <View style={{
-          margin: 15,
-          alignItems: 'center',
-        }}>
+        <View style={globalstyles.closeContainer} pointerEvents="box-none">
           <TouchableOpacity onPress={props.onClose}>
             <Image
-              style={{
-                width: 140 * 0.45,
-                height: 140 * 0.45,
-              }}
+              style={globalstyles.closeButton}
               source={require("../web/assets/img/quest-close.png")}
             />
           </TouchableOpacity>

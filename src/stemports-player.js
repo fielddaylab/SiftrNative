@@ -467,9 +467,7 @@ export class StemportsPlayer extends React.Component {
               }
             </View>
           </ScrollView>
-          <View style={{
-            alignItems: 'center',
-          }}>
+          <View style={globalstyles.closeContainer} pointerEvents="box-none">
             <TouchableOpacity onPress={this.props.onClose}>
               <Image
                 style={globalstyles.closeButton}
@@ -535,15 +533,12 @@ export class ComicView extends React.Component {
         </TouchableOpacity>
         {
           this.props.closeButton && (
-            <View style={{
-              alignItems: 'center',
-              paddingTop: 30,
-            }}>
+            <View style={globalstyles.closeContainer} pointerEvents="box-none">
               <TouchableOpacity onPress={this.props.onClose}>
-              <Image
-                style={globalstyles.closeButton}
-                source={require("../web/assets/img/quest-close.png")}
-              />
+                <Image
+                  style={globalstyles.closeButton}
+                  source={require("../web/assets/img/quest-close.png")}
+                />
               </TouchableOpacity>
             </View>
           )
@@ -572,15 +567,12 @@ export class PhotoView extends React.Component {
             source={require('../web/assets/img/cache-photo-card.png')}
           />
         </View>
-        <View style={{
-          alignItems: 'center',
-          paddingTop: 30,
-        }}>
+        <View style={globalstyles.closeContainer} pointerEvents="box-none">
           <TouchableOpacity onPress={this.props.onClose}>
-          <Image
-            style={globalstyles.closeButton}
-            source={require("../web/assets/img/quest-close.png")}
-          />
+            <Image
+              style={globalstyles.closeButton}
+              source={require("../web/assets/img/quest-close.png")}
+            />
           </TouchableOpacity>
         </View>
       </View>

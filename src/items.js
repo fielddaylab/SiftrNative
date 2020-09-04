@@ -391,15 +391,13 @@ export class ItemScreen extends React.Component {
                 </TouchableOpacity>
               </View>
             ) : (
-              <View style={{
-                alignItems: 'center',
-              }}>
-              <TouchableOpacity onPress={this.props.onClose}>
-                <Image
-                  style={globalstyles.closeButton}
-                  source={require("../web/assets/img/quest-close.png")}
-                />
-              </TouchableOpacity>
+              <View style={globalstyles.closeContainer} pointerEvents="box-none">
+                <TouchableOpacity onPress={this.props.onClose}>
+                  <Image
+                    style={globalstyles.closeButton}
+                    source={require("../web/assets/img/quest-close.png")}
+                  />
+                </TouchableOpacity>
               </View>
             )
           }
@@ -557,15 +555,13 @@ export class InventoryScreen extends React.Component {
               getColor={this.props.getColor}
             />
           </View>
-          <View style={{
-            alignItems: 'center',
-          }}>
-          <TouchableOpacity onPress={this.props.onClose}>
-            <Image
-              style={globalstyles.closeButton}
-              source={require("../web/assets/img/quest-close.png")}
-            />
-          </TouchableOpacity>
+          <View style={globalstyles.closeContainer} pointerEvents="box-none">
+            <TouchableOpacity onPress={this.props.onClose}>
+              <Image
+                style={globalstyles.closeButton}
+                source={require("../web/assets/img/quest-close.png")}
+              />
+            </TouchableOpacity>
           </View>
         </View>
       );
@@ -744,16 +740,13 @@ export class InventoryScreen extends React.Component {
             }
           </ScrollView>
         </View>
-        <View style={{
-          alignItems: 'center',
-          marginBottom: 50,
-        }}>
-        <TouchableOpacity onPress={this.props.onClose}>
-          <Image
-            style={globalstyles.closeModifier}
-            source={require("../web/assets/img/quest-close.png")}
-          />
-        </TouchableOpacity>
+        <View style={globalstyles.closeContainer} pointerEvents="box-none">
+          <TouchableOpacity onPress={this.props.onClose}>
+            <Image
+              style={globalstyles.closeModifier}
+              source={require("../web/assets/img/quest-close.png")}
+            />
+          </TouchableOpacity>
         </View>
         {
           this.state.niceModal && (
