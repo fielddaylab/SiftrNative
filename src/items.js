@@ -208,7 +208,7 @@ export class CacheContents extends React.Component {
                       auth={this.props.auth}
                       onClose={this.checkPhoto.bind(this)}
                       onPickUp={(trigger) => {
-                        this.props.addChip('Added to field guide!');
+                        this.props.addChip('Added to field guide!', 'rgb(219,179,52)', 'field-guide');
                         this.props.onPickUp(trigger);
                       }}
                     />
@@ -237,7 +237,7 @@ export class CacheContents extends React.Component {
             />
             <TouchableOpacity onPress={() => {
               this.props.givePhoto(this.state.photo_id);
-              this.props.addChip('Added to photo album!');
+              this.props.addChip('Added to photo album!', 'rgb(110,186,180)', 'photos');
               this.setState({screen: 'snacks'});
             }} style={{
               backgroundColor: 'white',
@@ -283,7 +283,7 @@ export class CacheContents extends React.Component {
             />
             <TouchableOpacity onPress={() => {
               this.props.giveSnack();
-              this.props.addChip('Collected puffin snacks!');
+              this.props.addChip('Collected puffin snacks!', 'rgb(238,107,100)', 'snacks');
               this.props.onClose();
             }} style={{
               backgroundColor: 'white',

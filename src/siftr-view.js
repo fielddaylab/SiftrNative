@@ -2673,32 +2673,63 @@ export const SiftrView = createClass({
   chipView: function(){
     return !!(this.state.chipMessages && this.state.chipMessages.length) && (
       <View style={{
-        backgroundColor: 'rgb(110,186,180)',
+        backgroundColor: this.state.chipMessages[0].color || 'rgb(110,186,180)',
         position: 'absolute',
         left: 0,
         right: 0,
         bottom: 0,
         padding: 15,
+        flexDirection: 'row',
       }}>
+        {
+          this.state.chipMessages[0].image === 'photos' ? (
+            <Image source={require('../web/assets/img/chip-photos.png')} style={{
+              width: 100,
+              height: 100,
+              marginTop: -50,
+              marginRight: 20,
+              resizeMode: 'contain',
+            }} />
+          ) : this.state.chipMessages[0].image === 'field-guide' ? (
+            <Image source={require('../web/assets/img/chip-field-guide.png')} style={{
+              width: 120,
+              height: 100,
+              marginTop: -50,
+              resizeMode: 'contain',
+            }} />
+          ) : this.state.chipMessages[0].image === 'snacks' ? (
+            <Image source={require('../web/assets/img/puffin-snacks.png')} style={{
+              width: 100,
+              height: 100,
+              marginTop: -50,
+              marginRight: 20,
+              resizeMode: 'contain',
+            }} />
+          ) : null
+        }
         <Text style={{
           fontSize: 20,
           fontWeight: 'bold',
           color: '#FEFBDE',
+          flexWrap: 'wrap',
+          flex: 1,
+          textTransform: 'uppercase',
         }}>
-          {this.state.chipMessages[0]}
+          {this.state.chipMessages[0].message}
         </Text>
       </View>
     );
   },
-  addChip: function(message){
+  addChip: function(message, color, image){
+    const obj = {message, color, image};
     let queueWasEmpty = false;
     this.setState((prevState) => update(prevState, {
       chipMessages: (messages) => {
         if (messages && messages.length) {
-          return messages.concat([message]);
+          return messages.concat([obj]);
         } else {
           queueWasEmpty = true;
-          return [message];
+          return [obj];
         }
       },
     }), () => {
@@ -3479,7 +3510,7 @@ export const SiftrView = createClass({
                               giveSnack={() => {
                                 const new_inventory_zero = this.props.inventory_zero.map(inst => {
                                   if (inst.object_type === 'ITEM' && parseInt(inst.object_id) === PuffinSnacksID) {
-                                    return update(inst, {qty: (n) => n + 3});
+                                    return update(inst, {qty: (n) => parseInt(n) + 3});
                                   } else {
                                     return inst;
                                   }
