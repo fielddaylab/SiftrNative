@@ -3087,12 +3087,13 @@ export const SiftrView = createClass({
                 }} style={{
                 }}>
                   <Image source={this.state.showStops
-                    ? require('../web/assets/img/stemports-zoom-in.png')
-                    : require('../web/assets/img/stemports-zoom-out.png')
+                    ? require('../web/assets/img/icon-returntoground.png')
+                    : require('../web/assets/img/icon-flight.png')
                   } style={{
-                    width: 35,
-                    height: 35,
-                    marginTop: 20,
+                    width: 75,
+                    height: 75,
+                    margin: -10,
+                    marginTop: 0,
                   }} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => {
@@ -3102,6 +3103,7 @@ export const SiftrView = createClass({
                   <Image source={require('../web/assets/img/stemports-compass.png')} style={{
                     width: 75,
                     height: 75,
+                    margin: -10,
                   }} />
                 </TouchableOpacity>
               </View>
@@ -3159,19 +3161,36 @@ export const SiftrView = createClass({
                     justifyContent: 'space-between',
                     alignItems: 'flex-end',
                   }}>
-                    <TouchableOpacity
-                      onPress={() => {
-                        this.pushModal({type: 'menu'});
-                      }}
-                    >
-                      <Image
-                        source={require('../web/assets/img/stemports-icon-home.png')}
-                        style={{
-                          width: 80,
-                          height: 80,
+                    <View style={{
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                    }}>
+                      {
+                        this.state.warp && (
+                          <Image
+                            source={require('../web/assets/img/icon-warp.png')}
+                            style={{
+                              width: 90,
+                              height: 90,
+                              margin: -5,
+                            }}
+                          />
+                        )
+                      }
+                      <TouchableOpacity
+                        onPress={() => {
+                          this.pushModal({type: 'menu'});
                         }}
-                      />
-                    </TouchableOpacity>
+                      >
+                        <Image
+                          source={require('../web/assets/img/stemports-icon-home.png')}
+                          style={{
+                            width: 80,
+                            height: 80,
+                          }}
+                        />
+                      </TouchableOpacity>
+                    </View>
                     {
                       // show if player has collected all this quest's remnants
                       this.areRemnantsComplete() && (
