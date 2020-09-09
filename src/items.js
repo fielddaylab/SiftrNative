@@ -96,45 +96,48 @@ export class CacheContents extends React.Component {
     switch (this.state.screen) {
       case 'closed':
         return (
-          <View style={{
-            flex: 1,
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'space-around',
-          }}>
-            <Text style={{
-              color: 'white',
-              fontSize: 25,
-              fontWeight: 'bold',
-              textTransform: 'uppercase',
-            }}>
-              Cache found!
-            </Text>
-            <Image
-              source={require('../web/assets/img/cache-chest-closed.png')}
-              style={{
-                margin: 20,
-                alignSelf: 'stretch',
-                resizeMode: 'contain',
-                width: null,
-                height: 250,
-              }}
-            />
-            <TouchableOpacity onPress={() => this.setState({screen: 'open'})} style={{
-              backgroundColor: 'white',
-              padding: 8,
-              borderRadius: 5,
+          <ImageBackground source={require('../web/assets/img/cache-closed-bg.jpg')} style={globalstyles.backgroundImage}>
+            <View style={{
+              flex: 1,
+              flexDirection: 'column',
+              backgroundColor: 'rgba(0,0,0,0.1)',
+              alignItems: 'center',
+              justifyContent: 'space-around',
             }}>
               <Text style={{
-                color: '#647033',
+                color: 'white',
+                fontSize: 25,
                 fontWeight: 'bold',
-                fontSize: 20,
                 textTransform: 'uppercase',
               }}>
-                Open
+                Cache found!
               </Text>
-            </TouchableOpacity>
-          </View>
+              <Image
+                source={require('../web/assets/img/cache-chest-closed.png')}
+                style={{
+                  margin: 20,
+                  alignSelf: 'stretch',
+                  resizeMode: 'contain',
+                  width: null,
+                  height: 250,
+                }}
+              />
+              <TouchableOpacity onPress={() => this.setState({screen: 'open'})} style={{
+                backgroundColor: 'white',
+                padding: 8,
+                borderRadius: 5,
+              }}>
+                <Text style={{
+                  color: '#647033',
+                  fontWeight: 'bold',
+                  fontSize: 20,
+                  textTransform: 'uppercase',
+                }}>
+                  Open
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </ImageBackground>
         );
       case 'open':
       case 'note':
@@ -143,12 +146,13 @@ export class CacheContents extends React.Component {
             <View style={{
               flex: 1,
               flexDirection: 'column',
+              backgroundColor: 'rgba(0,0,0,0.1)',
               alignItems: 'center',
-              justifyContent: 'space-around',
+              justifyContent: 'space-evenly',
             }}>
               <Text style={{
                 color: 'white',
-                fontSize: 25,
+                fontSize: 30,
                 fontWeight: 'bold',
                 textTransform: 'uppercase',
               }}>
@@ -167,61 +171,67 @@ export class CacheContents extends React.Component {
                   height: 644 * 0.5,
                   paddingTop: 40,
                 }}>
-                  {this.props.item.name}
-                </Text>
-              </ImageBackground>
-            </TouchableOpacity>
-            {
-              this.state.screen === 'note' && (
-                <Modal
-                  transparent={true}
-                  animationType="slide"
-                  onRequestClose={this.checkPhoto.bind(this)}
-                >
-                  <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-                    <ItemScreen
-                      type="trigger"
-                      trigger={this.props.trigger}
-                      instance={this.props.instance}
-                      item={this.props.item}
-                      auth={this.props.auth}
-                      onClose={this.checkPhoto.bind(this)}
-                      onPickUp={(trigger) => {
-                        this.props.addChip('Added to field guide!', 'rgb(219,179,52)', 'field-guide');
-                        this.props.onPickUp(trigger);
-                      }}
-                    />
-                  </SafeAreaView>
-                </Modal>
-              )
-            }
-          </View>
+                  <CacheMedia
+                    media_id={parseInt(this.props.item.icon_media_id) || parseInt(this.props.item.media_id)}
+                    auth={this.props.auth}
+                    online={true}
+                    withURL={(url) => (
+                      <Image
+                        source={url}
+                        style={{
+                          height: 150,
+                          width: 150,
+                          resizeMode: 'contain',
+                        }}
+                      />
+                    )}
+                  />
+                  <Text style={{
+                    margin: 10,
+                    textAlign: 'center',
+                    width: 100,
+                  }}>
+                    {this.props.item.name}
+                  </Text>
+                </ImageBackground>
+              </TouchableOpacity>
+              {
+                this.state.screen === 'note' && (
+                  <Modal
+                    transparent={true}
+                    animationType="slide"
+                    onRequestClose={this.checkPhoto.bind(this)}
+                  >
+                    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+                      <ItemScreen
+                        animationType="slide"
+                        type="trigger"
+                        trigger={this.props.trigger}
+                        instance={this.props.instance}
+                        item={this.props.item}
+                        auth={this.props.auth}
+                        onClose={this.checkPhoto.bind(this)}
+                        onPickUp={(trigger) => {
+                          this.props.addChip('Added to field guide!', 'rgb(219,179,52)', 'field-guide');
+                          this.props.onPickUp(trigger);
+                        }}
+                      />
+                    </SafeAreaView>
+                  </Modal>
+                )
+              }
+            </View>
+          </ImageBackground>
         );
       case 'photo':
         return (
-          <View style={{
-            flex: 1,
-            flexDirection: 'column',
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            alignItems: 'center',
-            justifyContent: 'space-around',
-          }}>
-            <GuideLine
-              style={{
-                padding: 10,
-                alignSelf: 'stretch',
-              }}
-              text={"Hey I remember that! That's when I fell off the canoe and had to fly to shore."}
-              auth={this.props.auth}
-            />
-            <TouchableOpacity onPress={() => {
-              this.props.givePhoto(this.state.photo_id);
-              this.props.addChip('Added to photo album!', 'rgb(110,186,180)', 'photos');
-              this.setState({screen: 'snacks'});
-            }} style={{
-              backgroundColor: 'white',
-              padding: 8,
-              borderRadius: 5,
+          <ImageBackground source={require('../web/assets/img/cache-open-bg.jpg')} style={globalstyles.backgroundImage}>
+            <View style={{
+              flex: 1,
+              flexDirection: 'column',
+              backgroundColor: 'rgba(0,0,0,0.1)',
+              alignItems: 'center',
+              justifyContent: 'space-around',
             }}>
               <GuideLine
                 style={{
@@ -233,7 +243,7 @@ export class CacheContents extends React.Component {
               />
               <TouchableOpacity onPress={() => {
                 this.props.givePhoto(this.state.photo_id);
-                this.props.addChip('Added to photo album!');
+                this.props.addChip('Added to photo album!', 'rgb(110,186,180)', 'photos');
                 this.setState({screen: 'snacks'});
               }} style={{
                 backgroundColor: 'white',
@@ -255,37 +265,13 @@ export class CacheContents extends React.Component {
         );
       case 'snacks':
         return (
-          <View style={{
-            flex: 1,
-            flexDirection: 'column',
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            alignItems: 'center',
-            justifyContent: 'space-around',
-          }}>
-            <Text style={{
-              color: 'white',
-              fontSize: 25,
-              fontWeight: 'bold',
-              textTransform: 'uppercase',
-            }}>
-              Puffin snacks!
-            </Text>
-            <Image
-              source={require('../web/assets/img/puffin-snacks.png')}
-              style={{
-                width: 220,
-                height: 220,
-                resizeMode: 'contain',
-              }}
-            />
-            <TouchableOpacity onPress={() => {
-              this.props.giveSnack();
-              this.props.addChip('Collected puffin snacks!', 'rgb(238,107,100)', 'snacks');
-              this.props.onClose();
-            }} style={{
-              backgroundColor: 'white',
-              padding: 8,
-              borderRadius: 5,
+          <ImageBackground source={require('../web/assets/img/cache-open-bg.jpg')} style={globalstyles.backgroundImage}>
+            <View style={{
+              flex: 1,
+              flexDirection: 'column',
+              backgroundColor: 'rgba(0,0,0,0.1)',
+              alignItems: 'center',
+              justifyContent: 'space-evenly',
             }}>
               <Text style={{
                 color: 'white',
@@ -305,12 +291,17 @@ export class CacheContents extends React.Component {
               />
               <TouchableOpacity onPress={() => {
                 this.props.giveSnack();
-                this.props.addChip('Collected puffin snacks!');
+                this.props.addChip('Collected puffin snacks!', 'rgb(238,107,100)', 'snacks');
                 this.props.onClose();
               }} style={{
                 backgroundColor: 'white',
                 padding: 8,
                 borderRadius: 5,
+                shadowColor: '#5D0D0D',
+                shadowOpacity: 0.3,
+                shadowRadius: 6,
+                shadowOffset: {height: 2},
+                marginBottom: 40,
               }}>
                 <Text style={{
                   color: '#647033',
@@ -339,18 +330,17 @@ export class ItemScreen extends React.Component {
       <View style={{
         flex: 1,
         flexDirection: 'column',
+        marginTop: 20,
+        marginLeft: 20,
+        marginRight: 20,
+        borderRadius: 20,
+        borderBottomLeftRadius: 0,
+        borderBottomRightRadius: 0,
+        overflow: 'hidden',
       }}>
         <View style={{
-          backgroundColor: 'white',
           flex: 1,
-          alignItems: 'center',
         }}>
-          <Text style={{
-            margin: 15,
-            fontSize: 24,
-          }}>
-            {this.props.item.name}
-          </Text>
           <View style={{flexDirection: 'row', alignItems: 'stretch'}}>
             <CacheMedias
               medias={[this.props.item.media_id, this.props.item.media_id_2, this.props.item.media_id_3].filter(x => parseInt(x)).map(media_id =>
@@ -395,6 +385,14 @@ export class ItemScreen extends React.Component {
               }}
             />
           </View>
+          <Text style={{
+            marginLeft: 10,
+            marginTop: 15,
+            fontSize: 24,
+            fontWeight: 'bold',
+          }}>
+            {this.props.item.name}
+          </Text>
           <ScrollView style={{flex: 1, alignSelf: 'stretch', margin: 10}}>
             <FixedMarkdown text={this.props.item.description.replace(/\n/g, (m) => (m + m))} />
           </ScrollView>
@@ -405,12 +403,23 @@ export class ItemScreen extends React.Component {
                   this.props.onPickUp(this.props.trigger);
                   this.props.onClose();
                 }} style={{
-                  margin: 15,
-                  padding: 10,
-                  borderRadius: 10,
-                  fontSize: 20,
+                  backgroundColor: 'white',
+                  padding: 8,
+                  borderRadius: 5,
+                  shadowColor: '#5D0D0D',
+                  shadowOpacity: 0.3,
+                  shadowRadius: 6,
+                  shadowOffset: {height: 2},
+                  marginBottom: 20,
                 }}>
-                  <Text>Add to Field Notes</Text>
+                <Text style={{
+                  color: '#647033',
+                  fontSize: 20,
+                  fontWeight: 'bold',
+                  textTransform: 'uppercase',
+                }}>
+                  Add to Field Notes
+                </Text>
                 </TouchableOpacity>
               </View>
             ) : (

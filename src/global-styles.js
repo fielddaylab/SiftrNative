@@ -35,4 +35,14 @@ export const globalstyles = StyleSheet.create({
     height: 150 * 0.45,
   },
 
+  buttonMain: {
+    padding: 5,
+    borderRadius: 5,
+    backgroundColor: '#fff',
+    shadowColor: '#5D0D0D',
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    shadowOffset: {height: 2},
+  },
+
 });
