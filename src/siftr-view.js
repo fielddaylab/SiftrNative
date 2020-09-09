@@ -2673,32 +2673,64 @@ export const SiftrView = createClass({
   chipView: function(){
     return !!(this.state.chipMessages && this.state.chipMessages.length) && (
       <View style={{
-        backgroundColor: 'rgb(110,186,180)',
+        backgroundColor: this.state.chipMessages[0].color || 'rgb(110,186,180)',
         position: 'absolute',
         left: 0,
         right: 0,
         bottom: 0,
         padding: 15,
+        flexDirection: 'row',
       }}>
+        {
+          this.state.chipMessages[0].image === 'photos' ? (
+            <Image source={require('../web/assets/img/chip-photos.png')} style={{
+              width: 130,
+              height: 100,
+              margin: -15,
+              marginTop: -50,
+              resizeMode: 'contain',
+            }} />
+          ) : this.state.chipMessages[0].image === 'field-guide' ? (
+            <Image source={require('../web/assets/img/chip-field-guide.png')} style={{
+              width: 100,
+              height: 100,
+              marginTop: -50,
+              marginRight: 20,
+              resizeMode: 'contain',
+            }} />
+          ) : this.state.chipMessages[0].image === 'snacks' ? (
+            <Image source={require('../web/assets/img/puffin-snacks.png')} style={{
+              width: 100,
+              height: 100,
+              marginTop: -50,
+              marginRight: 20,
+              resizeMode: 'contain',
+            }} />
+          ) : null
+        }
         <Text style={{
           fontSize: 20,
           fontWeight: 'bold',
           color: '#FEFBDE',
+          flexWrap: 'wrap',
+          flex: 1,
+          textTransform: 'uppercase',
         }}>
-          {this.state.chipMessages[0]}
+          {this.state.chipMessages[0].message}
         </Text>
       </View>
     );
   },
-  addChip: function(message){
+  addChip: function(message, color, image){
+    const obj = {message, color, image};
     let queueWasEmpty = false;
     this.setState((prevState) => update(prevState, {
       chipMessages: (messages) => {
         if (messages && messages.length) {
-          return messages.concat([message]);
+          return messages.concat([obj]);
         } else {
           queueWasEmpty = true;
-          return [message];
+          return [obj];
         }
       },
     }), () => {
@@ -3087,12 +3119,13 @@ export const SiftrView = createClass({
                 }} style={{
                 }}>
                   <Image source={this.state.showStops
-                    ? require('../web/assets/img/stemports-zoom-in.png')
-                    : require('../web/assets/img/stemports-zoom-out.png')
+                    ? require('../web/assets/img/icon-returntoground.png')
+                    : require('../web/assets/img/icon-flight.png')
                   } style={{
-                    width: 35,
-                    height: 35,
-                    marginTop: 20,
+                    width: 75,
+                    height: 75,
+                    margin: -10,
+                    marginTop: 0,
                   }} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => {
@@ -3102,6 +3135,7 @@ export const SiftrView = createClass({
                   <Image source={require('../web/assets/img/stemports-compass.png')} style={{
                     width: 75,
                     height: 75,
+                    margin: -10,
                   }} />
                 </TouchableOpacity>
               </View>
@@ -3159,19 +3193,36 @@ export const SiftrView = createClass({
                     justifyContent: 'space-between',
                     alignItems: 'flex-end',
                   }}>
-                    <TouchableOpacity
-                      onPress={() => {
-                        this.pushModal({type: 'menu'});
-                      }}
-                    >
-                      <Image
-                        source={require('../web/assets/img/stemports-icon-home.png')}
-                        style={{
-                          width: 80,
-                          height: 80,
+                    <View style={{
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                    }}>
+                      {
+                        this.state.warp && (
+                          <Image
+                            source={require('../web/assets/img/icon-warp.png')}
+                            style={{
+                              width: 90,
+                              height: 90,
+                              margin: -5,
+                            }}
+                          />
+                        )
+                      }
+                      <TouchableOpacity
+                        onPress={() => {
+                          this.pushModal({type: 'menu'});
                         }}
-                      />
-                    </TouchableOpacity>
+                      >
+                        <Image
+                          source={require('../web/assets/img/stemports-icon-home.png')}
+                          style={{
+                            width: 80,
+                            height: 80,
+                          }}
+                        />
+                      </TouchableOpacity>
+                    </View>
                     {
                       // show if player has collected all this quest's remnants
                       this.areRemnantsComplete() && (
@@ -3460,7 +3511,7 @@ export const SiftrView = createClass({
                               giveSnack={() => {
                                 const new_inventory_zero = this.props.inventory_zero.map(inst => {
                                   if (inst.object_type === 'ITEM' && parseInt(inst.object_id) === PuffinSnacksID) {
-                                    return update(inst, {qty: (n) => n + 3});
+                                    return update(inst, {qty: (n) => parseInt(n) + 3});
                                   } else {
                                     return inst;
                                   }

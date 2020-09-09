@@ -167,65 +167,61 @@ export class CacheContents extends React.Component {
                   height: 644 * 0.5,
                   paddingTop: 40,
                 }}>
-                  <CacheMedia
-                    media_id={parseInt(this.props.item.icon_media_id) || parseInt(this.props.item.media_id)}
-                    auth={this.props.auth}
-                    online={true}
-                    withURL={(url) => (
-                      <Image
-                        source={url}
-                        style={{
-                          height: 150,
-                          width: 150,
-                          resizeMode: 'contain',
-                        }}
-                      />
-                    )}
-                  />
-                  <Text style={{
-                    margin: 10,
-                    textAlign: 'center',
-                    width: 100,
-                  }}>
-                    {this.props.item.name}
-                  </Text>
-                </ImageBackground>
-              </TouchableOpacity>
-              {
-                this.state.screen === 'note' && (
-                  <Modal
-                    transparent={true}
-                    animationType="slide"
-                    onRequestClose={this.checkPhoto.bind(this)}
-                  >
-                    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-                      <ItemScreen
-                        type="trigger"
-                        trigger={this.props.trigger}
-                        instance={this.props.instance}
-                        item={this.props.item}
-                        auth={this.props.auth}
-                        onClose={this.checkPhoto.bind(this)}
-                        onPickUp={(trigger) => {
-                          this.props.addChip('Added to field guide!');
-                          this.props.onPickUp(trigger);
-                        }}
-                      />
-                    </SafeAreaView>
-                  </Modal>
-                )
-              }
-            </View>
-          </ImageBackground>
+                  {this.props.item.name}
+                </Text>
+              </ImageBackground>
+            </TouchableOpacity>
+            {
+              this.state.screen === 'note' && (
+                <Modal
+                  transparent={true}
+                  animationType="slide"
+                  onRequestClose={this.checkPhoto.bind(this)}
+                >
+                  <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+                    <ItemScreen
+                      type="trigger"
+                      trigger={this.props.trigger}
+                      instance={this.props.instance}
+                      item={this.props.item}
+                      auth={this.props.auth}
+                      onClose={this.checkPhoto.bind(this)}
+                      onPickUp={(trigger) => {
+                        this.props.addChip('Added to field guide!', 'rgb(219,179,52)', 'field-guide');
+                        this.props.onPickUp(trigger);
+                      }}
+                    />
+                  </SafeAreaView>
+                </Modal>
+              )
+            }
+          </View>
         );
       case 'photo':
         return (
-          <ImageBackground source={require('../web/assets/img/cache-open-bg.jpg')} style={globalstyles.backgroundImage}>
-            <View style={{
-              flex: 1,
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'space-around',
+          <View style={{
+            flex: 1,
+            flexDirection: 'column',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            alignItems: 'center',
+            justifyContent: 'space-around',
+          }}>
+            <GuideLine
+              style={{
+                padding: 10,
+                alignSelf: 'stretch',
+              }}
+              text={"Hey I remember that! That's when I fell off the canoe and had to fly to shore."}
+              auth={this.props.auth}
+            />
+            <TouchableOpacity onPress={() => {
+              this.props.givePhoto(this.state.photo_id);
+              this.props.addChip('Added to photo album!', 'rgb(110,186,180)', 'photos');
+              this.setState({screen: 'snacks'});
+            }} style={{
+              backgroundColor: 'white',
+              padding: 8,
+              borderRadius: 5,
             }}>
               <GuideLine
                 style={{
@@ -259,12 +255,37 @@ export class CacheContents extends React.Component {
         );
       case 'snacks':
         return (
-          <ImageBackground source={require('../web/assets/img/cache-open-bg.jpg')} style={globalstyles.backgroundImage}>
-            <View style={{
-              flex: 1,
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'space-around',
+          <View style={{
+            flex: 1,
+            flexDirection: 'column',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            alignItems: 'center',
+            justifyContent: 'space-around',
+          }}>
+            <Text style={{
+              color: 'white',
+              fontSize: 25,
+              fontWeight: 'bold',
+              textTransform: 'uppercase',
+            }}>
+              Puffin snacks!
+            </Text>
+            <Image
+              source={require('../web/assets/img/puffin-snacks.png')}
+              style={{
+                width: 220,
+                height: 220,
+                resizeMode: 'contain',
+              }}
+            />
+            <TouchableOpacity onPress={() => {
+              this.props.giveSnack();
+              this.props.addChip('Collected puffin snacks!', 'rgb(238,107,100)', 'snacks');
+              this.props.onClose();
+            }} style={{
+              backgroundColor: 'white',
+              padding: 8,
+              borderRadius: 5,
             }}>
               <Text style={{
                 color: 'white',
