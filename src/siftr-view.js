@@ -2684,17 +2684,18 @@ export const SiftrView = createClass({
         {
           this.state.chipMessages[0].image === 'photos' ? (
             <Image source={require('../web/assets/img/chip-photos.png')} style={{
-              width: 100,
+              width: 130,
               height: 100,
+              margin: -15,
               marginTop: -50,
-              marginRight: 20,
               resizeMode: 'contain',
             }} />
           ) : this.state.chipMessages[0].image === 'field-guide' ? (
             <Image source={require('../web/assets/img/chip-field-guide.png')} style={{
-              width: 120,
+              width: 100,
               height: 100,
               marginTop: -50,
+              marginRight: 20,
               resizeMode: 'contain',
             }} />
           ) : this.state.chipMessages[0].image === 'snacks' ? (
