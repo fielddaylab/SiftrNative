@@ -327,7 +327,7 @@ export class ItemScreen extends React.Component {
 
   render() {
     return (
-      <View style={{
+      <ImageBackground source={require('../web/assets/img/paper-texture.jpg')} style={[globalstyles.backgroundImage, {
         flex: 1,
         flexDirection: 'column',
         marginTop: 20,
@@ -337,7 +337,8 @@ export class ItemScreen extends React.Component {
         borderBottomLeftRadius: 0,
         borderBottomRightRadius: 0,
         overflow: 'hidden',
-      }}>
+        backgroundColor: 'white',
+      }]}>
         <View style={{
           flex: 1,
         }}>
@@ -434,7 +435,7 @@ export class ItemScreen extends React.Component {
             )
           }
         </View>
-      </View>
+      </ImageBackground>
     );
   }
 };
