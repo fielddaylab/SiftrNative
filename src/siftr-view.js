@@ -3035,7 +3035,7 @@ export const SiftrView = createClass({
               />
               <View style={{
                 position: 'absolute',
-                top: 150,
+                top: 125,
                 right: -2,
                 backgroundColor: 'rgba(255,255,255,0.4)',
                 alignItems: 'center',
@@ -3103,6 +3103,7 @@ export const SiftrView = createClass({
                       <Text style={{
                         color: 'black',
                         fontSize: 11,
+                        fontWeight: 'bold',
                       }}>
                         give snack
                       </Text>
@@ -3122,10 +3123,11 @@ export const SiftrView = createClass({
                     ? require('../web/assets/img/icon-returntoground.png')
                     : require('../web/assets/img/icon-flight.png')
                   } style={{
-                    width: 75,
-                    height: 75,
+                    width: 90,
+                    height: 90,
                     margin: -10,
                     marginTop: 0,
+                    marginBottom: -25,
                   }} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => {
@@ -3133,8 +3135,8 @@ export const SiftrView = createClass({
                 }} style={{
                 }}>
                   <Image source={require('../web/assets/img/stemports-compass.png')} style={{
-                    width: 75,
-                    height: 75,
+                    width: 90,
+                    height: 90,
                     margin: -10,
                   }} />
                 </TouchableOpacity>
@@ -3202,9 +3204,9 @@ export const SiftrView = createClass({
                           <Image
                             source={require('../web/assets/img/icon-warp.png')}
                             style={{
-                              width: 90,
-                              height: 90,
-                              margin: -5,
+                              width: 70,
+                              height: 70,
+                              margin: -25,
                             }}
                           />
                         )
