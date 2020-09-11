@@ -1249,8 +1249,8 @@ export class GuideLine extends React.Component {
               zip: url,
             }}
             style={{
-              width: 120 * 0.6,
-              height: 172 * 0.6,
+              width: 120 * 0.7,
+              height: 172 * 0.7,
             }}
             autoPlay={true}
             scale={1}
@@ -1266,15 +1266,29 @@ export class GuideLine extends React.Component {
             flex: 1,
             backgroundColor: 'white',
             borderRadius: 5,
-            paddingTop: 3,
-            paddingBottom: 3,
-            paddingLeft: 7,
-            paddingRight: 7,
-            borderColor: 'black',
-            borderWidth: 1,
+            paddingTop: 15,
+            paddingBottom: 15,
+            paddingLeft: 17,
+            paddingRight: 15,
             alignItems: 'flex-start',
+            width: 120 * 0.5,
+            height: 'auto',
+            marginTop: 15,
           }}>
-            <Text>
+          <Image
+            source={require('../web/assets/img/text-triangle.png')}
+            style={{
+              position: 'absolute',
+              width: 28,
+              height: 28,
+              top: '50%',
+              right: -10,
+              marginBottom: -14,
+            }}
+          />
+            <Text style={{
+
+            }}>
               {this.state.text.slice(0, this.state.chars)}
             </Text>
             {
