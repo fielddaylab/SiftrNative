@@ -7,22 +7,23 @@ import {
 , TouchableOpacity
 , ScrollView
 , Image
+, ImageBackground
 } from 'react-native';
 import {
   FullWidthWebView
 , webViewBoilerplate
 } from './items';
 import {CacheMedia, CacheMedias} from './media';
-import {ItemScreen} from './items';
+import {ItemScreen, CacheContents} from './items';
 import {FixedMarkdown} from './styles';
 import {SquareImage, GalleryModal} from './note-view';
+import { globalstyles } from "./global-styles";
 
 export class PlaqueScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      checkedIn: false,
-      showingItem: null,
+      phase: 'start', // start, details, cache-closed, cache-open
     };
   }
 
@@ -32,27 +33,21 @@ export class PlaqueScreen extends React.Component {
     if (event_package_id) {
       events = this.props.events.filter(event => event.event_package_id === event_package_id);
     }
-    const notes = this.props.notes.filter(note => {
-      const trigger = this.props.getTriggerForNote(note);
-      if (!trigger) return;
-      return parseInt(trigger.cluster_id) === parseInt(this.props.trigger.trigger_id)
-    });
 
-    if (this.state.showingItem != null) {
-      const event = events[this.state.showingItem];
-      const item = this.props.items.find(item => parseInt(item.item_id) === parseInt(event.content_id));
+    if (this.state.phase === 'cache-open') {
       return (
-        <ItemScreen
-          type="inventory"
-          item={item}
+        <CacheContents
+          mode='tour-stop'
+          items={this.props.items}
+          events={events}
           auth={this.props.auth}
-          onClose={() => {
-            const nextItem = this.state.showingItem + 1;
-            if (nextItem >= events.length) {
-              this.props.onClose();
-            } else {
-              this.setState({showingItem: nextItem});
-            }
+          onClose={this.props.onClose}
+          addChip={this.props.addChip}
+          selectPhoto={this.props.selectPhoto}
+          givePhoto={this.props.givePhoto}
+          giveSnack={this.props.giveSnack}
+          onPickUp={(event) => {
+            this.props.onPickup([event]);
           }}
         />
       );
@@ -62,23 +57,33 @@ export class PlaqueScreen extends React.Component {
       log.event_type === 'VIEW_PLAQUE' && parseInt(log.content_id) === parseInt(this.props.instance.object_id)
     );
 
-    return (
-      <View style={{
-        flex: 1,
-        backgroundColor: 'rgb(149,169,153)',
-        flexDirection: 'column',
-      }}>
+    if (this.state.phase === 'details') {
+      return (
         <View style={{
-          backgroundColor: 'white',
           flex: 1,
-          alignItems: 'center',
+          backgroundColor: '#FFFDF8',
+          marginTop: 10,
+          marginLeft: 10,
+          marginRight: 10,
+          borderColor: 'rgb(85,61,43)',
+          borderTopWidth: 10,
+          borderLeftWidth: 10,
+          borderRightWidth: 10,
         }}>
-          <Text style={{
-            margin: 15,
-            fontSize: 24,
+          <View style={{
+            height: 10,
+            backgroundColor: 'rgb(194,184,158)',
+          }} />
+          <View style={{
+            padding: 10,
           }}>
-            {this.state.checkedIn ? 'Nice! You found:' : this.props.plaque.name}
-          </Text>
+            <Text style={{
+              fontSize: 24,
+              textAlign: 'center',
+            }}>
+              {this.props.plaque.name}
+            </Text>
+          </View>
           <View style={{flexDirection: 'row', alignItems: 'stretch'}}>
             <CacheMedias
               medias={[this.props.plaque.media_id, this.props.plaque.media_id_2, this.props.plaque.media_id_3].filter(x => parseInt(x)).map(media_id =>
@@ -123,89 +128,132 @@ export class PlaqueScreen extends React.Component {
               }}
             />
           </View>
-          {
-            this.state.checkedIn ? (
-              <ScrollView style={{flex: 1}}>
-                {
-                  events.map(event => {
-                    const item = this.props.items.find(item => parseInt(item.item_id) === parseInt(event.content_id));
-                    return (
-                      <Text key={event.event_id} style={{
-                        margin: 5,
-                        fontSize: 16,
-                        fontWeight: 'bold',
-                        textAlign: 'center',
-                      }}>{
-                        event.event === 'GIVE_ITEM' ? (
-                          parseInt(event.qty) === 1
-                            ? `${item ? item.name : '???'}`
-                            : `${event.qty} x ${item ? item.name : '???'}`
-                        ) : JSON.stringify(event)
-                      }</Text>
-                    );
-                  })
-                }
-              </ScrollView>
-            ) : (
-              <ScrollView style={{flex: 1, alignSelf: 'stretch', margin: 10}}>
-                <FixedMarkdown text={this.props.plaque.description} />
-              </ScrollView>
-            )
-          }
-          <View>
+          <ScrollView style={{flex: 1, alignSelf: 'stretch', margin: 10}}>
+            <FixedMarkdown text={this.props.plaque.description} />
+          </ScrollView>
+          <View style={globalstyles.closeContainer} pointerEvents="box-none">
             <TouchableOpacity onPress={() => {
-              if (this.state.checkedIn) {
-                if (events.length === 0) {
-                  this.props.onClose();
-                } else {
-                  this.props.onPickup(events);
-                  this.setState({showingItem: 0});
-                }
-              } else if (hasCheckinLog) {
+              if (hasCheckinLog) {
                 this.props.onClose();
               } else {
                 this.props.onCheckin();
                 if (events.length === 0) {
                   this.props.onClose();
                 } else {
-                  this.setState({checkedIn: true});
+                  this.setState({phase: 'cache-closed'});
                 }
               }
-            }} style={{
-              margin: 25,
-              backgroundColor: 'rgb(101,88,245)',
-              padding: 10,
-              borderRadius: 6,
-              marginBottom: 35,
-              textAlign: 'center',
-              paddingLeft: 30,
-              paddingRight: 30,
             }}>
-              <Text style={{color: 'white'}}>
+              <Image
+                style={globalstyles.closeButton}
+                source={require("../web/assets/img/quest-close.png")}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      )
+    }
+
+    return (
+      <ImageBackground source={require('../web/assets/img/tour-stop.png')} style={{
+        backgroundColor: 'white',
+        flex: 1,
+        alignItems: 'center',
+      }} imageStyle={{
+        resizeMode: 'stretch',
+      }}>
+        <View style={{
+          width: `${((803 - 135) / 910) * 100}%`,
+          height: `${((306 - 135) / 1624) * 100}%`,
+          left: `${(135 / 910) * 100}%`,
+          top: `${(135 / 1624) * 100}%`,
+          position: 'absolute',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <Text style={{
+            fontSize: 24,
+          }}>
+            {this.props.plaque.name}
+          </Text>
+        </View>
+        <CacheMedias
+          medias={[this.props.plaque.media_id].filter(x => parseInt(x)).map(media_id =>
+            ({media_id: media_id, auth: this.props.auth, online: true})
+          )}
+          withURLs={(urls) => {
+            const url = urls[0];
+            return (
+              <Image
+                source={url}
+                style={{
+                  width: `${(420 / 910) * 100}%`,
+                  height: `${(420 / 1624) * 100}%`,
+                  left: `${(246 / 910) * 100}%`,
+                  top: `${(435 / 1624) * 100}%`,
+                  position: 'absolute',
+                  resizeMode: 'contain',
+                }}
+              />
+            );
+          }}
+        />
+        {
+          this.state.phase === 'start' && (
+            <TouchableOpacity onPress={() => {
+              this.setState({phase: 'details'});
+            }} style={{
+              backgroundColor: 'white',
+              padding: 8,
+              borderRadius: 5,
+              position: 'absolute',
+              bottom: '20%',
+            }}>
+              <Text style={{
+                color: '#647033',
+                fontWeight: 'bold',
+                fontSize: 20,
+                textTransform: 'uppercase',
+              }}>
                 {
-                  this.state.checkedIn ? (events.length === 0 ? 'Close' : 'Collect Field Notes')
-                    : hasCheckinLog ? 'Close' : 'Check in'
+                  hasCheckinLog ? 'View' : 'Check in'
                 }
               </Text>
             </TouchableOpacity>
-          </View>
-          {
-            notes.length > 0 && (
-              <View>
-                {
-                  notes.map(note =>
-                    <TouchableOpacity key={note.note_id} onPress={() =>
-                      this.props.onSelectNote(note)
-                    } style={{padding: 5}}>
-                      <Text>Note by {note.user.display_name}</Text>
-                    </TouchableOpacity>
-                  )
-                }
-              </View>
-            )
-          }
-        </View>
-      </View>
+          )
+        }
+        {
+          this.state.phase === 'cache-closed' ? (
+            <TouchableOpacity onPress={() => {
+              this.setState({phase: 'cache-open'});
+            }} style={{
+              width: '80%',
+              height: '30%',
+              left: '10%',
+              top: '60%',
+              position: 'absolute',
+            }}>
+              <Image source={require('../web/assets/img/tour-stop-cache.png')} style={{
+                width: '100%',
+                height: '100%',
+                left: 0,
+                top: 0,
+                position: 'absolute',
+                resizeMode: 'contain',
+              }} />
+            </TouchableOpacity>
+          ) : (
+            <View style={globalstyles.closeContainer} pointerEvents="box-none">
+              <TouchableOpacity onPress={this.props.onClose}>
+                <Image
+                  style={globalstyles.closeButton}
+                  source={require("../web/assets/img/quest-close.png")}
+                />
+              </TouchableOpacity>
+            </View>
+          )
+        }
+      </ImageBackground>
     );
   }
 }

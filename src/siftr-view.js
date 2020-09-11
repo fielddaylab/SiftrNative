@@ -2759,6 +2759,37 @@ export const SiftrView = createClass({
     }, 3000);
   },
 
+  // stuff for cache and tour stop
+  selectPhoto: function(){
+    return PhotoItemIDs.find(photo_id =>
+      this.props.inventory_zero.some(inst =>
+        inst.object_type === 'ITEM'
+          && parseInt(inst.object_id) === photo_id
+          && parseInt(inst.qty) === 0
+      )
+    );
+  },
+  givePhoto: function(photo_id){
+    const new_inventory_zero = this.props.inventory_zero.map(inst => {
+      if (inst.object_type === 'ITEM' && parseInt(inst.object_id) === photo_id) {
+        return update(inst, {qty: {$set: 1}});
+      } else {
+        return inst;
+      }
+    });
+    this.props.saveInventoryZero(new_inventory_zero);
+  },
+  giveSnack: function(){
+    const new_inventory_zero = this.props.inventory_zero.map(inst => {
+      if (inst.object_type === 'ITEM' && parseInt(inst.object_id) === PuffinSnacksID) {
+        return update(inst, {qty: (n) => parseInt(n) + 3});
+      } else {
+        return inst;
+      }
+    });
+    this.props.saveInventoryZero(new_inventory_zero);
+  },
+
   render: function() {
     var hasOptions, ref2, ref3, ref4;
     if (this.state.settingsInViola) {
@@ -3472,6 +3503,10 @@ export const SiftrView = createClass({
                               this.saveInventory(); // save pickups
                             });
                           }}
+                          addChip={this.addChip/*.bind(this)*/}
+                          selectPhoto={this.selectPhoto/*.bind(this)*/}
+                          givePhoto={this.givePhoto/*.bind(this)*/}
+                          giveSnack={this.giveSnack/*.bind(this)*/}
                         />
                       );
                     } else if (modal.instance.object_type === 'ITEM') {
@@ -3489,35 +3524,9 @@ export const SiftrView = createClass({
                               auth={this.props.auth}
                               onClose={this.popModal/*.bind(this)*/}
                               addChip={this.addChip/*.bind(this)*/}
-                              selectPhoto={() => {
-                                return PhotoItemIDs.find(photo_id =>
-                                  this.props.inventory_zero.some(inst =>
-                                    inst.object_type === 'ITEM'
-                                      && parseInt(inst.object_id) === photo_id
-                                      && parseInt(inst.qty) === 0
-                                  )
-                                );
-                              }}
-                              givePhoto={(photo_id) => {
-                                const new_inventory_zero = this.props.inventory_zero.map(inst => {
-                                  if (inst.object_type === 'ITEM' && parseInt(inst.object_id) === photo_id) {
-                                    return update(inst, {qty: {$set: 1}});
-                                  } else {
-                                    return inst;
-                                  }
-                                });
-                                this.props.saveInventoryZero(new_inventory_zero);
-                              }}
-                              giveSnack={() => {
-                                const new_inventory_zero = this.props.inventory_zero.map(inst => {
-                                  if (inst.object_type === 'ITEM' && parseInt(inst.object_id) === PuffinSnacksID) {
-                                    return update(inst, {qty: (n) => parseInt(n) + 3});
-                                  } else {
-                                    return inst;
-                                  }
-                                });
-                                this.props.saveInventoryZero(new_inventory_zero);
-                              }}
+                              selectPhoto={this.selectPhoto/*.bind(this)*/}
+                              givePhoto={this.givePhoto/*.bind(this)*/}
+                              giveSnack={this.giveSnack/*.bind(this)*/}
                               onPickUp={(trigger) => {
                                 this.setState(state => {
                                   if (!state.guideMentionedRemnant) {

@@ -78,12 +78,18 @@ export class CacheContents extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      screen: 'closed',
+      screen: this.props.mode === 'tour-stop' ? 'open' : 'closed',
       // screen goes: 'closed', 'open', 'note', 'photo' (optional), 'snacks'
+      eventIndex: 0,
     };
   }
 
-  checkPhoto() {
+  toNoteNextStep() {
+    if (this.props.mode === 'tour-stop' && this.state.eventIndex < this.props.events.length - 1) {
+      this.setState({screen: 'open', eventIndex: this.state.eventIndex + 1});
+      return;
+    }
+
     const photo_id = this.props.selectPhoto();
     if (photo_id) {
       this.setState({screen: 'photo', photo_id: photo_id});
@@ -93,6 +99,14 @@ export class CacheContents extends React.Component {
   }
 
   render() {
+    let currentItem = this.props.item;
+    let currentTriggerEvent = this.props.trigger;
+    if (this.props.mode === 'tour-stop') {
+      const event = this.props.events[this.state.eventIndex];
+      currentItem = this.props.items.find(item => parseInt(item.item_id) === parseInt(event.content_id));
+      currentTriggerEvent = event;
+    }
+
     switch (this.state.screen) {
       case 'closed':
         return (
@@ -172,7 +186,7 @@ export class CacheContents extends React.Component {
                   paddingTop: 40,
                 }}>
                   <CacheMedia
-                    media_id={parseInt(this.props.item.icon_media_id) || parseInt(this.props.item.media_id)}
+                    media_id={parseInt(currentItem.icon_media_id) || parseInt(currentItem.media_id)}
                     auth={this.props.auth}
                     online={true}
                     withURL={(url) => (
@@ -191,7 +205,7 @@ export class CacheContents extends React.Component {
                     textAlign: 'center',
                     width: 100,
                   }}>
-                    {this.props.item.name}
+                    {currentItem.name}
                   </Text>
                 </ImageBackground>
               </TouchableOpacity>
@@ -200,20 +214,19 @@ export class CacheContents extends React.Component {
                   <Modal
                     transparent={true}
                     animationType="slide"
-                    onRequestClose={this.checkPhoto.bind(this)}
+                    onRequestClose={this.toNoteNextStep.bind(this)}
                   >
                     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
                       <ItemScreen
                         animationType="slide"
                         type="trigger"
-                        trigger={this.props.trigger}
-                        instance={this.props.instance}
-                        item={this.props.item}
+                        trigger={currentTriggerEvent}
+                        item={currentItem}
                         auth={this.props.auth}
-                        onClose={this.checkPhoto.bind(this)}
-                        onPickUp={(trigger) => {
+                        onClose={this.toNoteNextStep.bind(this)}
+                        onPickUp={(triggerEvent) => {
                           this.props.addChip('Added to field guide!', 'rgb(219,179,52)', 'field-guide');
-                          this.props.onPickUp(trigger);
+                          this.props.onPickUp(triggerEvent);
                         }}
                       />
                     </SafeAreaView>
