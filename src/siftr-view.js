@@ -43,6 +43,7 @@ import {evalReqPackage} from './requirements';
 import {GuideLine} from './stemports-picker';
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
 import { StemportsPicker } from "./stemports-picker";
+import { ComicView } from './stemports-player';
 
 import { fitBounds } from "google-map-react/utils";
 
@@ -754,7 +755,7 @@ export const SiftrView = createClass({
       mainView: "map", // 'hybrid', 'map', 'thumbs'
       infoOpen: false,
       primaryMenuOpen: false,
-      modals: [{type: 'menu'}],
+      modals: [],
       logs: this.props.logs,
       inventory: this.props.inventory,
       factoryObjects: [],
@@ -3315,8 +3316,27 @@ export const SiftrView = createClass({
                         onExitQuest={hasMore => {
                           this.props.onExitQuest(hasMore);
                         }}
-                        onClose={this.popModal/*.bind(this)*/}
+                        onClose={() => {
+                          if (parseInt(this.props.game.game_id) === 100058) {
+                            this.queueModal({type: 'quest-complete-comic'});
+                          }
+                          this.popModal();
+                        }}
                         auth={this.props.auth}
+                      />
+                    );
+                  } else if (modal.type === 'quest-complete-comic') {
+                    return (
+                      <ComicView
+                        onClose={this.popModal/*.bind(this)*/}
+                        pages={[
+                          require('../web/assets/img/comic-tutorial/6.1.png'),
+                          require('../web/assets/img/comic-tutorial/6.2.png'),
+                          require('../web/assets/img/comic-tutorial/6.3.png'),
+                          require('../web/assets/img/comic-tutorial/6.4.png'),
+                          require('../web/assets/img/comic-tutorial/6.5.png'),
+                          require('../web/assets/img/comic-tutorial/6.6.png'),
+                        ]}
                       />
                     );
                   } else if (modal.type === 'subquest-complete') {
@@ -3388,6 +3408,16 @@ export const SiftrView = createClass({
                           {modal.message}
                         </Text>
                       </GenericModal>
+                    );
+                  } else if (modal.type === 'cache-comic') {
+                    return (
+                      <ComicView
+                        onClose={this.popModal/*.bind(this)*/}
+                        pages={[
+                          require('../web/assets/img/comic-tutorial/5.1.png'),
+                          require('../web/assets/img/comic-tutorial/5.2.png'),
+                        ]}
+                      />
                     );
                   } else if (modal.type === 'menu') {
                     return (
@@ -3531,10 +3561,10 @@ export const SiftrView = createClass({
                               giveSnack={this.giveSnack/*.bind(this)*/}
                               onPickUp={(trigger) => {
                                 this.setState(state => {
-                                  if (!state.guideMentionedRemnant) {
-                                    // setTimeout(() => (
-                                    //   this.queueModal({type: 'generic', message: 'You picked up a field note!'})
-                                    // ), 0);
+                                  if (!state.guideMentionedRemnant && parseInt(this.props.game.game_id) === 100058) {
+                                    setTimeout(() => (
+                                      this.queueModal({type: 'cache-comic'})
+                                    ), 0);
                                   }
                                   return update(state, {
                                     pickedUpRemnants: {

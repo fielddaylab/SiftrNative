@@ -116,15 +116,6 @@ export class StemportsPlayer extends React.Component {
   }
 
   render() {
-    if (this.state.viewingComic != null) {
-      return (
-        <ComicView
-          startPage={this.state.viewingComic}
-          onClose={() => this.setState({viewingComic: null})}
-          closeButton={true}
-        />
-      );
-    }
     if (this.state.viewingPhoto != null) {
       return (
         <PhotoView
@@ -443,29 +434,6 @@ export class StemportsPlayer extends React.Component {
                 })
               }
             </View>
-            <Text style={{padding: 30, fontSize: 20, fontWeight: 'bold'}}>Story Panels</Text>
-            <View style={{
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-              flexDirection: 'row',
-            }}>
-              {
-                ComicPages.map((page, i) =>
-                  <TouchableOpacity key={i} style={{
-                    margin: 10,
-                  }} onPress={() => this.setState({viewingComic: i})}>
-                    <Image
-                      style={{
-                        width: 80,
-                        height: 100,
-                        resizeMode: 'contain',
-                      }}
-                      source={page}
-                    />
-                  </TouchableOpacity>
-                )
-              }
-            </View>
           </ScrollView>
           <View style={globalstyles.closeContainer} pointerEvents="box-none">
             <TouchableOpacity onPress={this.props.onClose}>
@@ -481,23 +449,6 @@ export class StemportsPlayer extends React.Component {
   }
 }
 
-const ComicPages = [
-  require('../web/assets/img/comic/01.jpg'),
-  require('../web/assets/img/comic/02.jpg'),
-  require('../web/assets/img/comic/03.jpg'),
-  require('../web/assets/img/comic/04.jpg'),
-  require('../web/assets/img/comic/05.jpg'),
-  require('../web/assets/img/comic/06.jpg'),
-  require('../web/assets/img/comic/07.jpg'),
-  require('../web/assets/img/comic/08.jpg'),
-  require('../web/assets/img/comic/09.jpg'),
-  require('../web/assets/img/comic/10.jpg'),
-  require('../web/assets/img/comic/11.jpg'),
-  require('../web/assets/img/comic/12.jpg'),
-  require('../web/assets/img/comic/13.jpg'),
-  require('../web/assets/img/comic/14.jpg'),
-];
-
 export class ComicView extends React.Component {
   constructor(props) {
     super(props);
@@ -510,13 +461,13 @@ export class ComicView extends React.Component {
     return (
       <View style={{flex: 1, backgroundColor: 'white'}}>
         <TouchableOpacity onPress={() => {
-          if (this.state.page >= ComicPages.length - 1) {
+          if (this.state.page >= this.props.pages.length - 1) {
             this.props.onClose();
           } else {
             this.setState(prevState => {
               const newPage = prevState.page + 1;
-              if (newPage > ComicPages.length) {
-                newPage = ComicPages.length - 1;
+              if (newPage > this.props.pages.length) {
+                newPage = this.props.pages.length - 1;
               }
               return update(prevState, {page: {$set: newPage}});
             });
@@ -528,7 +479,7 @@ export class ComicView extends React.Component {
         }}>
           <Image
             style={{flex: 1, resizeMode: 'contain'}}
-            source={ComicPages[this.state.page]}
+            source={this.props.pages[this.state.page]}
           />
         </TouchableOpacity>
         {

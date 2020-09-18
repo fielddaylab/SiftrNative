@@ -442,13 +442,14 @@ export class StemportsPicker extends React.Component {
               content_id: quest.quest_id,
               qty: needObservations,
             }))
-            let prompt = `Now you are ready to make ${needObservations} observations of your own to complete the quest. Use the plus button to make an observation!`;
+            const plural = needObservations === 1 ? 'an observation' : `${needObservations} observations`
+            let prompt = `Now you are ready to make ${plural} of your own to complete the quest. Use the plus button to make an observation!`;
             if (quest.prompt) prompt = quest.prompt;
             addTo(new_quests, quest_id => ({
               quest_id: quest_id,
               game_id: game.game_id,
               name: 'Observe',
-              description: `Make ${needObservations} observations with ${quest.name} field notes.`,
+              description: `Make ${plural} with ${quest.name} field notes.`,
               prompt: prompt,
               stars: 0,
               quest_type: 'QUEST',
@@ -655,7 +656,7 @@ export class StemportsPicker extends React.Component {
                 object_id: opt.remnant_id,
                 seconds_per_production: 10,
                 production_probability: 1,
-                max_production: 2,
+                max_production: 1,
                 produce_expiration_time: 60,
                 produce_expire_on_view: 1,
                 production_bound_type: 'PER_PLAYER',
@@ -759,7 +760,6 @@ export class StemportsPicker extends React.Component {
   }
 
   render() {
-    let puffinHi = false;
     if (this.props.viewComic) {
       if (this.state.introSequence === 'welcome') {
         return (
@@ -786,7 +786,7 @@ export class StemportsPicker extends React.Component {
                 Be mindful of your surroundings
               </Text>
             </View>
-            <TouchableOpacity onPress={() => this.setState({introSequence: 'puffin-hi'})} style={{
+            <TouchableOpacity onPress={() => this.setState({introSequence: 'comic1'})} style={{
               backgroundColor: 'rgb(101,88,245)',
               padding: 10,
               borderRadius: 5,
@@ -802,15 +802,116 @@ export class StemportsPicker extends React.Component {
                 Start
               </Text>
             </TouchableOpacity>
+            <TouchableOpacity onPress={this.props.onSkipTutorial} style={{
+              backgroundColor: 'rgb(101,88,245)',
+              padding: 10,
+              borderRadius: 5,
+              marginTop: 10,
+              marginBottom: 10,
+              paddingLeft: 15,
+              paddingRight: 15,
+            }}>
+              <Text style={{
+                color: 'white',
+                fontSize: 18,
+              }}>
+                Skip Tutorial
+              </Text>
+            </TouchableOpacity>
           </View>
         );
-      } else if (this.state.introSequence === 'puffin-hi') {
-        // show map but have special puffin button for comic, and nothing else to click
-        puffinHi = true;
-      } else {
+      } else if (this.state.introSequence === 'comic1') {
         return (
           <ComicView
-            onClose={this.props.onCloseComic}
+            pages={[
+              require('../web/assets/img/comic-tutorial/1.1.png'),
+              require('../web/assets/img/comic-tutorial/1.2.png'),
+              require('../web/assets/img/comic-tutorial/1.3.png'),
+              require('../web/assets/img/comic-tutorial/1.4.png'),
+              require('../web/assets/img/comic-tutorial/1.5.png'),
+              require('../web/assets/img/comic-tutorial/1.6.png'),
+              require('../web/assets/img/comic-tutorial/1.7.png'),
+              require('../web/assets/img/comic-tutorial/1.8.png'),
+              require('../web/assets/img/comic-tutorial/1.9.png'),
+              require('../web/assets/img/comic-tutorial/1.10.png'),
+              require('../web/assets/img/comic-tutorial/1.11.png'),
+            ]}
+            onClose={() => this.setState({introSequence: 'invitation'})}
+          />
+        );
+      } else if (this.state.introSequence === 'comic2') {
+        return (
+          <ComicView
+            pages={[
+              require('../web/assets/img/comic-tutorial/2.1.png'),
+              require('../web/assets/img/comic-tutorial/2.2.png'),
+              require('../web/assets/img/comic-tutorial/2.3.png'),
+              require('../web/assets/img/comic-tutorial/2.4.png'),
+              require('../web/assets/img/comic-tutorial/2.5.png'),
+              require('../web/assets/img/comic-tutorial/2.6.png'),
+            ]}
+            onClose={() => this.setState({introSequence: 'station'})}
+          />
+        );
+      } else if (this.state.introSequence === 'comic3') {
+        return (
+          <ComicView
+            pages={[
+              require('../web/assets/img/comic-tutorial/3.1.png'),
+              require('../web/assets/img/comic-tutorial/3.2.png'),
+              require('../web/assets/img/comic-tutorial/3.3.png'),
+              require('../web/assets/img/comic-tutorial/3.4.png'),
+              require('../web/assets/img/comic-tutorial/3.5.png'),
+              require('../web/assets/img/comic-tutorial/3.6.png'),
+              require('../web/assets/img/comic-tutorial/3.7.png'),
+            ]}
+            onClose={() => this.setState({introSequence: 'quests'})}
+          />
+        );
+      } else if (this.state.introSequence === 'quests') {
+        return (
+          <StemportsOutpost
+            game={{
+              game_id: 'tutorial',
+              name: 'Curious Quest Club',
+            }}
+            obj={{
+              offline: {
+                quests: [{
+                  quest_id: 'tutorial',
+                  name: 'Your First Quest',
+                }],
+              },
+            }}
+            auth={this.props.auth}
+            onSync={() => null}
+            onUpload={() => null}
+            onDownload={() => null}
+            onClose={() => null}
+            onSelect={() => this.setState({introSequence: 'comic4'})}
+            canSync={!this.state.syncing}
+            downloadingGame={this.state.downloadingGame}
+          />
+        );
+      } else if (this.state.introSequence === 'comic4') {
+        return (
+          <ComicView
+            pages={[
+              require('../web/assets/img/comic-tutorial/4.1.png'),
+              require('../web/assets/img/comic-tutorial/4.2.png'),
+              require('../web/assets/img/comic-tutorial/4.3.png'),
+            ]}
+            onClose={() => {
+              this.initializeGame({game_id: 100058}).then(() => {
+                this.props.onSelect({
+                  game_id: 100058,
+                  name: 'Curious Quest Club',
+                }, {
+                  quest_id: 17928,
+                  name: 'Tutorial',
+                });
+              });
+            }}
           />
         );
       }
@@ -902,6 +1003,11 @@ export class StemportsPicker extends React.Component {
                 game={o.game}
                 onSelect={this.props.onSelect}
                 downloaded={true}
+                key={o.game.game_id}
+                obj={o}
+                game={o.game}
+                onSelect={this.props.onSelect}
+                downloaded={true}
               />
             )
           }
@@ -971,7 +1077,7 @@ export class StemportsPicker extends React.Component {
                 followZoomLevel={22}
               />
               {
-                !puffinHi && gameList.map(o =>
+                !this.props.viewComic && gameList.map(o =>
                   <MapboxGL.PointAnnotation
                     id={'' + o.game.game_id}
                     key={o.game.game_id}
@@ -979,6 +1085,56 @@ export class StemportsPicker extends React.Component {
                     title={o.game.name}
                     anchor={{x: 0.5, y: 0.5}}
                     onSelected={() => this.setState({gameModal: o})}
+                  >
+                    <View>
+                      <Image
+                        source={require('../web/assets/img/stemports-icon-station.png')}
+                        style={{
+                          width: 136 * 0.5,
+                          height: 128 * 0.5,
+                        }}
+                      />
+                    </View>
+                  </MapboxGL.PointAnnotation>
+                )
+              }
+              {
+                this.props.viewComic && this.state.introSequence === 'invitation' && (
+                  <MapboxGL.PointAnnotation
+                    id="invitation"
+                    key="invitation"
+                    coordinate={(this.props.location && [
+                      parseFloat(this.props.location.coords.longitude),
+                      parseFloat(this.props.location.coords.latitude),
+                    ])}
+                    title="Invitation"
+                    anchor={{x: 0.5, y: 0.5}}
+                    onSelected={() => this.setState({introSequence: 'comic2'})}
+                  >
+                    <View>
+                      <Image
+                        source={require('../web/assets/img/icon-chest.png')}
+                        style={{
+                          width: 92 * 0.5,
+                          height: 76 * 0.5,
+                        }}
+                      />
+                    </View>
+                  </MapboxGL.PointAnnotation>
+                )
+              }
+              {
+                this.props.viewComic && this.state.introSequence === 'station' && (
+                  <MapboxGL.PointAnnotation
+                    id="intro-station"
+                    key="intro-station"
+                    coordinate={(this.props.location && [
+                      parseFloat(this.props.location.coords.longitude),
+                      parseFloat(this.props.location.coords.latitude),
+                    ])}
+                    title="Curious Quest Club"
+                    anchor={{x: 0.5, y: 0.5}}
+                    onSelected={() => this.setState({introSequence: 'comic3'})}
                   >
                     <View>
                       <Image
@@ -1000,35 +1156,33 @@ export class StemportsPicker extends React.Component {
               />
             </MapboxGL.MapView>
 
-            <GuideLine
-              style={{
-                flexDirection: 'column',
-                alignItems: 'stretch',
-                position: 'absolute',
-                top: 10,
-                left: 10,
-                right: 10,
-              }}
-              text={puffinHi
-                ? "Hi there, I'm Puff. My friend sent me to help you on your journey. Looks like I found you just in time!"
-                : atStation
-                ? `It looks like you're near the ${atStation.game.name} Research Station. Tap the station to start a quest!`
-                : "Find a Research Station to start a quest!"
-              }
-              button={puffinHi
-                ? { label: 'View Story'
-                  , onPress: (() => this.setState({introSequence: 'comic'}))
-                  }
-                : atStation
-                ? undefined
-                : { label: 'Find Research Station'
-                  , onPress: (() => this.setState({listFromMap: true}))
-                  }
-              }
-              auth={this.props.auth}
-            />
             {
-              !puffinHi && (
+              !this.props.viewComic && (
+                <GuideLine
+                  style={{
+                    flexDirection: 'column',
+                    alignItems: 'stretch',
+                    position: 'absolute',
+                    top: 10,
+                    left: 10,
+                    right: 10,
+                  }}
+                  text={atStation
+                    ? `It looks like you're near the ${atStation.game.name} Research Station. Tap the station to start a quest!`
+                    : "Find a Research Station to start a quest!"
+                  }
+                  button={atStation
+                    ? undefined
+                    : { label: 'Find Research Station'
+                      , onPress: (() => this.setState({listFromMap: true}))
+                      }
+                  }
+                  auth={this.props.auth}
+                />
+              )
+            }
+            {
+              !this.props.viewComic && (
                 <View pointerEvents="box-none" style={{
                   flexDirection: 'row',
                   justifyContent: 'flex-start',

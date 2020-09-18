@@ -57,7 +57,7 @@ export var SiftrNative = createClass({
       online: true,
       screen: null,
       recent: null,
-      viewingComic: false,
+      inTutorial: false,
       seenWizardForQuestIDs: [],
     };
   },
@@ -71,9 +71,10 @@ export var SiftrNative = createClass({
 
   componentDidMount: function() {
     RNFS.readFile(seenComic, 'utf8').then(() => {
+      // this.setState({inTutorial: true});
       // do nothing
     }).catch((err) => {
-      this.setState({viewingComic: true});
+      this.setState({inTutorial: true});
     })
     RNFS.readFile(seenWizard, 'utf8').then((s) => {
       const res = JSON.parse(s);
@@ -621,18 +622,20 @@ export var SiftrNative = createClass({
                 <StemportsPicker
                   auth={this.state.auth}
                   onLogout={this.logout}
-                  onSelect={(game, quest) =>
+                  onSelect={(game, quest) => {
+                    this.setState({inTutorial: false});
+                    RNFS.writeFile(seenComic, 'true', 'utf8');
                     this.loadGamePosition(game, {quest: quest})
-                  }
+                  }}
                   online={this.state.online}
                   onChangePassword={this.changePassword}
                   onEditProfile={this.editProfile}
                   queueMessage={this.state.queueMessage}
                   location={this.state.location}
                   launchCurrentQuest={!this.state.didFinish}
-                  viewComic={this.state.viewingComic}
-                  onCloseComic={() => {
-                    this.setState({viewingComic: false});
+                  viewComic={this.state.inTutorial}
+                  onSkipTutorial={() => {
+                    this.setState({inTutorial: false});
                     RNFS.writeFile(seenComic, 'true', 'utf8');
                   }}
                   currentStation={this.state.reopenStation}
