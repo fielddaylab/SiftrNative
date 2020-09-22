@@ -906,6 +906,9 @@ export class StemportsPicker extends React.Component {
                 this.props.onSelect({
                   game_id: 100058,
                   name: 'Curious Quest Club',
+                  latitude: this.props.location.coords.latitude,
+                  longitude: this.props.location.coords.longitude,
+                  newFormat: true,
                 }, {
                   quest_id: 17928,
                   name: 'Tutorial',

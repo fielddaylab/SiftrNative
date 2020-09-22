@@ -764,6 +764,7 @@ export const SiftrView = createClass({
       guideLine: null,
       guideMentionedRemnant: false,
       guideMentionedXP: false,
+      warp: parseInt(this.props.game.game_id) === 100058,
     };
   },
   getAllNotes: function(cb) {

@@ -322,16 +322,23 @@ export class SiftrMap extends React.Component {
         minZoomLevel: 0,
         animationDuration: 300,
       });
-    } else if (this.props.warp && !this.props.showStops && this.theMapCamera) {
-      this.theMapCamera.setCamera({
-        centerCoordinate: [
-          parseFloat(this.props.location.coords.longitude),
-          parseFloat(this.props.location.coords.latitude),
-        ],
-        pitch: 60,
-        zoomLevel: prevProps.showStops ? 22 : undefined,
-        animationDuration: 300,
-      });
+    } else if (this.props.warp && !this.props.showStops) {
+      const tryWarp = () => {
+        if (this.theMapCamera) {
+          this.theMapCamera.setCamera({
+            centerCoordinate: [
+              parseFloat(this.props.location.coords.longitude),
+              parseFloat(this.props.location.coords.latitude),
+            ],
+            pitch: 60,
+            zoomLevel: prevProps.showStops ? 22 : undefined,
+            animationDuration: 300,
+          });
+        } else {
+          setTimeout(tryWarp, 100);
+        }
+      };
+      tryWarp();
     }
   }
 
