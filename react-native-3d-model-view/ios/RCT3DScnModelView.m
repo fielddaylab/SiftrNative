@@ -22,7 +22,7 @@
         ambientLightNode.castsShadow = YES;
         [_sceneView.scene.rootNode addChildNode:ambientLightNode];
         
-        _sceneView.allowsCameraControl = YES;
+        _sceneView.allowsCameraControl = NO; // MT: changed from YES
         _sceneView.scene = scene;
         _sceneView.delegate = self;
         [self addSubview:_sceneView];
@@ -81,6 +81,17 @@
     if (self.onAnimationUpdate) {
         self.onAnimationUpdate(@{@"progress":[NSNumber numberWithFloat:fmod(_sceneTime, self.animationDuration) / self.animationDuration]});
     }
+}
+
+-(void) setCameraPosition:(SCNVector3)position lookAt:(SCNVector3)target {
+    NSLog(@"mtcamera (%f %f %f) look at (%f %f %f)", position.x, position.y, position.z, target.x, target.y, target.z);
+    [super setCameraPosition:position lookAt:target];
+    SCNCamera *camera = [SCNCamera new];
+    SCNNode *cameraNode = [SCNNode new];
+    cameraNode.camera = camera;
+    cameraNode.position = position;
+    [cameraNode lookAt:target];
+    _sceneView.pointOfView = cameraNode;
 }
 
 -(void) renderer:(id<SCNSceneRenderer>)renderer updateAtTime:(NSTimeInterval)time {

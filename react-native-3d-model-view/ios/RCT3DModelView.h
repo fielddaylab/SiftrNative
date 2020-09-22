@@ -26,4 +26,5 @@
 - (void)startAnimation;
 - (void)stopAnimation;
 - (void)setProgress:(float)progress;
+- (void)setCameraPosition:(SCNVector3)position lookAt:(SCNVector3)target;
 @end

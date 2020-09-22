@@ -19,6 +19,25 @@ RCT_EXPORT_VIEW_PROPERTY(textureSrc, NSString)
 RCT_EXPORT_VIEW_PROPERTY(scale, float)
 RCT_EXPORT_VIEW_PROPERTY(autoPlayAnimations, BOOL)
 
+RCT_CUSTOM_VIEW_PROPERTY(camera, NSDictionary, RCT3DScnModelView)
+{
+    NSLog(@"mtcamera set");
+    if (json) {
+        json = [RCTConvert NSDictionary:json];
+        NSDictionary *posnDict = [RCTConvert NSDictionary:json[@"position"]];
+        NSDictionary *targetDict = [RCTConvert NSDictionary:json[@"lookAt"]];
+        [view setCameraPosition:SCNVector3Make(
+            [RCTConvert float:posnDict[@"x"]],
+            [RCTConvert float:posnDict[@"y"]],
+            [RCTConvert float:posnDict[@"z"]]
+        ) lookAt:SCNVector3Make(
+            [RCTConvert float:targetDict[@"x"]],
+            [RCTConvert float:targetDict[@"y"]],
+            [RCTConvert float:targetDict[@"z"]]
+        )];
+    }
+}
+
 RCT_EXPORT_VIEW_PROPERTY(onLoadModelSuccess, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onLoadModelError, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onAnimationStart, RCTBubblingEventBlock)

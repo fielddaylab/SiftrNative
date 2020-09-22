@@ -71,6 +71,9 @@
 -(void) setProgress:(float)progress {
 }
 
+-(void) setCameraPosition:(SCNVector3)position lookAt:(SCNVector3)target {
+}
+
 -(void) setupAnimations {
     if (self.modelNode != nil) {
         [self.modelNode enumerateChildNodesUsingBlock:^(SCNNode * _Nonnull child, BOOL * _Nonnull stop) {

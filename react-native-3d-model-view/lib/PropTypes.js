@@ -19,6 +19,18 @@ export const RCTPropTypes = {
   modelSrc: PropTypes.string,
   textureSrc: PropTypes.string,
   scale: PropTypes.number,
+  camera: PropTypes.shape({
+    position: PropTypes.shape({
+      x: PropTypes.number.isRequired,
+      y: PropTypes.number.isRequired,
+      z: PropTypes.number.isRequired,
+    }).isRequired,
+    lookAt: PropTypes.shape({
+      x: PropTypes.number.isRequired,
+      y: PropTypes.number.isRequired,
+      z: PropTypes.number.isRequired,
+    }).isRequired,
+  }),
   autoPlayAnimations: PropTypes.bool,
   backgroundColor: ColorPropType,
   onLoadModelSuccess: PropTypes.func,
