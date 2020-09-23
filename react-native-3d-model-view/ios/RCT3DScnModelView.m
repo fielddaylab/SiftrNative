@@ -50,7 +50,13 @@
 
 -(void) removeNode:(SCNNode *)node {
     [super removeNode:node];
-    [node removeFromParentNode];
+    // MT: put this in a dispatch to match addModelNode.
+    // otherwise, doing two updates (like, updating model and texture paths)
+    // would create a race condition where the first new node
+    // would be removed prior to being added, leading to 2 models at once.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [node removeFromParentNode];
+    });
 }
 
 -(void) setScale:(float)scale {
