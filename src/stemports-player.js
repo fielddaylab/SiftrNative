@@ -193,7 +193,7 @@ export class StemportsPlayer extends React.Component {
           padding: 20,
         }}>
           <Text style={{fontSize: 17, color: 'white'}}>
-            Reset Progress
+            Reset Station Progress
           </Text>
         </TouchableOpacity>
       </View>

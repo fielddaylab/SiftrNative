@@ -383,6 +383,7 @@ export class SiftrMap extends React.Component {
       onRegionIsChanging={e => {
         this.setState({heading: e.properties.heading});
       }}
+      compassEnabled={false}
     >
       <MapboxGL.Camera
         ref={r => (this.theMapCamera = r)}

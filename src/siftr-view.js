@@ -1101,7 +1101,7 @@ export const SiftrView = createClass({
           if (   inValidScene
               && now - updated >= parseInt(factory.seconds_per_production) * 1000
               && objects.length < parseInt(factory.max_production)
-              && nextFactoryObjects.length <= maxSpawns // limit all spawns for now
+              && nextFactoryObjects.length < maxSpawns // limit all spawns for now
               ) {
             if (Math.random() < parseFloat(factory.production_probability)) {
               // make a new object
