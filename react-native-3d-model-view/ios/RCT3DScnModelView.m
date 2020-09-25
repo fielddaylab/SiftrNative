@@ -93,6 +93,7 @@
     NSLog(@"mtcamera (%f %f %f) look at (%f %f %f)", position.x, position.y, position.z, target.x, target.y, target.z);
     [super setCameraPosition:position lookAt:target];
     SCNCamera *camera = [SCNCamera new];
+    camera.zNear = 0.1;
     SCNNode *cameraNode = [SCNNode new];
     cameraNode.camera = camera;
     cameraNode.position = position;

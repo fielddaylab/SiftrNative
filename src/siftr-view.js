@@ -41,7 +41,6 @@ import {PlaqueScreen} from './plaques';
 import {QuestDetails, QuestDotDetails, GenericModal, TaskComplete, QuestComplete, getQuestProgress} from './quests';
 import {evalReqPackage} from './requirements';
 import {GuideLine} from './stemports-picker';
-import ModelView from '../react-native-3d-model-view/lib/ModelView';
 import { StemportsPicker } from "./stemports-picker";
 import { ComicView } from './stemports-player';
 
@@ -3185,36 +3184,6 @@ export const SiftrView = createClass({
                     resizeMode: 'stretch',
                     opacity: 0.7,
                   }} source={require('../web/assets/img/pickup-radius.png')} />
-                )
-              }
-              {
-                !this.state.showStops && (
-                  <CacheMedia
-                    media_id={920}
-                    auth={this.props.auth}
-                    online={true}
-                    withURL={(url) =>
-                      <View pointerEvents="none" style={{
-                        position: 'absolute',
-                        bottom: (height * 0.55) / 2 - 20,
-                        left: 0,
-                        right: 0,
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                      }}>
-                        <ModelView
-                          source={{
-                            zip: url,
-                          }}
-                          style={{
-                            width: 200,
-                            height: 150,
-                          }}
-                          autoPlay={true}
-                        />
-                      </View>
-                    }
-                  />
                 )
               }
               {

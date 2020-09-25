@@ -20,6 +20,7 @@ import Svg, {
 } from 'react-native-svg';
 import {CacheMedia} from './media';
 import MapboxGL from "@react-native-mapbox-gl/maps";
+import ModelView from '../react-native-3d-model-view/lib/ModelView';
 
 import {fitBounds} from 'google-map-react/utils';
 
@@ -220,6 +221,7 @@ export class SiftrMap extends React.Component {
     this.state = {
       isMapReady: false,
       legendOpen: false,
+      heading: 0,
     };
   }
 
@@ -358,7 +360,8 @@ export class SiftrMap extends React.Component {
   render() {
     if (!this.props.theme) return null; // wait for theme to load
     const {height, width} = Dimensions.get('window');
-    return <MapboxGL.MapView
+    const headingRadians = this.state.heading * (Math.PI / 180);
+    return <React.Fragment><MapboxGL.MapView
       ref={r => (this.theMapView = r)}
       onLayout={this.props.onLayout}
       style={{
@@ -376,6 +379,9 @@ export class SiftrMap extends React.Component {
       onPress={e => {
         const [longitude, latitude] = e.geometry.coordinates;
         this.props.onPress({latitude, longitude});
+      }}
+      onRegionIsChanging={e => {
+        this.setState({heading: e.properties.heading});
       }}
     >
       <MapboxGL.Camera
@@ -450,7 +456,46 @@ export class SiftrMap extends React.Component {
       <MapboxGL.UserLocation
         visible={!this.props.showStops}
       />
-    </MapboxGL.MapView>;
+    </MapboxGL.MapView>
+    {
+      !this.props.showStops && (
+        <CacheMedia
+          media_id={920}
+          auth={this.props.auth}
+          online={true}
+          withURL={(url) =>
+            <View pointerEvents="none" style={{
+              position: 'absolute',
+              bottom: (height * 0.55) / 2 - 40,
+              left: 0,
+              right: 0,
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}>
+              <ModelView
+                source={{
+                  zip: url,
+                }}
+                style={{
+                  width: 200,
+                  height: 180,
+                }}
+                autoPlay={true}
+                camera={{
+                  position: {
+                    x: Math.sin(headingRadians) * -2, y: 0.9, z: Math.cos(headingRadians) * 2,
+                  },
+                  lookAt: {
+                    x: 0, y: 0.8, z: 0,
+                  },
+                }}
+              />
+            </View>
+          }
+        />
+      )
+    }
+    </React.Fragment>;
   }
 
   getMapStyles(props = this.props) {

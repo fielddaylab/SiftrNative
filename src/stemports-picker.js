@@ -1406,11 +1406,19 @@ export class GuideLine extends React.Component {
               zip: url,
             }}
             style={{
-              width: 120 * 0.7,
+              width: 140 * 0.7,
               height: 172 * 0.7,
             }}
             autoPlay={true}
             scale={1}
+            camera={{
+              position: {
+                x: 0.9, y: 0.5, z: 0.85,
+              },
+              lookAt: {
+                x: 0, y: 0.4, z: 0.1,
+              },
+            }}
           />
         }
       />
