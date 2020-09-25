@@ -1373,6 +1373,7 @@ export class GuideLine extends React.Component {
       this.state = {
         chars: 0,
         text: text,
+        eating: false,
       };
     } else {
       this.setState({
@@ -1394,10 +1395,21 @@ export class GuideLine extends React.Component {
     });
   }
 
+  eatSnack() {
+    if (this.state.eating) return;
+    this.setState({
+      eating: true,
+    }, () => {
+      setTimeout((() => {
+        this.setState({eating: false});
+      }), 1500)
+    })
+  }
+
   render() {
     const puffinModel = (
       <CacheMedia
-        media_id={919}
+        media_id={this.state.eating ? 992 : 919}
         auth={this.props.auth}
         online={true}
         withURL={(url) =>

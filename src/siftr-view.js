@@ -3044,6 +3044,7 @@ export const SiftrView = createClass({
                   left: 10,
                   right: 10,
                 }}
+                ref={gl => (this.puffinGuideLine = gl)}
                 onPress={() => this.pushModal({type: 'quests'})}
                 text={(() => {
                   if (this.state.tempGuideLine) {
@@ -3125,6 +3126,9 @@ export const SiftrView = createClass({
                       });
                       this.props.saveInventoryZero(new_inventory_zero);
                       this.setTempGuideLine(getSnackLine());
+                      if (this.puffinGuideLine) {
+                        this.puffinGuideLine.eatSnack();
+                      }
                     }} style={{
                       backgroundColor: 'white',
                       padding: 4,
