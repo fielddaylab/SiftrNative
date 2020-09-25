@@ -337,7 +337,19 @@ class SiftrViewLoader extends React.Component {
       });
     });
     RNFS.readFile(`${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`).then(str => {
-      this.setState({inventory_zero: JSON.parse(str)});
+      let invzero = JSON.parse(str);
+      // fix for a now-fixed bug resulting in tons of puffin snacks
+      invzero = invzero.map(instance => {
+        if (instance.object_type === 'ITEM'
+          && parseInt(instance.object_id) === PuffinSnacksID
+          && parseInt(instance.qty) > 50
+        ) {
+          return update(instance, {qty: {$set: 5}});
+        } else {
+          return instance;
+        }
+      });
+      this.setState({inventory_zero: invzero});
     });
   }
 
