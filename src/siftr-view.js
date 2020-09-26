@@ -2103,7 +2103,13 @@ export const SiftrView = createClass({
   },
   getLocationWithWarp: function() {
     if (this.state.warp) {
-      return {coords: this.state.warpCoords || this.props.game};
+      if (this.state.warpCoords) {
+        return {coords: this.state.warpCoords};
+      } else if (this.props.game.latitude || this.props.game.longitude) {
+        return {coords: this.props.game};
+      } else {
+        return this.props.location;
+      }
     } else {
       return this.props.location;
     }
