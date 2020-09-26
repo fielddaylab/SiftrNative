@@ -1409,7 +1409,7 @@ export class GuideLine extends React.Component {
   render() {
     const puffinModel = (
       <CacheMedia
-        media_id={this.state.eating ? 992 : 919}
+        media_id={this.state.eating ? 993 : 919}
         auth={this.props.auth}
         online={true}
         withURL={(url) =>
