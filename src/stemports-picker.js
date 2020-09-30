@@ -51,7 +51,7 @@ export class StemportsPicker extends React.Component {
     this.state = {
       games: [],
       downloadedGames: [],
-      introSequence: 'welcome',
+      introSequence: 'comic1',
       gameModal: props.currentStation ? {
         game: props.currentStation,
         online: props.currentStation,
@@ -760,67 +760,73 @@ export class StemportsPicker extends React.Component {
   }
 
   render() {
-    if (this.props.viewComic) {
-      if (this.state.introSequence === 'welcome') {
-        return (
+    if (this.props.inSplash) {
+      return (
+        <View style={{
+          backgroundColor: 'white',
+          alignItems: 'center',
+          justifyContent: 'space-around',
+          flex: 1,
+        }}>
           <View style={{
-            backgroundColor: 'white',
             alignItems: 'center',
-            justifyContent: 'space-around',
-            flex: 1,
           }}>
-            <View style={{
-              alignItems: 'center',
+            <Text style={{
+              margin: 10,
+              fontSize: 26,
+              fontWeight: 'bold',
             }}>
-              <Text style={{
-                margin: 10,
-                fontSize: 26,
-                fontWeight: 'bold',
-              }}>
-                Welcome to Stemports
-              </Text>
-              <Text style={{
-                margin: 10,
-                fontSize: 20,
-              }}>
-                Be mindful of your surroundings
-              </Text>
-            </View>
-            <TouchableOpacity onPress={() => this.setState({introSequence: 'comic1'})} style={{
-              backgroundColor: 'rgb(101,88,245)',
-              padding: 10,
-              borderRadius: 5,
-              marginTop: 10,
-              marginBottom: 10,
-              paddingLeft: 15,
-              paddingRight: 15,
+              Welcome to Stemports
+            </Text>
+            <Text style={{
+              margin: 10,
+              fontSize: 20,
             }}>
-              <Text style={{
-                color: 'white',
-                fontSize: 18,
-              }}>
-                Start
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={this.props.onSkipTutorial} style={{
-              backgroundColor: 'rgb(101,88,245)',
-              padding: 10,
-              borderRadius: 5,
-              marginTop: 10,
-              marginBottom: 10,
-              paddingLeft: 15,
-              paddingRight: 15,
-            }}>
-              <Text style={{
-                color: 'white',
-                fontSize: 18,
-              }}>
-                Skip Tutorial
-              </Text>
-            </TouchableOpacity>
+              Be mindful of your surroundings
+            </Text>
           </View>
-        );
-      } else if (this.state.introSequence === 'comic1') {
+          <TouchableOpacity onPress={this.props.onCloseSplash} style={{
+            backgroundColor: 'rgb(101,88,245)',
+            padding: 10,
+            borderRadius: 5,
+            marginTop: 10,
+            marginBottom: 10,
+            paddingLeft: 15,
+            paddingRight: 15,
+          }}>
+            <Text style={{
+              color: 'white',
+              fontSize: 18,
+            }}>
+              Start
+            </Text>
+          </TouchableOpacity>
+          {
+            this.props.viewComic && (
+              <TouchableOpacity onPress={this.props.onSkipTutorial} style={{
+                backgroundColor: 'rgb(101,88,245)',
+                padding: 10,
+                borderRadius: 5,
+                marginTop: 10,
+                marginBottom: 10,
+                paddingLeft: 15,
+                paddingRight: 15,
+              }}>
+                <Text style={{
+                  color: 'white',
+                  fontSize: 18,
+                }}>
+                  Skip Tutorial
+                </Text>
+              </TouchableOpacity>
+            )
+          }
+        </View>
+      );
+    }
+
+    if (this.props.viewComic) {
+      if (this.state.introSequence === 'comic1') {
         return (
           <ComicView
             pages={[

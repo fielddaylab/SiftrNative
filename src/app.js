@@ -57,6 +57,7 @@ export var SiftrNative = createClass({
       online: true,
       screen: null,
       recent: null,
+      inSplash: true,
       inTutorial: false,
       seenWizardForQuestIDs: [],
     };
@@ -633,9 +634,13 @@ export var SiftrNative = createClass({
                   queueMessage={this.state.queueMessage}
                   location={this.state.location}
                   launchCurrentQuest={!this.state.didFinish}
+                  inSplash={this.state.inSplash}
                   viewComic={this.state.inTutorial}
+                  onCloseSplash={() => {
+                    this.setState({inSplash: false});
+                  }}
                   onSkipTutorial={() => {
-                    this.setState({inTutorial: false});
+                    this.setState({inSplash: false, inTutorial: false});
                     RNFS.writeFile(seenComic, 'true', 'utf8');
                   }}
                   currentStation={this.state.reopenStation}
