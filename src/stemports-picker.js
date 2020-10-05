@@ -946,6 +946,7 @@ export class StemportsPicker extends React.Component {
       const distance = this.props.location ? meterDistance(game, this.props.location.coords) : Infinity;
       gameList.push(update(obj, {game: {$set: game}, distance: {$set: distance}}));
     }
+    gameList = gameList.filter(o => o.game.quests.length > 0);
 
     const playerScreen = (
       <StemportsPlayer
