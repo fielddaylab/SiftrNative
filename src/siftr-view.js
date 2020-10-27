@@ -2725,23 +2725,50 @@ export const SiftrView = createClass({
               marginRight: 20,
               resizeMode: 'contain',
             }} />
+          ) : this.state.chipMessages[0].image === 'quest-envelope' ? (
+            <Image source={require('../web/assets/img/chip-quest-complete.png')} style={{
+              width: 100,
+              height: 100,
+              marginTop: -50,
+              marginRight: 20,
+              resizeMode: 'contain',
+            }} />
           ) : null
         }
-        <Text style={{
-          fontSize: 20,
-          fontWeight: 'bold',
-          color: '#FEFBDE',
-          flexWrap: 'wrap',
+        <View style={{
+          flexDirection: 'column',
           flex: 1,
-          textTransform: 'uppercase',
+          alignItems: 'stretch',
         }}>
-          {this.state.chipMessages[0].message}
-        </Text>
+          <Text style={{
+            fontSize: 20,
+            fontWeight: 'bold',
+            color: '#FEFBDE',
+            flexWrap: 'wrap',
+            flex: 1,
+            textTransform: 'uppercase',
+          }}>
+            {this.state.chipMessages[0].message}
+          </Text>
+          {
+            this.state.chipMessages[0].instruction && (
+              <Text style={{
+                fontSize: 20,
+                fontWeight: 'bold',
+                color: this.state.chipMessages[0].instructionColor || '#FEFBDE',
+                flexWrap: 'wrap',
+                flex: 1,
+              }}>
+                {this.state.chipMessages[0].instruction}
+              </Text>
+            )
+          }
+        </View>
       </View>
     );
   },
-  addChip: function(message, color, image){
-    const obj = {message, color, image};
+  addChip: function(message, color, image, instruction, instructionColor){
+    const obj = {message, color, image, instruction, instructionColor};
     let queueWasEmpty = false;
     this.setState((prevState) => update(prevState, {
       chipMessages: (messages) => {
@@ -3315,6 +3342,7 @@ export const SiftrView = createClass({
                           this.popModal();
                         }}
                         auth={this.props.auth}
+                        addChip={this.addChip/*.bind(this)*/}
                       />
                     );
                   } else if (modal.type === 'quest-complete-comic') {

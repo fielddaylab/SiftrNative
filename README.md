@@ -10,7 +10,7 @@ Instructions on Mac:
 6. Run `make install`.
 7. Run `make` after you make any changes.
 
-iOS: open `ios/SiftrNative.xcodeproj`
+iOS: open `ios/Siftr.xcworkspace`
 
   * To run non-dev mode, build with Release scheme.
 
