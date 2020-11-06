@@ -1684,11 +1684,11 @@ class StemportsQuest extends React.Component {
             ) : null
           }
           {
-            this.props.quest.description && this.props.quest.description.length !== 0 && (
+            (this.props.quest.description && this.props.quest.description.length !== 0) ? (
               <View style={{margin: 15}}>
                 <FixedMarkdown text={this.props.quest.description} />
               </View>
-            )
+            ) : null
           }
         </ScrollView>
         <View style={{alignItems: 'center', justifyContent: 'center'}}>
@@ -1796,11 +1796,11 @@ class StemportsOutpost extends React.Component {
             )
           }
           {
-            game.description && game.description.length !== 0 && (
+            (game.description && game.description.length !== 0) ? (
               <View style={{margin: 15}}>
                 <FixedMarkdown text={game.description} />
               </View>
-            )
+            ) : null
           }
           <Text style={{margin: 15, fontWeight: 'bold', fontSize: 17}}>
             Quests:
