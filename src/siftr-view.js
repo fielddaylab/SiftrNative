@@ -36,7 +36,7 @@ import { NativeSettings } from "./native-settings";
 import { NativeCard } from "./native-browser";
 import {CacheMedia} from './media';
 import ProgressCircle from 'react-native-progress-circle';
-import {InventoryScreen, CacheContents} from './items';
+import {InventoryScreen, CacheContents, PuffinSnacksID, PhotoItemIDs} from './items';
 import {PlaqueScreen} from './plaques';
 import {QuestDetails, QuestDotDetails, GenericModal, TaskComplete, QuestComplete, getQuestProgress} from './quests';
 import {evalReqPackage} from './requirements';
@@ -289,9 +289,6 @@ export function saveInventoryZero(inventory_zero, cb) {
     JSON.stringify(inventory_zero)
   ).then(() => cb(inventory_zero));
 }
-
-const PuffinSnacksID = 141587;
-export const PhotoItemIDs = [141588, 141589, 141590, 141591, 141592];
 
 const LOAD_OBJECTS = [
   {name: 'quests'},

@@ -24,6 +24,21 @@ import {FixedMarkdown} from './styles';
 import { globalstyles } from "./global-styles";
 import {GuideLine} from './stemports-picker';
 
+export const PuffinSnacksID = 141587;
+export const PhotoItemIDs = [214742, 214743, 214744, 214745, 214746, 214747, 214748, 214749, 214750, 214751];
+export const PhotoImages = [
+  require('../web/assets/img/cache-photo-00.jpg'),
+  require('../web/assets/img/cache-photo-01.jpg'),
+  require('../web/assets/img/cache-photo-02.jpg'),
+  require('../web/assets/img/cache-photo-03.jpg'),
+  require('../web/assets/img/cache-photo-04.jpg'),
+  require('../web/assets/img/cache-photo-05.jpg'),
+  require('../web/assets/img/cache-photo-06.jpg'),
+  require('../web/assets/img/cache-photo-07.jpg'),
+  require('../web/assets/img/cache-photo-08.jpg'),
+  require('../web/assets/img/cache-photo-09.jpg'),
+];
+
 export class FullWidthWebView extends React.Component {
   constructor(props) {
     super(props);
@@ -246,14 +261,6 @@ export class CacheContents extends React.Component {
               alignItems: 'center',
               justifyContent: 'space-around',
             }}>
-              <GuideLine
-                style={{
-                  padding: 10,
-                  alignSelf: 'stretch',
-                }}
-                text={"Hey I remember that! That's when I fell off the canoe and had to fly to shore."}
-                auth={this.props.auth}
-              />
               <TouchableOpacity onPress={() => {
                 this.props.givePhoto(this.state.photo_id);
                 this.props.addChip('Added to photo album!', 'rgb(110,186,180)', 'photos');
@@ -264,12 +271,12 @@ export class CacheContents extends React.Component {
                 borderRadius: 5,
               }}>
                 <Image
-                  source={require('../web/assets/img/cache-photo-card.png')}
+                  source={PhotoImages[PhotoItemIDs.indexOf(this.state.photo_id)]}
                   style={{
                     margin: 20,
                     resizeMode: 'contain',
-                    width: 540 * 0.5,
-                    height: 564 * 0.5,
+                    width: 250,
+                    height: 450,
                   }}
                 />
               </TouchableOpacity>

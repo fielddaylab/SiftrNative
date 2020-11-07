@@ -18,7 +18,7 @@ import { StatusSpace } from "./status-space";
 import { StemportsPicker } from "./stemports-picker";
 import { NativeSettings } from "./native-settings";
 import { deserializeGame } from "./aris";
-import { PhotoItemIDs } from "./siftr-view";
+import { PhotoImages, PhotoItemIDs } from "./items";
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
 import SideMenu from 'react-native-side-menu-updated';
 
@@ -400,7 +400,7 @@ export class StemportsPlayer extends React.Component {
               flexDirection: 'row',
             }}>
               {
-                PhotoItemIDs.map((item_id) => {
+                PhotoItemIDs.map((item_id, photoIndex) => {
                   if (parseInt(globalItems[item_id]) > 0) {
                     return (
                       <TouchableOpacity key={item_id} style={{
@@ -412,7 +412,7 @@ export class StemportsPlayer extends React.Component {
                             height: 100,
                             resizeMode: 'contain',
                           }}
-                          source={require('../web/assets/img/cache-photo-card.png')}
+                          source={PhotoImages[photoIndex]}
                         />
                       </TouchableOpacity>
                     );
@@ -427,7 +427,7 @@ export class StemportsPlayer extends React.Component {
                           opacity: 0.3,
                           margin: 10,
                         }}
-                        source={require('../web/assets/img/cache-photo-card.png')}
+                        source={PhotoImages[photoIndex]}
                       />
                     );
                   }
@@ -515,7 +515,7 @@ export class PhotoView extends React.Component {
         }}>
           <Image
             style={{flex: 1, resizeMode: 'contain'}}
-            source={require('../web/assets/img/cache-photo-card.png')}
+            source={PhotoImages[PhotoItemIDs.indexOf(this.props.photoID)]}
           />
         </View>
         <View style={globalstyles.closeContainer} pointerEvents="box-none">
