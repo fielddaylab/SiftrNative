@@ -44,6 +44,7 @@ export class PlaqueScreen extends React.Component {
           onClose={this.props.onClose}
           addChip={this.props.addChip}
           selectPhoto={this.props.selectPhoto}
+          selectSnack={this.props.selectSnack}
           givePhoto={this.props.givePhoto}
           giveSnack={this.props.giveSnack}
           onPickUp={(event) => {

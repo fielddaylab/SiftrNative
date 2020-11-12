@@ -2804,13 +2804,34 @@ export const SiftrView = createClass({
 
   // stuff for cache and tour stop
   selectPhoto: function(){
-    return PhotoItemIDs.find(photo_id =>
-      this.props.inventory_zero.some(inst =>
-        inst.object_type === 'ITEM'
-          && parseInt(inst.object_id) === photo_id
-          && parseInt(inst.qty) === 0
-      )
-    );
+    const gavePhoto = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}/gave_photo_${this.props.currentQuest.quest_id}.txt`;
+    return RNFS.exists(gavePhoto).then((exists) => {
+      if (exists) {
+        return null;
+      } else {
+        return RNFS.writeFile(gavePhoto, 'true', 'utf8').then(() => {
+          return PhotoItemIDs.find(photo_id =>
+            this.props.inventory_zero.some(inst =>
+              inst.object_type === 'ITEM'
+                && parseInt(inst.object_id) === photo_id
+                && parseInt(inst.qty) === 0
+            )
+          );
+        });
+      }
+    });
+  },
+  selectSnack: function(){
+    const gaveSnacks = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}/gave_snacks_${this.props.currentQuest.quest_id}.txt`;
+    return RNFS.exists(gaveSnacks).then((exists) => {
+      if (exists) {
+        return false;
+      } else {
+        return RNFS.writeFile(gaveSnacks, 'true', 'utf8').then(() => {
+          return true;
+        });
+      }
+    });
   },
   givePhoto: function(photo_id){
     const new_inventory_zero = this.props.inventory_zero.map(inst => {
@@ -3554,6 +3575,7 @@ export const SiftrView = createClass({
                           }}
                           addChip={this.addChip/*.bind(this)*/}
                           selectPhoto={this.selectPhoto/*.bind(this)*/}
+                          selectSnack={this.selectSnack/*.bind(this)*/}
                           givePhoto={this.givePhoto/*.bind(this)*/}
                           giveSnack={this.giveSnack/*.bind(this)*/}
                         />
@@ -3574,6 +3596,7 @@ export const SiftrView = createClass({
                               onClose={this.popModal/*.bind(this)*/}
                               addChip={this.addChip/*.bind(this)*/}
                               selectPhoto={this.selectPhoto/*.bind(this)*/}
+                              selectSnack={this.selectSnack/*.bind(this)*/}
                               givePhoto={this.givePhoto/*.bind(this)*/}
                               giveSnack={this.giveSnack/*.bind(this)*/}
                               onPickUp={(trigger) => {

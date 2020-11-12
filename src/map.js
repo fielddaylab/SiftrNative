@@ -196,6 +196,8 @@ export function meterDistance(posn1, posn2) {
      return n * Math.PI / 180;
   }
 
+  if (!posn1 || !posn2) return Infinity;
+
   var lat2 = parseFloat(posn2.latitude);
   var lon2 = parseFloat(posn2.longitude);
   var lat1 = parseFloat(posn1.latitude);

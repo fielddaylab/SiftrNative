@@ -105,12 +105,19 @@ export class CacheContents extends React.Component {
       return;
     }
 
-    const photo_id = this.props.selectPhoto();
-    if (photo_id) {
-      this.setState({screen: 'photo', photo_id: photo_id});
-    } else {
-      this.setState({screen: 'snacks'});
-    }
+    this.props.selectPhoto().then((photo_id) => {
+      if (photo_id) {
+        this.setState({screen: 'photo', photo_id: photo_id});
+      } else {
+        this.props.selectSnack().then((shouldGiveSnacks) => {
+          if (shouldGiveSnacks) {
+            this.setState({screen: 'snacks'});
+          } else {
+            this.setState({screen: 'closing'});
+          }
+        });
+      }
+    });
   }
 
   render() {
@@ -264,7 +271,13 @@ export class CacheContents extends React.Component {
               <TouchableOpacity onPress={() => {
                 this.props.givePhoto(this.state.photo_id);
                 this.props.addChip('Added to photo album!', 'rgb(110,186,180)', 'photos');
-                this.setState({screen: 'snacks'});
+                this.props.selectSnack().then((shouldGiveSnacks) => {
+                  if (shouldGiveSnacks) {
+                    this.setState({screen: 'snacks'});
+                  } else {
+                    this.props.onClose();
+                  }
+                });
               }} style={{
                 backgroundColor: 'white',
                 padding: 8,
@@ -335,6 +348,11 @@ export class CacheContents extends React.Component {
             </View>
           </ImageBackground>
         );
+      case 'closing':
+        // this is ugly, it's because if you unmount a modal inside another modal, the whole app softlocks!
+        // this would otherwise happen when we don't have photo or snacks to give
+        setTimeout(this.props.onClose, 500);
+        return null;
     }
   }
 }
