@@ -3515,6 +3515,7 @@ export const SiftrView = createClass({
                             warpOn={this.state.warp}
                             currentQuest={this.props.currentQuest}
                             game={this.props.game}
+                            onReplayIntro={this.props.onReplayIntro}
                           />
                         </SafeAreaView>
                       </Modal>

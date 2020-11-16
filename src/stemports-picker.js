@@ -908,18 +908,22 @@ export class StemportsPicker extends React.Component {
               require('../web/assets/img/comic-tutorial/4.3.png'),
             ]}
             onClose={() => {
-              this.initializeGame({game_id: 100058}).then(() => {
-                this.props.onSelect({
-                  game_id: 100058,
-                  name: 'Curious Quest Club',
-                  latitude: this.props.location.coords.latitude,
-                  longitude: this.props.location.coords.longitude,
-                  newFormat: (() => true),
-                }, {
-                  quest_id: 17928,
-                  name: 'Tutorial',
+              if (!this.downloadingTutorial) {
+                this.downloadingTutorial = true;
+                this.initializeGame({game_id: 100058}).then(() => {
+                  this.downloadingTutorial = false;
+                  this.props.onSelect({
+                    game_id: 100058,
+                    name: 'Curious Quest Club',
+                    latitude: this.props.location.coords.latitude,
+                    longitude: this.props.location.coords.longitude,
+                    newFormat: (() => true),
+                  }, {
+                    quest_id: 17928,
+                    name: 'Tutorial',
+                  });
                 });
-              });
+              }
             }}
           />
         );
@@ -981,6 +985,10 @@ export class StemportsPicker extends React.Component {
         warpOn={this.props.warpOn}
         currentQuest={this.props.currentQuest}
         game={this.props.game}
+        onReplayIntro={() => {
+          this.setState({introSequence: 'comic1'});
+          this.props.onReplayIntro && this.props.onReplayIntro();
+        }}
       />
     );
 

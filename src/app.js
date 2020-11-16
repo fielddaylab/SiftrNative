@@ -521,6 +521,40 @@ export var SiftrNative = createClass({
     RNFS.writeFile(seenWizard, JSON.stringify(newSeen), 'utf8');
   },
 
+  exitGame: function(clearGameID, clearQuestID) {
+    let o = {game: null};
+    if (clearGameID) {
+      this.modifySeenWizardQuestIDs(ids =>
+        // TODO this should probably actually remove all quests for this station
+        ids.filter(id => parseInt(id) !== parseInt(clearQuestID))
+      );
+      if (this.state.pendingNotes) {
+        const game_id = parseInt(clearGameID);
+        const thisStationNotes = this.state.pendingNotes.filter(({dir, json}) =>
+          parseInt(JSON.parse(json).game_id) === game_id
+        );
+        const otherNotes = this.state.pendingNotes.filter(({dir, json}) =>
+          parseInt(JSON.parse(json).game_id) !== game_id
+        );
+        o.pendingNotes = otherNotes;
+        deleteQueuedNotes(thisStationNotes);
+      }
+    }
+    this.setState(o);
+  },
+
+  replayIntro: function() {
+    const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/100058`;
+    RNFS.unlink(siftrDir).catch(() => null).then(() =>
+      RNFS.unlink(`${RNFS.DocumentDirectoryPath}/seenwizard.txt`).catch(() => null)
+    ).then(() =>
+      RNFS.unlink(`${RNFS.DocumentDirectoryPath}/siftrs/current-quest.txt`).catch(() => null)
+    ).then(() => {
+      this.setState({inTutorial: true});
+      this.exitGame(100058, 17928);
+    });
+  },
+
   render: function() {
     if (this.state.auth != null) {
       return (
@@ -556,25 +590,11 @@ export var SiftrNative = createClass({
                     aris={this.state.aris}
                     location={this.state.location}
                     onExit={(clearData = false) => {
-                      let o = {game: null};
                       if (clearData) {
-                        this.modifySeenWizardQuestIDs(ids =>
-                          // TODO this should probably actually remove all quests for this station
-                          ids.filter(id => parseInt(id) !== parseInt(this.state.quest.quest_id))
-                        );
-                        if (this.state.pendingNotes) {
-                          const game_id = parseInt(this.state.game.game_id);
-                          const thisStationNotes = this.state.pendingNotes.filter(({dir, json}) =>
-                            parseInt(JSON.parse(json).game_id) === game_id
-                          );
-                          const otherNotes = this.state.pendingNotes.filter(({dir, json}) =>
-                            parseInt(JSON.parse(json).game_id) !== game_id
-                          );
-                          o.pendingNotes = otherNotes;
-                          deleteQueuedNotes(thisStationNotes);
-                        }
+                        this.exitGame(this.state.game.game_id, this.state.quest.quest_id);
+                      } else {
+                        this.exitGame();
                       }
-                      this.setState(o);
                     }}
                     onExitQuest={(reopenStation) => {
                       this.setState({
@@ -615,6 +635,7 @@ export var SiftrNative = createClass({
                         this.loadGamePosition(game, {quest: quest});
                       })
                     }
+                    onReplayIntro={this.replayIntro}
                   />
                 </SafeAreaView>
               )
@@ -644,6 +665,7 @@ export var SiftrNative = createClass({
                     RNFS.writeFile(seenComic, 'true', 'utf8');
                   }}
                   currentStation={this.state.reopenStation}
+                  onReplayIntro={this.replayIntro}
                 />
               </SafeAreaView>
             )

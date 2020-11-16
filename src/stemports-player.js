@@ -434,6 +434,30 @@ export class StemportsPlayer extends React.Component {
                 })
               }
             </View>
+            <View style={{
+              backgroundColor: 'rgb(80,135,18)',
+              padding: 35,
+              paddingBottom: 55,
+              alignItems: 'flex-end',
+            }}>
+              <TouchableOpacity style={{
+                backgroundColor: 'white',
+                paddingTop: 5,
+                paddingBottom: 5,
+                paddingLeft: 12,
+                paddingRight: 12,
+                borderRadius: 5,
+              }} onPress={this.props.onReplayIntro}>
+                <Text style={{
+                  textTransform: 'uppercase',
+                  color: 'rgb(99,111,49)',
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                }}>
+                  Replay Intro
+                </Text>
+              </TouchableOpacity>
+            </View>
           </ScrollView>
           <View style={globalstyles.closeContainer} pointerEvents="box-none">
             <TouchableOpacity onPress={this.props.onClose}>
