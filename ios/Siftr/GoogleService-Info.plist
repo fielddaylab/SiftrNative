@@ -2,39 +2,35 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>AD_UNIT_ID_FOR_BANNER_TEST</key>
-	<string>ca-app-pub-3940256099942544/2934735716</string>
-	<key>AD_UNIT_ID_FOR_INTERSTITIAL_TEST</key>
-	<string>ca-app-pub-3940256099942544/4411468910</string>
 	<key>CLIENT_ID</key>
-	<string>1046549405758-k7v214blhgcivm6vfe85r90mkfch37k4.apps.googleusercontent.com</string>
+	<string>129008337561-etteh38o6al492q1l1t4o35fhqdkr86k.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.1046549405758-k7v214blhgcivm6vfe85r90mkfch37k4</string>
+	<string>com.googleusercontent.apps.129008337561-etteh38o6al492q1l1t4o35fhqdkr86k</string>
 	<key>API_KEY</key>
-	<string>AIzaSyD23XgxQupU1ghUb_Bln_OaX_TWNYRlgg8</string>
+	<string>AIzaSyBcO6M0Vsjc4P64UzltEkrzJXV17eYyeeg</string>
 	<key>GCM_SENDER_ID</key>
-	<string>1046549405758</string>
+	<string>129008337561</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>org.fielddaylab.stemports</string>
 	<key>PROJECT_ID</key>
-	<string>siftr-c50abbc</string>
+	<string>stemports</string>
 	<key>STORAGE_BUCKET</key>
-	<string>siftr-c50abbc.appspot.com</string>
+	<string>stemports.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
-	<true></true>
+	<false/>
 	<key>IS_ANALYTICS_ENABLED</key>
-	<false></false>
+	<true/>
 	<key>IS_APPINVITE_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>IS_GCM_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>IS_SIGNIN_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1046549405758:ios:c9853e16d598946c</string>
+	<string>1:129008337561:ios:8edf37570a65181bb66e08</string>
 	<key>DATABASE_URL</key>
-	<string>https://siftr-c50abbc.firebaseio.com</string>
+	<string>https://stemports.firebaseio.com</string>
 </dict>
 </plist>
