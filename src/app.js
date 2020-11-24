@@ -24,7 +24,7 @@ import { UploadQueue, deleteQueuedNotes } from "./upload-queue";
 import { styles, Text } from "./styles";
 import { Terms } from "./native-terms";
 import RNFS from "react-native-fs";
-import firebase from "react-native-firebase";
+import analytics from '@react-native-firebase/analytics';
 import Permissions from "react-native-permissions";
 import { NativeLogin } from "./native-login";
 import { NativeHome, Loading } from "./native-home";
@@ -379,7 +379,7 @@ export var SiftrNative = createClass({
           followed: null
         });
         if (newAuth.authToken != null) {
-          firebase.analytics().logEvent("login", {
+          analytics().logEvent("login", {
             username: newAuth.authToken.username,
             user_id: newAuth.authToken.user_id
           });
