@@ -31,7 +31,7 @@ import {
 const RNFS = require("react-native-fs");
 import { styles, Text } from "./styles";
 import { StatusSpace } from "./status-space";
-import firebase from "react-native-firebase";
+import analytics from '@react-native-firebase/analytics';
 import { NativeSettings } from "./native-settings";
 import { NativeCard } from "./native-browser";
 import {CacheMedia} from './media';
@@ -1238,8 +1238,9 @@ export const SiftrView = createClass({
     // stuff that used to be in componentWillMount
     var hash, n, ref, ref1;
     this.isMounted = true;
-    firebase.analytics().logEvent("view_siftr", {
-      game_id: this.props.game.game_id
+    analytics().logEvent('ViewQuestMap',{
+      station_name: this.props.game.name,
+      quest_name: this.props.currentQuest.name,
     });
     const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${
       this.props.game.game_id
@@ -3475,6 +3476,17 @@ export const SiftrView = createClass({
                             inQuest={true}
                             onToggleWarp={() => {
                               this.setState({warp: !this.state.warp, warpCoords: null, factoryObjects: [], factoryProductionTimestamps: {}});
+                              if (!this.state.warp) {
+                                analytics().logEvent('StartWarpMode',{
+                                  station_name: this.props.game.name,
+                                  quest_name: this.props.quest_name,
+                                });
+                              } else {
+                                analytics().logEvent('StopWarpMode',{
+                                  station_name: this.props.game.name,
+                                  quest_name: this.props.quest_name,
+                                });
+                              }
                             }}
                             onResetProgress={() => {
                               const continueReset = (attempts) => {
@@ -3590,6 +3602,8 @@ export const SiftrView = createClass({
                         >
                           <SafeAreaView style={{flex: 1, backgroundColor: 'rgba(0,0,0,0.5)'}}>
                             <CacheContents
+                              game={this.props.game}
+                              currentQuest={this.props.currentQuest}
                               trigger={modal.trigger}
                               instance={modal.instance}
                               item={modal.item}

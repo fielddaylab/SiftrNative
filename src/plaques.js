@@ -38,13 +38,14 @@ export class PlaqueScreen extends React.Component {
       return (
         <CacheContents
           mode='tour-stop'
+          game={this.props.game}
+          currentQuest={this.props.currentQuest}
           items={this.props.items}
           events={events}
           auth={this.props.auth}
           onClose={this.props.onClose}
           addChip={this.props.addChip}
           selectPhoto={this.props.selectPhoto}
-          selectSnack={this.props.selectSnack}
           givePhoto={this.props.givePhoto}
           giveSnack={this.props.giveSnack}
           onPickUp={(event) => {

@@ -5,6 +5,7 @@ import T from "prop-types";
 import update from "immutability-helper";
 import { Map, Set } from "immutable";
 import createClass from "create-react-class";
+import analytics from '@react-native-firebase/analytics';
 import {
   Image,
   View,
@@ -550,7 +551,10 @@ export const CreateData = createClass({
     };
   },
   componentDidMount: function() {
-    firebase.analytics().logEvent("entering_note_info", {});
+    analytics().logEvent("StartObservation", {
+      station_name: this.props.game.name,
+      quest_name: this.props.quest_name,
+    });
     this.hardwareBack = () => {
       if (this.state.isPickingLocation) {
         this.setState({

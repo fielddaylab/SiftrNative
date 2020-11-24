@@ -38,6 +38,7 @@ export const PhotoImages = [
   require('../web/assets/img/cache-photo-08.jpg'),
   require('../web/assets/img/cache-photo-09.jpg'),
 ];
+import analytics from '@react-native-firebase/analytics';
 
 export class FullWidthWebView extends React.Component {
   constructor(props) {
@@ -97,6 +98,14 @@ export class CacheContents extends React.Component {
       // screen goes: 'closed', 'open', 'note', 'photo' (optional), 'snacks'
       eventIndex: 0,
     };
+  }
+
+  componentDidMount() {
+    analytics().logEvent('ViewCache',{
+      station_name: this.props.game.name,
+      quest_name: this.props.currentQuest.name,
+      cache_name: this.props.item.name,
+    })
   }
 
   toNoteNextStep() {

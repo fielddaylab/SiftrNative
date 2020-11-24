@@ -21,6 +21,7 @@ import { deserializeGame } from "./aris";
 import { PhotoImages, PhotoItemIDs } from "./items";
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
 import SideMenu from 'react-native-side-menu-updated';
+import analytics from '@react-native-firebase/analytics';
 
 const RNFS = require("react-native-fs");
 
@@ -312,8 +313,9 @@ export class StemportsPlayer extends React.Component {
               alignItems: 'stretch',
             }}>
               <TouchableOpacity onPress={() =>
-                this.setState({questList: true})
-              } style={{
+                {this.setState({questList: true});
+                analytics().logEvent('ViewMyStations', {});
+              }} style={{
                 alignItems: 'center',
                 flex: 1,
                 padding: 15,
@@ -336,8 +338,9 @@ export class StemportsPlayer extends React.Component {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() =>
-                this.setState({stationList: true})
-              } style={{
+                {this.setState({stationList: true});
+                analytics().logEvent('ViewStationsList',{});
+              }} style={{
                 alignItems: 'center',
                 flex: 1,
                 padding: 15,

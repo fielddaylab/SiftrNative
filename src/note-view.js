@@ -26,7 +26,7 @@ import Hyperlink from "react-native-hyperlink";
 import Gallery from "react-native-image-gallery";
 import { styles, Text } from "./styles";
 import { CacheMedia, CacheMedias } from "./media";
-import firebase from "react-native-firebase";
+import analytics from '@react-native-firebase/analytics';
 
 import { withSuccess } from "./utils";
 
@@ -654,9 +654,9 @@ export const SiftrNoteView = function() {
     componentDidMount() {
       this.loadExtra();
       if (this.props.note.note_id) {
-        firebase.analytics().logEvent("view_note", {
-          note_id: this.props.note.note_id,
-          game_id: this.props.note.game_id
+        analytics().logEvent("ViewFieldNote", {
+          station_name: this.props.game.name,
+          quest_name: this.props.quest_name,
         });
       }
       this.hardwareBack = () => {
