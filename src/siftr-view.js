@@ -1039,12 +1039,24 @@ export const SiftrView = createClass({
     return triggers.filter(trig => {
       const instance = instanceMap[parseInt(trig.instance_id)];
       if (!instance) return false;
-      if (instance && instance.object_type === 'PLAQUE') {
+      if (instance.object_type === 'PLAQUE') {
         const plaque = plaques.find(plaque => parseInt(plaque.plaque_id) === parseInt(instance.object_id));
         // ^ getPlaques is filtered by quest
         if (!plaque) {
           return false; // probably plaque for a different quest, or deleted plaque
         }
+      }
+      if (instance.object_type === 'ITEM') {
+        // check if it's for this quest
+        const item_id = parseInt(instance.object_id);
+        const field = this.props.fields.find(f =>
+          f.options.some(opt => parseInt(opt.remnant_id) === item_id)
+        );
+        if (!field) return false;
+        const field_id = parseInt(field.field_id);
+        const guide = this.props.guides.find(g => parseInt(g.field_id) === field_id);
+        if (!guide) return false;
+        if (parseInt(guide.quest_id) !== parseInt(this.props.currentQuest.quest_id)) return false;
       }
       if (!this.evalReqPackage(trig.requirement_root_package_id, 'trigger')) {
         return false;
