@@ -904,6 +904,29 @@ export class StemportsPicker extends React.Component {
           />
         );
       } else if (this.state.introSequence === 'comic4') {
+        if (this.downloadingTutorial) {
+          return (
+            <View style={{
+              backgroundColor: 'white',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flex: 1,
+            }}>
+              <Text style={{
+                margin: 20,
+              }}>
+                Downloading quest…
+              </Text>
+              <ActivityIndicator
+                size="large"
+                style={{
+                  margin: 20,
+                }}
+              />
+            </View>
+          );
+        }
         return (
           <ComicView
             pages={[
