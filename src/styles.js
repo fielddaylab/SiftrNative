@@ -29,6 +29,9 @@ export const FixedMarkdown = (props) => (
       justifyContent: 'flex-start',
       marginBottom: 15,
     },
+    text: {
+      fontSize: 19,
+    },
   }}>
     {props.text && props.text.replace(/\n/g, (m) => (m + m))}
   </Markdown>
