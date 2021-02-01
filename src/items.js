@@ -171,6 +171,7 @@ export class CacheContents extends React.Component {
                 backgroundColor: 'white',
                 padding: 8,
                 borderRadius: 5,
+                marginBottom: 50,
               }}>
                 <Text style={{
                   color: '#647033',
