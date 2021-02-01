@@ -11,7 +11,8 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Dimensions,
-  Linking
+  Linking,
+  ImageBackground
 } from "react-native";
 import { styles, Text, FixedMarkdown } from "./styles";
 import {deserializeGame} from "./aris";
@@ -766,66 +767,67 @@ export class StemportsPicker extends React.Component {
   render() {
     if (this.props.inSplash) {
       return (
-        <View style={{
-          backgroundColor: 'white',
-          alignItems: 'center',
-          justifyContent: 'space-around',
-          flex: 1,
-        }}>
-          <View style={{
+        <ImageBackground
+          source={require('../web/assets/img/splash.jpg')}
+          style={{
+            flex: 1,
+            backgroundColor: 'black',
             alignItems: 'center',
-          }}>
-            <Text style={{
-              margin: 10,
-              fontSize: 26,
-              fontWeight: 'bold',
-            }}>
-              Welcome to Stemports
-            </Text>
-            <Text style={{
-              margin: 10,
-              fontSize: 20,
-            }}>
-              Be mindful of your surroundings
-            </Text>
-          </View>
+            justifyContent: 'flex-end',
+            flexDirection: 'column',
+            paddingBottom: 20,
+          }}
+          imageStyle={{
+            resizeMode: 'contain',
+          }}
+        >
           <TouchableOpacity onPress={this.props.onCloseSplash} style={{
-            backgroundColor: 'rgb(101,88,245)',
+            backgroundColor: 'white',
             padding: 10,
             borderRadius: 5,
-            marginTop: 10,
-            marginBottom: 10,
+            margin: 20,
             paddingLeft: 15,
             paddingRight: 15,
+            shadowColor: '#5D0D0D',
+            shadowOpacity: 0.3,
+            shadowRadius: 6,
+            shadowOffset: {height: 2},
           }}>
             <Text style={{
-              color: 'white',
+              color: 'rgb(99,112,51)',
               fontSize: 18,
+              textTransform: 'uppercase',
+              fontWeight: 'bold',
             }}>
-              Start
+              Begin
             </Text>
           </TouchableOpacity>
           {
             this.props.viewComic && (
               <TouchableOpacity onPress={this.props.onSkipTutorial} style={{
-                backgroundColor: 'rgb(101,88,245)',
+                backgroundColor: 'white',
                 padding: 10,
                 borderRadius: 5,
-                marginTop: 10,
-                marginBottom: 10,
+                margin: 20,
                 paddingLeft: 15,
                 paddingRight: 15,
+                shadowColor: '#5D0D0D',
+                shadowOpacity: 0.3,
+                shadowRadius: 6,
+                shadowOffset: {height: 2},
               }}>
                 <Text style={{
-                  color: 'white',
+                  color: 'rgb(99,112,51)',
                   fontSize: 18,
+                  textTransform: 'uppercase',
+                  fontWeight: 'bold',
                 }}>
                   Skip Tutorial
                 </Text>
               </TouchableOpacity>
             )
           }
-        </View>
+        </ImageBackground>
       );
     }
 
