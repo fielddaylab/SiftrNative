@@ -104,7 +104,7 @@ export class CacheContents extends React.Component {
     analytics().logEvent('ViewCache',{
       station_name: this.props.game.name,
       quest_name: this.props.currentQuest.name,
-      cache_name: this.props.item.name,
+      cache_name: this.props.item == null ? "(cache inside tour stop)" : this.props.item.name,
     })
   }
 

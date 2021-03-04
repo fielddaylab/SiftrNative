@@ -3548,6 +3548,7 @@ export const SiftrView = createClass({
                     if (modal.instance.object_type === 'PLAQUE') {
                       return (
                         <PlaqueScreen
+                          game={this.props.game}
                           trigger={modal.trigger}
                           instance={modal.instance}
                           plaque={modal.plaque}
