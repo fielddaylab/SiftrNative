@@ -1478,7 +1478,7 @@ const FieldNoteRow = (props) => {
           )
         }
       </TouchableOpacity>
-      <TouchableOpacity onPress={props.onViewItem} style={{padding: 20}}>
+      <TouchableOpacity onPress={props.onViewItem} style={{padding: 20, flex: 1}}>
         <Text style={{
           textAlign: 'center',
         }}>
