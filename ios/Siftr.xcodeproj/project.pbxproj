@@ -14,8 +14,11 @@
 		2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2DCD954D1E0B4F2C00145EB5 /* SiftrTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* SiftrTests.m */; };
+		5309CEDC25F1D1C9008E4F57 /* LeagueSpartan-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5309CED825F1D1C9008E4F57 /* LeagueSpartan-Medium.ttf */; };
+		5309CEDD25F1D1C9008E4F57 /* OpenSans-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5309CED925F1D1C9008E4F57 /* OpenSans-SemiBold.ttf */; };
+		5309CEDE25F1D1C9008E4F57 /* OpenSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5309CEDA25F1D1C9008E4F57 /* OpenSans-Regular.ttf */; };
+		5309CEDF25F1D1C9008E4F57 /* LeagueSpartan-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5309CEDB25F1D1C9008E4F57 /* LeagueSpartan-Bold.ttf */; };
 		530E0DFD22E65A1800C27576 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 530E0DFC22E65A1800C27576 /* Images.xcassets */; };
-		5329451522E63CEC00D02B1B /* League Spartan.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5329451422E63CE700D02B1B /* League Spartan.otf */; };
 		53391B9022E767E800B796AE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 53391B8F22E767E800B796AE /* GoogleService-Info.plist */; };
 		5EDE0D955FF77545350E2437 /* libPods-Siftr-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 37A67D08BC9EF7F728E966AD /* libPods-Siftr-tvOS.a */; };
 		892D68C75DC0F40101BC7632 /* libPods-Siftr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E235574DD039D01E5725A73 /* libPods-Siftr.a */; };
@@ -60,8 +63,11 @@
 		3146BD2CF9C1B8A98DA3F81E /* Pods-SiftrTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SiftrTests.release.xcconfig"; path = "Target Support Files/Pods-SiftrTests/Pods-SiftrTests.release.xcconfig"; sourceTree = "<group>"; };
 		37A67D08BC9EF7F728E966AD /* libPods-Siftr-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Siftr-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D12F6E892E747C3A2943D01 /* Pods-SiftrTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SiftrTests.debug.xcconfig"; path = "Target Support Files/Pods-SiftrTests/Pods-SiftrTests.debug.xcconfig"; sourceTree = "<group>"; };
+		5309CED825F1D1C9008E4F57 /* LeagueSpartan-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "LeagueSpartan-Medium.ttf"; path = "../../assets/fonts/LeagueSpartan-Medium.ttf"; sourceTree = "<group>"; };
+		5309CED925F1D1C9008E4F57 /* OpenSans-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-SemiBold.ttf"; path = "../../assets/fonts/OpenSans-SemiBold.ttf"; sourceTree = "<group>"; };
+		5309CEDA25F1D1C9008E4F57 /* OpenSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-Regular.ttf"; path = "../../assets/fonts/OpenSans-Regular.ttf"; sourceTree = "<group>"; };
+		5309CEDB25F1D1C9008E4F57 /* LeagueSpartan-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "LeagueSpartan-Bold.ttf"; path = "../../assets/fonts/LeagueSpartan-Bold.ttf"; sourceTree = "<group>"; };
 		530E0DFC22E65A1800C27576 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		5329451422E63CE700D02B1B /* League Spartan.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "League Spartan.otf"; path = "../../assets/fonts/League Spartan.otf"; sourceTree = "<group>"; };
 		53391B8F22E767E800B796AE /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Siftr/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		7E098A6C22051875169E77E4 /* Pods-Siftr.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Siftr.release.xcconfig"; path = "Target Support Files/Pods-Siftr/Pods-Siftr.release.xcconfig"; sourceTree = "<group>"; };
 		871424488C84CFF8C9EDF97A /* Pods-Siftr.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Siftr.debug.xcconfig"; path = "Target Support Files/Pods-Siftr/Pods-Siftr.debug.xcconfig"; sourceTree = "<group>"; };
@@ -156,7 +162,10 @@
 		5329451322E63CBF00D02B1B /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				5329451422E63CE700D02B1B /* League Spartan.otf */,
+				5309CEDB25F1D1C9008E4F57 /* LeagueSpartan-Bold.ttf */,
+				5309CED825F1D1C9008E4F57 /* LeagueSpartan-Medium.ttf */,
+				5309CEDA25F1D1C9008E4F57 /* OpenSans-Regular.ttf */,
+				5309CED925F1D1C9008E4F57 /* OpenSans-SemiBold.ttf */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -356,8 +365,11 @@
 			files = (
 				530E0DFD22E65A1800C27576 /* Images.xcassets in Resources */,
 				53391B9022E767E800B796AE /* GoogleService-Info.plist in Resources */,
+				5309CEDF25F1D1C9008E4F57 /* LeagueSpartan-Bold.ttf in Resources */,
+				5309CEDD25F1D1C9008E4F57 /* OpenSans-SemiBold.ttf in Resources */,
+				5309CEDC25F1D1C9008E4F57 /* LeagueSpartan-Medium.ttf in Resources */,
+				5309CEDE25F1D1C9008E4F57 /* OpenSans-Regular.ttf in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
-				5329451522E63CEC00D02B1B /* League Spartan.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

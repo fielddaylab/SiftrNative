@@ -795,9 +795,9 @@ export class StemportsPicker extends React.Component {
           }}>
             <Text style={{
               color: 'rgb(99,112,51)',
-              fontSize: 18,
+              fontSize: 20,
               textTransform: 'uppercase',
-              fontWeight: 'bold',
+              fontFamily: 'LeagueSpartan-Bold',
             }}>
               Begin
             </Text>
@@ -818,9 +818,9 @@ export class StemportsPicker extends React.Component {
               }}>
                 <Text style={{
                   color: 'rgb(99,112,51)',
-                  fontSize: 18,
+                  fontSize: 20,
                   textTransform: 'uppercase',
-                  fontWeight: 'bold',
+                  fontFamily: 'LeagueSpartan-Bold',
                 }}>
                   Skip Tutorial
                 </Text>
@@ -1275,7 +1275,7 @@ export class StemportsPicker extends React.Component {
               }}
             />
           </TouchableOpacity>
-          <Text style={{margin: 10, fontSize: 25, fontWeight: 'bold'}}>
+          <Text style={{margin: 10, fontSize: 30, fontFamily: 'LeagueSpartan-Bold'}}>
             {
               this.props.onlyDownloaded ? 'My Stations' : 'Research Stations'
             }
@@ -1508,7 +1508,7 @@ export class GuideLine extends React.Component {
             }}
           />
             <Text style={{
-
+              fontFamily: 'OpenSans-SemiBold',
             }}>
               {this.state.text.slice(0, this.state.chars)}
             </Text>
@@ -1521,7 +1521,7 @@ export class GuideLine extends React.Component {
                   marginTop: 10,
                   marginBottom: 10,
                 }}>
-                  <Text style={{color: 'white'}}>{this.props.button.label}</Text>
+                  <Text style={{color: 'white', fontFamily: 'OpenSans-SemiBold'}}>{this.props.button.label}</Text>
                 </TouchableOpacity>
               ) : null
             }
@@ -1803,7 +1803,7 @@ class StemportsOutpost extends React.Component {
               resizeMode: 'contain',
               margin: 15,
             }} />
-            <Text style={{margin: 15, fontSize: 25, fontWeight: 'bold', flex: 1}}>
+            <Text style={{margin: 15, fontSize: 30, fontFamily: 'LeagueSpartan-Bold', flex: 1}}>
               {game.name}
             </Text>
           </View>
@@ -1844,7 +1844,7 @@ class StemportsOutpost extends React.Component {
               </View>
             ) : null
           }
-          <Text style={{margin: 15, fontWeight: 'bold', fontSize: 17}}>
+          <Text style={{margin: 15, fontFamily: 'LeagueSpartan-Bold', fontSize: 22}}>
             Quests:
           </Text>
           <View style={{borderColor: 'rgb(223,230,237)', borderTopWidth: 2}}>

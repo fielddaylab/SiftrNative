@@ -3186,7 +3186,8 @@ export const SiftrView = createClass({
                     }}>
                       <Text style={{
                         color: 'black',
-                        fontSize: 11,
+                        fontSize: 13,
+                        fontFamily: 'LeagueSpartan-Medium',
                       }}>
                         give snack
                       </Text>
@@ -3214,8 +3215,8 @@ export const SiftrView = createClass({
                     }}>
                       <Text style={{
                         color: 'black',
-                        fontSize: 11,
-                        fontWeight: 'bold',
+                        fontSize: 13,
+                        fontFamily: 'LeagueSpartan-Medium',
                       }}>
                         give snack
                       </Text>
@@ -3548,6 +3549,7 @@ export const SiftrView = createClass({
                     if (modal.instance.object_type === 'PLAQUE') {
                       return (
                         <PlaqueScreen
+                          currentQuest={this.props.currentQuest}
                           game={this.props.game}
                           trigger={modal.trigger}
                           instance={modal.instance}

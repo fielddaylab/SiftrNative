@@ -2,8 +2,7 @@
 
 import React from 'react';
 import {
-  Text
-, View
+  View
 , TouchableOpacity
 , ScrollView
 , Image
@@ -20,7 +19,7 @@ import ModelView from '../react-native-3d-model-view/lib/ModelView';
 import update from "immutability-helper";
 import {SiftrThumbnails} from './thumbnails';
 import {SquareImage, GalleryModal} from './note-view';
-import {FixedMarkdown} from './styles';
+import {Text, FixedMarkdown} from './styles';
 import { globalstyles } from "./global-styles";
 import {GuideLine} from './stemports-picker';
 
@@ -592,7 +591,7 @@ export class InventoryScreen extends React.Component {
           padding: 15,
           alignItems: 'center',
         }}>
-          <Text style={{ fontWeight: "bold", color: (this.state.observations ? '#939393' : '#444444'),}}>Field Notes</Text>
+          <Text style={{ fontFamily: 'LeagueSpartan-Bold', fontSize: 16, color: (this.state.observations ? '#939393' : '#444444'),}}>Field Notes</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => {
           this.props.setGuideTab('observations')
@@ -602,7 +601,7 @@ export class InventoryScreen extends React.Component {
           padding: 15,
           alignItems: 'center',
         }}>
-          <Text style={{ fontWeight: "bold", color: (this.state.observations ? '#444444' : '#939393'),}}> My Observations</Text>
+          <Text style={{ fontFamily: 'LeagueSpartan-Bold', fontSize: 16, color: (this.state.observations ? '#444444' : '#939393'),}}> My Observations</Text>
         </TouchableOpacity>
       </View>
     );

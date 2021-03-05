@@ -247,7 +247,7 @@ export class StemportsPlayer extends React.Component {
             }}>
               <View style={{flex: 1, alignItems: 'flex-start'}}>
                 <Text style={{
-                  fontWeight: 'bold',
+                  fontFamily: 'LeagueSpartan-Bold',
                   fontSize: 30,
                   letterSpacing: 1,
                   color: '#373535',
@@ -265,9 +265,9 @@ export class StemportsPlayer extends React.Component {
                     : this.setState({stationList: true})
                 }>
                   <Text style={{
-                    fontWeight: 'bold',
-                    fontSize: 16,
+                    fontSize: 18,
                     color: 'rgb(106,125,27)',
+                    fontFamily: 'LeagueSpartan-Bold',
                   }}>
                     {
                       this.props.currentQuest
@@ -330,8 +330,8 @@ export class StemportsPlayer extends React.Component {
                   resizeMode: 'contain',
                 }} source={require('../web/assets/img/illustration-flags.png')} />
                 <Text style={{
-                  fontSize: 16,
-                  fontWeight: 'bold',
+                  fontSize: 18,
+                  fontFamily: 'LeagueSpartan-Bold',
                   color: '#373535',
                 }}>
                   My Stations
@@ -355,8 +355,8 @@ export class StemportsPlayer extends React.Component {
                   resizeMode: 'contain',
                 }} source={require('../web/assets/img/illustration-stations.png')} />
                 <Text style={{
-                  fontSize: 16,
-                  fontWeight: 'bold',
+                  fontSize: 18,
+                  fontFamily: 'LeagueSpartan-Bold',
                   color: '#373535',
                 }}>
                   Stations
@@ -372,13 +372,14 @@ export class StemportsPlayer extends React.Component {
                 <Text style={{
                   fontSize: 24,
                   margin: 3,
-                  fontWeight: 'bold',
                   color: '#373535',
+                  fontFamily: 'LeagueSpartan-Bold',
                 }}>
                   Game Sync
                 </Text>
                 <Text style={{
                   margin: 3,
+                  fontFamily: 'OpenSans-Regular',
                 }}>
                   {this.props.syncMessage}
                 </Text>
@@ -391,12 +392,22 @@ export class StemportsPlayer extends React.Component {
                     backgroundColor: 'rgb(106,125,27)',
                   }}>
                     <Text style={{
-                      fontWeight: 'bold', color: '#ffffff',}}>Sync Game</Text>
+                      color: '#ffffff',
+                      fontFamily: 'OpenSans-SemiBold',
+                    }}>
+                      Sync Game
+                    </Text>
                   </TouchableOpacity>
                 )
               }
             </View>
-            <Text style={{padding: 30, fontSize: 20, fontWeight: 'bold'}}>Photo Album</Text>
+            <Text style={{
+              padding: 30,
+              fontSize: 22,
+              fontFamily: 'LeagueSpartan-Bold',
+            }}>
+              Photo Album
+            </Text>
             <View style={{
               justifyContent: 'center',
               flexWrap: 'wrap',
@@ -454,8 +465,8 @@ export class StemportsPlayer extends React.Component {
                 <Text style={{
                   textTransform: 'uppercase',
                   color: 'rgb(99,111,49)',
-                  fontSize: 18,
-                  fontWeight: 'bold',
+                  fontSize: 20,
+                  fontFamily: 'LeagueSpartan-Bold',
                 }}>
                   Replay Intro
                 </Text>

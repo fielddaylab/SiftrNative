@@ -12,7 +12,7 @@ export const Text = createClass({
     return (
       <RN.Text
         numberOfLines={this.props.numberOfLines}
-        style={[{letterSpacing: 0.3, color: 'black'}, this.props.style]}
+        style={[{letterSpacing: 0.3, color: 'black', fontFamily: 'OpenSans-Regular'}, this.props.style]}
       >
         {this.props.children}
       </RN.Text>

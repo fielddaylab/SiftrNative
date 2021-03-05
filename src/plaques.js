@@ -2,8 +2,7 @@
 
 import React from 'react';
 import {
-  Text
-, View
+  View
 , TouchableOpacity
 , ScrollView
 , Image
@@ -15,7 +14,7 @@ import {
 } from './items';
 import {CacheMedia, CacheMedias} from './media';
 import {ItemScreen, CacheContents} from './items';
-import {FixedMarkdown} from './styles';
+import {FixedMarkdown, Text} from './styles';
 import {SquareImage, GalleryModal} from './note-view';
 import { globalstyles } from "./global-styles";
 
@@ -213,9 +212,9 @@ export class PlaqueScreen extends React.Component {
             }}>
               <Text style={{
                 color: '#647033',
-                fontWeight: 'bold',
-                fontSize: 20,
+                fontSize: 23,
                 textTransform: 'uppercase',
+                fontFamily: 'LeagueSpartan-Bold',
               }}>
                 {
                   hasCheckinLog ? 'View' : 'Check in'

@@ -81,7 +81,10 @@
 	<string>This permission is not used by Siftr.</string>
 	<key>UIAppFonts</key>
 	<array>
-		<string>League Spartan.otf</string>
+		<string>LeagueSpartan-Bold.ttf</string>
+		<string>LeagueSpartan-Medium.ttf</string>
+		<string>OpenSans-Regular.ttf</string>
+		<string>OpenSans-SemiBold.ttf</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
