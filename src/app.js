@@ -544,14 +544,23 @@ export var SiftrNative = createClass({
   },
 
   replayIntro: function() {
-    const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/100058`;
-    RNFS.unlink(siftrDir).catch(() => null).then(() =>
-      RNFS.unlink(`${RNFS.DocumentDirectoryPath}/seenwizard.txt`).catch(() => null)
-    ).then(() =>
-      RNFS.unlink(`${RNFS.DocumentDirectoryPath}/siftrs/current-quest.txt`).catch(() => null)
-    ).then(() => {
-      this.setState({inTutorial: true});
-      this.exitGame(100058, 17928);
+    this.state.auth.call('client.logPlayerResetGame', {
+      game_id: 100058,
+    }, () => {
+      this.state.auth.call('notes.deleteUserNotesForGame', {
+        user_id: this.state.auth.authToken.user_id,
+        game_id: 100058,
+      }, (res2) => {
+        const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/100058`;
+        RNFS.unlink(siftrDir).catch(() => null).then(() =>
+          RNFS.unlink(`${RNFS.DocumentDirectoryPath}/seenwizard.txt`).catch(() => null)
+        ).then(() =>
+          RNFS.unlink(`${RNFS.DocumentDirectoryPath}/siftrs/current-quest.txt`).catch(() => null)
+        ).then(() => {
+          this.setState({inTutorial: true});
+          this.exitGame(100058, 17928);
+        });
+      });
     });
   },
 
