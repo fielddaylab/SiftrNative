@@ -1129,7 +1129,6 @@ export const CreateData = createClass({
                                     value={getText()}
                                     onChangeText={setText}
                                     style={styles.input}
-                                    placeholder={field.label}
                                     onFocus={() => {
                                       this.scrollToField(field.field_id);
                                       this.setState({
@@ -1213,10 +1212,14 @@ export const CreateData = createClass({
                                   data.field_option_id ===
                                     option.field_option_id
                                 );
+                                const item = this.props.items.find(item =>
+                                  parseInt(item.item_id) === option.remnant_id
+                                );
                                 return (
                                   <FieldNoteRow
                                     key={option.field_option_id}
                                     option={option}
+                                    mediaID={item && (item.icon_media_id || item.media_id)}
                                     auth={this.props.auth}
                                     current={isSelected}
                                     getColor={this.props.getColor}
@@ -1234,6 +1237,9 @@ export const CreateData = createClass({
                                       }
                                       onChangeData(newData);
                                     }}
+                                    onViewItem={item && (() => this.setState({
+                                      viewingItem: item,
+                                    }))}
                                   />
                                 );
                               });

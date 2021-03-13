@@ -50,6 +50,7 @@ export class PlaqueScreen extends React.Component {
           onPickUp={(event) => {
             this.props.onPickup([event]);
           }}
+          selectSnack={this.props.selectSnack}
         />
       );
     }
