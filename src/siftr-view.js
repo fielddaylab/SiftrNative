@@ -26,7 +26,8 @@ import {
   SafeAreaView,
   Alert,
   KeyboardAvoidingView,
-  Dimensions
+  Dimensions,
+  Animated
 } from "react-native";
 const RNFS = require("react-native-fs");
 import { styles, Text } from "./styles";
@@ -773,6 +774,7 @@ export const SiftrView = createClass({
       guideMentionedRemnant: false,
       guideMentionedXP: false,
       warp: parseInt(this.props.game.game_id) === 100058,
+      chipAnimation: new Animated.Value(0),
     };
   },
   getAllNotes: function(cb) {
@@ -2701,14 +2703,18 @@ export const SiftrView = createClass({
 
   chipView: function(){
     return !!(this.state.chipMessages && this.state.chipMessages.length) && (
-      <View style={{
+      <Animated.View style={{
         backgroundColor: this.state.chipMessages[0].color || 'rgb(110,186,180)',
         position: 'absolute',
         left: 0,
         right: 0,
-        bottom: 0,
+        bottom: this.state.chipAnimation.interpolate({
+          inputRange: [0, 1],
+          outputRange: [-50, 0],
+        }),
         padding: 15,
         flexDirection: 'row',
+        opacity: this.state.chipAnimation,
       }}>
         {
           this.state.chipMessages[0].image === 'photos' ? (
@@ -2774,7 +2780,7 @@ export const SiftrView = createClass({
             )
           }
         </View>
-      </View>
+      </Animated.View>
     );
   },
   addChip: function(message, color, image, instruction, instructionColor){
@@ -2796,7 +2802,23 @@ export const SiftrView = createClass({
     });
   },
   waitThenPopChip: function(){
-    setTimeout(() => {
+    Animated.sequence([
+      Animated.timing(
+        this.state.chipAnimation,
+        {
+          toValue: 1,
+          duration: 500,
+        },
+      ),
+      Animated.delay(2000),
+      Animated.timing(
+        this.state.chipAnimation,
+        {
+          toValue: 0,
+          duration: 500,
+        },
+      ),
+    ]).start(() => {
       let moreToPop = false;
       this.setState((prevState) => update(prevState, {
         chipMessages: (messages) => {
@@ -2812,7 +2834,7 @@ export const SiftrView = createClass({
           this.waitThenPopChip();
         }
       });
-    }, 3000);
+    });
   },
 
   // stuff for cache and tour stop
