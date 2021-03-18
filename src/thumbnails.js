@@ -246,7 +246,7 @@ export class SiftrThumbnails extends React.Component {
             <CacheMedia
               key={note.note_id}
               auth={this.props.auth}
-              media_id={this.props.game.field_id_preview ? note.field_data[this.props.game.field_id_preview] : undefined}
+              media_id={note.field_data.map(x => x.media_id).filter(n => n !== 0)[0]}
               size={this.props.game.field_id_preview ? 'big_thumb_url' : undefined}
               online={this.props.online}
               withURL={(url) =>

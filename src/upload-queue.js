@@ -3,11 +3,13 @@
 import React from 'react';
 import T from 'prop-types';
 import createClass from 'create-react-class';
+import update from "immutability-helper";
 
 import RNFS from 'react-native-fs';
 import analytics from '@react-native-firebase/analytics';
 
 import {Auth} from './aris';
+import {loadMedia} from "./media";
 
 import {Platform} from 'react-native';
 
@@ -108,6 +110,45 @@ export function uploadNote(auth, {dir, json}) {
       game_id: note.game_id,
     });
     return RNFS.unlink(dir.path);
+  }).then(() => {
+    // update the notes and media for this station
+    const game_id = json.game_id;
+    const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${game_id}`;
+    const writeJSON = (name) => {
+      return (data) => {
+        return RNFS.writeFile(
+          `${siftrDir}/${name}.txt`,
+          JSON.stringify(data)
+        ).then(() =>
+          ({key: name, data: data}) // return object to generate quests
+        );
+      };
+    };
+    return Promise.all([
+      auth.promise('siftrSearch', {
+        game_id: game_id,
+        order: "recent",
+        map_data: false,
+      }).then(({notes}) =>
+        Promise.all(notes.map(note => auth.promise('getFieldDataForNote', {
+          note_id: note.note_id,
+        }))).then(field_data => {
+          return writeJSON('notes')(notes.map((note, i) =>
+            update(note, {field_data: {$set: field_data[i]}})
+          ));
+        })
+      ),
+      auth.promise('call', 'media.getMediaForGame', {
+        game_id: game_id,
+      }).then(medias =>
+        Promise.all(medias.map(media => new Promise((resolve, reject) => {
+          loadMedia({
+            media_id: media.media_id,
+            auth: auth,
+          }, resolve);
+        })))
+      ),
+    ]);
   }).catch((err) => {
     return console.warn(err);
   });

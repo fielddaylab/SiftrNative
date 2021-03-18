@@ -747,6 +747,7 @@ export class StemportsPicker extends React.Component {
         loadQueue().then(notes => this.setState({queueNotes: notes}));
       }));
       return Promise.all(promises).then(() => {
+        this.props.onSyncNotes && this.props.onSyncNotes();
         this.setState({syncing: false});
         this.loadDownloadedGames();
       });

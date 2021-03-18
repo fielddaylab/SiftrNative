@@ -323,17 +323,7 @@ class SiftrViewLoader extends React.Component {
   }
 
   componentDidMount() {
-    const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
-    LOAD_OBJECTS.forEach(({name, load}) => {
-      if (!load) {
-        load = (x) => x;
-      }
-      RNFS.readFile(`${siftrDir}/${name}.txt`).then(str => {
-        this.setState({[name]: load(JSON.parse(str))});
-      }).catch(err => {
-        this.setState({[name]: null});
-      });
-    });
+    this.loadEverything();
     RNFS.readFile(`${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`).then(str => {
       let invzero = JSON.parse(str);
       // fix for a now-fixed bug resulting in tons of puffin snacks
@@ -355,6 +345,20 @@ class SiftrViewLoader extends React.Component {
     return this.siftrView && this.siftrView.loadAfterUpload(...args);
   }
 
+  loadEverything() {
+    const siftrDir = `${RNFS.DocumentDirectoryPath}/siftrs/${this.props.game.game_id}`;
+    LOAD_OBJECTS.forEach(({name, load}) => {
+      if (!load) {
+        load = (x) => x;
+      }
+      RNFS.readFile(`${siftrDir}/${name}.txt`).then(str => {
+        this.setState({[name]: load(JSON.parse(str))});
+      }).catch(err => {
+        this.setState({[name]: null});
+      });
+    });
+  }
+
   render() {
     if (LOAD_OBJECTS.some(({name}) => !(name in this.state))) {
       return null;
@@ -370,6 +374,7 @@ class SiftrViewLoader extends React.Component {
           )
         }
         ref={(sv) => this.siftrView = sv}
+        onSyncNotes={() => this.loadEverything()}
       />;
     }
   }
@@ -3563,6 +3568,7 @@ export const SiftrView = createClass({
                             currentQuest={this.props.currentQuest}
                             game={this.props.game}
                             onReplayIntro={this.props.onReplayIntro}
+                            onSyncNotes={this.props.onSyncNotes}
                           />
                         </SafeAreaView>
                       </Modal>
