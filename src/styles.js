@@ -50,6 +50,7 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
     marginLeft: 30,
     marginRight: 30,
+    fontFamily: 'OpenSans-Regular',
   },
 
   horizontal: {

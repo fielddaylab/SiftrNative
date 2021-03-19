@@ -1121,7 +1121,7 @@ export const CreateData = createClass({
                               return (
                                 <View
                                   style={{
-                                    backgroundColor: "white"
+                                    backgroundColor: "#ddd"
                                   }}
                                 >
                                   <TextInput
@@ -1177,7 +1177,7 @@ export const CreateData = createClass({
                                     padding: 10,
                                     fontSize: 16,
                                     alignSelf: "stretch",
-                                    backgroundColor: "white",
+                                    backgroundColor: "#ddd",
                                     color: 'black',
                                   }}
                                   onFocus={() => {

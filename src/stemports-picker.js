@@ -1845,17 +1845,6 @@ class StemportsOutpost extends React.Component {
               </View>
             ) : null
           }
-          <Text style={{margin: 15, fontFamily: 'LeagueSpartan-Bold', fontSize: 22}}>
-            Quests:
-          </Text>
-          <View style={{borderColor: 'rgb(223,230,237)', borderTopWidth: 2}}>
-            <GameQuestList
-              obj={obj}
-              game={game}
-              onSelect={(game, quest) => this.setState({showingQuest: quest})}
-              downloaded={obj.offline}
-            />
-          </View>
           {
             !(obj.offline) && (
               <View style={{alignItems: 'center', justifyContent: 'center'}}>
@@ -1871,6 +1860,17 @@ class StemportsOutpost extends React.Component {
               </View>
             )
           }
+          <Text style={{margin: 15, fontFamily: 'LeagueSpartan-Bold', fontSize: 22}}>
+            Quests:
+          </Text>
+          <View style={{borderColor: 'rgb(223,230,237)', borderTopWidth: 2}}>
+            <GameQuestList
+              obj={obj}
+              game={game}
+              onSelect={(game, quest) => this.setState({showingQuest: quest})}
+              downloaded={obj.offline}
+            />
+          </View>
         </ScrollView>
       </View>
     );

@@ -958,7 +958,7 @@ export const SiftrView = createClass({
         newQuests.active.forEach(quest => {
           const oldVersion = oldQuests.active.find(old => old.quest_id === quest.quest_id);
           if (!oldVersion) {
-            this.pushModal({type: 'quest-available', quest: quest});
+            // this.pushModal({type: 'quest-available', quest: quest});
           } else {
             // check if subquests have been completed
             if (quest.sub_active && oldVersion.sub_active && quest.sub_active.length !== oldVersion.sub_active.length) {
@@ -1017,11 +1017,11 @@ export const SiftrView = createClass({
           const newQuests = resQuests.data;
           this.setState({quests: newQuests});
           if (oldQuests) {
-            newQuests.active.forEach(quest => {
-              if (!oldQuests.active.some(old => old.quest_id === quest.quest_id)) {
-                this.pushModal({type: 'quest-available', quest: quest});
-              }
-            });
+            // newQuests.active.forEach(quest => {
+            //   if (!oldQuests.active.some(old => old.quest_id === quest.quest_id)) {
+            //     this.pushModal({type: 'quest-available', quest: quest});
+            //   }
+            // });
             newQuests.complete.forEach(quest => {
               if (!oldQuests.complete.some(old => old.quest_id === quest.quest_id)) {
                 this.pushModal({type: 'quest-complete', quest: quest});
