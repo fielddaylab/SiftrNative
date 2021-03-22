@@ -41,12 +41,13 @@
     "react-native-permissions": "^1.2.0",
     "react-native-progress-circle": "^2.0.1",
     "react-native-side-menu-updated": "^1.2.1",
-    "react-native-simple-markdown": "^1.1.0",
+    "react-native-simple-markdown": "file:react-native-simple-markdown",
     "react-native-svg": "^9.5.3",
     "react-native-webview": "^7.5.2",
     "react-native-zip-archive": "^5.0.0",
     "remove-markdown": "^0.3.0",
-    "rn-fetch-blob": "^0.10.16"
+    "rn-fetch-blob": "^0.10.16",
+    "simple-markdown": "^0.7.3"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
