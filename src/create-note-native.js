@@ -1450,9 +1450,9 @@ const FieldNoteRow = (props) => {
       borderTopWidth: 2,
       borderBottomWidth: 2,
     }}>
-      <TouchableOpacity onPress={props.onViewItem} style={{padding: 10}}>
-        {
-          props.mediaID ? (
+      {
+        props.mediaID ? (
+          <TouchableOpacity onPress={props.onViewItem} style={{padding: 10}}>
             <CacheMedia
               media_id={props.mediaID}
               auth={props.auth}
@@ -1468,22 +1468,9 @@ const FieldNoteRow = (props) => {
                 />
               }
             />
-          ) : (
-            <View
-              style={{
-                alignSelf: 'center',
-                height: 60,
-                width: 60,
-                borderRadius: 999,
-                resizeMode: 'contain',
-                backgroundColor: props.getColor(props.option),
-                borderColor: 'black',
-                borderWidth: 2,
-              }}
-            />
-          )
-        }
-      </TouchableOpacity>
+          </TouchableOpacity>
+        ) : null
+      }
       <TouchableOpacity onPress={props.onViewItem} style={{padding: 20, flex: 1}}>
         <Text style={{
           textAlign: 'center',

@@ -1854,7 +1854,13 @@ class StemportsOutpost extends React.Component {
                   margin: 20,
                 }} onPress={this.props.downloadingGame ? undefined : this.props.onDownload}>
                   <Text style={{color: 'white'}}>
-                    {this.props.downloadingGame ? 'Downloading…' : 'Download Quests'}
+                    {
+                      this.props.downloadingGame ? (
+                        parseInt(this.props.downloadingGame.game_id) == parseInt(game.game_id)
+                          ? 'Downloading…'
+                          : 'Downloading a different station…'
+                      ) : 'Download Quests'
+                    }
                   </Text>
                 </TouchableOpacity>
               </View>

@@ -9,7 +9,8 @@ import {
   Modal,
   Image,
   SafeAreaView,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  Alert
 } from "react-native";
 import { styles, Text } from "./styles";
 import { globalstyles } from "./global-styles";
@@ -190,7 +191,23 @@ export class StemportsPlayer extends React.Component {
             {this.props.warpOn ? 'Stop Warping to Station' : 'Warp to Station'}
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={this.props.onResetProgress} style={{
+        <TouchableOpacity onPress={() => {
+          Alert.alert(
+            'Reset Station Progress',
+            'This will delete all progress for the quests at the current station.',
+            [
+              {
+                text: 'Reset',
+                onPress: () => this.props.onResetProgress(),
+              },
+              {
+                text: 'Cancel',
+                onPress: () => {},
+                style: 'cancel',
+              },
+            ],
+          );
+        }} style={{
           padding: 20,
         }}>
           <Text style={{fontSize: 17, color: 'white'}}>
