@@ -24,6 +24,7 @@ import {loadQueue, uploadNote} from './upload-queue';
 import {getQuestProgress} from './quests';
 import {maxPickupDistance, meterDistance} from './map';
 import { ComicView } from './stemports-player';
+import { globalstyles } from "./global-styles";
 import MapboxGL from "@react-native-mapbox-gl/maps";
 import ModelView from '../react-native-3d-model-view/lib/ModelView';
 import TestStyle from './mapbox-style.json';
@@ -467,6 +468,7 @@ export class StemportsPicker extends React.Component {
           add a req to the item trigger for the player to have been within range of the plaque (IN_PLAQUE_RANGE log entry)
           (if multiple, pick the closest plaque)
         */
+        /*
         let instanceLookup = {};
         allData.instances.forEach(instance => {
           instanceLookup[instance.instance_id] = instance;
@@ -533,6 +535,7 @@ export class StemportsPicker extends React.Component {
             return trigger;
           }
         });
+        */
 
         if (new_quests.length > 0) {
           return Promise.all([
@@ -540,12 +543,12 @@ export class StemportsPicker extends React.Component {
             writeJSON('requirement_root_packages')(allData.requirement_root_packages.concat(new_requirement_root_packages)),
             writeJSON('requirement_and_packages')(allData.requirement_and_packages.concat(new_requirement_and_packages)),
             writeJSON('requirement_atoms')(allData.requirement_atoms.concat(new_requirement_atoms)),
-            writeJSON('triggers')(updatedTriggers),
+            // writeJSON('triggers')(updatedTriggers),
           ]).then(() => update(allData, {
             requirement_root_packages: {$push: new_requirement_root_packages},
             requirement_and_packages: {$push: new_requirement_and_packages},
             requirement_atoms: {$push: new_requirement_atoms},
-            triggers: {$set: updatedTriggers},
+            // triggers: {$set: updatedTriggers},
           }));
         } else {
           return allData; // nothing to do
@@ -886,7 +889,7 @@ export class StemportsPicker extends React.Component {
           <StemportsOutpost
             game={{
               game_id: 'tutorial',
-              name: 'Curious Quest Club',
+              name: 'The Station',
             }}
             obj={{
               offline: {
@@ -944,7 +947,7 @@ export class StemportsPicker extends React.Component {
                   this.downloadingTutorial = false;
                   this.props.onSelect({
                     game_id: 100058,
-                    name: 'Curious Quest Club',
+                    name: 'The Station',
                     latitude: this.props.location.coords.latitude,
                     longitude: this.props.location.coords.longitude,
                     newFormat: (() => true),
@@ -1046,11 +1049,6 @@ export class StemportsPicker extends React.Component {
           {
             gameList.filter(o => o.offline).map(o =>
               <GameQuestList
-                key={o.game.game_id}
-                obj={o}
-                game={o.game}
-                onSelect={this.props.onSelect}
-                downloaded={true}
                 key={o.game.game_id}
                 obj={o}
                 game={o.game}
@@ -1180,7 +1178,7 @@ export class StemportsPicker extends React.Component {
                       parseFloat(this.props.location.coords.longitude),
                       parseFloat(this.props.location.coords.latitude),
                     ])}
-                    title="Curious Quest Club"
+                    title="The Station"
                     anchor={{x: 0.5, y: 0.5}}
                     onSelected={() => this.setState({introSequence: 'comic3'})}
                   >
@@ -1560,6 +1558,106 @@ class GameQuestList extends React.Component {
 
   render() {
     const obj = this.props.obj;
+
+    if (this.props.skin === 'station') {
+      return (
+        <View>
+          {
+            (obj.offline ? obj.offline.quests : obj.online.quests).filter(quest =>
+              !parseInt(quest.parent_quest_id)
+            ).map(quest => {
+              const details = this.state.sortedQuests &&
+                this.state.sortedQuests.displayInfo &&
+                this.state.sortedQuests.displayInfo.find(o =>
+                  parseInt(o.quest.quest_id) === parseInt(quest.quest_id)
+                );
+              const progress = getQuestProgress(details);
+              let done = 0;
+              let total = 0;
+              progress.forEach(sub => {
+                done += sub.done;
+                total += sub.total;
+              });
+              return (
+                <View key={quest.quest_id} style={{
+                  flexDirection: 'column',
+                  alignItems: 'stretch',
+                  backgroundColor: 'white',
+                  margin: 8,
+                  marginLeft: 16,
+                  marginRight: 16,
+                  borderRadius: 8,
+                  shadowColor: '#5D0D0D',
+                  shadowOpacity: 0.3,
+                  shadowRadius: 6,
+                  shadowOffset: {height: 2},
+                }}>
+                  <View key={quest.quest_id} style={{
+                    flexDirection: 'row',
+                    padding: 5,
+                    alignItems: 'center',
+                  }}>
+                    {
+                      parseInt(quest.active_icon_media_id) ? (
+                        <CacheMedia
+                          media_id={quest.active_icon_media_id}
+                          auth={this.props.auth}
+                          online={this.props.online}
+                          withURL={(url) => (
+                            <Image source={url} style={{
+                              width: 40,
+                              height: 40,
+                              resizeMode: 'contain',
+                              margin: 5,
+                            }} />
+                          )}
+                        />
+                      ) : (
+                        <Image source={require('../web/assets/img/stemports-leaf.png')} style={{
+                          width: 40,
+                          height: 40,
+                          resizeMode: 'contain',
+                          margin: 5,
+                        }} />
+                      )
+                    }
+                    <Text style={{flex: 1, margin: 5}}>{quest.name}</Text>
+                    {
+                      this.props.downloaded && (
+                        <TouchableOpacity onPress={() =>
+                          obj.offline && this.props.onSelect(this.props.game, quest)
+                        } style={{
+                          borderColor: 'rgb(100,111,51)',
+                          borderWidth: 2,
+                          backgroundColor: done === 0 ? 'white' : 'rgb(100,111,51)',
+                          margin: 5,
+                          paddingTop: 5,
+                          paddingBottom: 5,
+                          paddingLeft: 9,
+                          paddingRight: 9,
+                          borderRadius: 5,
+                        }}>
+                          <Text style={{
+                            color: done === 0 ? 'rgb(100,111,51)' : 'white',
+                            fontFamily: 'LeagueSpartan-Bold',
+                            letterSpacing: 1,
+                            lineHeight: 20,
+                            fontSize: 14,
+                          }}>
+                            {done === 0 ? 'Start' : 'Resume'}
+                          </Text>
+                        </TouchableOpacity>
+                      )
+                    }
+                  </View>
+                </View>
+              );
+            }).filter(x => x)
+          }
+        </View>
+      );
+    }
+
     return (
       <View>
         {
@@ -1779,34 +1877,34 @@ class StemportsOutpost extends React.Component {
     return (
       <View style={{
         flex: 1,
-        backgroundColor: 'white',
+        backgroundColor: 'rgb(109,187,129)',
         alignItems: 'stretch',
       }}>
-        <TouchableOpacity onPress={this.props.onClose}>
-          <Image
-            source={require('../web/assets/img/back-arrow.png')}
-            style={{
-              resizeMode: 'contain',
-              width: 108 * 0.25,
-              height: 150 * 0.25,
-              margin: 10,
-            }}
-          />
-        </TouchableOpacity>
         <ScrollView style={{flex: 1}}>
           <View style={{
-            flexDirection: 'row',
-            alignItems: 'center',
+            backgroundColor: 'white',
           }}>
-            <Image source={require('../web/assets/img/stemports-icon-station.png')} style={{
-              width: 136 * 0.4,
-              height: 128 * 0.4,
-              resizeMode: 'contain',
-              margin: 15,
-            }} />
-            <Text style={{margin: 15, fontSize: 30, fontFamily: 'LeagueSpartan-Bold', flex: 1}}>
-              {game.name}
-            </Text>
+            <View style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+              <Image source={require('../web/assets/img/stemports-icon-station.png')} style={{
+                width: 136 * 0.4,
+                height: 128 * 0.4,
+                resizeMode: 'contain',
+                margin: 15,
+              }} />
+              <Text style={{margin: 15, fontSize: 30, fontFamily: 'LeagueSpartan-Bold', flex: 1}}>
+                {game.name}
+              </Text>
+            </View>
+            {
+              (game.description && game.description.length !== 0) ? (
+                <View style={{margin: 15}}>
+                  <FixedMarkdown text={game.description} />
+                </View>
+              ) : null
+            }
           </View>
           {
             newVersion && (
@@ -1814,24 +1912,33 @@ class StemportsOutpost extends React.Component {
                 padding: 15,
                 flexDirection: 'row',
                 alignItems: 'center',
-                backgroundColor: 'rgb(178,174,248)',
               }}>
                 <View style={{flex: 1, marginRight: 10}}>
                   <Text style={{
                     margin: 3,
                     fontWeight: 'bold',
+                    textTransform: 'uppercase',
+                    color: "rgb(5,85,26)",
+                    fontSize: 20,
+                    fontFamily: 'LeagueSpartan-Bold',
+                    letterSpacing: 2,
+                    lineHeight: 25,
                   }}>
-                    {this.props.canSync ? "Update Available" : 'Syncing…'}
+                    {this.props.canSync ? "Update\nAvailable" : 'Syncing…'}
                   </Text>
                 </View>
                 {
                   this.props.canSync && (
                     <TouchableOpacity onPress={this.props.onSync} style={{
-                      backgroundColor: 'rgb(101,88,245)',
+                      backgroundColor: 'white',
                       padding: 10,
                       borderRadius: 4,
+                      shadowColor: '#5D0D0D',
+                      shadowOpacity: 0.3,
+                      shadowRadius: 6,
+                      shadowOffset: {height: 2},
                     }}>
-                      <Text style={{color: 'white'}}>Download Update</Text>
+                      <Text style={{color: 'black', textTransform: 'uppercase'}}>Update Quests</Text>
                     </TouchableOpacity>
                   )
                 }
@@ -1839,26 +1946,37 @@ class StemportsOutpost extends React.Component {
             )
           }
           {
-            (game.description && game.description.length !== 0) ? (
-              <View style={{margin: 15}}>
-                <FixedMarkdown text={game.description} />
-              </View>
-            ) : null
-          }
-          {
             !(obj.offline) && (
-              <View style={{alignItems: 'center', justifyContent: 'center'}}>
+              <View style={{alignItems: 'center', padding: 15, flexDirection: 'row'}}>
+                <View style={{flex: 1, marginRight: 10}}>
+                  <Text style={{
+                    margin: 3,
+                    fontWeight: 'bold',
+                    textTransform: 'uppercase',
+                    color: "rgb(5,85,26)",
+                    fontSize: 20,
+                    fontFamily: 'LeagueSpartan-Bold',
+                    letterSpacing: 2,
+                    lineHeight: 25,
+                  }}>
+                    {game.quests.length == 1 ? "1 Quest\n" : `${game.quests.length} Quests\n`}Available
+                  </Text>
+                </View>
                 <TouchableOpacity style={{
-                  backgroundColor: 'rgb(101,88,245)',
-                  padding: 5,
-                  margin: 20,
+                  backgroundColor: 'white',
+                  padding: 10,
+                  borderRadius: 4,
+                  shadowColor: '#5D0D0D',
+                  shadowOpacity: 0.3,
+                  shadowRadius: 6,
+                  shadowOffset: {height: 2},
                 }} onPress={this.props.downloadingGame ? undefined : this.props.onDownload}>
-                  <Text style={{color: 'white'}}>
+                  <Text style={{color: 'black', textTransform: 'uppercase'}}>
                     {
                       this.props.downloadingGame ? (
                         parseInt(this.props.downloadingGame.game_id) == parseInt(game.game_id)
                           ? 'Downloading…'
-                          : 'Downloading a different station…'
+                          : 'Please wait…'
                       ) : 'Download Quests'
                     }
                   </Text>
@@ -1866,18 +1984,23 @@ class StemportsOutpost extends React.Component {
               </View>
             )
           }
-          <Text style={{margin: 15, fontFamily: 'LeagueSpartan-Bold', fontSize: 22}}>
-            Quests:
-          </Text>
-          <View style={{borderColor: 'rgb(223,230,237)', borderTopWidth: 2}}>
-            <GameQuestList
-              obj={obj}
-              game={game}
-              onSelect={(game, quest) => this.setState({showingQuest: quest})}
-              downloaded={obj.offline}
-            />
-          </View>
+          <GameQuestList
+            obj={obj}
+            game={game}
+            onSelect={(game, quest) => this.setState({showingQuest: quest})}
+            downloaded={obj.offline}
+            skin="station"
+            auth={this.props.auth}
+          />
         </ScrollView>
+        <View style={globalstyles.closeContainer} pointerEvents="box-none">
+          <TouchableOpacity onPress={this.props.onClose}>
+            <Image
+              style={globalstyles.closeButton}
+              source={require("../web/assets/img/quest-close.png")}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
