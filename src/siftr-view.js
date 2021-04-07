@@ -1034,6 +1034,9 @@ export const SiftrView = createClass({
     });
   },
   getTriggers: function() {
+    return this.allTriggers || [];
+  },
+  updateAllTriggers: function() {
     const instances = this.getInstances();
     let instanceMap = {};
     instances.forEach(inst => {
@@ -1043,7 +1046,7 @@ export const SiftrView = createClass({
     const triggers = this.props.triggers.concat(
       this.state.factoryObjects.map(x => x.trigger)
     );
-    return triggers.filter(trig => {
+    this.allTriggers = triggers.filter(trig => {
       const instance = instanceMap[parseInt(trig.instance_id)];
       if (!instance) return false;
       if (instance.object_type === 'PLAQUE') {
@@ -1070,6 +1073,9 @@ export const SiftrView = createClass({
       }
       return true;
     });
+    setTimeout(() => {
+      this.updateAllTriggers();
+    }, 3000);
   },
   getInstances: function() {
     return this.props.instances.concat(this.state.factoryObjects.map(x => x.instance));
@@ -1300,6 +1306,7 @@ export const SiftrView = createClass({
     }
     this.tickTriggersOffline();
     this.checkQuestsOffline();
+    this.updateAllTriggers();
 
     // rest
     this.nomenTimer = setInterval(() => {

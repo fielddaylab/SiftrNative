@@ -735,7 +735,9 @@ export const CreateData = createClass({
         }
       });
       visibleFields = visiblePhotos.concat(visibleFieldNotes).concat(visibleRest.length === 0 ? [] : [visibleRest]);
-      const currentFieldPage = Array.isArray(visibleFields[this.state.fieldIndex]) ?
+      const currentFieldPage = visibleFields.length == 0 ?
+        [] :
+        Array.isArray(visibleFields[this.state.fieldIndex]) ?
         visibleFields[this.state.fieldIndex]   :
         [visibleFields[this.state.fieldIndex]] ;
       const progressCamera = (this.state.fieldIndex < visiblePhotos.length ? 'current' : 'done');
@@ -900,7 +902,7 @@ export const CreateData = createClass({
             }
           </View>
           {
-            visibleFields[this.state.fieldIndex].field_type === 'MEDIA' ? (() => {
+            (visibleFields[this.state.fieldIndex] && visibleFields[this.state.fieldIndex].field_type === 'MEDIA') ? (() => {
               const field = visibleFields[this.state.fieldIndex];
               const field_id = field.field_id;
               const file = this.props.createNote.files.find(f => f.field_id === field_id);
@@ -1354,7 +1356,7 @@ export const CreateData = createClass({
                 </Text>
               </TouchableOpacity>
               {
-                visibleFields[this.state.fieldIndex].field_type === 'MEDIA' ? (
+                (visibleFields[this.state.fieldIndex] && visibleFields[this.state.fieldIndex].field_type === 'MEDIA') ? (
                   <TouchableOpacity
                     onPress={() => this.createPhoto && this.createPhoto.takePhoto()}
                   >

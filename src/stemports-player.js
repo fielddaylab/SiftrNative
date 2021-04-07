@@ -184,13 +184,6 @@ export class StemportsPlayer extends React.Component {
         backgroundColor: '#333',
         flex: 1,
       }}>
-        <TouchableOpacity onPress={this.props.onLogout} style={{
-          padding: 20,
-        }}>
-          <Text style={{fontSize: 17, color: 'white'}}>
-            Logout
-          </Text>
-        </TouchableOpacity>
         <TouchableOpacity onPress={this.props.onToggleWarp} style={{
           padding: 20,
         }}>
@@ -219,6 +212,13 @@ export class StemportsPlayer extends React.Component {
         }}>
           <Text style={{fontSize: 17, color: 'white'}}>
             Reset Station Progress
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={this.props.onLogout} style={{
+          padding: 20,
+        }}>
+          <Text style={{fontSize: 17, color: 'white'}}>
+            Logout
           </Text>
         </TouchableOpacity>
       </View>
