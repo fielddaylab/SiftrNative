@@ -12,7 +12,7 @@ import {
   TouchableWithoutFeedback,
   Alert
 } from "react-native";
-import { styles, Text } from "./styles";
+import { styles, Text, hypher } from "./styles";
 import { globalstyles } from "./global-styles";
 import {loadMedia, CacheMedia} from "./media";
 import { StatusSpace } from "./status-space";
@@ -278,7 +278,9 @@ export class StemportsPlayer extends React.Component {
                   borderBottomWidth: 2,
                   borderColor: 'rgb(223,230,237)',
                 }}>
-                  {this.props.auth.authToken.display_name || this.props.auth.authToken.username}
+                  {hypher.hyphenateText(
+                    this.props.auth.authToken.display_name || this.props.auth.authToken.username
+                  )}
                 </Text>
                 <TouchableOpacity style={{
                   marginTop: 10,

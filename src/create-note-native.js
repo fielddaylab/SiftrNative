@@ -27,6 +27,7 @@ import {
   ImageBackground,
   Modal,
   SafeAreaView,
+  KeyboardAvoidingView,
 } from "react-native";
 import { styles, Text } from "./styles";
 import { RNCamera } from "react-native-camera";
@@ -771,7 +772,8 @@ export const CreateData = createClass({
       );
 
       return (
-        <View
+        <KeyboardAvoidingView
+          behavior="padding"
           style={{
             flex: 1
           }}
@@ -1433,7 +1435,7 @@ export const CreateData = createClass({
               </TouchableOpacity>
             </View>
           </Blackout>
-        </View>
+        </KeyboardAvoidingView>
       );
     }
   },

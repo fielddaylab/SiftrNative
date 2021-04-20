@@ -72,6 +72,8 @@ import { CreatePhoto, CreateData, Blackout } from "./create-note-native";
 
 import { withSuccess } from "./utils";
 
+const AnimTouch = Animated.createAnimatedComponent(TouchableOpacity);
+
 function fixLongitude(longitude) {
   longitude = modulo(longitude, 360);
   if (longitude > 180) {
@@ -2715,7 +2717,12 @@ export const SiftrView = createClass({
 
   chipView: function(){
     return !!(this.state.chipMessages && this.state.chipMessages.length) && (
-      <Animated.View style={{
+      <AnimTouch onPress={() => {
+        if (!this.chipWait) return;
+        const [timer, afterWait] = this.chipWait;
+        clearTimeout(timer);
+        afterWait();
+      }} style={{
         backgroundColor: this.state.chipMessages[0].color || 'rgb(110,186,180)',
         position: 'absolute',
         left: 0,
@@ -2792,7 +2799,7 @@ export const SiftrView = createClass({
             )
           }
         </View>
-      </Animated.View>
+      </AnimTouch>
     );
   },
   addChip: function(message, color, image, instruction, instructionColor){
@@ -2814,38 +2821,40 @@ export const SiftrView = createClass({
     });
   },
   waitThenPopChip: function(){
-    Animated.sequence([
-      Animated.timing(
-        this.state.chipAnimation,
-        {
-          toValue: 1,
-          duration: 500,
-        },
-      ),
-      Animated.delay(2000),
-      Animated.timing(
-        this.state.chipAnimation,
-        {
-          toValue: 0,
-          duration: 500,
-        },
-      ),
-    ]).start(() => {
-      let moreToPop = false;
-      this.setState((prevState) => update(prevState, {
-        chipMessages: (messages) => {
-          if (messages && messages.length > 1) {
-            moreToPop = true;
-            return messages.slice(1);
-          } else {
-            return [];
-          }
-        },
-      }), () => {
-        if (moreToPop) {
-          this.waitThenPopChip();
-        }
-      });
+    Animated.timing(
+      this.state.chipAnimation,
+      {
+        toValue: 1,
+        duration: 500,
+      },
+    ).start(() => {
+      const afterWait = () => {
+        Animated.timing(
+          this.state.chipAnimation,
+          {
+            toValue: 0,
+            duration: 500,
+          },
+        ).start(() => {
+          let moreToPop = false;
+          this.setState((prevState) => update(prevState, {
+            chipMessages: (messages) => {
+              if (messages && messages.length > 1) {
+                moreToPop = true;
+                return messages.slice(1);
+              } else {
+                return [];
+              }
+            },
+          }), () => {
+            if (moreToPop) {
+              this.waitThenPopChip();
+            }
+          });
+        });
+      };
+      const timer = setTimeout(afterWait, 2000);
+      this.chipWait = [timer, afterWait];
     });
   },
 
