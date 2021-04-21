@@ -99,7 +99,7 @@ export var NativeLogin = createClass({
             flex: this.state.keyboard && !tablet ? 0 : 1,
             flexDirection: "column",
             backgroundColor: "rgba(0,0,0,0)",
-            alignItems: "center",
+            alignItems: "flex-start",
             justifyContent: "space-between",
             width: null,
             height: null
@@ -121,11 +121,12 @@ export var NativeLogin = createClass({
                 }}
               >
                 <Image
-                  source={require("../web/assets/img/stemports-logo.png")}
+                  source={require("../web/assets/img/base-station-logo.png")}
                   style={{
-                    width: 1522 / 7,
-                    height: 346 / 7,
-                    marginBottom: 20
+                    width: 405 / 3,
+                    height: 373 / 3,
+                    marginBottom: 20,
+                    marginLeft: 15
                   }}
                 />
               </View>
@@ -273,11 +274,11 @@ export var NativeLogin = createClass({
                     }
                     style={{
                       backgroundColor:
-                        this.props.online ? "rgb(255,124,107)" : 'gray',
+                        this.props.online ? "#61843F" : 'gray',
                       alignItems: "center",
                       justifyContent: "center",
                       paddingTop: 20,
-                      paddingBottom: 35, // for iphone x
+                      paddingBottom: 30, // for iphone x
                       flexDirection: 'row',
                     }}
                   >
@@ -396,7 +397,7 @@ export var NativeLogin = createClass({
                       />
                       <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                         <Hyperlink
-                          linkStyle={{color: '#2980b9'}}
+                          linkStyle={{color: '#408576'}}
                           linkText={(url) => 'Terms of Use'}
                           linkDefault={true}
                         >
@@ -410,7 +411,7 @@ export var NativeLogin = createClass({
                   <TouchableOpacity
                     onPress={this.doRegister}
                     style={{
-                      backgroundColor: "rgb(255,124,107)",
+                      backgroundColor: "#61843F",
                       alignItems: "center",
                       justifyContent: "center",
                       paddingTop: 20,
