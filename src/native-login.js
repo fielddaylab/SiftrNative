@@ -92,8 +92,8 @@ export var NativeLogin = createClass({
         <ImageBackground
           source={
             this.state.page === "sign-in"
-              ? require("../web/assets/img/bg1.jpg")
-              : require("../web/assets/img/bg2.jpg")
+              ? require("../web/assets/img/bg1.png")
+              : require("../web/assets/img/bg2.png")
           }
           style={{
             flex: this.state.keyboard && !tablet ? 0 : 1,
