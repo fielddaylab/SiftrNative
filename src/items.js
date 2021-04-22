@@ -19,7 +19,7 @@ import ModelView from '../react-native-3d-model-view/lib/ModelView';
 import update from "immutability-helper";
 import {SiftrThumbnails} from './thumbnails';
 import {SquareImage, GalleryModal} from './note-view';
-import {Text, FixedMarkdown} from './styles';
+import {Text, FixedMarkdown, hypher} from './styles';
 import { globalstyles } from "./global-styles";
 import {GuideLine} from './stemports-picker';
 
@@ -739,12 +739,15 @@ export class InventoryScreen extends React.Component {
                                     />
                                   )}
                                 />
-                                <Text style={{
-                                  margin: 10,
-                                  textAlign: 'center',
-                                  width: 100,
-                                }}>
-                                  {o.item.name}
+                                <Text
+                                  numberOfLines={2}
+                                  style={{
+                                    margin: 10,
+                                    textAlign: 'center',
+                                    width: 100,
+                                  }}
+                                >
+                                  {hypher.hyphenateText(o.item.name)}
                                 </Text>
                               </ImageBackground>
                             </TouchableOpacity>

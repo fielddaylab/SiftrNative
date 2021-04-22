@@ -24,7 +24,7 @@ export class Terms extends React.Component {
             linkDefault={true}
           >
             <Text>
-              To use Siftr you must agree to the https://docs.google.com/document/d/16P8kIfHka-zHXoQcd9mWlUWiOkaTp6I7UcpD_GoB8LY/edit
+              To use The Station you must agree to the https://docs.google.com/document/d/16P8kIfHka-zHXoQcd9mWlUWiOkaTp6I7UcpD_GoB8LY/edit
             </Text>
           </Hyperlink>
         </View>

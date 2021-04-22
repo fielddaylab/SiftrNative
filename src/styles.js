@@ -1,10 +1,13 @@
 'use strict';
 
-
 import React from 'react';
 import RN, {StyleSheet} from 'react-native';
 import createClass from 'create-react-class';
 import Markdown from "react-native-simple-markdown";
+import Hypher from "hypher";
+import english from 'hyphenation.en-us';
+
+export const hypher = new Hypher(english);
 
 export const Text = createClass({
   displayName: 'Text',

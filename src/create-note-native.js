@@ -27,6 +27,7 @@ import {
   ImageBackground,
   Modal,
   SafeAreaView,
+  KeyboardAvoidingView,
 } from "react-native";
 import { styles, Text } from "./styles";
 import { RNCamera } from "react-native-camera";
@@ -551,7 +552,7 @@ export const CreateData = createClass({
     };
   },
   componentDidMount: function() {
-    analytics().logEvent("StartObservation", {
+    analytics().logEvent("ObservationBegun", {
       station_name: this.props.game.name,
       quest_name: this.props.quest_name,
     });
@@ -631,6 +632,7 @@ export const CreateData = createClass({
         }
       });
     }
+    analytics().logEvent("ObservationComplete", {station_name: this.props.game.name, quest_name: this.props.quest_name});
     this.props.onFinish(field_data, this.state.noteLocation);
   },
   scrollToField: function(field_id) {
@@ -771,7 +773,8 @@ export const CreateData = createClass({
       );
 
       return (
-        <View
+        <KeyboardAvoidingView
+          behavior="padding"
           style={{
             flex: 1
           }}
@@ -1433,7 +1436,7 @@ export const CreateData = createClass({
               </TouchableOpacity>
             </View>
           </Blackout>
-        </View>
+        </KeyboardAvoidingView>
       );
     }
   },

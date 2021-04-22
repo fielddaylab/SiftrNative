@@ -12,6 +12,7 @@ import {Text} from './styles';
 import {CacheMedia} from './media';
 import {GuideLine} from './stemports-picker';
 import { globalstyles } from "./global-styles";
+import analytics from '@react-native-firebase/analytics';
 
 export const getQuestProgress = (details) => {
   let progress = [];
@@ -200,6 +201,8 @@ export const QuestDotDetails = function(props) {
 
 export const QuestDetails = function(props) {
   const media_id = props.quest[props.status + '_media_id'];
+  analytics().logEvent('ViewQuestDetails',{station_name: props.game.name, quest_name: props.quest_name});
+
   return (
     <View style={{
       flex: 1,
@@ -319,6 +322,7 @@ const QuestEntry = function(props) {
 export class QuestComplete extends React.Component {
   constructor(props) {
     super(props);
+    analytics().logEvent('QuestComplete',{station_name: props.game.name, quest_name: props.quest_name});
     this.state = {
       envelopeOpen: false,
     };

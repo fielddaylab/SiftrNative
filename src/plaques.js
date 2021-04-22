@@ -17,6 +17,7 @@ import {ItemScreen, CacheContents} from './items';
 import {FixedMarkdown, Text} from './styles';
 import {SquareImage, GalleryModal} from './note-view';
 import { globalstyles } from "./global-styles";
+import analytics from '@react-native-firebase/analytics';
 
 export class PlaqueScreen extends React.Component {
   constructor(props) {
@@ -203,6 +204,7 @@ export class PlaqueScreen extends React.Component {
         {
           this.state.phase === 'start' && (
             <TouchableOpacity onPress={() => {
+              analytics().logEvent('ViewStop',{station_name: this.props.game.name, quest_name: this.props.quest_name, stop_name: this.props.plaque.name});
               this.setState({phase: 'details'});
             }} style={{
               backgroundColor: 'white',
