@@ -15,8 +15,8 @@ import { GuideLine } from "./stemports-picker";
 
 const WizardLines = [
   {
-    header: ((quest) => quest.tutorial_1_title || "First, Collect Carson's Field Notes"),
     media_id: ((quest) => parseInt(quest.tutorial_1_media_id) || 0),
+    header: ((quest) => quest.tutorial_1_title || "First, Collect Carson's Field Notes"),
     body: ((quest) => quest.tutorial_1 || "Carson left her field notes all over the place! Find and collect them so you can add them to your own field guide."),
   },
   {

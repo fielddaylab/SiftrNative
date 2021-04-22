@@ -787,7 +787,7 @@ export class StemportsPicker extends React.Component {
         >
           <TouchableOpacity onPress={this.props.onCloseSplash} style={{
             backgroundColor: 'white',
-            padding: 10,
+            padding: 20,
             borderRadius: 5,
             margin: 20,
             paddingLeft: 15,
@@ -1134,7 +1134,7 @@ export class StemportsPicker extends React.Component {
                   >
                     <View>
                       <Image
-                        source={require('../web/assets/img/stemports-icon-station.png')}
+                        source={require('../web/assets/img/stemports-icon-station_nopin.png')}
                         style={{
                           width: 136 * 0.5,
                           height: 128 * 0.5,
@@ -1184,7 +1184,7 @@ export class StemportsPicker extends React.Component {
                   >
                     <View>
                       <Image
-                        source={require('../web/assets/img/stemports-icon-station.png')}
+                        source={require('../web/assets/img/stemports-icon-station_nopin.png')}
                         style={{
                           width: 136 * 0.5,
                           height: 128 * 0.5,
@@ -1259,92 +1259,109 @@ export class StemportsPicker extends React.Component {
       }
 
       return (
-        <View style={{flex: 1, backgroundColor: 'white'}}>
-          <TouchableOpacity onPress={this.state.listFromMap
-            ? (() => this.setState({listFromMap: false}))
-            : this.props.onClose
-          }>
-            <Image
-              source={require('../web/assets/img/back-arrow.png')}
-              style={{
-                resizeMode: 'contain',
-                width: 108 * 0.25,
-                height: 150 * 0.25,
-                margin: 10,
-              }}
-            />
-          </TouchableOpacity>
-          <Text style={{margin: 10, fontSize: 30, fontFamily: 'LeagueSpartan-Bold'}}>
-            {
-              this.props.onlyDownloaded ? 'My Stations' : 'Research Stations'
-            }
-          </Text>
-          <Text style={{margin: 10}}>
-            {
-              this.props.onlyDownloaded
-                ? "These are all the Research Stations you've downloaded quests from!"
-                : 'Research Stations are where the quests are! Here are the Research Stations closest to you:'
-            }
-          </Text>
-          <ScrollView style={{flex: 1}}>
-            {
-              gamesByDistance.map(o =>
-                <TouchableOpacity
-                  key={o.game.game_id}
-                  style={{
-                    margin: 13,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    padding: 10,
-                    shadowColor: 'black',
-                    shadowOpacity: 0.25,
-                    shadowRadius: 8,
-                    shadowOffset: {width: 0, height: 3},
-                    backgroundColor: 'white',
-                  }}
-                  onPress={() => this.setState({gameModal: o})}
-                >
-                  <Image
+        <ImageBackground
+          source={require('../web/assets/img/station-bg.jpg')}
+          style={{
+            flex: 1,
+            backgroundColor: 'black',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            flexDirection: 'column',
+          }}
+          imageStyle={{
+            resizeMode: 'contain',
+          }}
+        >
+          <View style={{flex: 1, padding: 2,}}>
+            <TouchableOpacity onPress={this.state.listFromMap
+              ? (() => this.setState({listFromMap: false}))
+              : this.props.onClose
+            }>
+              <Image
+                source={require('../web/assets/img/back-arrow.png')}
+                style={{
+                  resizeMode: 'contain',
+                  width: 138 * 0.75,
+                  height: 180 * 0.75,
+                  marginBottom: -40,
+                  marginLeft: -20,
+                }}
+              />
+            </TouchableOpacity>
+            <View style={{padding: 2,}}>
+              <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 30, fontFamily: 'LeagueSpartan-Bold'}}>
+                {
+                  this.props.onlyDownloaded ? 'My Stations' : 'Research Stations'
+                }
+              </Text>
+              <Text style={{ fontWeight: 'bold', fontSize: 16, color: 'white'}}>
+                {
+                  this.props.onlyDownloaded
+                    ? "These are all the Research Stations you've downloaded quests from!"
+                    : 'Here are the Research Stations closest to you:'
+                }
+              </Text>
+            </View>
+            <ScrollView style={{flex: 1}}>
+              {
+                gamesByDistance.map(o =>
+                  <TouchableOpacity
+                    key={o.game.game_id}
                     style={{
-                      resizeMode: 'contain',
-                      width: 136 * 0.25,
-                      height: 128 * 0.25,
-                      margin: 15,
+                      margin: 13,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      padding: 10,
+                      shadowColor: 'black',
+                      shadowOpacity: 0.25,
+                      shadowRadius: 8,
+                      shadowOffset: {width: 0, height: 3},
+                      backgroundColor: 'white',
+                      borderRadius: 10,
                     }}
-                    source={require('../web/assets/img/stemports-icon-station.png')}
-                  />
-                  <View style={{flex: 1}}>
-                    <Text style={{margin: 5}}>
-                      {o.game.name}
-                    </Text>
-                    <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                      <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
-                        {o.game.quests.length} {o.game.quests.length === 1 ? 'quest' : 'quests'}
+                    onPress={() => this.setState({gameModal: o})}
+                  >
+                    <Image
+                      style={{
+                        resizeMode: 'contain',
+                        width: 136 * 0.5,
+                        height: 128 * 0.5,
+                      }}
+                      source={require('../web/assets/img/stemports-icon-station_nopin.png')}
+                    />
+                    <View style={{flex: 1}}>
+                      <Text style={{margin: 5}}>
+                        {o.game.name}
                       </Text>
-                      <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
-                        |
-                      </Text>
-                      <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
-                        {(o.distance / 1000).toFixed(2)} km away
-                      </Text>
-                    </View>
-                    <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                      <TouchableOpacity onPress={() =>
-                        Linking.openURL(`maps:0,0?q=${o.game.name}@${o.game.latitude},${o.game.longitude}`)
-                        // TODO on Android this link should look different,
-                        // see https://stackoverflow.com/a/48006762
-                      }>
-                        <Text style={{color: 'rgb(101,88,245)', margin: 5}}>
-                          Map it
+                      <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+                        <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
+                          {o.game.quests.length} {o.game.quests.length === 1 ? 'quest' : 'quests'}
                         </Text>
-                      </TouchableOpacity>
+                        <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
+                          |
+                        </Text>
+                        <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
+                          {(o.distance / 1000).toFixed(2)} km away
+                        </Text>
+                      </View>
+                      <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+                        <TouchableOpacity onPress={() =>
+                          Linking.openURL(`maps:0,0?q=${o.game.name}@${o.game.latitude},${o.game.longitude}`)
+                          // TODO on Android this link should look different,
+                          // see https://stackoverflow.com/a/48006762
+                        }>
+                          <Text style={{color: 'rgb(101,88,245)', margin: 5}}>
+                            Map it
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
-                  </View>
-                </TouchableOpacity>
-              )
-            }
-          </ScrollView>
-        </View>
+                  </TouchableOpacity>
+                )
+              }
+            </ScrollView>
+          </View>
+        </ImageBackground>
       );
     }
 
@@ -1829,14 +1846,16 @@ class StemportsQuest extends React.Component {
         </ScrollView>
         <View style={{alignItems: 'center', justifyContent: 'center'}}>
           <TouchableOpacity style={{
-            backgroundColor: 'rgb(130,189,181)',
-            padding: 5,
+            backgroundColor: 'rgb(97,132,63)',
+            padding: 10,
             margin: 20,
             borderRadius: 5,
           }} onPress={this.props.onStart}>
             <Text style={{
               color: 'white',
               textTransform: 'uppercase',
+              fontWeight: 'bold',
+              fontFamily: 'League Spartan',
             }}>
               Start Quest
             </Text>
@@ -1888,7 +1907,7 @@ class StemportsOutpost extends React.Component {
               flexDirection: 'row',
               alignItems: 'center',
             }}>
-              <Image source={require('../web/assets/img/stemports-icon-station.png')} style={{
+              <Image source={require('../web/assets/img/stemports-icon-station_nopin.png')} style={{
                 width: 136 * 0.4,
                 height: 128 * 0.4,
                 resizeMode: 'contain',

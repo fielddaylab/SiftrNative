@@ -124,8 +124,7 @@ export var NativeLogin = createClass({
                   source={require("../web/assets/img/stemports-logo.png")}
                   style={{
                     width: 1522 / 7,
-                    height: 346 / 7,
-                    marginBottom: 20
+                    height: 476 / 7,
                   }}
                 />
               </View>
@@ -273,7 +272,7 @@ export var NativeLogin = createClass({
                     }
                     style={{
                       backgroundColor:
-                        this.props.online ? "rgb(255,124,107)" : 'gray',
+                        this.props.online ? "rgb(97,132,63)" : 'gray',
                       alignItems: "center",
                       justifyContent: "center",
                       paddingTop: 20,
@@ -410,7 +409,7 @@ export var NativeLogin = createClass({
                   <TouchableOpacity
                     onPress={this.doRegister}
                     style={{
-                      backgroundColor: "rgb(255,124,107)",
+                      backgroundColor: "rgb(97,132,63)",
                       alignItems: "center",
                       justifyContent: "center",
                       paddingTop: 20,
