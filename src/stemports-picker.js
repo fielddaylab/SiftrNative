@@ -265,10 +265,9 @@ export class StemportsPicker extends React.Component {
         }).then(() =>
           RNFS.readFile(
             `${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`
-          ).catch(() => [])
+          ).catch(() => '[]')
         ).then((inv0) => {
           const instances = JSON.parse(inv0);
-          console.warn(instances.length);
           return Promise.all(instances.map(inst =>
             this.props.auth.promise('call', 'client.setQtyForInstance', {
               instance_id: inst.instance_id,
