@@ -3418,6 +3418,7 @@ export const SiftrView = createClass({
                         }}
                         auth={this.props.auth}
                         addChip={this.addChip/*.bind(this)*/}
+                        game={this.props.game}
                       />
                     );
                   } else if (modal.type === 'quest-complete-comic') {

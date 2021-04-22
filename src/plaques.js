@@ -17,6 +17,7 @@ import {ItemScreen, CacheContents} from './items';
 import {FixedMarkdown, Text} from './styles';
 import {SquareImage, GalleryModal} from './note-view';
 import { globalstyles } from "./global-styles";
+import analytics from '@react-native-firebase/analytics';
 
 export class PlaqueScreen extends React.Component {
   constructor(props) {

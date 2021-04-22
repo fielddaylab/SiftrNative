@@ -258,8 +258,23 @@ export class StemportsPicker extends React.Component {
           })
         ).then(writeJSON('inventory')),
 
+        // upload the game-0 inventory for photos/snacks/etc.
+        // then download it, including any missing instances
         this.props.auth.promise('call', 'client.touchItemsForPlayer', {
           game_id: 0,
+        }).then(() =>
+          RNFS.readFile(
+            `${RNFS.DocumentDirectoryPath}/siftrs/inventory-zero.txt`
+          ).catch(() => [])
+        ).then((inv0) => {
+          const instances = JSON.parse(inv0);
+          console.warn(instances.length);
+          return Promise.all(instances.map(inst =>
+            this.props.auth.promise('call', 'client.setQtyForInstance', {
+              instance_id: inst.instance_id,
+              qty: inst.qty,
+            })
+          ));
         }).then(() =>
           this.props.auth.promise('call', 'instances.getInstancesForGame', {
             game_id: 0,
