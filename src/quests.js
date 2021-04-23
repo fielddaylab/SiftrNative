@@ -25,12 +25,13 @@ export const getQuestProgress = (details) => {
     const fieldNoteAtoms = and.atoms.filter(atom => atom.atom.requirement === 'PLAYER_HAS_ITEM');
     if (fieldNoteAtoms.length > 0) {
       let dotRow = {
-        subquestLabel: 'Explore and Collect Field Notes',
+        subquestLabel: 'Field Notes',
         done: fieldNoteAtoms.filter(o => o.bool).length,
         halfDone: fieldNoteAtoms.filter(o => o.bool === null).length,
         total: fieldNoteAtoms.length,
         root: root,
         keyIndex: 1,
+        image: require('../web/assets/img/cache-chest-closed.png'),
       };
       if (dotRow.done !== dotRow.total && (dotRow.done !== 0 || dotRow.halfDone !== 0)) {
         const remainingPickups = dotRow.total - (dotRow.done + dotRow.halfDone);
@@ -47,12 +48,13 @@ export const getQuestProgress = (details) => {
     const tourStopAtoms = and.atoms.filter(atom => atom.atom.requirement === 'PLAYER_VIEWED_PLAQUE');
     if (tourStopAtoms.length > 0) {
       let dotRow = {
-        subquestLabel: 'Visit Tour Stops',
+        subquestLabel: 'Tour Stops',
         done: tourStopAtoms.filter(o => o.bool).length,
         halfDone: 0,
         total: tourStopAtoms.length,
         root: root,
         keyIndex: 2,
+        image: require('../web/assets/img/icon-blaze-2x.png'),
       };
       if (dotRow.done !== dotRow.total && dotRow.done !== 0) {
         const remainingStops = dotRow.total - dotRow.done;
@@ -66,12 +68,13 @@ export const getQuestProgress = (details) => {
     if (observationAtoms.length > 0) {
       const total = observationAtoms.map(o => o.atom.qty).reduce((a, b) => a + b, 0)
       let dotRow = {
-        subquestLabel: `Make ${total} Observations`,
+        subquestLabel: 'Observations',
         done: observationAtoms.map(o => o.qty).reduce((a, b) => a + b, 0),
         halfDone: 0,
         total: total,
         root: root,
         keyIndex: 3,
+        image: require('../web/assets/img/observation-rest-current.png'),
       };
       if (dotRow.done !== dotRow.total && dotRow.done !== 0) {
         const remainingObservations = dotRow.total - dotRow.done;
@@ -100,7 +103,7 @@ export const QuestDotDetails = function(props) {
         borderTopRightRadius: 10,
         paddingTop: 10,
       }}>
-        <ScrollView style={{flex: 1, padding: 5}}>
+        <ScrollView style={{flex: 1, padding: 5}} contentContainerStyle={{alignItems: 'stretch'}}>
           <Text style={{flex: 1, margin: 10, fontSize: 20, fontWeight: 'bold'}}>Quest Progress:</Text>
           <Text style={{flex: 1, margin: 10, fontSize: 20}}>{props.currentQuest.name}</Text>
           <View style={{
@@ -119,7 +122,7 @@ export const QuestDotDetails = function(props) {
                 );
               const progress = getQuestProgress(details);
               return progress.map((o, i) => {
-                const {subquestLabel, done, halfDone, total, root, keyIndex} = o;
+                const {subquestLabel, done, halfDone, total, root, keyIndex, image} = o;
                 let circles = [];
                 for (let i = 0; i < total; i++) {
                   let halves = 0;
@@ -127,50 +130,54 @@ export const QuestDotDetails = function(props) {
                   if (i < done) halves++;
                   circles.push(halves);
                 }
-                return (
+                const section = (
                   <View key={root.req.requirement_root_package_id * 10 + keyIndex} style={{
                     padding: 5,
-                    marginLeft: 10,
-                    marginRight: 10,
+                    margin: 10,
                   }}>
-                    <Text style={{margin: 5}}>
-                      {subquestLabel}
+                    <Text style={{
+                      margin: 5,
+                      fontFamily: 'LeagueSpartan-Bold',
+                      fontSize: 20,
+                      textTransform: 'uppercase',
+                      letterSpacing: 2,
+                      color: 'rgb(102,55,36)',
+                      textAlign: 'center',
+                    }}>
+                      {subquestLabel}: {done + halfDone}/{total}
                     </Text>
                     <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
                       {circles.map((halves, i) =>
-                        halves === 1 ? (
-                          <Image
-                            key={i}
-                            source={require('../web/assets/img/stemports-dot-half.png')}
-                            style={{
-                              borderColor: 'black',
-                              borderWidth: 2,
-                              width: 20,
-                              height: 20,
-                              borderRadius: 10,
-                              margin: 3,
-                              resizeMode: 'contain',
-                            }}
-                          />
-                        ) : (
-                          <View
-                            key={i}
-                            style={{
-                              backgroundColor: halves >= 2 ? 'rgb(178,172,250)' : 'white',
-                              borderColor: 'black',
-                              borderWidth: 2,
-                              width: 20,
-                              height: 20,
-                              borderRadius: 10,
-                              margin: 3,
-                            }}
-                          />
-                        )
+                        <Image
+                          key={i}
+                          source={image}
+                          style={{
+                            width: 32,
+                            height: 32,
+                            margin: 7,
+                            resizeMode: 'contain',
+                            opacity: halves > 0 ? 1 : 0.3,
+                          }}
+                        />
                       )}
                     </View>
                   </View>
                 );
-              });
+                if (progress.length - 1 === i) {
+                  return [section];
+                } else {
+                  return [section, (
+                    <View
+                      key={i + '-divide'}
+                      style={{
+                        padding: 5,
+                        borderColor: 'gray',
+                        borderTopWidth: 1,
+                      }}
+                    />
+                  )];
+                }
+              }).concat();
             })()
           }
         </ScrollView>

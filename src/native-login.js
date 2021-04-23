@@ -263,6 +263,17 @@ export var NativeLogin = createClass({
                         onSubmitEditing={this.doLogin}
                         returnKeyType="go"
                       />
+                      <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                        <Hyperlink
+                          linkStyle={{color: '#2980b9'}}
+                          linkText={(url) => 'Forgot password?'}
+                          linkDefault={true}
+                        >
+                          <Text>
+                            https://fieldday-web.wcer.wisc.edu/stemports/siftr/editor-react/#forgot
+                          </Text>
+                        </Hyperlink>
+                      </View>
                     </View>
                   </TouchableWithoutFeedback>
                   <TouchableOpacity

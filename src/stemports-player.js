@@ -273,7 +273,7 @@ export class StemportsPlayer extends React.Component {
               <View style={{flex: 1, alignItems: 'flex-start'}}>
                 <Text style={{
                   fontFamily: 'LeagueSpartan-Bold',
-                  fontSize: 30,
+                  fontSize: 23,
                   letterSpacing: 1,
                   color: '#373535',
                   borderBottomWidth: 2,
@@ -454,8 +454,9 @@ export class StemportsPlayer extends React.Component {
                   color: 'rgb(99,111,49)',
                   fontSize: 20,
                   fontFamily: 'LeagueSpartan-Bold',
+                  textAlign: 'center',
                 }}>
-                  Replay Intro
+                  Replay{"\n"}Intro
                 </Text>
               </TouchableOpacity>
             </View>
