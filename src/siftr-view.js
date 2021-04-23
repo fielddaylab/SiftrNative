@@ -1003,7 +1003,7 @@ export const SiftrView = createClass({
       }
     }
     if (loop) {
-      setTimeout(() => this.checkQuestsOffline(), 5000);
+      setTimeout(() => this.checkQuestsOffline(), 2000);
     }
   },
   checkQuests: function() {
