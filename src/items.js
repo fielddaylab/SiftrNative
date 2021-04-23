@@ -835,30 +835,38 @@ export class InventoryScreen extends React.Component {
           this.state.niceModal && (
             <Modal transparent={true} onRequestClose={() => this.setState({niceModal: false})}>
               <TouchableWithoutFeedback onPress={() => this.setState({niceModal: false})}>
-                <View style={{
-                  flex: 1,
-                  backgroundColor: 'rgba(0,0,0,0.5)',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
                   <View style={{
-                    backgroundColor: 'white',
-                    padding: 20,
+                    flex: 1,
+                    backgroundColor: 'rgba(0,0,0,0.5)',
                     alignItems: 'center',
+                    justifyContent: 'center',
                   }}>
-                    <Image source={require('../web/assets/img/icon-nice-check.png')} style={{
-                      margin: 10,
-                      width: 200 * 0.5,
-                      height: 162 * 0.5,
-                    }} />
-                    <Text style={{
-                      margin: 10,
-                      fontWeight: 'bold',
-                    }}>
-                      Nice!
-                    </Text>
+                    <ImageBackground
+                      source={require('../web/assets/img/card-bg.png')}
+                      style={{
+                        padding: 10,
+                        alignItems: 'center',
+                      }}
+                      imageStyle={{
+                        resizeMode: 'contain',
+                      }}
+                      >
+                      <Image source={require('../web/assets/img/icon-nice-check.png')} style={{
+                        margin: 10,
+                        width: 180 * 0.5,
+                        height: 182 * 0.5,
+                      }} />
+                      <Text style={{
+                        margin: 10,
+                        fontSize: 18,
+                        fontWeight: 'bold',
+                        fontFamily: 'League Spartan',
+                        color: 'rgb(254,251,225)',
+                      }}>
+                        Nice!
+                      </Text>
+                      </ImageBackground>
                   </View>
-                </View>
               </TouchableWithoutFeedback>
             </Modal>
           )

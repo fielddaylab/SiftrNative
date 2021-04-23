@@ -9,6 +9,7 @@ import {
   Modal,
   Image,
   SafeAreaView,
+  ImageBackground,
   TouchableWithoutFeedback,
   Alert
 } from "react-native";
@@ -427,19 +428,26 @@ export class StemportsPlayer extends React.Component {
                 )
               }
             </View>
-            <View style={{
-              backgroundColor: 'rgb(80,135,18)',
-              padding: 35,
-              paddingBottom: 55,
-              alignItems: 'flex-end',
-            }}>
+            <ImageBackground
+              source={require('../web/assets/img/home-comic-bg.jpg')}
+              style={{
+                padding: 35,
+                paddingBottom: 55,
+                alignItems: 'flex-end',
+              }}
+              imageStyle={{
+                resizeMode: 'contain',
+              }}
+            >
+            <View>
               <TouchableOpacity style={{
                 backgroundColor: 'white',
-                paddingTop: 5,
+                paddingTop: 8,
                 paddingBottom: 5,
                 paddingLeft: 12,
                 paddingRight: 12,
                 borderRadius: 5,
+                marginTop: 15,
               }} onPress={this.props.onReplayIntro}>
                 <Text style={{
                   textTransform: 'uppercase',
@@ -451,6 +459,7 @@ export class StemportsPlayer extends React.Component {
                 </Text>
               </TouchableOpacity>
             </View>
+            </ImageBackground>
             <Text style={{
               padding: 30,
               fontSize: 22,

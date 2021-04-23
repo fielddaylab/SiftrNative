@@ -445,14 +445,14 @@ export const TaskComplete = (props) => {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        <Text style={{fontSize: 30}}>Task Complete!</Text>
+        <Text style={{fontSize: 30, fontFamily: 'LeagueSpartan-Bold'}}>Task Complete!</Text>
       </View>
       <View style={{
         padding: 30,
         alignItems: 'center',
       }}>
         <TouchableOpacity onPress={props.onClose} style={{
-          backgroundColor: 'rgb(98,97,241)',
+          backgroundColor: 'rgb(100,112,51)',
           padding: 10,
           borderRadius: 4,
         }}>
