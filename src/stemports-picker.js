@@ -1360,7 +1360,7 @@ export class StemportsPicker extends React.Component {
                           // TODO on Android this link should look different,
                           // see https://stackoverflow.com/a/48006762
                         }>
-                          <Text style={{color: 'rgb(101,88,245)', margin: 5}}>
+                          <Text style={{color: 'rgb(100,112,51)', margin: 5}}>
                             Map it
                           </Text>
                         </TouchableOpacity>
@@ -1541,7 +1541,7 @@ export class GuideLine extends React.Component {
             {
               this.props.button ? (
                 <TouchableOpacity onPress={this.props.button.onPress} style={{
-                  backgroundColor: 'rgb(101,88,245)',
+                  backgroundColor: 'rgb(100,112,51)',
                   padding: 5,
                   borderRadius: 5,
                   marginTop: 10,
@@ -1727,7 +1727,7 @@ class GameQuestList extends React.Component {
                       <TouchableOpacity onPress={() =>
                         obj.offline && this.props.onSelect(this.props.game, quest)
                       } style={{
-                        backgroundColor: 'rgb(101,88,245)',
+                        backgroundColor: 'rgb(100,112,51)',
                         margin: 5,
                         paddingTop: 5,
                         paddingBottom: 5,
