@@ -1150,8 +1150,8 @@ export class StemportsPicker extends React.Component {
                       <Image
                         source={require('../web/assets/img/stemports-icon-station_nopin.png')}
                         style={{
-                          width: 136 * 0.5,
-                          height: 128 * 0.5,
+                          width: 250 * 0.5,
+                          height: 316 * 0.5,
                         }}
                       />
                     </View>
@@ -1200,8 +1200,8 @@ export class StemportsPicker extends React.Component {
                       <Image
                         source={require('../web/assets/img/stemports-icon-station_nopin.png')}
                         style={{
-                          width: 136 * 0.5,
-                          height: 128 * 0.5,
+                          width: 250 * 0.5,
+                          height: 316 * 0.5,
                         }}
                       />
                     </View>
@@ -1334,8 +1334,8 @@ export class StemportsPicker extends React.Component {
                     <Image
                       style={{
                         resizeMode: 'contain',
-                        width: 136 * 0.5,
-                        height: 128 * 0.5,
+                        width: 250 * 0.5,
+                        height: 316 * 0.5,
                       }}
                       source={require('../web/assets/img/stemports-icon-station_nopin.png')}
                     />
@@ -1919,8 +1919,8 @@ class StemportsOutpost extends React.Component {
               alignItems: 'center',
             }}>
               <Image source={require('../web/assets/img/stemports-icon-station_nopin.png')} style={{
-                width: 136 * 0.4,
-                height: 128 * 0.4,
+                width: 250 * 0.4,
+                height: 316 * 0.4,
                 resizeMode: 'contain',
                 margin: 15,
               }} />
