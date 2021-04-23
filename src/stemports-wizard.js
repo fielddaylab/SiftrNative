@@ -52,6 +52,7 @@ export class StemportsWizard extends React.Component {
             margin: 10,
             fontSize: 24,
             fontWeight: 'bold',
+            fontFamily: 'League Spartan',
           }}>
             {line.header(this.props.quest)}
           </Text>
@@ -78,7 +79,6 @@ export class StemportsWizard extends React.Component {
         <View style={{
           flexDirection: 'row',
           justifyContent: 'center',
-          borderBottomWidth: 2,
           borderBottomColor: 'rgb(223,230,237)',
           padding: 10,
         }}>
@@ -88,13 +88,12 @@ export class StemportsWizard extends React.Component {
                 key={i}
                 onPress={() => this.setState({lineIndex: i})}
                 style={{
-                  width: 24,
-                  height: 24,
+                  width: 20,
+                  height: 20,
                   borderRadius: 12,
                   borderWidth: 2,
                   margin: 5,
-                  borderColor: i === this.state.lineIndex ? 'rgb(101,88,245)' : 'rgb(193,205,215)',
-                  backgroundColor: i === this.state.lineIndex ? 'rgb(178,172,250)' : 'white',
+                  backgroundColor: i === this.state.lineIndex ? 'rgb(100,112,51)' : 'rgb(189,202,132)',
                 }}
               />
             )
@@ -106,7 +105,7 @@ export class StemportsWizard extends React.Component {
           )}
           style={{
             alignSelf: isLastLine ? 'center' : 'flex-end',
-            backgroundColor: 'rgb(101,88,245)',
+            backgroundColor: 'rgb(100,112,51)',
             padding: 10,
             paddingLeft: 15,
             paddingRight: 15,

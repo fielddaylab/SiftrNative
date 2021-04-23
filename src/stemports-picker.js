@@ -1287,7 +1287,7 @@ export class StemportsPicker extends React.Component {
             resizeMode: 'contain',
           }}
         >
-          <View style={{flex: 1, padding: 2,}}>
+          <View style={{flex: 1, margin: 5}}>
             <TouchableOpacity onPress={this.state.listFromMap
               ? (() => this.setState({listFromMap: false}))
               : this.props.onClose
@@ -1296,14 +1296,11 @@ export class StemportsPicker extends React.Component {
                 source={require('../web/assets/img/back-arrow.png')}
                 style={{
                   resizeMode: 'contain',
-                  width: 138 * 0.75,
-                  height: 180 * 0.75,
-                  marginBottom: -40,
-                  marginLeft: -20,
+                  width: 138 * 0.25,
+                  height: 180 * 0.25,
                 }}
               />
             </TouchableOpacity>
-            <View style={{padding: 2,}}>
               <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 30, fontFamily: 'LeagueSpartan-Bold'}}>
                 {
                   this.props.onlyDownloaded ? 'My Stations' : 'Research Stations'
@@ -1316,7 +1313,6 @@ export class StemportsPicker extends React.Component {
                     : 'Here are the Research Stations closest to you:'
                 }
               </Text>
-            </View>
             <ScrollView style={{flex: 1}}>
               {
                 gamesByDistance.map(o =>
@@ -1345,17 +1341,17 @@ export class StemportsPicker extends React.Component {
                       source={require('../web/assets/img/stemports-icon-station_nopin.png')}
                     />
                     <View style={{flex: 1}}>
-                      <Text style={{margin: 5}}>
+                      <Text style={{margin: 5, fontSize: 14, fontWeight: 'bold'}}>
                         {o.game.name}
                       </Text>
                       <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                        <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
+                        <Text style={{color: 'rgb(120,136,150)', margin: 5, fontSize: 12}}>
                           {o.game.quests.length} {o.game.quests.length === 1 ? 'quest' : 'quests'}
                         </Text>
-                        <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
+                        <Text style={{color: 'rgb(120,136,150)', margin: 5, fontSize: 12}}>
                           |
                         </Text>
-                        <Text style={{color: 'rgb(120,136,150)', margin: 5}}>
+                        <Text style={{color: 'rgb(120,136,150)', margin: 5, fontSize: 12}}>
                           {(o.distance / 1000).toFixed(2)} km away
                         </Text>
                       </View>
@@ -1823,14 +1819,14 @@ class StemportsQuest extends React.Component {
             source={require('../web/assets/img/back-arrow.png')}
             style={{
               resizeMode: 'contain',
-              width: 108 * 0.25,
-              height: 150 * 0.25,
-              margin: 10,
+              width: 138 * 0.25,
+              height: 180 * 0.25,
+              marginLeft: 15,
             }}
           />
         </TouchableOpacity>
         <ScrollView style={{flex: 1}}>
-          <Text style={{margin: 15, fontSize: 25, fontWeight: 'bold', flex: 1}}>
+          <Text style={{margin: 15, fontFamily: 'League Spartan', fontSize: 25, fontWeight: 'bold', flex: 1}}>
             {this.props.quest.name}
           </Text>
           {
@@ -1843,8 +1839,9 @@ class StemportsQuest extends React.Component {
                   <Image
                     source={url}
                     style={{
-                      height: 200,
+                      height: 300,
                       resizeMode: 'contain',
+                      borderRadius: 10
                     }}
                   />
                 )}
@@ -1986,9 +1983,8 @@ class StemportsOutpost extends React.Component {
                   <Text style={{
                     margin: 3,
                     fontWeight: 'bold',
-                    textTransform: 'uppercase',
                     color: "rgb(5,85,26)",
-                    fontSize: 20,
+                    fontSize: 18,
                     fontFamily: 'LeagueSpartan-Bold',
                     letterSpacing: 2,
                     lineHeight: 25,
@@ -1997,15 +1993,11 @@ class StemportsOutpost extends React.Component {
                   </Text>
                 </View>
                 <TouchableOpacity style={{
-                  backgroundColor: 'white',
+                  backgroundColor: "rgb(6,85,26)",
                   padding: 10,
                   borderRadius: 4,
-                  shadowColor: '#5D0D0D',
-                  shadowOpacity: 0.3,
-                  shadowRadius: 6,
-                  shadowOffset: {height: 2},
                 }} onPress={this.props.downloadingGame ? undefined : this.props.onDownload}>
-                  <Text style={{color: 'black', textTransform: 'uppercase'}}>
+                  <Text style={{color: 'white', textTransform: 'uppercase', fontSize: 12}}>
                     {
                       this.props.downloadingGame ? (
                         parseInt(this.props.downloadingGame.game_id) == parseInt(game.game_id)
