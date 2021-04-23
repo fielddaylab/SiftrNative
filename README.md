@@ -32,7 +32,7 @@ Open `ios/Siftr.xcworkspace` to launch the Xcode project, run, and build.
 
   * Debug mode is used in the simulator by default; to run Release mode, edit the scheme in Xcode (Product > Scheme > Edit Scheme). Release mode does not have the dev menu, does not use the separate reload server (all .js is bundled in advance), and does not show warning notifications.
 
-  * To upload a build, first make sure the proper certificate is set up, then switch the device/simulator to "Build > Any iOS Device", and select Product > Archive. The build should complete and be listed in the Organizer window, where you can go through the final steps to upload it.
+  * To upload a build: increment the build number, make sure the proper certificate is set up, switch the device/simulator to "Build > Any iOS Device", and select Product > Archive. The build should complete and be listed in the Organizer window, where you can go through the final steps to upload it.
 
   * When you upload a build, it will be available to internal testers after a short processing period. Then on App Store Connect you can add it as an available build for external testers, and add notes for what changed.
 
