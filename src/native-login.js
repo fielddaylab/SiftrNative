@@ -237,7 +237,6 @@ export var NativeLogin = createClass({
                         style={styles.input}
                         autoCapitalize="none"
                         autoCorrect={false}
-                        autoFocus={true}
                         onChangeText={username => {
                           this.setState({ username });
                         }}
@@ -328,7 +327,6 @@ export var NativeLogin = createClass({
                         style={styles.input}
                         autoCapitalize="none"
                         autoCorrect={false}
-                        autoFocus={true}
                         onChangeText={username => {
                           this.setState({ username });
                         }}

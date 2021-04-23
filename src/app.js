@@ -558,7 +558,7 @@ export var SiftrNative = createClass({
           RNFS.unlink(`${RNFS.DocumentDirectoryPath}/siftrs/current-quest.txt`).catch(() => null)
         ).then(() => {
           this.setState({inTutorial: true});
-          this.exitGame(100058, 17928);
+          this.exitGame(100058, 62027);
         });
       });
     });
