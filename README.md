@@ -2,6 +2,10 @@
 
 Clone [https://github.com/fielddaylab/SiftrNative](https://github.com/fielddaylab/SiftrNative) and switch to branch `mapbox`.
 
+Note: There is an issue with cocoapods 1.10 and the current version of mapbox. It is known to produce an archive that is not compatible with xcode. The current solution is to run 1.9.3. See 
+https://github.com/react-native-mapbox-gl/maps/issues/1097
+
+
 1. If you don't have Homebrew, [http://brew.sh/](http://brew.sh/)
 2. If you don't have Cocoapods, [https://cocoapods.org/](https://cocoapods.org/)
 3. `brew install yarn`
