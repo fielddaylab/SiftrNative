@@ -2,7 +2,7 @@
 
 update:
 	ruby preprocess.rb
-	sass scss/styles.scss > web/styles.css
+	./node_modules/.bin/sass scss/styles.scss > web/styles.css
 	yarn run build
 
 install:
