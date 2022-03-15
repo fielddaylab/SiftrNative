@@ -23,7 +23,7 @@
     "react": "16.8.6",
     "react-dom": "^16.8.6",
     "react-infinite-scroller": "^1.2.4",
-    "react-native": "0.60.4",
+    "react-native": "0.62.3",
     "react-native-action-sheet": "^2.2.0",
     "react-native-camera": "^3.0.0",
     "react-native-firebase": "^5.5.5",
